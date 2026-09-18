@@ -8,23 +8,22 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 61 | +15 (backlog v2: TASK-047 + 14 TASK-UI-XXX) |
-| 📥 Backlog | 54 | -1 |
+| 📥 Backlog | 53 | -1 |
 | 🔨 Doing | 0 | — |
-| 👀 Review | 0 | -1 |
-| ✅ Done | 7 | +1 |
+| 👀 Review | 0 | — |
+| ✅ Done | 8 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 11.5% (7/61) | +1.7 pp (cálculo corregido: antes 6/61=9.8%) |
+| % Completado | 13.1% (8/61) | +1.6 pp |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (54)
+### 📥 Backlog (53)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
-| TASK-004 | Celery + RabbitMQ (download_asset) | EP-001 | M | TASK-001 |
 | TASK-005 | Retry/backoff 20 s | EP-001 | M | TASK-002, TASK-004 |
 | TASK-006 | GET /downloads/{task_id} | EP-001 | S | TASK-003 |
 | TASK-007 | Normalización a segundos UTC | EP-001 | S | TASK-002 |
@@ -87,7 +86,7 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (7)
+### ✅ Done (8)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
@@ -98,6 +97,7 @@ Sin tareas.
 | TASK-002 | Cliente Dukascopy (bi5 horario) | EP-001 | 2026-09-18 | `test_bi5_codec.py` + `test_dukascopy.py` (41 tests, 100% cobertura ingest) |
 | TASK-003 | Endpoint POST /downloads | EP-001 | 2026-09-18 | `test_downloads.py` (10 tests, broker stub, api+ingest 100%) |
 | TASK-010 | Pipeline limpieza e imputación | EP-002 | 2026-09-18 | `test_clean.py` (18 tests, cobertura pipeline 100%, política PA-3) |
+| TASK-004 | Celery + RabbitMQ (download_asset) | EP-001 | 2026-09-18 | `test_tasks.py` (15 tests, E2E eager 3 h + adapter); E2E dev en vivo compose worker/rabbitmq |
 
 ### 🔴 Blocked (0)
 
@@ -140,6 +140,7 @@ Ninguno.
 
 - PA-2 sin resolver → impacta TASK-036 y TASK-UI-060 (ambos en ruta crítica).
 - PA-1 sin resolver → impacta TASK-005, TASK-008.
+- **AR-1 activo (observado 2026-09-18):** Dukascopy devuelve 503/timeout desde esta IP (4/4 intentos en el E2E de TASK-004; fechas pasadas) → el tramo de datos reales está temporalmente degradado; TASK-005 (retry/backoff 20 s) + ADR-006 lo mitigan.
 - RNF sin verificación programada (solo RF-003 y RNF-008 tienen prueba vía TASK-009; el resto 0).
 - DP-8: 184 pts > capacidad nominal de 2 semanas → priorizar ruta crítica; difiere SCR-005/a11y fino si el plazo aprieta.
 
@@ -154,6 +155,7 @@ Ninguno.
 - PA-3 resuelto (2026-09-18): política de imputación "Eliminar + FF acotado" (G_MAX=60 s) aprobada; **desbloquea TASK-010** (ruta crítica).
 - TASK-010 implementada → 👀 Review (18 tests, cobertura pipeline 100%, política PA-3 testeada con NaN/gaps); habilita TASK-011, TASK-014, TASK-031.
 - TASK-010 ✅ Done tras review validada (111 tests ✅ + 1 skip; se eliminó constante muerta `_OHLC_KEYS`); RF-003 queda con prueba de limpieza/imputación.
+- TASK-004 ✅ Done (implementada en feature/TASK-004-celery, merge 2026-09-18): Celery + RabbitMQ (ADR-006), tarea `download_asset` E2E validada en vivo con compose worker/rabbitmq (task_id correlacionado, registración OK); datos reales bloqueados por AR-1 (Dukascopy 503/timeout) — evidencia para TASK-005.
 
 ## 7. Trazabilidad — salud
 
@@ -168,9 +170,9 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. Iniciar TASK-004 (Celery + RabbitMQ, dep TASK-001 ✅) — da `task_id` real a POST /downloads (ADR-006).
-2. Iniciar TASK-004 (Celery + RabbitMQ, dep TASK-001 ✅) — da `task_id` real a POST /downloads (ADR-006).
-3. Iniciar TASK-006 (GET /downloads/{task_id}, dep TASK-003 ✅) para el ciclo de estados.
+1. Iniciar TASK-005 (Retry/backoff 20 s, deps TASK-002 ✅ + TASK-004 ✅) — **mitiga AR-1** (Dukascopy 503/timeout observado en el E2E de TASK-004).
+2. Iniciar TASK-006 (GET /downloads/{task_id}, dep TASK-003 ✅) para el ciclo de estados.
+3. Iniciar TASK-007 (Normalización a segundos UTC, dep TASK-002 ✅).
 4. Iniciar TASK-015 (esquema SerieOHLC Parquet) — depende de TASK-009, ya ✅ Done.
 5. Iniciar TASK-037 (monorepo).
 
@@ -202,3 +204,6 @@ Ninguno.
 | 2026-09-18 | TASK-010 | 📥 → 🔨 | Inicio de desarrollo (pipeline de limpieza e imputación, RF-003/HU-004; política PA-3 aprobada) |
 | 2026-09-18 | TASK-010 | 🔨 → 👀 Review | Implementación + 18 tests (cobertura pipeline 100%), ruff/black/mypy OK, DoD PA-3 cumplida (NaN eliminados + FF acotado 60 s); pasa a revisión |
 | 2026-09-18 | TASK-010 | 👀 → ✅ Done | Revisión validada: 111 tests ✅ + 1 skip, cobertura pipeline 100%, ruff/mypy OK; se eliminó código muerto; DoD completa; RF-003 avanza (prueba registrada) |
+| 2026-09-18 | TASK-004 | 📥 → 🔨 | Inicio de desarrollo (Celery + RabbitMQ, download_asset, ADR-006) |
+| 2026-09-18 | TASK-004 | 🔨 → 👀 Review | Implementación + 15 tests (E2E eager 3 h + adapter), cobertura ingest 100%, ruff/black/mypy OK, DoD cumplida (compose levanta worker, tarea registrada y ejecutada E2E en vivo); pasa a revisión |
+| 2026-09-18 | TASK-004 | 👀 → ✅ Done | Revisión validada: 126 tests ✅ + 2 skip, cobertura ingest 100%, ruff/mypy OK; DoD completa (merge 2026-09-18); RF-001/RX-001 avanzan (prueba registrada); datos reales limitados por AR-1 (Dukascopy 503/timeout) → mitiga TASK-005 |

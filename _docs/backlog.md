@@ -68,7 +68,7 @@
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-004 | Celery + RabbitMQ y tarea download_asset | backend | M | TASK-001 | El compose levanta el worker; la tarea se registra y ejecuta de extremo a extremo en dev | 📥 |
+| TASK-004 | Celery + RabbitMQ y tarea download_asset | backend | M | TASK-001 | El compose levanta el worker; la tarea se registra y ejecuta de extremo a extremo en dev | ✅ |
 | TASK-005 | Retry/backoff 20 s y manejo de fallos parciales | backend | M | TASK-002, TASK-004 | Un fallo HTTP simulado se reintenta con backoff de 20 s; el estado queda parcial/fallo en metadatos | 📥 |
 | TASK-006 | Endpoint GET /downloads/{task_id} de estado | backend | S | TASK-003 | Devuelve estado (encolada/éxito/parcial/fallo) y filas obtenidas; test unitario | 📥 |
 
