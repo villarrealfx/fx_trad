@@ -54,7 +54,7 @@
 |----|-------|------|------|------|-----|--------|
 | TASK-001 | Catálogo de activos + modelo de request de descarga | backend | S | — | Catálogo incluye ≥1 forex, 1 metal y 1 petróleo; esquema de request (activo, inicio, fin) validado con test unitario | ✅ |
 | TASK-002 | Cliente Dukascopy (URL bi5 por hora, descarga y decodificación) | backend | L | TASK-001 | Descarga una hora de datos y los decodifica a OHLC sin error; test de integración contra una hora conocida | ✅ |
-| TASK-003 | Endpoint POST /downloads que encola la tarea | backend | M | TASK-001 | POST responde 202 + task_id; test unitario con broker mockeado | 📥 |
+| TASK-003 | Endpoint POST /downloads que encola la tarea | backend | M | TASK-001 | POST responde 202 + task_id; test unitario con broker mockeado | ✅ |
 
 #### HU-002: Descarga asíncrona con reintentos
 - **Requisito origen:** RF-001, RX-001, RNF-003

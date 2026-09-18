@@ -8,23 +8,22 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 61 | +15 (backlog v2: TASK-047 + 14 TASK-UI-XXX) |
-| 📥 Backlog | 56 | -2 |
+| 📥 Backlog | 55 | -3 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | -1 |
-| ✅ Done | 5 | +2 |
+| ✅ Done | 6 | +3 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 9.8% (6/61: 5 Done + 1 Review) | +1.6 pp |
+| % Completado | 11.5% (7/61: 6 Done + 1 Review) | +1.6 pp |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (56)
+### 📥 Backlog (55)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
-| TASK-003 | Endpoint POST /downloads | EP-001 | M | TASK-001 |
 | TASK-004 | Celery + RabbitMQ (download_asset) | EP-001 | M | TASK-001 |
 | TASK-005 | Retry/backoff 20 s | EP-001 | M | TASK-002, TASK-004 |
 | TASK-006 | GET /downloads/{task_id} | EP-001 | S | TASK-003 |
@@ -89,7 +88,7 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (5)
+### ✅ Done (6)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
@@ -98,6 +97,7 @@ Sin tareas.
 | TASK-013 | Filtro sin mercado | EP-002 | 2026-09-18 | `test_filter.py` (9 tests, 100% cobertura) |
 | TASK-001 | Catálogo de activos + modelo de request | EP-001 | 2026-09-18 | `test_catalog.py` + `test_requests.py` (19 tests, 100% cobertura) |
 | TASK-002 | Cliente Dukascopy (bi5 horario) | EP-001 | 2026-09-18 | `test_bi5_codec.py` + `test_dukascopy.py` (41 tests, 100% cobertura ingest) |
+| TASK-003 | Endpoint POST /downloads | EP-001 | 2026-09-18 | `test_downloads.py` (10 tests, broker stub, api+ingest 100%) |
 
 ### 🔴 Blocked (0)
 
@@ -151,6 +151,7 @@ Ninguno.
 - TASK-009 ✅ Done (primer nodo de la ruta crítica implementado y validado).
 - TASK-001 ✅ Done (catálogo + request RF-001/HU-001): 19 tests, cobertura 100% en `ingest`; habilita TASK-002/003/004.
 - TASK-002 ✅ Done (cliente Dukascopy, RF-001/RF-002/RX-001): 41 tests (80 ✅ + 1 skip optativo), cobertura 100% en `ingest`; DoD cumplida (hora conocida EURUSD 2026-08-11 10:00 UTC → OHLC 1s exacto); habilita TASK-005/007/008.
+- TASK-003 ✅ Done (endpoint POST /downloads, RF-001): 10 tests con broker stub, cobertura api+ingest 100%; habilita TASK-004/006 y TASK-UI-020.
 
 ## 7. Trazabilidad — salud
 
@@ -165,11 +166,11 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. Iniciar TASK-003 (POST /downloads) vía `/sdd-implement TASK-003` — dep TASK-001 ✅.
-2. Iniciar TASK-015 (esquema SerieOHLC Parquet) — depende de TASK-009, ya ✅ Done.
-3. Resolver PA-3 para desbloquear TASK-010 (siguiente nodo de la ruta crítica).
-4. Iniciar TASK-037 (monorepo).
-5. Iniciar TASK-023 (scaffold UI, base del design system).
+1. Iniciar TASK-004 (Celery + RabbitMQ, dep TASK-001 ✅) — da `task_id` real a POST /downloads (ADR-006).
+2. Iniciar TASK-006 (GET /downloads/{task_id}, dep TASK-003 ✅) para el ciclo de estados.
+3. Iniciar TASK-015 (esquema SerieOHLC Parquet) — depende de TASK-009, ya ✅ Done.
+4. Resolver PA-3 para desbloquear TASK-010 (siguiente nodo de la ruta crítica).
+5. Iniciar TASK-037 (monorepo).
 
 ## 9. Historial de cambios (append-only)
 
@@ -193,3 +194,6 @@ Ninguno.
 | 2026-09-18 | TASK-002 | 📥 → 🔨 | Inicio de desarrollo (cliente Dukascopy bi5, RF-001/RF-002/RX-001) |
 | 2026-09-18 | TASK-002 | 🔨 → 👀 Review | Implementación + 41 tests (80 ✅ + 1 skip optativo live), cobertura 100% en `ingest`, ruff/black/mypy OK, DoD cumplida (hora conocida EURUSD 2026-08-11 10:00 UTC); pasa a revisión |
 | 2026-09-18 | TASK-002 | 👀 → ✅ Done | Revisión validada: 41 tests ✅ + 1 skip optativo, cobertura ingest 100%, ruff/mypy OK; DoD completa; RF-001/RF-002/RX-001 avanzan (pruebas registradas) |
+| 2026-09-18 | TASK-003 | 📥 → 🔨 | Inicio de desarrollo (endpoint POST /downloads, RF-001/HU-001) |
+| 2026-09-18 | TASK-003 | 🔨 → 👀 Review | Implementación + 10 tests con broker mockeado, cobertura api+ingest 100%, ruff/black/mypy OK, DoD cumplida (202 + task_id, 422 sin encolar); pasa a revisión |
+| 2026-09-18 | TASK-003 | 👀 → ✅ Done | Revisión validada: 90 tests ✅ + 1 skip, cobertura api+ingest 100%, ruff/mypy OK; DoD completa; RF-001 avanza (prueba registrada) |
