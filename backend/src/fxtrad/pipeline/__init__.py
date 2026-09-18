@@ -8,5 +8,6 @@ Transforma datos crudos en OHLC válido (RF-003), excluye periodos sin mercado
 from __future__ import annotations
 
 from fxtrad.pipeline.calendar import MarketCalendar
+from fxtrad.pipeline.filter import filter_open_candles, filter_open_timestamps
 
-__all__ = ["MarketCalendar"]
+__all__ = ["MarketCalendar", "filter_open_candles", "filter_open_timestamps"]

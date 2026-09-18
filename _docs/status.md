@@ -8,12 +8,12 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 61 | +15 (backlog v2: TASK-047 + 14 TASK-UI-XXX) |
-| 📥 Backlog | 59 | +13 |
+| 📥 Backlog | 58 | +12 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | — |
-| ✅ Done | 2 | +1 |
+| ✅ Done | 3 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 3.3% (2/61) | +1.7 pp |
+| % Completado | 4.9% (3/61) | +1.6 pp |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
@@ -34,7 +34,6 @@
 | TASK-008 | Validación ventana ≤ 2 años | EP-001 | S | TASK-002 |
 | TASK-010 | Pipeline limpieza e imputación | EP-002 | L | TASK-009 |
 | TASK-011 | Normalización UTC y esquema | EP-002 | S | TASK-010 |
-| TASK-013 | Filtro sin mercado | EP-002 | S | TASK-012 |
 | TASK-014 | Agregación OHLC 1m/5m/15m/1h/4h/1d | EP-002 | L | TASK-010, TASK-012 |
 | TASK-015 | SerieOHLC Parquet (time único) | EP-003 | M | TASK-009 |
 | TASK-016 | Consulta DuckDB activo/rango/TF | EP-003 | M | TASK-015 |
@@ -92,12 +91,13 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (2)
+### ✅ Done (3)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
 | TASK-009 | Contrato OHLC compartido | EP-002 | 2026-09-18 | `test_ohlc_contract.py` + `ohlc.test.ts` (alineación canónica) |
 | TASK-012 | Calendario de mercado | EP-002 | 2026-09-18 | `test_calendar.py` (marzo-2026, 100% cobertura) |
+| TASK-013 | Filtro sin mercado | EP-002 | 2026-09-18 | `test_filter.py` (9 tests, 100% cobertura) |
 
 ### 🔴 Blocked (0)
 
@@ -182,3 +182,6 @@ Ninguno.
 | 2026-09-18 | TASK-012 | 📥 → 🔨 | Inicio de desarrollo (calendario de mercado, RF-004) |
 | 2026-09-18 | TASK-012 | 🔨 → 👀 Review | Implementación + 14 tests (100% cobertura), ruff/black/mypy OK, DoD cumplida; pasa a revisión |
 | 2026-09-18 | TASK-012 | 👀 → ✅ Done | Revisión validada: 30 tests ✅, ruff/mypy OK, prueba registrada en traceability (RF-004) |
+| 2026-09-18 | TASK-013 | 📥 → 🔨 | Inicio de desarrollo (filtro de periodos sin mercado, RF-004) |
+| 2026-09-18 | TASK-013 | 🔨 → 👀 Review | Implementación + 9 tests (100% cobertura), ruff/black/mypy OK, DoD cumplida; pasa a revisión |
+| 2026-09-18 | TASK-013 | 👀 → ✅ Done | Revisión validada: 39 tests ✅, ruff/mypy OK; RF-004 queda 100% cubierto (TASK-012 + TASK-013) |
