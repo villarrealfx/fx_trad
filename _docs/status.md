@@ -1,6 +1,6 @@
 # Estado del Proyecto: Plataforma de Análisis Técnico (estilo TradingView)
 
-> Última actualización: 2026-09-17
+> Última actualización: 2026-09-18
 > Fuente: `_docs/backlog.md` (v2), `_docs/traceability.md` (v2)
 
 ## 1. Resumen ejecutivo
@@ -8,12 +8,12 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 61 | +15 (backlog v2: TASK-047 + 14 TASK-UI-XXX) |
-| 📥 Backlog | 61 | +15 |
+| 📥 Backlog | 60 | +14 |
 | 🔨 Doing | 0 | — |
-| 👀 Review | 0 | — |
-| ✅ Done | 0 | — |
+| 👀 Review | 0 | -1 |
+| ✅ Done | 1 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 0% | — |
+| % Completado | 1.6% (1/61) | — |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
@@ -32,7 +32,6 @@
 | TASK-006 | GET /downloads/{task_id} | EP-001 | S | TASK-003 |
 | TASK-007 | Normalización a segundos UTC | EP-001 | S | TASK-002 |
 | TASK-008 | Validación ventana ≤ 2 años | EP-001 | S | TASK-002 |
-| TASK-009 | Contrato OHLC compartido | EP-002 | M | — |
 | TASK-010 | Pipeline limpieza e imputación | EP-002 | L | TASK-009 |
 | TASK-011 | Normalización UTC y esquema | EP-002 | S | TASK-010 |
 | TASK-012 | Calendario de mercado | EP-002 | M | TASK-009 |
@@ -94,9 +93,11 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (0)
+### ✅ Done (1)
 
-Sin tareas.
+| ID | Tarea | Épica | Completada | Prueba |
+|----|-------|-------|------------|--------|
+| TASK-009 | Contrato OHLC compartido | EP-002 | 2026-09-18 | `test_ohlc_contract.py` + `ohlc.test.ts` (alineación canónica) |
 
 ### 🔴 Blocked (0)
 
@@ -104,11 +105,11 @@ Sin tareas.
 
 ## 3. Ruta crítica — estado
 
-Estado: 0/12 completadas · ETA: desconocido (sin velocidad histórica).
+Estado: 1/12 completadas (8%) · ETA: desconocido (sin velocidad histórica).
 
 ```mermaid
 graph LR
-  T9[TASK-009 📥] --> T10[TASK-010 📥]
+  T9[TASK-009 ✅] --> T10[TASK-010 📥]
   T10 --> T12[TASK-012 📥]
   T12 --> T14[TASK-014 📥]
   T14 --> T17[TASK-017 📥]
@@ -140,20 +141,21 @@ Ninguno.
 - PA-3 sin resolver → bloquea decisión de TASK-010 (ruta crítica).
 - PA-2 sin resolver → impacta TASK-036 y TASK-UI-060 (ambos en ruta crítica).
 - PA-1 sin resolver → impacta TASK-005, TASK-008.
-- RNF sin verificación programada (0 pruebas registradas).
+- RNF sin verificación programada (solo RF-003 y RNF-008 tienen prueba vía TASK-009; el resto 0).
 - DP-8: 184 pts > capacidad nominal de 2 semanas → priorizar ruta crítica; difiere SCR-005/a11y fino si el plazo aprieta.
 
 ### 🟢 Informativas
 
 - Backlog v2 aprobado: 61 tareas (46 heredadas + 15 nuevas) con épicas de UI por pantalla.
 - status.md resincronizado contra backlog v2.
+- TASK-009 ✅ Done (primer nodo de la ruta crítica implementado y validado).
 
 ## 7. Trazabilidad — salud
 
 | Requisito | Tareas | Done | Cobertura |
 |-----------|--------|------|-----------|
-| RF-001…RF-016 | (mapeadas en traceability.md) | 0 | 0% |
-| RNF-001…RNF-008 | (mapeadas) | 0 | 0% |
+| RF-001…RF-016 | (mapeadas en traceability.md) | 1 | 6% |
+| RNF-001…RNF-008 | (mapeadas) | 1 | 13% |
 | RI-001…RI-003 | (mapeadas) | 0 | 0% |
 | RX-001…RX-002 | (mapeadas) | 0 | 0% |
 
@@ -161,11 +163,11 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. Iniciar TASK-009 (contrato OHLC, ruta crítica, sin deps).
-2. Iniciar TASK-001 (ingesta, sin deps).
-3. Iniciar TASK-037 (monorepo).
-4. Iniciar TASK-023 (scaffold UI, base del design system).
-5. Resolver PA-3 antes de TASK-010.
+1. Iniciar TASK-012 (calendario de mercado) o TASK-015 (esquema SerieOHLC Parquet) — dependen de TASK-009, ya ✅ Done.
+2. Resolver PA-3 para desbloquear TASK-010 (siguiente nodo de la ruta crítica).
+3. Iniciar TASK-001 (ingesta, sin deps).
+4. Iniciar TASK-037 (monorepo).
+5. Iniciar TASK-023 (scaffold UI, base del design system).
 
 ## 9. Historial de cambios (append-only)
 
@@ -173,3 +175,7 @@ Ninguno.
 |-------|-------|-----------|--------|
 | 2026-09-17 | — | Inicialización | status.md creado desde backlog (46 tareas 📥) |
 | 2026-09-17 | — | Resync v2 | backlog v2 aprobado: 61 tareas 📥 (Δ +15: TASK-047 + TASK-UI-000…060); épicas remapeadas a EP-UI-XXX; ruta crítica v2 (12 nodos) |
+| 2026-09-18 | TASK-009 | 📥 → 🔨 | Inicio de desarrollo |
+| 2026-09-18 | TASK-009 | 🔨 → 👀 Review | Implementación completada (Pydantic + TS, alineación canónica), pasa a revisión |
+| 2026-09-18 | TASK-009 | 👀 → ✅ Done | DoD validada (review): contrato alineado y documentado |
+| 2026-09-18 | TASK-009 | Resync backlog.md | Estado reflejado en backlog.md (📥→✅), saldando desync con status.md; tests backend 16 ✅ y frontend 5 ✅ |

@@ -106,7 +106,7 @@
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-009 | Contrato OHLC compartido (time/open/high/low/close) | backend | M | — | Tipos TS y modelo Pydantic alineados; contrato documentado; sin transformación ad-hoc en el frontend (RNF-008) | 📥 |
+| TASK-009 | Contrato OHLC compartido (time/open/high/low/close) | backend | M | — | Tipos TS y modelo Pydantic alineados; contrato documentado; sin transformación ad-hoc en el frontend (RNF-008) | ✅ |
 | TASK-010 | Pipeline de limpieza e imputación (gaps/NaN) | backend | L | TASK-009 | Un dataset crudo con NaN/gaps produce filas OHLC válidas; política de imputación definida (P-3) y testeada | 📥 |
 | TASK-011 | Normalización UTC y validación de esquema | backend | S | TASK-010 | Todas las filas cumplen time BIGINT UTC y tipos numéricos; test de esquema | 📥 |
 
