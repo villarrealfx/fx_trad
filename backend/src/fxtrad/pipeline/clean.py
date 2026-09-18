@@ -31,8 +31,6 @@ logger = structlog.get_logger()
 G_MAX_DEFAULT_SECONDS = 60
 """Umbral por defecto (s) para el forward-fill de huecos intra-sesión (PA-3)."""
 
-_OHLC_KEYS = ("open", "high", "low", "close")
-
 
 @dataclass(frozen=True, slots=True)
 class RawCandle:
