@@ -19,11 +19,13 @@ from fxtrad.ingest.dukascopy import (
 )
 from fxtrad.ingest.queue import DownloadQueue
 from fxtrad.ingest.requests import DownloadRequest
+from fxtrad.ingest.tasks import CeleryDownloadQueue, celery_app, download_asset
 
 __all__ = [
     "ASSET_CATALOG",
     "Asset",
     "AssetType",
+    "CeleryDownloadQueue",
     "DownloadQueue",
     "DownloadRequest",
     "DukascopyClient",
@@ -31,7 +33,9 @@ __all__ = [
     "aggregate_to_ohlc",
     "assets_by_type",
     "build_hour_url",
+    "celery_app",
     "decode_bi5",
+    "download_asset",
     "get_asset",
     "hour_start_epoch",
 ]
