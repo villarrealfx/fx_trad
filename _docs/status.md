@@ -8,19 +8,19 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 61 | +15 (backlog v2: TASK-047 + 14 TASK-UI-XXX) |
-| 📥 Backlog | 60 | +14 |
+| 📥 Backlog | 59 | +13 |
 | 🔨 Doing | 0 | — |
-| 👀 Review | 0 | -1 |
-| ✅ Done | 1 | +1 |
+| 👀 Review | 0 | — |
+| ✅ Done | 2 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 1.6% (1/61) | — |
+| % Completado | 3.3% (2/61) | +1.7 pp |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (61)
+### 📥 Backlog (59)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
@@ -34,7 +34,6 @@
 | TASK-008 | Validación ventana ≤ 2 años | EP-001 | S | TASK-002 |
 | TASK-010 | Pipeline limpieza e imputación | EP-002 | L | TASK-009 |
 | TASK-011 | Normalización UTC y esquema | EP-002 | S | TASK-010 |
-| TASK-012 | Calendario de mercado | EP-002 | M | TASK-009 |
 | TASK-013 | Filtro sin mercado | EP-002 | S | TASK-012 |
 | TASK-014 | Agregación OHLC 1m/5m/15m/1h/4h/1d | EP-002 | L | TASK-010, TASK-012 |
 | TASK-015 | SerieOHLC Parquet (time único) | EP-003 | M | TASK-009 |
@@ -93,11 +92,12 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (1)
+### ✅ Done (2)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
 | TASK-009 | Contrato OHLC compartido | EP-002 | 2026-09-18 | `test_ohlc_contract.py` + `ohlc.test.ts` (alineación canónica) |
+| TASK-012 | Calendario de mercado | EP-002 | 2026-09-18 | `test_calendar.py` (marzo-2026, 100% cobertura) |
 
 ### 🔴 Blocked (0)
 
@@ -105,12 +105,12 @@ Sin tareas.
 
 ## 3. Ruta crítica — estado
 
-Estado: 1/12 completadas (8%) · ETA: desconocido (sin velocidad histórica).
+Estado: 2/12 completadas (17%) · ETA: desconocido (sin velocidad histórica).
 
 ```mermaid
 graph LR
   T9[TASK-009 ✅] --> T10[TASK-010 📥]
-  T10 --> T12[TASK-012 📥]
+  T10 --> T12[TASK-012 ✅]
   T12 --> T14[TASK-014 📥]
   T14 --> T17[TASK-017 📥]
   T17 --> T21[TASK-021 📥]
@@ -179,3 +179,6 @@ Ninguno.
 | 2026-09-18 | TASK-009 | 🔨 → 👀 Review | Implementación completada (Pydantic + TS, alineación canónica), pasa a revisión |
 | 2026-09-18 | TASK-009 | 👀 → ✅ Done | DoD validada (review): contrato alineado y documentado |
 | 2026-09-18 | TASK-009 | Resync backlog.md | Estado reflejado en backlog.md (📥→✅), saldando desync con status.md; tests backend 16 ✅ y frontend 5 ✅ |
+| 2026-09-18 | TASK-012 | 📥 → 🔨 | Inicio de desarrollo (calendario de mercado, RF-004) |
+| 2026-09-18 | TASK-012 | 🔨 → 👀 Review | Implementación + 14 tests (100% cobertura), ruff/black/mypy OK, DoD cumplida; pasa a revisión |
+| 2026-09-18 | TASK-012 | 👀 → ✅ Done | Revisión validada: 30 tests ✅, ruff/mypy OK, prueba registrada en traceability (RF-004) |

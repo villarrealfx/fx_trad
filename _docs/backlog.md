@@ -121,7 +121,7 @@
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-012 | Calendario de mercado (weekend + feriados) por activo | backend | M | TASK-009 | Calendario cubre fin de semana y feriados configurables; test sobre un rango de marzo 2026 | 📥 |
+| TASK-012 | Calendario de mercado (weekend + feriados) por activo | backend | M | TASK-009 | Calendario cubre fin de semana y feriados configurables; test sobre un rango de marzo 2026 | ✅ |
 | TASK-013 | Filtro de periodos sin mercado en el pipeline | backend | S | TASK-012 | Un rango con fin de semana no produce filas en sábado/domingo; test específico | 📥 |
 
 #### HU-006: Resampling a timeframes de visualización
