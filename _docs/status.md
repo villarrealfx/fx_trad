@@ -8,23 +8,22 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 61 | +15 (backlog v2: TASK-047 + 14 TASK-UI-XXX) |
-| 📥 Backlog | 58 | +12 |
+| 📥 Backlog | 57 | -1 |
 | 🔨 Doing | 0 | — |
-| 👀 Review | 0 | — |
-| ✅ Done | 3 | +1 |
+| 👀 Review | 0 | -1 |
+| ✅ Done | 4 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 4.9% (3/61) | +1.6 pp |
+| % Completado | 8.2% (5/61) | +1.6 pp |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (59)
+### 📥 Backlog (57)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
-| TASK-001 | Catálogo de activos + modelo de request | EP-001 | S | — |
 | TASK-002 | Cliente Dukascopy (bi5 horario) | EP-001 | L | TASK-001 |
 | TASK-003 | Endpoint POST /downloads | EP-001 | M | TASK-001 |
 | TASK-004 | Celery + RabbitMQ (download_asset) | EP-001 | M | TASK-001 |
@@ -91,13 +90,14 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (3)
+### ✅ Done (4)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
 | TASK-009 | Contrato OHLC compartido | EP-002 | 2026-09-18 | `test_ohlc_contract.py` + `ohlc.test.ts` (alineación canónica) |
 | TASK-012 | Calendario de mercado | EP-002 | 2026-09-18 | `test_calendar.py` (marzo-2026, 100% cobertura) |
 | TASK-013 | Filtro sin mercado | EP-002 | 2026-09-18 | `test_filter.py` (9 tests, 100% cobertura) |
+| TASK-001 | Catálogo de activos + modelo de request | EP-001 | 2026-09-18 | `test_catalog.py` + `test_requests.py` (19 tests, 100% cobertura) |
 
 ### 🔴 Blocked (0)
 
@@ -149,6 +149,7 @@ Ninguno.
 - Backlog v2 aprobado: 61 tareas (46 heredadas + 15 nuevas) con épicas de UI por pantalla.
 - status.md resincronizado contra backlog v2.
 - TASK-009 ✅ Done (primer nodo de la ruta crítica implementado y validado).
+- TASK-001 ✅ Done (catálogo + request RF-001/HU-001): 19 tests, cobertura 100% en `ingest`; habilita TASK-002/003/004.
 
 ## 7. Trazabilidad — salud
 
@@ -165,7 +166,7 @@ Ninguno.
 
 1. Iniciar TASK-012 (calendario de mercado) o TASK-015 (esquema SerieOHLC Parquet) — dependen de TASK-009, ya ✅ Done.
 2. Resolver PA-3 para desbloquear TASK-010 (siguiente nodo de la ruta crítica).
-3. Iniciar TASK-001 (ingesta, sin deps).
+3. Iniciar TASK-002 (cliente Dukascopy, dep TASK-001 ✅ Done).
 4. Iniciar TASK-037 (monorepo).
 5. Iniciar TASK-023 (scaffold UI, base del design system).
 
@@ -185,3 +186,6 @@ Ninguno.
 | 2026-09-18 | TASK-013 | 📥 → 🔨 | Inicio de desarrollo (filtro de periodos sin mercado, RF-004) |
 | 2026-09-18 | TASK-013 | 🔨 → 👀 Review | Implementación + 9 tests (100% cobertura), ruff/black/mypy OK, DoD cumplida; pasa a revisión |
 | 2026-09-18 | TASK-013 | 👀 → ✅ Done | Revisión validada: 39 tests ✅, ruff/mypy OK; RF-004 queda 100% cubierto (TASK-012 + TASK-013) |
+| 2026-09-18 | TASK-001 | 📥 → 🔨 | Inicio de desarrollo (catálogo de activos + request de descarga, RF-001/HU-001) |
+| 2026-09-18 | TASK-001 | 🔨 → 👀 Review | Implementación + 19 tests (100% cobertura en ingest), ruff/black/mypy OK, DoD cumplida; pasa a revisión |
+| 2026-09-18 | TASK-001 | 👀 → ✅ Done | Revisión validada: 58 tests ✅, ruff/mypy OK; DoD completa (catálogo 3 tipos + request validado); RF-001 avanza (prueba registrada) |

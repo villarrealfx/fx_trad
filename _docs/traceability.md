@@ -1,13 +1,13 @@
 # Matriz de Trazabilidad
 
 > Se irá completando en cada fase del pipeline SDD.
-> Actualizado: 2026-09-17 (backlog v2 — integra épicas de UI y setup UX). 2026-09-18: Prueba añadida para TASK-009 (contrato OHLC, RF-003 y RNF-008), TASK-012 (calendario, RF-004) y TASK-013 (filtro sin mercado, RF-004).
+> Actualizado: 2026-09-17 (backlog v2 — integra épicas de UI y setup UX). 2026-09-18: Prueba añadida para TASK-009 (contrato OHLC, RF-003 y RNF-008), TASK-012 (calendario, RF-004), TASK-013 (filtro sin mercado, RF-004) y TASK-001 (catálogo + request, RF-001).
 
 **Leyenda:** 🟡 pendiente · 🔵 en progreso · 🟢 completo · 🔴 bloqueado
 
 | Requisito | Diseño (ADR/Componente/Pantalla) | Tarea | Prueba | Estado |
 |-----------|---------------------------------|-------|--------|--------|
-| RF-001 | Módulo ingest + Celery (ADR-002, ADR-006); SCR-002 | TASK-001, TASK-002, TASK-003, TASK-004, TASK-005, TASK-UI-020, TASK-UI-021 | [pendiente] | 🔵 |
+| RF-001 | Módulo ingest + Celery (ADR-002, ADR-006); SCR-002 | TASK-001, TASK-002, TASK-003, TASK-004, TASK-005, TASK-UI-020, TASK-UI-021 | `backend/tests/ingest/test_catalog.py` + `backend/tests/ingest/test_requests.py` (TASK-001) | 🔵 |
 | RF-002 | Módulo ingest (ADR-002, ADR-006); SCR-002 | TASK-007, TASK-UI-020, TASK-UI-021 | [pendiente] | 🔵 |
 | RF-003 | Módulo pipeline (ADR-002, ADR-004) | TASK-009, TASK-010 | `backend/tests/contracts/test_ohlc_contract.py::TestCandleAlignment` (TASK-009) | 🔵 |
 | RF-004 | Módulo pipeline (ADR-002) | TASK-012, TASK-013 | `backend/tests/pipeline/test_calendar.py` (TASK-012) + `backend/tests/pipeline/test_filter.py` (TASK-013) | 🟢 |
