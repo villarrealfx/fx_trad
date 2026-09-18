@@ -9,6 +9,14 @@ RNF-003 (ventana de hasta 2 años).
 from __future__ import annotations
 
 from fxtrad.ingest.catalog import ASSET_CATALOG, Asset, AssetType, assets_by_type, get_asset
+from fxtrad.ingest.dukascopy import (
+    DukascopyClient,
+    RawTick,
+    aggregate_to_ohlc,
+    build_hour_url,
+    decode_bi5,
+    hour_start_epoch,
+)
 from fxtrad.ingest.requests import DownloadRequest
 
 __all__ = [
@@ -16,6 +24,12 @@ __all__ = [
     "Asset",
     "AssetType",
     "DownloadRequest",
+    "DukascopyClient",
+    "RawTick",
+    "aggregate_to_ohlc",
     "assets_by_type",
+    "build_hour_url",
+    "decode_bi5",
     "get_asset",
+    "hour_start_epoch",
 ]
