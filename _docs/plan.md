@@ -106,7 +106,7 @@ Construir una aplicación web de escritorio (MVP) que permita descargar, limpiar
 
 - **P-1:** Meta numérica del KPI-1 (tiempo máximo de descarga de 2 años). [impacta: backlog]
 - **P-2:** Formato exacto de la imagen exportada (PNG) y resolución/dimensiones. [impacta: stack/implement]
-- **P-3:** Política específica de imputación de NaN/gaps (p. ej. forward-fill, eliminación). [impacta: stack/implement]
+- **P-3:** ~~Política específica de imputación de NaN/gaps (p. ej. forward-fill, eliminación).~~ → **RESUELTO (2026-09-18):** política **"Eliminar + FF acotado"** (`G_MAX=60 s`): se descartan filas con NaN en OHLC base; los gaps intra-sesión ≤ 60 s se rellenan con vela plana al último close (open=high=low=close=último close); gaps mayores o fuera de sesión quedan como hueco real gestionado por exclusión de no-mercado (TASK-012/013). Log WARN `imputacion_aplicada` con `filas_afectadas`. [impacta: stack/implement]
 - **P-4:** ~~Framework/librería de gráficos~~ → **RESUELTO (2026-09-17):** `lightweight-charts` v4 + overlay canvas propio (ADR-005).
 
 ## 8. Matriz de navegación por rol

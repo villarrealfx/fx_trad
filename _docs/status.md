@@ -138,7 +138,6 @@ Ninguno.
 
 ### 🟡 Advertencias
 
-- PA-3 sin resolver → bloquea decisión de TASK-010 (ruta crítica).
 - PA-2 sin resolver → impacta TASK-036 y TASK-UI-060 (ambos en ruta crítica).
 - PA-1 sin resolver → impacta TASK-005, TASK-008.
 - RNF sin verificación programada (solo RF-003 y RNF-008 tienen prueba vía TASK-009; el resto 0).
@@ -152,6 +151,7 @@ Ninguno.
 - TASK-001 ✅ Done (catálogo + request RF-001/HU-001): 19 tests, cobertura 100% en `ingest`; habilita TASK-002/003/004.
 - TASK-002 ✅ Done (cliente Dukascopy, RF-001/RF-002/RX-001): 41 tests (80 ✅ + 1 skip optativo), cobertura 100% en `ingest`; DoD cumplida (hora conocida EURUSD 2026-08-11 10:00 UTC → OHLC 1s exacto); habilita TASK-005/007/008.
 - TASK-003 ✅ Done (endpoint POST /downloads, RF-001): 10 tests con broker stub, cobertura api+ingest 100%; habilita TASK-004/006 y TASK-UI-020.
+- PA-3 resuelto (2026-09-18): política de imputación "Eliminar + FF acotado" (G_MAX=60 s) aprobada; **desbloquea TASK-010** (ruta crítica).
 
 ## 7. Trazabilidad — salud
 
@@ -166,10 +166,10 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. Iniciar TASK-004 (Celery + RabbitMQ, dep TASK-001 ✅) — da `task_id` real a POST /downloads (ADR-006).
-2. Iniciar TASK-006 (GET /downloads/{task_id}, dep TASK-003 ✅) para el ciclo de estados.
-3. Iniciar TASK-015 (esquema SerieOHLC Parquet) — depende de TASK-009, ya ✅ Done.
-4. Resolver PA-3 para desbloquear TASK-010 (siguiente nodo de la ruta crítica).
+1. Iniciar TASK-010 (Pipeline limpieza e imputación, dep TASK-009 ✅, ruta crítica) — ahora desbloqueada por la política PA-3 aprobada.
+2. Iniciar TASK-004 (Celery + RabbitMQ, dep TASK-001 ✅) — da `task_id` real a POST /downloads (ADR-006).
+3. Iniciar TASK-006 (GET /downloads/{task_id}, dep TASK-003 ✅) para el ciclo de estados.
+4. Iniciar TASK-015 (esquema SerieOHLC Parquet) — depende de TASK-009, ya ✅ Done.
 5. Iniciar TASK-037 (monorepo).
 
 ## 9. Historial de cambios (append-only)
