@@ -8,19 +8,19 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 61 | +15 (backlog v2: TASK-047 + 14 TASK-UI-XXX) |
-| 📥 Backlog | 55 | -3 |
+| 📥 Backlog | 54 | -1 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | -1 |
-| ✅ Done | 6 | +3 |
+| ✅ Done | 7 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 11.5% (7/61: 6 Done + 1 Review) | +1.6 pp |
+| % Completado | 11.5% (7/61) | +1.7 pp (cálculo corregido: antes 6/61=9.8%) |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (55)
+### 📥 Backlog (54)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
@@ -29,7 +29,6 @@
 | TASK-006 | GET /downloads/{task_id} | EP-001 | S | TASK-003 |
 | TASK-007 | Normalización a segundos UTC | EP-001 | S | TASK-002 |
 | TASK-008 | Validación ventana ≤ 2 años | EP-001 | S | TASK-002 |
-| TASK-010 | Pipeline limpieza e imputación | EP-002 | L | TASK-009 |
 | TASK-011 | Normalización UTC y esquema | EP-002 | S | TASK-010 |
 | TASK-014 | Agregación OHLC 1m/5m/15m/1h/4h/1d | EP-002 | L | TASK-010, TASK-012 |
 | TASK-015 | SerieOHLC Parquet (time único) | EP-003 | M | TASK-009 |
@@ -88,7 +87,7 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (6)
+### ✅ Done (7)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
@@ -98,6 +97,7 @@ Sin tareas.
 | TASK-001 | Catálogo de activos + modelo de request | EP-001 | 2026-09-18 | `test_catalog.py` + `test_requests.py` (19 tests, 100% cobertura) |
 | TASK-002 | Cliente Dukascopy (bi5 horario) | EP-001 | 2026-09-18 | `test_bi5_codec.py` + `test_dukascopy.py` (41 tests, 100% cobertura ingest) |
 | TASK-003 | Endpoint POST /downloads | EP-001 | 2026-09-18 | `test_downloads.py` (10 tests, broker stub, api+ingest 100%) |
+| TASK-010 | Pipeline limpieza e imputación | EP-002 | 2026-09-18 | `test_clean.py` (18 tests, cobertura pipeline 100%, política PA-3) |
 
 ### 🔴 Blocked (0)
 
@@ -105,11 +105,11 @@ Sin tareas.
 
 ## 3. Ruta crítica — estado
 
-Estado: 2/12 completadas (17%) · ETA: desconocido (sin velocidad histórica).
+Estado: 3/12 completadas (25%) · ETA: desconocido (sin velocidad histórica).
 
 ```mermaid
 graph LR
-  T9[TASK-009 ✅] --> T10[TASK-010 📥]
+  T9[TASK-009 ✅] --> T10[TASK-010 ✅]
   T10 --> T12[TASK-012 ✅]
   T12 --> T14[TASK-014 📥]
   T14 --> T17[TASK-017 📥]
@@ -152,6 +152,8 @@ Ninguno.
 - TASK-002 ✅ Done (cliente Dukascopy, RF-001/RF-002/RX-001): 41 tests (80 ✅ + 1 skip optativo), cobertura 100% en `ingest`; DoD cumplida (hora conocida EURUSD 2026-08-11 10:00 UTC → OHLC 1s exacto); habilita TASK-005/007/008.
 - TASK-003 ✅ Done (endpoint POST /downloads, RF-001): 10 tests con broker stub, cobertura api+ingest 100%; habilita TASK-004/006 y TASK-UI-020.
 - PA-3 resuelto (2026-09-18): política de imputación "Eliminar + FF acotado" (G_MAX=60 s) aprobada; **desbloquea TASK-010** (ruta crítica).
+- TASK-010 implementada → 👀 Review (18 tests, cobertura pipeline 100%, política PA-3 testeada con NaN/gaps); habilita TASK-011, TASK-014, TASK-031.
+- TASK-010 ✅ Done tras review validada (111 tests ✅ + 1 skip; se eliminó constante muerta `_OHLC_KEYS`); RF-003 queda con prueba de limpieza/imputación.
 
 ## 7. Trazabilidad — salud
 
@@ -166,7 +168,7 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. Iniciar TASK-010 (Pipeline limpieza e imputación, dep TASK-009 ✅, ruta crítica) — ahora desbloqueada por la política PA-3 aprobada.
+1. Iniciar TASK-004 (Celery + RabbitMQ, dep TASK-001 ✅) — da `task_id` real a POST /downloads (ADR-006).
 2. Iniciar TASK-004 (Celery + RabbitMQ, dep TASK-001 ✅) — da `task_id` real a POST /downloads (ADR-006).
 3. Iniciar TASK-006 (GET /downloads/{task_id}, dep TASK-003 ✅) para el ciclo de estados.
 4. Iniciar TASK-015 (esquema SerieOHLC Parquet) — depende de TASK-009, ya ✅ Done.
@@ -197,3 +199,6 @@ Ninguno.
 | 2026-09-18 | TASK-003 | 📥 → 🔨 | Inicio de desarrollo (endpoint POST /downloads, RF-001/HU-001) |
 | 2026-09-18 | TASK-003 | 🔨 → 👀 Review | Implementación + 10 tests con broker mockeado, cobertura api+ingest 100%, ruff/black/mypy OK, DoD cumplida (202 + task_id, 422 sin encolar); pasa a revisión |
 | 2026-09-18 | TASK-003 | 👀 → ✅ Done | Revisión validada: 90 tests ✅ + 1 skip, cobertura api+ingest 100%, ruff/mypy OK; DoD completa; RF-001 avanza (prueba registrada) |
+| 2026-09-18 | TASK-010 | 📥 → 🔨 | Inicio de desarrollo (pipeline de limpieza e imputación, RF-003/HU-004; política PA-3 aprobada) |
+| 2026-09-18 | TASK-010 | 🔨 → 👀 Review | Implementación + 18 tests (cobertura pipeline 100%), ruff/black/mypy OK, DoD PA-3 cumplida (NaN eliminados + FF acotado 60 s); pasa a revisión |
+| 2026-09-18 | TASK-010 | 👀 → ✅ Done | Revisión validada: 111 tests ✅ + 1 skip, cobertura pipeline 100%, ruff/mypy OK; se eliminó código muerto; DoD completa; RF-003 avanza (prueba registrada) |
