@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "contracts/ohlc.schema.json",
+  "title": "OHLC Contract",
+  "description": "Contrato canónico de series OHLC compartido entre pipeline, storage, API y frontend (TASK-009). Fuente de verdad machine-readable para el modelo Pydantic y los tipos TS.",
+  "definitions": {
+    "candle": {
+      "type": "object",
+      "title": "Candle",
+      "description": "Vela OHLC: una fila de la serie en un instante de tiempo.",
+      "properties": {
+        "time": {
+          "type": "integer",
+          "description": "Timestamp en segundos UTC, único por activo y timeframe (RI-001).",
+          "minimum": 0
+        },
+        "open": {
+          "type": "number",
+          "description": "Precio de apertura del intervalo.",
+          "minimum": 0
+        },
+        "high": {
+          "type": "number",
+          "description": "Precio máximo del intervalo.",
+          "minimum": 0
+        },
+        "low": {
+          "type": "number",
+          "description": "Precio mínimo del intervalo.",
+          "minimum": 0
+        },
+        "close": {
+          "type": "number",
+          "description": "Precio de cierre del intervalo.",
+          "minimum": 0
+        }
+      },
+      "required": ["time", "open", "high", "low", "close"],
+      "additionalProperties": false
+    },
+    "timeframe": {
+      "type": "string",
+      "title": "Timeframe",
+      "description": "Granularidad de agregación de cada vela (RF-009).",
+      "enum": ["1s", "1m", "5m", "15m", "1h", "4h", "1d"]
+    },
+    "ohlcResponse": {
+      "type": "object",
+      "title": "OhlcResponse",
+      "description": "Respuesta de una serie para el frontend (RX-002).",
+      "properties": {
+        "symbol": {
+          "type": "string",
+          "description": "Código del activo, p. ej. EURUSD."
+        },
+        "timeframe": {
+          "$ref": "#/definitions/timeframe"
+        },
+        "candles": {
+          "type": "array",
+          "description": "Velas ordenadas ascendentemente por time.",
+          "items": {
+            "$ref": "#/definitions/candle"
+          }
+        }
+      },
+      "required": ["symbol", "timeframe", "candles"],
+      "additionalProperties": false
+    }
+  }
+}

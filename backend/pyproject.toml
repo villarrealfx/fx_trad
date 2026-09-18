@@ -1,0 +1,44 @@
+[project]
+name = "fxtrad"
+version = "0.1.0"
+description = "Backend: Plataforma de Analisis Tecnico (estilo TradingView)"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.6,<3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8,<9",
+    "ruff>=0.6,<1",
+    "black>=24,<25",
+    "mypy>=1.10,<2",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "UP", "B", "C4", "SIM"]
+ignore = ["E203"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["fxtrad"]
+
+[tool.black]
+line-length = 100
+target-version = ["py312"]
+
+[tool.mypy]
+python_version = "3.12"
+mypy_path = "src"
+plugins = ["pydantic.mypy"]
+strict = true
+files = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+pythonpath = ["src"]

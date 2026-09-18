@@ -1,0 +1,266 @@
+# ============================================
+# SDD — Pipeline de especificaciones
+# ============================================
+
+# NUNCA ignorar _docs/ (son la fuente de verdad)
+# _docs/ SIEMPRE se versiona completa, incluido iterations/
+! _docs/**
+
+# Archivos temporales de sesión
+.opencode/sessions/
+.opencode/cache/
+.opencode/logs/
+
+# ============================================
+# Sistema operativo
+# ============================================
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~
+
+# ============================================
+# Editores / IDEs
+# ============================================
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+.idea/
+*.iml
+*.sublime-workspace
+*.sublime-project
+
+# ============================================
+# Python
+# ============================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Entornos virtuales
+.venv/
+venv/
+ENV/
+env/
+.python-version
+
+# Tests / cobertura
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+
+# Type checkers
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pytype/
+.ruff_cache/
+
+# ============================================
+# Node / TypeScript / JavaScript
+# ============================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+.npm/
+.yarn/
+.pnp.*
+.yarnrc.yml
+
+# Builds
+dist/
+build/
+.next/
+out/
+.nuxt/
+.cache/
+.parcel-cache/
+.turbo/
+
+# Tests / cobertura
+coverage/
+.nyc_output/
+*.lcov
+
+# TypeScript
+*.tsbuildinfo
+.eslintcache
+
+# ============================================
+# Java / Kotlin / Gradle / Maven
+# ============================================
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+hs_err_pid*
+replay_pid*
+
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+release.properties
+
+# ============================================
+# C# / .NET
+# ============================================
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+
+# ============================================
+# Go
+# ============================================
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+vendor/
+go.work
+go.work.sum
+
+# ============================================
+# Rust
+# ============================================
+target/
+Cargo.lock
+**/*.rs.bk
+*.pdb
+
+# ============================================
+# PHP
+# ============================================
+vendor/
+composer.lock
+.phpunit.result.cache
+.php-cs-fixer.cache
+
+# ============================================
+# Ruby
+# ============================================
+*.gem
+.bundle/
+vendor/bundle
+Gemfile.lock
+.rspec_status
+
+# ============================================
+# Entornos y secretos (CRÍTICO)
+# ============================================
+.env
+.env.*
+!.env.example
+!.env.template
+*.pem
+*.key
+*.crt
+*.p12
+secrets/
+.secrets/
+config/secrets.yml
+config/credentials.yml.enc
+config/master.key
+
+# ============================================
+# Bases de datos locales
+# ============================================
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+dump.sql
+*.dump
+
+# ============================================
+# Logs (NO versionar, pero el contrato sí)
+# ============================================
+logs/
+*.log
+! _docs/logging-contract.md
+
+# ============================================
+# Docker / K8s (depende de tu setup)
+# ============================================
+# Si usas override locales:
+docker-compose.override.yml
+*.kubeconfig
+
+# ============================================
+# CI/CD (secretos, no configs)
+# ============================================
+.github/workflows/*.yml.bak
+.gitlab-ci-local/
+.circleci/local-*
+
+# ============================================
+# Cobertura y reportes
+# ============================================
+coverage/
+reports/
+*.coverage
+junit.xml
+test-results/
+
+# ============================================
+# Backups y temporales
+# ============================================
+*.bak
+*.tmp
+*.temp
+*.orig
+*.rej
+tmp/
+temp/
+.cache/
+
+# ============================================
+# OpenCode
+# ============================================
+# NO ignorar .opencode/command/ (son los skills, se versionan)
+# .opencode/command/** se VERSIONA
+.opencode/sessions/
+.opencode/cache/
+.opencode/logs/
+.opencode/history/
