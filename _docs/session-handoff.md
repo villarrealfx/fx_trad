@@ -47,3 +47,36 @@
 ## Próximo skill sugerido
 
 `/sdd-stack` — Selección de Stack Tecnológico y Arquitectura.
+
+---
+
+# Handoff de Sesión — viernes 2026-09-18 (implementación EP-001)
+
+## Estado del proyecto
+
+- **8/61 tareas Done (13.1%)** · 🔨 Doing 0 · 👀 Review 0 · 🔴 Blocked 0 · `master` limpio, sin remoto.
+- Cerrado hoy: **TASK-004 ✅** (Celery + RabbitMQ, ADR-006). Commits `8382e48` → `6d5fbfc` (feat TASK-004 + docs traceability + docs estado). Rama `feature/TASK-004-celery` eliminada tras merge ff.
+- Suite backend: **126 passed + 2 skipped**, ruff/black/mypy OK, cobertura `ingest` y `pipeline` 100%.
+
+## Qué se validó en vivo (TASK-004 E2E en Docker)
+
+- `docker compose -f docker-compose.worker.yml up`: worker + RabbitMQ arriba, worker conectado a `amqp://` y con `ingest.download_asset` registrada.
+- Encolado por el seam de la API → broker → worker ejecutó con `task_id` correlacionado en logs; flujo de horas UTC y URL bien formada (`eurusd/2026/07/06/09h_ticks.bi5`).
+- **AR-1 confirmado:** Dukascopy devuelve 503/timeout desde esta IP (4/4 intentos, también fechas pasadas) → el tramo de datos reales está degradado; no es un fallo del pipeline.
+- `summary.md`/`status.md`/`backlog.md`/`traceability.md` actualizados y commiteados.
+
+## Lo más importante para el lunes
+
+1. **Iniciar TASK-005** (Retry/backoff 20 s, deps TASK-002 ✅ + TASK-004 ✅) → mitiga **AR-1**.
+2. **TASK-002 live optativo pendiente** (`RUN_CELERY_INTEGRATION=1`), probar descarga real cuando el feed responda para cerrar el ciclo con datos.
+3. Alertas abiertas: **PA-1** (impacta TASK-005/008) y **PA-2** (impacta TASK-036/UI-060), RNF sin verificación programada, **DP-8** (184 pts > capacidad 2 semanas).
+4. Próximos candidatos en orden: TASK-005 → TASK-006 (GET /downloads/{task_id}) → TASK-007 → TASK-015.
+
+## Comandos de retoma
+
+```bash
+docker compose -f docker-compose.worker.yml up   # E2E si hace falta
+docker compose -f docker-compose.worker.yml down
+cd backend && .venv/bin/python -m pytest         # suite completa
+cd backend && .venv/bin/ruff check src tests && .venv/bin/black --check src tests && .venv/bin/mypy src
+```
