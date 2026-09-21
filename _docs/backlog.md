@@ -84,7 +84,7 @@
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-007 | Normalización de timestamps a segundos UTC | backend | S | TASK-002 | Un fixture con TZ no-UTC converge a epoch en segundos UTC; test unitario | 📥 |
+| TASK-007 | Normalización de timestamps a segundos UTC | backend | S | TASK-002 | Un fixture con TZ no-UTC converge a epoch en segundos UTC; test unitario | 👀 |
 | TASK-008 | Validación de ventana ≤ 2 años (RNF-003) | backend | S | TASK-002 | Una solicitud > 2 años se rechaza o recorta con mensaje; test unitario | 📥 |
 
 ### EP-002: Pipeline de limpieza, resampling e indicadores

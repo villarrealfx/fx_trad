@@ -20,6 +20,7 @@ from fxtrad.ingest.tasks import (
     celery_app,
     download_asset,
 )
+from fxtrad.ingest.times import to_epoch_seconds
 
 __all__ = [
     "ASSET_CATALOG",
@@ -39,4 +40,5 @@ __all__ = [
     "download_asset",
     "get_asset",
     "hour_start_epoch",
+    "to_epoch_seconds",
 ]

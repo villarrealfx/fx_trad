@@ -8,9 +8,9 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 61 | +15 (backlog v2: TASK-047 + 14 TASK-UI-XXX) |
-| 📥 Backlog | 51 | -1 |
+| 📥 Backlog | 50 | -1 |
 | 🔨 Doing | 0 | — |
-| 👀 Review | 0 | -1 |
+| 👀 Review | 1 | +1 |
 | ✅ Done | 10 | +1 |
 | 🔴 Blocked | 0 | — |
 | % Completado | 16.4% (10/61) | +1.6 pp |
@@ -20,11 +20,10 @@
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (51)
+### 📥 Backlog (50)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
-| TASK-007 | Normalización a segundos UTC | EP-001 | S | TASK-002 |
 | TASK-008 | Validación ventana ≤ 2 años | EP-001 | S | TASK-002 |
 | TASK-011 | Normalización UTC y esquema | EP-002 | S | TASK-010 |
 | TASK-014 | Agregación OHLC 1m/5m/15m/1h/4h/1d | EP-002 | L | TASK-010, TASK-012 |
@@ -80,9 +79,11 @@
 
 Sin tareas.
 
-### 👀 Review (0)
+### 👀 Review (1)
 
-Sin tareas.
+| ID | Tarea | Épica | Est. | En review desde |
+|----|-------|-------|------|-----------------|
+| TASK-007 | Normalización a segundos UTC | EP-001 | S | 2026-09-21 |
 
 ### ✅ Done (10)
 
@@ -172,9 +173,10 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. Iniciar TASK-007 (Normalización a segundos UTC, dep TASK-002 ✅).
-2. Iniciar TASK-015 (esquema SerieOHLC Parquet) — depende de TASK-009, ya ✅ Done.
-3. Iniciar TASK-037 (monorepo).
+1. Revisar TASK-007 (👀 Review): validar DoD (fixture TZ no-UTC → epoch segundos UTC) y pasar a ✅ Done.
+2. Iniciar TASK-008 (Validación ventana ≤ 2 años, dep TASK-002 ✅).
+3. Iniciar TASK-015 (esquema SerieOHLC Parquet) — depende de TASK-009, ya ✅ Done.
+4. Iniciar TASK-037 (monorepo).
 
 ## 9. Historial de cambios (append-only)
 
@@ -217,3 +219,6 @@ Ninguno.
 | 2026-09-21 | TASK-006 | Resync backlog.md | Estado reflejado en backlog.md (📥→👀), saldando desync con status.md |
 | 2026-09-21 | TASK-006 | 👀 → ✅ Done | Review validada: DoD completa (GET devuelve encolada/éxito/parcial/fallo + filas); 147 tests ✅ + 2 skip, ruff/black/mypy OK; prueba registrada (RF-001/RX-001) |
 | 2026-09-21 | TASK-006 | Resync backlog.md | Estado reflejado en backlog.md (👀→✅), saldando desync con status.md |
+| 2026-09-21 | TASK-007 | 📥 → 🔨 | Inicio de desarrollo (normalización de timestamps a segundos UTC, RF-002/RNF-004) |
+| 2026-09-21 | TASK-007 | 🔨 → 👀 Review | Implementación: `to_epoch_seconds` en ingest/times.py (TZ no-UTC → epoch UTC, naive asumido UTC); 6 tests nuevos → 153 ✅ + 2 skip, ruff/black/mypy OK; DoD cumplida (fixtures Madrid/NY/offset fijo convergen a 1786442400); pasa a revisión |
+| 2026-09-21 | TASK-007 | Resync backlog.md | Estado reflejado en backlog.md (→👀), saldando desync con status.md |
