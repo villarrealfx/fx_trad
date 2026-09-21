@@ -76,16 +76,15 @@
 
 Sin tareas.
 
-### 👀 Review (1)
+### 👀 Review (0)
 
-| ID | Tarea | Épica | Est. | En review desde |
-|----|-------|-------|------|-----------------|
-| TASK-015 | SerieOHLC Parquet (time único) | EP-003 | M | 2026-09-21 |
+Sin tareas.
 
-### ✅ Done (13)
+### ✅ Done (15)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
+| TASK-015 | SerieOHLC Parquet (time único) | EP-003 | 2026-09-21 | `test_series.py` (12 tests, 100% cobertura) |
 | TASK-016 | Consulta DuckDB activo/rango/TF | EP-003 | 2026-09-21 | `test_queries.py` (11 tests, 100% cobertura) |
 | TASK-009 | Contrato OHLC compartido | EP-002 | 2026-09-18 | `test_ohlc_contract.py` + `ohlc.test.ts` (alineación canónica) |
 | TASK-012 | Calendario de mercado | EP-002 | 2026-09-18 | `test_calendar.py` (marzo-2026, 100% cobertura) |
@@ -229,4 +228,6 @@ Ninguno.
 | 2026-09-21 | TASK-008 | 🔨 → 👀 Review | Implementación: `validate_request_window` en ingest/window.py (rechazo con mensaje > 2 años), integrado en DownloadRequest (422 sin encolar); 9 tests nuevos → 162 ✅ + 2 skip, ruff/black/mypy OK; DoD cumplida; pasa a revisión |
 | 2026-09-21 | TASK-008 | Resync backlog.md | Estado reflejado en backlog.md (→👀), saldando desync con status.md |
 | 2026-09-21 | TASK-008 | 👀 → ✅ Done | Review validada: DoD completa (solicitud > 2 años rechazada con mensaje explícito, límite inclusivo); 162 tests ✅ + 2 skip, ruff/black/mypy OK; prueba registrada (RNF-003) |
+| 2026-09-21 | TASK-015 | 👀 → ✅ Done | Review validada: DoD completa (SerieOHLC Parquet por activo, time único BIGINT, consulta DuckDB de rango `1s`); `test_series.py` (12 tests, 100% cobertura) + integración `test_queries.py`; 186 ✅ + 2 skip, ruff/black/mypy OK; DoD cumplida; habilita TASK-017/018/019/020/021 |
 | 2026-09-21 | TASK-008 | Resync backlog.md | Estado reflejado en backlog.md (👀→✅), saldando desync con status.md |
+| 2026-09-21 | TASK-015 | 👀 → ✅ Done | ⭐ | DoD completa (SerieOHLC Parquet time único) | Pakikumpirma via /sdd-track update TASK-015 review → validada 2026-09-21: 186 ✅ + 2 skip, ruff/black/mypy OK |
