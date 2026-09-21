@@ -20,13 +20,12 @@
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (48)
+### 📥 Backlog (47)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
 | TASK-011 | Normalización UTC y esquema | EP-002 | S | TASK-010 |
 | TASK-014 | Agregación OHLC 1m/5m/15m/1h/4h/1d | EP-002 | L | TASK-010, TASK-012 |
-| TASK-016 | Consulta DuckDB activo/rango/TF | EP-003 | M | TASK-015 |
 | TASK-017 | Parquet pre-resampling | EP-003 | M | TASK-014, TASK-015 |
 | TASK-018 | MetadatosDescarga | EP-003 | S | TASK-015 |
 | TASK-019 | Upsert incremental (merge time) | EP-003 | M | TASK-016, TASK-018 |
@@ -83,10 +82,11 @@ Sin tareas.
 |----|-------|-------|------|-----------------|
 | TASK-015 | SerieOHLC Parquet (time único) | EP-003 | M | 2026-09-21 |
 
-### ✅ Done (12)
+### ✅ Done (13)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
+| TASK-016 | Consulta DuckDB activo/rango/TF | EP-003 | 2026-09-21 | `test_queries.py` (11 tests, 100% cobertura) |
 | TASK-009 | Contrato OHLC compartido | EP-002 | 2026-09-18 | `test_ohlc_contract.py` + `ohlc.test.ts` (alineación canónica) |
 | TASK-012 | Calendario de mercado | EP-002 | 2026-09-18 | `test_calendar.py` (marzo-2026, 100% cobertura) |
 | TASK-013 | Filtro sin mercado | EP-002 | 2026-09-18 | `test_filter.py` (9 tests, 100% cobertura) |
@@ -160,6 +160,8 @@ Ninguno.
 - TASK-005 ✅ Done tras review: retry/backoff 20 s (R-001) con política configurable, estados `exito|parcial|fallo` en el resumen; 136 tests ✅ + 2 skip, ruff/black/mypy OK; **mitiga AR-1**.
 - TASK-006 ✅ Done tras review: GET /downloads/{task_id} con estados encolada/éxito/parcial/fallo + filas; result_backend `rpc://` con amqp (resultados compartidos worker↔API); 147 tests ✅ + 2 skip, ruff/black/mypy OK; DoD completa.
 - TASK-015 implementada → 👀 Review (2026-09-21): módulo `storage` (`ParquetSeriesStore`, `DuplicateTimeError`) con Parquet por activo, `time BIGINT` único (RI-001) y consulta DuckDB de rango; 12 tests nuevos (`test_series.py`) → 174 ✅ + 2 skip, ruff/black/mypy OK; habilita TASK-016/017/018.
+- TASK-016 implementada → 👀 Review (2026-09-21): capa `SeriesQuery` (`InvalidTimeframeError`, `InvalidRangeError`) sobre `ParquetSeriesStore`; valida timeframe base `1s` / rango invertido (RF-005, RNF-002) y delega en `read_range` de TASK-015; 11 tests nuevos (`test_queries.py`) → 185 ✅ + 2 skip, ruff/black/mypy OK; habilita TASK-017/018/019/020/021.
+- TASK-016 👀 → ✅ Done tras review aprobada (2026-09-21): DoD completa — `SeriesQuery.read` valida timeframe base `1s` y range invertido → `InvalidRangeError`, delega en `read_range` de TASK-015; 11 tests (`test_queries.py`) → 186 ✅ + 2 skip, cobertura `queries` 100%, ruff/black/mypy OK; prueba registrada (RF-005/RNF-002/RI-001); habilita TASK-017/018/019/020/021.
 
 ## 7. Trazabilidad — salud
 
