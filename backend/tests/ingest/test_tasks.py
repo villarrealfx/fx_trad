@@ -8,15 +8,14 @@ contra Dukascopy es optativa (``RUN_CELERY_INTEGRATION=1``).
 
 from __future__ import annotations
 
-import lzma
 import os
-import struct
+from datetime import datetime
 
+import pandas as pd
 import pytest
 from pydantic import ValidationError
 
-from fxtrad.ingest import CeleryDownloadQueue, DownloadRequest, DukascopyClient, download_asset
-from fxtrad.ingest.dukascopy import TICK_FORMAT
+from fxtrad.ingest import CeleryDownloadQueue, DownloadRequest, FreeservClient, download_asset
 from fxtrad.ingest.tasks import (
     TASK_NAME,
     build_client,
@@ -30,24 +29,35 @@ _START = 1772409600  # 2026-03-02T00:00:00Z (lunes)
 _END = _START + 2 * 3600  # 2026-03-02T02:00:00Z → 3 horas inclusive
 
 
-def _compress(raw: bytes) -> bytes:
-    """Comprime con LZMA formato alone, como los archivos bi5 reales."""
-    return lzma.compress(raw, format=lzma.FORMAT_ALONE)
+def _tick_hour_df(start_ms: int) -> pd.DataFrame:
+    """DataFrame de una hora con 3 ticks en los segundos 0/1/2 (forma fetch)."""
+    records = [
+        {
+            "timestamp": pd.to_datetime(start_ms + second * 1000, unit="ms", utc=True),
+            "bidPrice": 1.09120 + second / 10000,
+            "askPrice": 1.09130 + second / 10000,
+            "bidVolume": 1_000_000.0,
+            "askVolume": 1_000_000.0,
+        }
+        for second in range(3)
+    ]
+    df = pd.DataFrame(records)
+    df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
+    return df.set_index("timestamp")
 
 
-def _bi5_hour_payload() -> bytes:
-    """Payload bi5 válido de una hora con 3 ticks en los segundos 0/1/2."""
-    raw = b"".join(
-        struct.pack(TICK_FORMAT, i * 1000, 109130 + i, 109120 + i, 0.5, 0.25) for i in range(3)
-    )
-    return _compress(raw)
+def _fetcher_for():
+    """Devuelve un fetcher que genera 3 ticks en la hora que recibe."""
 
-
-def _fetcher_for(payload: bytes):
-    """Devuelve un fetcher que responde el mismo bi5 para cualquier URL."""
-
-    def fetch(url: str) -> bytes:
-        return payload
+    def fetch(
+        instrument: str,
+        interval: str,
+        offer_side: str,
+        start: datetime,
+        end: datetime,
+        limit: int | None = None,
+    ) -> pd.DataFrame:
+        return _tick_hour_df(int(start.timestamp() * 1000))
 
     return fetch
 
@@ -59,7 +69,7 @@ def eager_app():
         task_always_eager=True,
         broker_url="memory://",
         task_default_queue="test",
-        fxtrad_client_factory=lambda: DukascopyClient(fetcher=_fetcher_for(_bi5_hour_payload())),
+        fxtrad_client_factory=lambda: FreeservClient(fetcher=_fetcher_for()),
     )
     yield celery_app
 
@@ -85,7 +95,7 @@ class TestConfiguration:
         assert app.conf.task_always_eager is True
 
     def test_build_client_returns_real_client(self) -> None:
-        assert isinstance(build_client(), DukascopyClient)
+        assert isinstance(build_client(), FreeservClient)
 
 
 class TestRegistration:
@@ -131,7 +141,7 @@ class TestEndToEndEager:
         assert result == expected
 
     def test_run_download_range_with_stub_client(self) -> None:
-        client = DukascopyClient(fetcher=_fetcher_for(_bi5_hour_payload()))
+        client = FreeservClient(fetcher=_fetcher_for())
         request = DownloadRequest(asset="EURUSD", start=_START, end=_END)
         summary = run_download_range(client, request, task_id="t-1")
         assert summary["horas"] == 3 and summary["velas"] == 9
@@ -190,8 +200,9 @@ def test_live_broker_roundtrip() -> None:
     """Integración optativa: RabbitMQ real + descarga de una hora de Dukascopy.
 
     Reproduce el modo E2E de dev: se encola una hora conocida (EURUSD 2026-08-11
-    10:00 UTC) procesada contra el datafeed real. La validación de esa hora ya
-    está cubierta por TASK-002; aquí se verifica el camino completo del broker.
+    10:00 UTC) procesada contra la API chart freeserv (ADR-010). La validación
+    de esa hora ya está cubierta por TASK-002; aquí se verifica el camino
+    completo del broker.
     """
     celery_app.conf.update(
         task_always_eager=True,

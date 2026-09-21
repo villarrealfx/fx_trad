@@ -7,8 +7,8 @@
 
 | Requisito | Diseño (ADR/Componente/Pantalla) | Tarea | Prueba | Estado |
 |-----------|---------------------------------|-------|--------|--------|
-| RF-001 | Módulo ingest + Celery (ADR-002, ADR-006); SCR-002 | TASK-001, TASK-002, TASK-003, TASK-004, TASK-005, TASK-UI-020, TASK-UI-021 | `backend/tests/ingest/test_catalog.py` + `test_requests.py` (TASK-001); `test_dukascopy.py::TestKnownHourDoD` + `test_bi5_codec.py` (TASK-002); `backend/tests/api/test_downloads.py` (202 + task_id, broker mockeado — TASK-003); `backend/tests/ingest/test_tasks.py` (tarea registrada + E2E eager + CeleryDownloadQueue — TASK-004) | 🔵 |
-| RF-002 | Módulo ingest (ADR-002, ADR-006); SCR-002 | TASK-002, TASK-007, TASK-UI-020, TASK-UI-021 | `backend/tests/ingest/test_dukascopy.py::TestAggregation` + `test_bi5_codec.py` (velas 1s UTC, TASK-002) | 🔵 |
+| RF-001 | Módulo ingest + Celery (ADR-002, ADR-006, ADR-010); SCR-002 | TASK-001, TASK-002, TASK-003, TASK-004, TASK-005, TASK-UI-020, TASK-UI-021 | `backend/tests/ingest/test_catalog.py` + `test_requests.py` (TASK-001); `test_freeserv.py::TestFreeservClient` (TASK-002, ADR-010); `backend/tests/api/test_downloads.py` (202 + task_id, broker mockeado — TASK-003); `backend/tests/ingest/test_tasks.py` (tarea registrada + E2E eager + CeleryDownloadQueue — TASK-004) | 🔵 |
+| RF-002 | Módulo ingest (ADR-002, ADR-006, ADR-010); SCR-002 | TASK-002, TASK-007, TASK-UI-020, TASK-UI-021 | `backend/tests/ingest/test_freeserv.py::TestAggregation` (velas 1s UTC, TASK-002) | 🔵 |
 | RF-003 | Módulo pipeline (ADR-002, ADR-004) | TASK-009, TASK-010 | `backend/tests/contracts/test_ohlc_contract.py::TestCandleAlignment` (TASK-009) · `backend/tests/pipeline/test_clean.py` (TASK-010, política PA-3) | 🔵 |
 | RF-004 | Módulo pipeline (ADR-002) | TASK-012, TASK-013 | `backend/tests/pipeline/test_calendar.py` (TASK-012) + `backend/tests/pipeline/test_filter.py` (TASK-013) | 🟢 |
 | RF-005 | Módulo storage (ADR-004) | TASK-015 | [pendiente] | 🔵 |
@@ -34,7 +34,7 @@
 | RI-001 | Schema SerieOHLC, time único (ADR-004) | TASK-015 | [pendiente] | 🔵 |
 | RI-002 | MetadatosDescarga (ADR-004, ADR-006); SCR-002 historial | TASK-018, TASK-047, TASK-UI-021 | [pendiente] | 🔵 |
 | RI-003 | Overlay: dibujos efímeros, solo PNG (ADR-005); SCR-006 | TASK-036, TASK-UI-060 | [pendiente] | 🔵 |
-| RX-001 | Módulo ingest + Celery (ADR-006) | TASK-002, TASK-004 | `backend/tests/ingest/test_bi5_codec.py` (decodificación) + `test_dukascopy.py` (mapeo, URL, OHLC, hora conocida) · `backend/tests/ingest/test_tasks.py` (E2E eager de download_asset — TASK-004) | 🔵 |
+| RX-001 | Módulo ingest + Celery (ADR-006, ADR-010) | TASK-002, TASK-004 | `backend/tests/ingest/test_freeserv.py::TestFreeservClient` (mapeo, agregación, hora conocida mockeada, integración optativa) · `backend/tests/ingest/test_tasks.py` (E2E eager de download_asset — TASK-004) | 🔵 |
 | RX-002 | API REST backend (ADR-002); SCR-004 | TASK-021, TASK-022 | [pendiente] | 🔵 |
 
 **Regla de cubrimiento:** todo requisito tiene ≥1 tarea asociada ✅ (29/29 requisitos IN cubiertos). Requisitos Won't (RF-W-01…RF-W-07) fuera de alcance, sin tareas por decisión `[Won't]` documentada en `requirements.md`.

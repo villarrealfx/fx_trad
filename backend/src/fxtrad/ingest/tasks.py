@@ -16,7 +16,7 @@ from typing import Any
 import structlog
 from celery import Celery  # type: ignore[import-untyped]
 
-from fxtrad.ingest.dukascopy import DukascopyClient
+from fxtrad.ingest.freeserv import FreeservClient
 from fxtrad.ingest.requests import DownloadRequest
 
 logger = structlog.get_logger()
@@ -35,9 +35,9 @@ def _env_bool(name: str, default: bool) -> bool:
     return raw.lower() in {"1", "true", "yes", "on"}
 
 
-def build_client() -> DukascopyClient:
+def build_client() -> FreeservClient:
     """Construye el cliente de descarga real; inyectable en las pruebas."""
-    return DukascopyClient()
+    return FreeservClient()
 
 
 def create_celery_app() -> Celery:
@@ -75,7 +75,7 @@ def iter_hours(start_epoch_s: int, end_epoch_s: int) -> list[tuple[int, int, int
 
     Returns:
         Tuplas ``(year, month_index, day, hour)`` con mes 0-based, como espera
-        ``DukascopyClient.download_hour``.
+        ``FreeservClient.download_hour``.
     """
     start_dt = datetime.fromtimestamp(start_epoch_s, tz=UTC).replace(
         minute=0, second=0, microsecond=0
@@ -90,7 +90,7 @@ def iter_hours(start_epoch_s: int, end_epoch_s: int) -> list[tuple[int, int, int
 
 
 def run_download_range(
-    client: DukascopyClient,
+    client: FreeservClient,
     request: DownloadRequest,
     task_id: str | None = None,
 ) -> dict[str, object]:

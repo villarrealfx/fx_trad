@@ -94,7 +94,7 @@ Sin tareas.
 | TASK-012 | Calendario de mercado | EP-002 | 2026-09-18 | `test_calendar.py` (marzo-2026, 100% cobertura) |
 | TASK-013 | Filtro sin mercado | EP-002 | 2026-09-18 | `test_filter.py` (9 tests, 100% cobertura) |
 | TASK-001 | Catálogo de activos + modelo de request | EP-001 | 2026-09-18 | `test_catalog.py` + `test_requests.py` (19 tests, 100% cobertura) |
-| TASK-002 | Cliente Dukascopy (bi5 horario) | EP-001 | 2026-09-18 | `test_bi5_codec.py` + `test_dukascopy.py` (41 tests, 100% cobertura ingest) |
+| TASK-002 | Cliente Dukascopy vía API chart freeserv (ADR-010) | EP-001 | 2026-09-21 | `test_freeserv.py` (mapeo, agregación, hora conocida; 100% cobertura ingest) |
 | TASK-003 | Endpoint POST /downloads | EP-001 | 2026-09-18 | `test_downloads.py` (10 tests, broker stub, api+ingest 100%) |
 | TASK-010 | Pipeline limpieza e imputación | EP-002 | 2026-09-18 | `test_clean.py` (18 tests, cobertura pipeline 100%, política PA-3) |
 | TASK-004 | Celery + RabbitMQ (download_asset) | EP-001 | 2026-09-18 | `test_tasks.py` (15 tests, E2E eager 3 h + adapter); E2E dev en vivo compose worker/rabbitmq |
