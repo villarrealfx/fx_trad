@@ -10,10 +10,10 @@
 | Tareas totales | 61 | +15 (backlog v2: TASK-047 + 14 TASK-UI-XXX) |
 | 📥 Backlog | 50 | -1 |
 | 🔨 Doing | 0 | — |
-| 👀 Review | 1 | +1 |
-| ✅ Done | 10 | +1 |
+| 👀 Review | 0 | -1 |
+| ✅ Done | 11 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 16.4% (10/61) | +1.6 pp |
+| % Completado | 18.0% (11/61) | +1.6 pp |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
@@ -79,13 +79,11 @@
 
 Sin tareas.
 
-### 👀 Review (1)
+### 👀 Review (0)
 
-| ID | Tarea | Épica | Est. | En review desde |
-|----|-------|-------|------|-----------------|
-| TASK-007 | Normalización a segundos UTC | EP-001 | S | 2026-09-21 |
+Sin tareas.
 
-### ✅ Done (10)
+### ✅ Done (11)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
@@ -99,6 +97,7 @@ Sin tareas.
 | TASK-004 | Celery + RabbitMQ (download_asset) | EP-001 | 2026-09-18 | `test_tasks.py` (15 tests, E2E eager 3 h + adapter); E2E dev en vivo compose worker/rabbitmq |
 | TASK-005 | Retry/backoff 20 s y manejo de fallos parciales | EP-001 | 2026-09-21 | `test_retry.py` (reintento backoff 20 s, agotamiento) + `test_tasks.py::TestPartialFailures` (exito/parcial/fallo); 136 ✅ + 2 skip |
 | TASK-006 | Endpoint GET /downloads/{task_id} | EP-001 | 2026-09-21 | `test_download_status.py` (4 estados + filas) + `test_tasks.py::TestCeleryDownloadStatus` (mapeo AsyncResult); 147 ✅ + 2 skip |
+| TASK-007 | Normalización a segundos UTC | EP-001 | 2026-09-21 | `test_times.py` (TZ no-UTC Madrid/NY/offset fijo → 1786442400, naive→UTC, identidad UTC); 153 ✅ + 2 skip |
 
 ### 🔴 Blocked (0)
 
@@ -173,10 +172,9 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. Revisar TASK-007 (👀 Review): validar DoD (fixture TZ no-UTC → epoch segundos UTC) y pasar a ✅ Done.
-2. Iniciar TASK-008 (Validación ventana ≤ 2 años, dep TASK-002 ✅).
-3. Iniciar TASK-015 (esquema SerieOHLC Parquet) — depende de TASK-009, ya ✅ Done.
-4. Iniciar TASK-037 (monorepo).
+1. Iniciar TASK-008 (Validación ventana ≤ 2 años, dep TASK-002 ✅).
+2. Iniciar TASK-015 (esquema SerieOHLC Parquet) — depende de TASK-009, ya ✅ Done.
+3. Iniciar TASK-037 (monorepo).
 
 ## 9. Historial de cambios (append-only)
 
@@ -222,3 +220,5 @@ Ninguno.
 | 2026-09-21 | TASK-007 | 📥 → 🔨 | Inicio de desarrollo (normalización de timestamps a segundos UTC, RF-002/RNF-004) |
 | 2026-09-21 | TASK-007 | 🔨 → 👀 Review | Implementación: `to_epoch_seconds` en ingest/times.py (TZ no-UTC → epoch UTC, naive asumido UTC); 6 tests nuevos → 153 ✅ + 2 skip, ruff/black/mypy OK; DoD cumplida (fixtures Madrid/NY/offset fijo convergen a 1786442400); pasa a revisión |
 | 2026-09-21 | TASK-007 | Resync backlog.md | Estado reflejado en backlog.md (→👀), saldando desync con status.md |
+| 2026-09-21 | TASK-007 | 👀 → ✅ Done | Review validada: DoD completa (fixtures TZ no-UTC convergen a 1786442400; naive asumido UTC); 153 tests ✅ + 2 skip, ruff/black/mypy OK; prueba registrada (RF-002/RNF-004) |
+| 2026-09-21 | TASK-007 | Resync backlog.md | Estado reflejado en backlog.md (👀→✅), saldando desync con status.md |
