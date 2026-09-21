@@ -21,6 +21,7 @@ from fxtrad.ingest.tasks import (
     download_asset,
 )
 from fxtrad.ingest.times import to_epoch_seconds
+from fxtrad.ingest.window import MAX_WINDOW_SECONDS, validate_request_window
 
 __all__ = [
     "ASSET_CATALOG",
@@ -40,5 +41,7 @@ __all__ = [
     "download_asset",
     "get_asset",
     "hour_start_epoch",
+    "MAX_WINDOW_SECONDS",
     "to_epoch_seconds",
+    "validate_request_window",
 ]

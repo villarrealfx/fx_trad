@@ -14,6 +14,7 @@ import structlog
 from pydantic import BaseModel, ConfigDict, Field, NonNegativeInt, model_validator
 
 from fxtrad.ingest.catalog import is_known_asset
+from fxtrad.ingest.window import validate_request_window
 
 logger = structlog.get_logger()
 
@@ -43,6 +44,7 @@ class DownloadRequest(BaseModel):
             raise ValueError(f"Activo desconocido para descarga: '{self.asset}'")
         if self.end < self.start:
             raise ValueError("El rango es inválido: fin anterior a inicio")
+        validate_request_window(self.start, self.end)
         logger.debug(
             "request_descarga_validado",
             activo=self.asset,

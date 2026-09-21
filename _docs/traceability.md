@@ -1,7 +1,7 @@
 # Matriz de Trazabilidad
 
 > Se irá completando en cada fase del pipeline SDD.
-> Actualizado: 2026-09-17 (backlog v2 — integra épicas de UI y setup UX). 2026-09-18: Prueba añadida para TASK-009 (contrato OHLC, RF-003 y RNF-008), TASK-012 (calendario, RF-004), TASK-013 (filtro sin mercado, RF-004), TASK-001 (catálogo + request, RF-001), TASK-002 (cliente Dukascopy, RF-001, RF-002 y RX-001), TASK-003 (endpoint POST /downloads, RF-001), TASK-010 (limpieza/imputación PA-3, RF-003) y TASK-004 (Celery + tarea download_asset, RF-001 y RX-001; E2E dev con compose worker/rabbitmq). 2026-09-21: Prueba añadida para TASK-005 (retry/backoff 20 s y estado parcial/fallo, RF-001, RX-001 y RNF-003), TASK-006 (GET estado descarga, RF-001 y RX-001) y TASK-007 (normalización timestamps, RF-002 y RNF-004).
+> Actualizado: 2026-09-17 (backlog v2 — integra épicas de UI y setup UX). 2026-09-18: Prueba añadida para TASK-009 (contrato OHLC, RF-003 y RNF-008), TASK-012 (calendario, RF-004), TASK-013 (filtro sin mercado, RF-004), TASK-001 (catálogo + request, RF-001), TASK-002 (cliente Dukascopy, RF-001, RF-002 y RX-001), TASK-003 (endpoint POST /downloads, RF-001), TASK-010 (limpieza/imputación PA-3, RF-003) y TASK-004 (Celery + tarea download_asset, RF-001 y RX-001; E2E dev con compose worker/rabbitmq). 2026-09-21: Prueba añadida para TASK-005 (retry/backoff 20 s y estado parcial/fallo, RF-001, RX-001 y RNF-003), TASK-006 (GET estado descarga, RF-001 y RX-001), TASK-007 (normalización timestamps, RF-002 y RNF-004) y TASK-008 (validación ventana ≤ 2 años, RF-002 y RNF-003).
 
 **Leyenda:** 🟡 pendiente · 🔵 en progreso · 🟢 completo · 🔴 bloqueado
 
@@ -25,7 +25,7 @@
 | RF-016 | Monolito modular (ADR-001) | TASK-042, TASK-043 | [pendiente] | 🔵 |
 | RNF-001 | Cache Karst + lightweight-charts (ADR-007, ADR-005) | TASK-025, TASK-044, TASK-UI-040 | [pendiente] | 🔵 |
 | RNF-002 | DuckDB columnar + Cache Karst (ADR-004, ADR-007) | TASK-015, TASK-044 | [pendiente] | 🔵 |
-| RNF-003 | Módulo ingest (ADR-006) | TASK-005, TASK-008 | `backend/tests/ingest/test_retry.py` (reintentos sobre rangos largos — TASK-005); [ventana de 2 años: pendiente TASK-008] | 🔵 |
+| RNF-003 | Módulo ingest (ADR-006) | TASK-005, TASK-008 | `backend/tests/ingest/test_retry.py` (reintentos sobre rangos largos — TASK-005); `backend/tests/ingest/test_window.py` (ventana ≤ 2 años rechazada con mensaje, RF-002/RNF-003 — TASK-008) | 🔵 |
 | RNF-004 | Módulo pipeline/storage (ADR-002, ADR-004) | TASK-007, TASK-011 | `backend/tests/ingest/test_times.py` (TZ no-UTC → epoch segundos UTC, TASK-007); [normalización pipeline: pendiente TASK-011] | 🔵 |
 | RNF-005 | SPA React client-side (ADR-003); setup UX (accessibility.md) | TASK-023, TASK-046, TASK-UI-003, TASK-UI-004 | [pendiente] | 🔵 |
 | RNF-006 | Stack 100% OSS (ADR-001…ADR-009) | TASK-037, TASK-038, TASK-040 | [pendiente] | 🔵 |

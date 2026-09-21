@@ -8,23 +8,22 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 61 | +15 (backlog v2: TASK-047 + 14 TASK-UI-XXX) |
-| 📥 Backlog | 50 | -1 |
+| 📥 Backlog | 49 | -1 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | -1 |
-| ✅ Done | 11 | +1 |
+| ✅ Done | 12 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 18.0% (11/61) | +1.6 pp |
+| % Completado | 19.7% (12/61) | +1.7 pp |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (50)
+### 📥 Backlog (49)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
-| TASK-008 | Validación ventana ≤ 2 años | EP-001 | S | TASK-002 |
 | TASK-011 | Normalización UTC y esquema | EP-002 | S | TASK-010 |
 | TASK-014 | Agregación OHLC 1m/5m/15m/1h/4h/1d | EP-002 | L | TASK-010, TASK-012 |
 | TASK-015 | SerieOHLC Parquet (time único) | EP-003 | M | TASK-009 |
@@ -83,7 +82,7 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (11)
+### ✅ Done (12)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
@@ -98,6 +97,7 @@ Sin tareas.
 | TASK-005 | Retry/backoff 20 s y manejo de fallos parciales | EP-001 | 2026-09-21 | `test_retry.py` (reintento backoff 20 s, agotamiento) + `test_tasks.py::TestPartialFailures` (exito/parcial/fallo); 136 ✅ + 2 skip |
 | TASK-006 | Endpoint GET /downloads/{task_id} | EP-001 | 2026-09-21 | `test_download_status.py` (4 estados + filas) + `test_tasks.py::TestCeleryDownloadStatus` (mapeo AsyncResult); 147 ✅ + 2 skip |
 | TASK-007 | Normalización a segundos UTC | EP-001 | 2026-09-21 | `test_times.py` (TZ no-UTC Madrid/NY/offset fijo → 1786442400, naive→UTC, identidad UTC); 153 ✅ + 2 skip |
+| TASK-008 | Validación ventana ≤ 2 años | EP-001 | 2026-09-21 | `test_window.py` (rechazo >2 años con mensaje, límite inclusivo, integración DownloadRequest); 162 ✅ + 2 skip |
 
 ### 🔴 Blocked (0)
 
@@ -172,9 +172,8 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. Iniciar TASK-008 (Validación ventana ≤ 2 años, dep TASK-002 ✅).
-2. Iniciar TASK-015 (esquema SerieOHLC Parquet) — depende de TASK-009, ya ✅ Done.
-3. Iniciar TASK-037 (monorepo).
+1. Iniciar TASK-015 (esquema SerieOHLC Parquet) — depende de TASK-009, ya ✅ Done.
+2. Iniciar TASK-037 (monorepo).
 
 ## 9. Historial de cambios (append-only)
 
@@ -222,3 +221,8 @@ Ninguno.
 | 2026-09-21 | TASK-007 | Resync backlog.md | Estado reflejado en backlog.md (→👀), saldando desync con status.md |
 | 2026-09-21 | TASK-007 | 👀 → ✅ Done | Review validada: DoD completa (fixtures TZ no-UTC convergen a 1786442400; naive asumido UTC); 153 tests ✅ + 2 skip, ruff/black/mypy OK; prueba registrada (RF-002/RNF-004) |
 | 2026-09-21 | TASK-007 | Resync backlog.md | Estado reflejado en backlog.md (👀→✅), saldando desync con status.md |
+| 2026-09-21 | TASK-008 | 📥 → 🔨 | Inicio de desarrollo (validación ventana ≤ 2 años, RF-002/RNF-003/HU-003) |
+| 2026-09-21 | TASK-008 | 🔨 → 👀 Review | Implementación: `validate_request_window` en ingest/window.py (rechazo con mensaje > 2 años), integrado en DownloadRequest (422 sin encolar); 9 tests nuevos → 162 ✅ + 2 skip, ruff/black/mypy OK; DoD cumplida; pasa a revisión |
+| 2026-09-21 | TASK-008 | Resync backlog.md | Estado reflejado en backlog.md (→👀), saldando desync con status.md |
+| 2026-09-21 | TASK-008 | 👀 → ✅ Done | Review validada: DoD completa (solicitud > 2 años rechazada con mensaje explícito, límite inclusivo); 162 tests ✅ + 2 skip, ruff/black/mypy OK; prueba registrada (RNF-003) |
+| 2026-09-21 | TASK-008 | Resync backlog.md | Estado reflejado en backlog.md (👀→✅), saldando desync con status.md |
