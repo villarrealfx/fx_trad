@@ -13,15 +13,25 @@ from fxtrad.ingest.catalog import ASSET_CATALOG, Asset, AssetType, assets_by_typ
 from fxtrad.ingest.freeserv import FreeservClient, aggregate_to_ohlc, hour_start_epoch
 from fxtrad.ingest.queue import DownloadQueue
 from fxtrad.ingest.requests import DownloadRequest
-from fxtrad.ingest.tasks import CeleryDownloadQueue, celery_app, download_asset
+from fxtrad.ingest.status import DownloadInfo, DownloadStatus, DownloadStatusQuery
+from fxtrad.ingest.tasks import (
+    CeleryDownloadQueue,
+    CeleryDownloadStatus,
+    celery_app,
+    download_asset,
+)
 
 __all__ = [
     "ASSET_CATALOG",
     "Asset",
     "AssetType",
     "CeleryDownloadQueue",
+    "CeleryDownloadStatus",
+    "DownloadInfo",
     "DownloadQueue",
     "DownloadRequest",
+    "DownloadStatus",
+    "DownloadStatusQuery",
     "FreeservClient",
     "aggregate_to_ohlc",
     "assets_by_type",

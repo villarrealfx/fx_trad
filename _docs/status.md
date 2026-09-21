@@ -1,6 +1,6 @@
 # Estado del Proyecto: Plataforma de Análisis Técnico (estilo TradingView)
 
-> Última actualización: 2026-09-18
+> Última actualización: 2026-09-21
 > Fuente: `_docs/backlog.md` (v2), `_docs/traceability.md` (v2)
 
 ## 1. Resumen ejecutivo
@@ -8,24 +8,22 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 61 | +15 (backlog v2: TASK-047 + 14 TASK-UI-XXX) |
-| 📥 Backlog | 53 | -1 |
+| 📥 Backlog | 51 | -1 |
 | 🔨 Doing | 0 | — |
-| 👀 Review | 0 | — |
-| ✅ Done | 8 | +1 |
+| 👀 Review | 0 | -1 |
+| ✅ Done | 10 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 13.1% (8/61) | +1.6 pp |
+| % Completado | 16.4% (10/61) | +1.6 pp |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (53)
+### 📥 Backlog (51)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
-| TASK-005 | Retry/backoff 20 s | EP-001 | M | TASK-002, TASK-004 |
-| TASK-006 | GET /downloads/{task_id} | EP-001 | S | TASK-003 |
 | TASK-007 | Normalización a segundos UTC | EP-001 | S | TASK-002 |
 | TASK-008 | Validación ventana ≤ 2 años | EP-001 | S | TASK-002 |
 | TASK-011 | Normalización UTC y esquema | EP-002 | S | TASK-010 |
@@ -86,7 +84,7 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (8)
+### ✅ Done (10)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
@@ -98,6 +96,8 @@ Sin tareas.
 | TASK-003 | Endpoint POST /downloads | EP-001 | 2026-09-18 | `test_downloads.py` (10 tests, broker stub, api+ingest 100%) |
 | TASK-010 | Pipeline limpieza e imputación | EP-002 | 2026-09-18 | `test_clean.py` (18 tests, cobertura pipeline 100%, política PA-3) |
 | TASK-004 | Celery + RabbitMQ (download_asset) | EP-001 | 2026-09-18 | `test_tasks.py` (15 tests, E2E eager 3 h + adapter); E2E dev en vivo compose worker/rabbitmq |
+| TASK-005 | Retry/backoff 20 s y manejo de fallos parciales | EP-001 | 2026-09-21 | `test_retry.py` (reintento backoff 20 s, agotamiento) + `test_tasks.py::TestPartialFailures` (exito/parcial/fallo); 136 ✅ + 2 skip |
+| TASK-006 | Endpoint GET /downloads/{task_id} | EP-001 | 2026-09-21 | `test_download_status.py` (4 estados + filas) + `test_tasks.py::TestCeleryDownloadStatus` (mapeo AsyncResult); 147 ✅ + 2 skip |
 
 ### 🔴 Blocked (0)
 
@@ -140,7 +140,7 @@ Ninguno.
 
 - PA-2 sin resolver → impacta TASK-036 y TASK-UI-060 (ambos en ruta crítica).
 - PA-1 sin resolver → impacta TASK-005, TASK-008.
-- **AR-1 activo (observado 2026-09-18):** Dukascopy devuelve 503/timeout desde esta IP (4/4 intentos en el E2E de TASK-004; fechas pasadas) → el tramo de datos reales está temporalmente degradado; TASK-005 (retry/backoff 20 s) + ADR-006 lo mitigan.
+- **AR-1 activo (observado 2026-09-18):** Dukascopy devuelve 503/timeout desde esta IP (4/4 intentos en el E2E de TASK-004; fechas pasadas) → el tramo de datos reales está temporalmente degradado; TASK-005 (retry/backoff 20 s, en 👀 Review) + ADR-006 lo mitigan.
 - RNF sin verificación programada (solo RF-003 y RNF-008 tienen prueba vía TASK-009; el resto 0).
 - DP-8: 184 pts > capacidad nominal de 2 semanas → priorizar ruta crítica; difiere SCR-005/a11y fino si el plazo aprieta.
 
@@ -156,6 +156,8 @@ Ninguno.
 - TASK-010 implementada → 👀 Review (18 tests, cobertura pipeline 100%, política PA-3 testeada con NaN/gaps); habilita TASK-011, TASK-014, TASK-031.
 - TASK-010 ✅ Done tras review validada (111 tests ✅ + 1 skip; se eliminó constante muerta `_OHLC_KEYS`); RF-003 queda con prueba de limpieza/imputación.
 - TASK-004 ✅ Done (implementada en feature/TASK-004-celery, merge 2026-09-18): Celery + RabbitMQ (ADR-006), tarea `download_asset` E2E validada en vivo con compose worker/rabbitmq (task_id correlacionado, registración OK); datos reales bloqueados por AR-1 (Dukascopy 503/timeout) — evidencia para TASK-005.
+- TASK-005 ✅ Done tras review: retry/backoff 20 s (R-001) con política configurable, estados `exito|parcial|fallo` en el resumen; 136 tests ✅ + 2 skip, ruff/black/mypy OK; **mitiga AR-1**.
+- TASK-006 ✅ Done tras review: GET /downloads/{task_id} con estados encolada/éxito/parcial/fallo + filas; result_backend `rpc://` con amqp (resultados compartidos worker↔API); 147 tests ✅ + 2 skip, ruff/black/mypy OK; DoD completa.
 
 ## 7. Trazabilidad — salud
 
@@ -170,11 +172,9 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. Iniciar TASK-005 (Retry/backoff 20 s, deps TASK-002 ✅ + TASK-004 ✅) — **mitiga AR-1** (Dukascopy 503/timeout observado en el E2E de TASK-004).
-2. Iniciar TASK-006 (GET /downloads/{task_id}, dep TASK-003 ✅) para el ciclo de estados.
-3. Iniciar TASK-007 (Normalización a segundos UTC, dep TASK-002 ✅).
-4. Iniciar TASK-015 (esquema SerieOHLC Parquet) — depende de TASK-009, ya ✅ Done.
-5. Iniciar TASK-037 (monorepo).
+1. Iniciar TASK-007 (Normalización a segundos UTC, dep TASK-002 ✅).
+2. Iniciar TASK-015 (esquema SerieOHLC Parquet) — depende de TASK-009, ya ✅ Done.
+3. Iniciar TASK-037 (monorepo).
 
 ## 9. Historial de cambios (append-only)
 
@@ -207,3 +207,13 @@ Ninguno.
 | 2026-09-18 | TASK-004 | 📥 → 🔨 | Inicio de desarrollo (Celery + RabbitMQ, download_asset, ADR-006) |
 | 2026-09-18 | TASK-004 | 🔨 → 👀 Review | Implementación + 15 tests (E2E eager 3 h + adapter), cobertura ingest 100%, ruff/black/mypy OK, DoD cumplida (compose levanta worker, tarea registrada y ejecutada E2E en vivo); pasa a revisión |
 | 2026-09-18 | TASK-004 | 👀 → ✅ Done | Revisión validada: 126 tests ✅ + 2 skip, cobertura ingest 100%, ruff/mypy OK; DoD completa (merge 2026-09-18); RF-001/RX-001 avanzan (prueba registrada); datos reales limitados por AR-1 (Dukascopy 503/timeout) → mitiga TASK-005 |
+| 2026-09-21 | TASK-005 | 📥 → 🔨 | Inicio de desarrollo (retry/backoff 20 s y manejo de fallos parciales, RF-001/RX-001/RNF-003) |
+| 2026-09-21 | TASK-005 | 🔨 → 👀 Review | Implementación: política RetryPolicy (3 intentos, backoff 20 s), estados exito/parcial/fallo en el resumen; 16 tests nuevos → 136 ✅ + 2 skip, ruff/black/mypy OK; DoD cumplida (fallo HTTP simulado reintentado + estado en resumen); pasa a revisión |
+| 2026-09-21 | TASK-005 | Resync backlog.md | Estado reflejado en backlog.md (📥→👀), saldando desync con status.md; 136 tests ✅ + 2 skip |
+| 2026-09-21 | TASK-005 | 👀 → ✅ Done | Review validada: DoD completa (fallo HTTP simulado → backoff 20 s; estado parcial/fallo en resumen); 136 tests ✅ + 2 skip, ruff/black/mypy OK; prueba registrada (RF-001/RX-001/RNF-003); **mitiga AR-1** |
+| 2026-09-21 | TASK-005 | Resync backlog.md | Estado reflejado en backlog.md (👀→✅), saldando desync con status.md |
+| 2026-09-21 | TASK-006 | 📥 → 🔨 | Inicio de desarrollo (endpoint GET /downloads/{task_id}, RF-001/RX-001/HU-002) |
+| 2026-09-21 | TASK-006 | 🔨 → 👀 Review | Implementación: GET estado (encolada/éxito/parcial/fallo) + filas; CeleryDownloadStatus mapea AsyncResult; result_backend rpc:// con amqp (resultados compartidos worker↔API); 11 tests nuevos → 147 ✅ + 2 skip, ruff/black/mypy OK; pasa a revisión |
+| 2026-09-21 | TASK-006 | Resync backlog.md | Estado reflejado en backlog.md (📥→👀), saldando desync con status.md |
+| 2026-09-21 | TASK-006 | 👀 → ✅ Done | Review validada: DoD completa (GET devuelve encolada/éxito/parcial/fallo + filas); 147 tests ✅ + 2 skip, ruff/black/mypy OK; prueba registrada (RF-001/RX-001) |
+| 2026-09-21 | TASK-006 | Resync backlog.md | Estado reflejado en backlog.md (👀→✅), saldando desync con status.md |

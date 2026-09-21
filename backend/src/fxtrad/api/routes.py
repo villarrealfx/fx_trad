@@ -16,7 +16,7 @@ import structlog
 from fastapi import APIRouter, Depends, Request, status
 from pydantic import BaseModel, Field
 
-from fxtrad.ingest import DownloadQueue, DownloadRequest
+from fxtrad.ingest import DownloadInfo, DownloadQueue, DownloadRequest, DownloadStatusQuery
 
 logger = structlog.get_logger()
 
@@ -40,6 +40,15 @@ def _get_download_queue(request: Request) -> DownloadQueue:
 
 
 DownloadQueueDependency = Annotated[DownloadQueue, Depends(_get_download_queue)]
+
+
+def _get_download_status_query(request: Request) -> DownloadStatusQuery:
+    """Devuelve la consulta de estado inyectada al crear la aplicación (TASK-006)."""
+    query: DownloadStatusQuery = request.app.state.download_status_query
+    return query
+
+
+DownloadStatusDependency = Annotated[DownloadStatusQuery, Depends(_get_download_status_query)]
 
 
 @router.post(
@@ -70,6 +79,34 @@ def enqueue_download(
         task_id=task_id,
     )
     return DownloadAccepted(task_id=task_id)
+
+
+@router.get(
+    "/downloads/{task_id}",
+    response_model=DownloadInfo,
+    summary="Consulta el estado de una descarga encolada",
+)
+def get_download_status(
+    task_id: str,
+    download_status: DownloadStatusDependency,
+) -> DownloadInfo:
+    """Devuelve el estado y las filas obtenidas de la descarga (TASK-006).
+
+    Args:
+        task_id: Identificador de la tarea devuelto por ``POST /downloads``.
+        download_status: Consulta de estado inyectada (ADR-006).
+
+    Returns:
+        Estado (encolada/éxito/parcial/fallo) y filas obtenidas.
+    """
+    info = download_status.get(task_id)
+    logger.info(
+        "estado_descarga_consultado",
+        task_id=task_id,
+        estado=info.estado,
+        filas=info.filas,
+    )
+    return info
 
 
 __all__ = ["DownloadAccepted", "router"]

@@ -1,13 +1,13 @@
 # Matriz de Trazabilidad
 
 > Se irá completando en cada fase del pipeline SDD.
-> Actualizado: 2026-09-17 (backlog v2 — integra épicas de UI y setup UX). 2026-09-18: Prueba añadida para TASK-009 (contrato OHLC, RF-003 y RNF-008), TASK-012 (calendario, RF-004), TASK-013 (filtro sin mercado, RF-004), TASK-001 (catálogo + request, RF-001), TASK-002 (cliente Dukascopy, RF-001, RF-002 y RX-001), TASK-003 (endpoint POST /downloads, RF-001), TASK-010 (limpieza/imputación PA-3, RF-003) y TASK-004 (Celery + tarea download_asset, RF-001 y RX-001; E2E dev con compose worker/rabbitmq).
+> Actualizado: 2026-09-17 (backlog v2 — integra épicas de UI y setup UX). 2026-09-18: Prueba añadida para TASK-009 (contrato OHLC, RF-003 y RNF-008), TASK-012 (calendario, RF-004), TASK-013 (filtro sin mercado, RF-004), TASK-001 (catálogo + request, RF-001), TASK-002 (cliente Dukascopy, RF-001, RF-002 y RX-001), TASK-003 (endpoint POST /downloads, RF-001), TASK-010 (limpieza/imputación PA-3, RF-003) y TASK-004 (Celery + tarea download_asset, RF-001 y RX-001; E2E dev con compose worker/rabbitmq). 2026-09-21: Prueba añadida para TASK-005 (retry/backoff 20 s y estado parcial/fallo, RF-001, RX-001 y RNF-003).
 
 **Leyenda:** 🟡 pendiente · 🔵 en progreso · 🟢 completo · 🔴 bloqueado
 
 | Requisito | Diseño (ADR/Componente/Pantalla) | Tarea | Prueba | Estado |
 |-----------|---------------------------------|-------|--------|--------|
-| RF-001 | Módulo ingest + Celery (ADR-002, ADR-006, ADR-010); SCR-002 | TASK-001, TASK-002, TASK-003, TASK-004, TASK-005, TASK-UI-020, TASK-UI-021 | `backend/tests/ingest/test_catalog.py` + `test_requests.py` (TASK-001); `test_freeserv.py::TestFreeservClient` (TASK-002, ADR-010); `backend/tests/api/test_downloads.py` (202 + task_id, broker mockeado — TASK-003); `backend/tests/ingest/test_tasks.py` (tarea registrada + E2E eager + CeleryDownloadQueue — TASK-004) | 🔵 |
+| RF-001 | Módulo ingest + Celery (ADR-002, ADR-006, ADR-010); SCR-002 | TASK-001, TASK-002, TASK-003, TASK-004, TASK-005, TASK-UI-020, TASK-UI-021 | `backend/tests/ingest/test_catalog.py` + `test_requests.py` (TASK-001); `test_freeserv.py::TestFreeservClient` (TASK-002, ADR-010); `backend/tests/api/test_downloads.py` (202 + task_id, broker mockeado — TASK-003); `backend/tests/ingest/test_tasks.py` (tarea registrada + E2E eager + CeleryDownloadQueue — TASK-004; estado parcial/fallo con fallo HTTP simulado — TASK-005); `backend/tests/ingest/test_retry.py` (reintento con backoff 20 s y agotamiento — TASK-005); `backend/tests/api/test_download_status.py` (GET estado encolada/éxito/parcial/fallo + filas — TASK-006); `backend/tests/ingest/test_tasks.py::TestCeleryDownloadStatus` (mapeo estado desde AsyncResult — TASK-006) | 🔵 |
 | RF-002 | Módulo ingest (ADR-002, ADR-006, ADR-010); SCR-002 | TASK-002, TASK-007, TASK-UI-020, TASK-UI-021 | `backend/tests/ingest/test_freeserv.py::TestAggregation` (velas 1s UTC, TASK-002) | 🔵 |
 | RF-003 | Módulo pipeline (ADR-002, ADR-004) | TASK-009, TASK-010 | `backend/tests/contracts/test_ohlc_contract.py::TestCandleAlignment` (TASK-009) · `backend/tests/pipeline/test_clean.py` (TASK-010, política PA-3) | 🔵 |
 | RF-004 | Módulo pipeline (ADR-002) | TASK-012, TASK-013 | `backend/tests/pipeline/test_calendar.py` (TASK-012) + `backend/tests/pipeline/test_filter.py` (TASK-013) | 🟢 |
@@ -25,7 +25,7 @@
 | RF-016 | Monolito modular (ADR-001) | TASK-042, TASK-043 | [pendiente] | 🔵 |
 | RNF-001 | Cache Karst + lightweight-charts (ADR-007, ADR-005) | TASK-025, TASK-044, TASK-UI-040 | [pendiente] | 🔵 |
 | RNF-002 | DuckDB columnar + Cache Karst (ADR-004, ADR-007) | TASK-015, TASK-044 | [pendiente] | 🔵 |
-| RNF-003 | Módulo ingest (ADR-006) | TASK-008 | [pendiente] | 🔵 |
+| RNF-003 | Módulo ingest (ADR-006) | TASK-005, TASK-008 | `backend/tests/ingest/test_retry.py` (reintentos sobre rangos largos — TASK-005); [ventana de 2 años: pendiente TASK-008] | 🔵 |
 | RNF-004 | Módulo pipeline/storage (ADR-002, ADR-004) | TASK-007, TASK-011 | [pendiente] | 🔵 |
 | RNF-005 | SPA React client-side (ADR-003); setup UX (accessibility.md) | TASK-023, TASK-046, TASK-UI-003, TASK-UI-004 | [pendiente] | 🔵 |
 | RNF-006 | Stack 100% OSS (ADR-001…ADR-009) | TASK-037, TASK-038, TASK-040 | [pendiente] | 🔵 |
@@ -34,7 +34,7 @@
 | RI-001 | Schema SerieOHLC, time único (ADR-004) | TASK-015 | [pendiente] | 🔵 |
 | RI-002 | MetadatosDescarga (ADR-004, ADR-006); SCR-002 historial | TASK-018, TASK-047, TASK-UI-021 | [pendiente] | 🔵 |
 | RI-003 | Overlay: dibujos efímeros, solo PNG (ADR-005); SCR-006 | TASK-036, TASK-UI-060 | [pendiente] | 🔵 |
-| RX-001 | Módulo ingest + Celery (ADR-006, ADR-010) | TASK-002, TASK-004 | `backend/tests/ingest/test_freeserv.py::TestFreeservClient` (mapeo, agregación, hora conocida mockeada, integración optativa) · `backend/tests/ingest/test_tasks.py` (E2E eager de download_asset — TASK-004) | 🔵 |
+| RX-001 | Módulo ingest + Celery (ADR-006, ADR-010) | TASK-002, TASK-004, TASK-005, TASK-006 | `backend/tests/ingest/test_freeserv.py::TestFreeservClient` (mapeo, agregación, hora conocida mockeada, integración optativa) · `backend/tests/ingest/test_tasks.py` (E2E eager de download_asset — TASK-004; estado parcial/fallo — TASK-005) · `backend/tests/api/test_download_status.py` + `test_tasks.py::TestCeleryDownloadStatus` (estado/filas desde AsyncResult — TASK-006) | 🔵 |
 | RX-002 | API REST backend (ADR-002); SCR-004 | TASK-021, TASK-022 | [pendiente] | 🔵 |
 
 **Regla de cubrimiento:** todo requisito tiene ≥1 tarea asociada ✅ (29/29 requisitos IN cubiertos). Requisitos Won't (RF-W-01…RF-W-07) fuera de alcance, sin tareas por decisión `[Won't]` documentada en `requirements.md`.
