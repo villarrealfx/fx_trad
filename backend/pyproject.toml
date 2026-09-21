@@ -5,6 +5,7 @@ description = "Backend: Plataforma de Analisis Tecnico (estilo TradingView)"
 requires-python = ">=3.12"
 dependencies = [
     "celery[amqp]>=5,<6",
+    "duckdb>=1,<2",
     "dukascopy-python>=4.0.1,<5",
     "fastapi>=0.110,<1",
     "pydantic>=2.6,<3",

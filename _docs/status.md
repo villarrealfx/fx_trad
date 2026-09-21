@@ -8,25 +8,24 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 61 | +15 (backlog v2: TASK-047 + 14 TASK-UI-XXX) |
-| 📥 Backlog | 49 | -1 |
+| 📥 Backlog | 48 | -1 |
 | 🔨 Doing | 0 | — |
-| 👀 Review | 0 | -1 |
-| ✅ Done | 12 | +1 |
+| 👀 Review | 1 | +1 |
+| ✅ Done | 12 | — |
 | 🔴 Blocked | 0 | — |
-| % Completado | 19.7% (12/61) | +1.7 pp |
+| % Completado | 19.7% (12/61) | — |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (49)
+### 📥 Backlog (48)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
 | TASK-011 | Normalización UTC y esquema | EP-002 | S | TASK-010 |
 | TASK-014 | Agregación OHLC 1m/5m/15m/1h/4h/1d | EP-002 | L | TASK-010, TASK-012 |
-| TASK-015 | SerieOHLC Parquet (time único) | EP-003 | M | TASK-009 |
 | TASK-016 | Consulta DuckDB activo/rango/TF | EP-003 | M | TASK-015 |
 | TASK-017 | Parquet pre-resampling | EP-003 | M | TASK-014, TASK-015 |
 | TASK-018 | MetadatosDescarga | EP-003 | S | TASK-015 |
@@ -78,9 +77,11 @@
 
 Sin tareas.
 
-### 👀 Review (0)
+### 👀 Review (1)
 
-Sin tareas.
+| ID | Tarea | Épica | Est. | En review desde |
+|----|-------|-------|------|-----------------|
+| TASK-015 | SerieOHLC Parquet (time único) | EP-003 | M | 2026-09-21 |
 
 ### ✅ Done (12)
 
@@ -158,6 +159,7 @@ Ninguno.
 - TASK-004 ✅ Done (implementada en feature/TASK-004-celery, merge 2026-09-18): Celery + RabbitMQ (ADR-006), tarea `download_asset` E2E validada en vivo con compose worker/rabbitmq (task_id correlacionado, registración OK); datos reales bloqueados por AR-1 (Dukascopy 503/timeout) — evidencia para TASK-005.
 - TASK-005 ✅ Done tras review: retry/backoff 20 s (R-001) con política configurable, estados `exito|parcial|fallo` en el resumen; 136 tests ✅ + 2 skip, ruff/black/mypy OK; **mitiga AR-1**.
 - TASK-006 ✅ Done tras review: GET /downloads/{task_id} con estados encolada/éxito/parcial/fallo + filas; result_backend `rpc://` con amqp (resultados compartidos worker↔API); 147 tests ✅ + 2 skip, ruff/black/mypy OK; DoD completa.
+- TASK-015 implementada → 👀 Review (2026-09-21): módulo `storage` (`ParquetSeriesStore`, `DuplicateTimeError`) con Parquet por activo, `time BIGINT` único (RI-001) y consulta DuckDB de rango; 12 tests nuevos (`test_series.py`) → 174 ✅ + 2 skip, ruff/black/mypy OK; habilita TASK-016/017/018.
 
 ## 7. Trazabilidad — salud
 
@@ -172,8 +174,8 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. Iniciar TASK-015 (esquema SerieOHLC Parquet) — depende de TASK-009, ya ✅ Done.
-2. Iniciar TASK-037 (monorepo).
+1. Revisar TASK-015 (SerieOHLC Parquet) → si OK, `👀 → ✅ Done`; desbloquea TASK-016/017/018.
+2. Iniciar TASK-016 (consulta DuckDB) o TASK-037 (monorepo).
 
 ## 9. Historial de cambios (append-only)
 
