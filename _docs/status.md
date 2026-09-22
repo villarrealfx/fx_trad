@@ -8,19 +8,19 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 61 | +15 (backlog v2: TASK-047 + 14 TASK-UI-XXX) |
-| 📥 Backlog | 42 | -6 |
+| 📥 Backlog | 41 | -7 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | -1 |
-| ✅ Done | 19 | +7 |
+| ✅ Done | 20 | +8 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 31.1% (19/61) | +11.4 |
+| % Completado | 32.8% (20/61) | +11.7 |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (42)
+### 📥 Backlog (41)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
@@ -39,7 +39,6 @@
 | TASK-UI-020 | SCR-002 Form descarga + validación | EP-UI-002 | M | TASK-003, TASK-UI-001 |
 | TASK-UI-021 | SCR-002 Progreso + historial + estados | EP-UI-002 | L | TASK-006, TASK-047, TASK-UI-020 |
 | TASK-UI-030 | SCR-003 Estados y validación cobertura | EP-UI-003 | M | TASK-020, TASK-026 |
-| TASK-025 | Zoom/pan 60 FPS (2 años) | EP-UI-004 | M | TASK-024 |
 | TASK-026 | Selector activo/rango/timeframe | EP-UI-003 | M | TASK-021, TASK-024 |
 | TASK-027 | Overlay canvas sincronizado | EP-UI-004 | L | TASK-024 |
 | TASK-028 | Línea y rectángulo (crear/borrar) | EP-UI-004 | L | TASK-027 |
@@ -75,7 +74,7 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (19)
+### ✅ Done (20)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
@@ -98,6 +97,7 @@ Sin tareas.
 | TASK-021 | Endpoint GET /series | EP-004 | 2026-09-22 | `backend/tests/api/test_series_endpoint.py` (12 tests, contrato OhlcResponse + integración DuckDB) — RF-008/RF-009/RX-002 |
 | TASK-023 | Scaffold React 18 + Vite 5 + TS 5 | EP-UI-000 | 2026-09-22 | `frontend/`: `npm run dev` (Vite 5, HTTP 200) + `npm run lint`/`typecheck`/`test` (6 tests, App 100%) verdes — RNF-005 |
 | TASK-024 | lightweight-charts + datos API | EP-UI-004 | 2026-09-22 | `frontend/` `ChartPane.test.tsx` (6: estados loading/empty/error+retry/success, leyenda OHLC, atajos +/−/1, dispose) + `series.test.ts` (4); suite 16/16, cobertura 96.18% — RF-009/RF-010 |
+| TASK-025 | Zoom/pan fluido a 60 FPS (2 años) | EP-UI-004 | 2026-09-22 | `frontend/` `frame-rate.test.ts` + `frame-batch.test.ts` (FrameRateMeter rAF, métricas avgFps/p95/max/dropped, presupuesto 16.67 ms) + `ChartPane.test.tsx` (pan/zoom dataset 2 años sin re-feed ni drops; leyenda batcheada — RF-010/RNF-001; sesión real → TASK-UI-040) |
 
 ### 🔴 Blocked (0)
 
@@ -146,6 +146,7 @@ Ninguno.
 
 ### 🟢 Informativas
 
+- TASK-025 👀 → ✅ Done tras review aprobada (2026-09-22): DoD completa (pan/zoom 60 FPS medido con `FrameRateMeter` rAF + leyenda OHLC batcheada por frame; suite frontend 31/31, cobertura 99.73%, lint/typecheck/build/prettier OK); prueba registrada (RF-010/RNF-001); habilita TASK-UI-040 (deps TASK-024 + TASK-025 ✅). Nota: validación de sesión en navegador real diferida a TASK-UI-040.
 - Backlog v2 aprobado: 61 tareas (46 heredadas + 15 nuevas) con épicas de UI por pantalla.
 - status.md resincronizado contra backlog v2.
 - TASK-009 ✅ Done (primer nodo de la ruta crítica implementado y validado).
@@ -249,3 +250,5 @@ Ninguno.
 | 2026-09-22 | TASK-023 | 👀 → ✅ | Review validada: DoD completa (app levanta en dev — Vite 5.4.21 HTTP 200, lint + typecheck en verde); `frontend/` SPA con dev/build/prettier OK y 6 tests (cobertura App 100%); prueba registrada (RNF-005); habilita TASK-024 y EP-UI-000 (TASK-UI-000/001/002/003) |
 | 2026-09-22 | TASK-024 | 📥 → 👀 | Implementación verificada: ChartPane base CMP-007 (lightweight-charts v4, ADR-005) consumiendo GET /series en contrato OHLC sin transformación (RNF-008); `ChartPane.test.tsx` (6) + `series.test.ts` (4) → suite frontend 16/16, cobertura 96.18%, lint/typecheck/build/prettier OK, dev server HTTP 200 con proxy `/series`; prueba registrada (RF-009/RF-010); pasa a revisión. Deps TASK-021/TASK-023 ✅ |
 | 2026-09-22 | TASK-024 | 👀 → ✅ | Review validada: DoD completa (ChartPane v4 renderiza velas reales vía GET /series en contrato OHLC sin transformación RNF-008; suite frontend 16/16, cobertura 96.18%, lint/typecheck/build verdes, dev HTTP 200); prueba registrada (RF-009/RF-010); ruta crítica 7/12 (58%); habilita TASK-025/027/026/032/033/TASK-UI-040. E2E con backend vivo diferido a TASK-026/TASK-UI-040 |
+| 2026-09-22 | TASK-025 | 📥 → 👀 | Implementación verificada: `FrameRateMeter` rAF + `createFrameBatcher` + leyenda OHLC batcheada en `ChartPane.tsx`; `frame-rate.test.ts` + `frame-batch.test.ts` + smoke pan/zoom dataset 2 años (SRC-004, RNF-001) → suite frontend 31/31, cobertura 99.73%, lint/typecheck/build/prettier OK; prueba registrada (RF-010/RNF-001); pasa a revisión. Dep TASK-024 ✅; habilita TASK-UI-040. Nota: profiling con scheduler inyectado (jsdom); sesión real difiere a TASK-UI-040 |
+| 2026-09-22 | TASK-025 | 👀 → ✅ | Review validada: DoD completa (pan/zoom 60 FPS con `FrameRateMeter` rAF y leyenda OHLC batcheada, RNF-001/KPI-2; suite frontend 31/31, cobertura 99.73%, lint/typecheck/build verdes); prueba registrada (RF-010/RNF-001); habilita TASK-UI-040 (deps TASK-024 + TASK-025 ✅). Validación de sesión en navegador real diferida a TASK-UI-040 |
