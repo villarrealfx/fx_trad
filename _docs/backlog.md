@@ -207,7 +207,7 @@
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
 | TASK-020 | Endpoint GET /assets (catálogo con cobertura y estado) | backend | S | TASK-016 | Devuelve el catálogo de activos con datos almacenados (contrato CMP-006); test unitario | 📥 |
-| TASK-021 | Endpoint GET /series (activo, rango, timeframe) | backend | M | TASK-016, TASK-017 | Devuelve la serie OHLC del rango/timeframe y coincide con la consulta directa a DuckDB; test | 📥 |
+| TASK-021 | Endpoint GET /series (activo, rango, timeframe) | backend | M | TASK-016, TASK-017 | Devuelve la serie OHLC del rango/timeframe y coincide con la consulta directa a DuckDB; test | ✅ |
 | TASK-022 | Contrato de respuesta en TS types alineado a lightweight-charts | frontend | S | TASK-009 | Los tipos comparten esquema con TASK-009 y compilan sin transformaciones en el frontend | 📥 |
 
 #### HU-017: Historial de descargas
@@ -235,7 +235,7 @@
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-023 | Scaffold frontend React 18 + Vite 5 + TS 5 | frontend | S | — | La app levanta en dev; lint y typecheck en verde | 📥 |
+| TASK-023 | Scaffold frontend React 18 + Vite 5 + TS 5 | frontend | S | — | La app levanta en dev; lint y typecheck en verde | ✅ |
 | TASK-UI-000 | Setup tokens design system (color, tipografía, spacing, radius, shadow; dark único) | frontend | M | TASK-023 | Tokens consumibles desde código (design-system.md); ratios de contraste calculados ≥4.5:1 texto normal / ≥3:1 grande | 📥 |
 | TASK-UI-001 | Primitivas form: Button (CMP-001), Input (CMP-002), Select (CMP-003), RadioGroup (CMP-004), DateRange (CMP-005) | frontend | L | TASK-UI-000 | Cada componente con estados default/hover/focus/error/disabled/loading según components.md; label visible siempre; contraste AA; test visual | 📥 |
 | TASK-UI-002 | Feedback/overlay: StatusBanner (CMP-012), ProgressBar (CMP-013), Modal (CMP-014), Toast (CMP-015), Tab (CMP-011) con foco y roles | frontend | L | TASK-UI-000 | Estados por interacción (success/error/warning, `role=alert`/`aria-live`, focus trap en Modal); usa tokens | 📥 |
@@ -315,7 +315,7 @@
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-024 | Integración de lightweight-charts v4 con datos de la API (ChartPane base CMP-007) | frontend | M | TASK-021, TASK-023 | Renderiza velas reales de un activo; contrato OHLC sin transformación (RNF-008); smoke test | 📥 |
+| TASK-024 | Integración de lightweight-charts v4 con datos de la API (ChartPane base CMP-007) | frontend | M | TASK-021, TASK-023 | Renderiza velas reales de un activo; contrato OHLC sin transformación (RNF-008); smoke test | 👀 |
 | TASK-025 | Zoom/pan fluido a 60 FPS con dataset de 2 años | frontend | M | TASK-024 | Pan/zoom continuo sin caídas perceptibles; profiling vía requestAnimationFrame (RNF-001) | 📥 |
 | TASK-027 | Overlay canvas sincronizado con los ejes del gráfico | frontend | L | TASK-024 | El trazo se mantiene anclado a precio/tiempo durante zoom y pan; verificación manual | 📥 |
 | TASK-028 | Herramientas de línea y rectángulo (crear/borrar) | frontend | L | TASK-027 | Se crean y borran líneas y rectángulos; persisten solo en sesión (RI-003) | 📥 |

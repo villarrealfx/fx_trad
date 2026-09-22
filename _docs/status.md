@@ -8,19 +8,19 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 61 | +15 (backlog v2: TASK-047 + 14 TASK-UI-XXX) |
-| 📥 Backlog | 45 | -3 |
+| 📥 Backlog | 42 | -6 |
 | 🔨 Doing | 0 | — |
-| 👀 Review | 0 | -1 |
-| ✅ Done | 16 | +4 |
+| 👀 Review | 1 | +1 |
+| ✅ Done | 18 | +6 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 26.2% (16/61) | +6.5 |
+| % Completado | 29.5% (18/61) | +9.8 |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (45)
+### 📥 Backlog (43)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
@@ -28,10 +28,8 @@
 | TASK-018 | MetadatosDescarga | EP-003 | S | TASK-015 |
 | TASK-019 | Upsert incremental (merge time) | EP-003 | M | TASK-016, TASK-018 |
 | TASK-020 | Endpoint GET /assets | EP-004 | S | TASK-016 |
-| TASK-021 | Endpoint GET /series | EP-004 | M | TASK-016, TASK-017 |
 | TASK-022 | Contrato respuesta TS (lightweight-charts) | EP-004 | S | TASK-009 |
 | TASK-047 | Endpoint GET /downloads (historial RI-002) | EP-004 | S | TASK-018 |
-| TASK-023 | Scaffold React 18 + Vite 5 + TS 5 | EP-UI-000 | S | — |
 | TASK-UI-000 | Setup tokens design system | EP-UI-000 | M | TASK-023 |
 | TASK-UI-001 | Primitivas form (Button, Input, Select, RadioGroup, DateRange) | EP-UI-000 | L | TASK-UI-000 |
 | TASK-UI-002 | Feedback/overlay (StatusBanner, ProgressBar, Modal, Toast, Tab) | EP-UI-000 | L | TASK-UI-000 |
@@ -41,7 +39,6 @@
 | TASK-UI-020 | SCR-002 Form descarga + validación | EP-UI-002 | M | TASK-003, TASK-UI-001 |
 | TASK-UI-021 | SCR-002 Progreso + historial + estados | EP-UI-002 | L | TASK-006, TASK-047, TASK-UI-020 |
 | TASK-UI-030 | SCR-003 Estados y validación cobertura | EP-UI-003 | M | TASK-020, TASK-026 |
-| TASK-024 | lightweight-charts + datos API | EP-UI-004 | M | TASK-021, TASK-023 |
 | TASK-025 | Zoom/pan 60 FPS (2 años) | EP-UI-004 | M | TASK-024 |
 | TASK-026 | Selector activo/rango/timeframe | EP-UI-003 | M | TASK-021, TASK-024 |
 | TASK-027 | Overlay canvas sincronizado | EP-UI-004 | L | TASK-024 |
@@ -74,11 +71,13 @@
 
 Sin tareas.
 
-### 👀 Review (0)
+### 👀 Review (1)
 
-Sin tareas.
+| ID | Tarea | Épica | En review desde |
+|----|-------|-------|-----------------|
+| TASK-024 | lightweight-charts + datos API | EP-UI-004 | 2026-09-22 |
 
-### ✅ Done (16)
+### ✅ Done (18)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
@@ -98,6 +97,8 @@ Sin tareas.
 | TASK-008 | Validación ventana ≤ 2 años | EP-001 | 2026-09-21 | `test_window.py` (rechazo >2 años con mensaje, límite inclusivo, integración DownloadRequest); 162 ✅ + 2 skip |
 | TASK-014 | Agregación OHLC 1m/5m/15m/1h/4h/1d | EP-002 | 2026-09-22 | `backend/tests/pipeline/test_resample.py` (16 tests, 100% cobertura) — RF-009 |
 | TASK-017 | Parquet pre-resampling | EP-003 | 2026-09-22 | `backend/tests/storage/test_timeframes.py` (13 tests, fichas por TF sin recomputar) — RF-005/RF-009/RNF-002/RI-001 |
+| TASK-021 | Endpoint GET /series | EP-004 | 2026-09-22 | `backend/tests/api/test_series_endpoint.py` (12 tests, contrato OhlcResponse + integración DuckDB) — RF-008/RF-009/RX-002 |
+| TASK-023 | Scaffold React 18 + Vite 5 + TS 5 | EP-UI-000 | 2026-09-22 | `frontend/`: `npm run dev` (Vite 5, HTTP 200) + `npm run lint`/`typecheck`/`test` (6 tests, App 100%) verdes — RNF-005 |
 
 ### 🔴 Blocked (0)
 
@@ -105,7 +106,7 @@ Sin tareas.
 
 ## 3. Ruta crítica — estado
 
-Estado: 5/12 completadas (42%) · ETA: desconocido (sin velocidad histórica).
+Estado: 6/12 completadas (50%) · ETA: desconocido (sin velocidad histórica).
 
 ```mermaid
 graph LR
@@ -113,8 +114,8 @@ graph LR
   T10 --> T12[TASK-012 ✅]
   T12 --> T14[TASK-014 ✅]
   T14 --> T17[TASK-017 ✅]
-  T17 --> T21[TASK-021 📥]
-  T21 --> T24[TASK-024 📥]
+  T17 --> T21[TASK-021 ✅]
+  T21 --> T24[TASK-024 👀]
   T24 --> T27[TASK-027 📥]
   T27 --> T30[TASK-030 📥]
   T30 --> T35[TASK-035 📥]
@@ -163,6 +164,11 @@ Ninguno.
 - TASK-016 👀 → ✅ Done tras review aprobada (2026-09-21): DoD completa — `SeriesQuery.read` valida timeframe base `1s` y range invertido → `InvalidRangeError`, delega en `read_range` de TASK-015; 11 tests (`test_queries.py`) → 186 ✅ + 2 skip, cobertura `queries` 100%, ruff/black/mypy OK; prueba registrada (RF-005/RNF-002/RI-001); habilita TASK-017/018/019/020/021.
 - TASK-017 implementada → 👀 Review (2026-09-22): pre-resampling persistido por TF (`{symbol}.{tf}.parquet`, TASK-014-TF canónico; ADR-007), consulta por TF sin recomputar (RF-009, RNF-008); 13 tests nuevos (`test_timeframes.py`) + `test_queries.py` ajustado (rechazo solo no canónicos) → suite 214 ✅ + 2 skip, cobertura storage 94% (series 97%, queries 83%), ruff/black/mypy OK; DoD cubierta (persistidos + consulta sin recomputar); habilita TASK-021/044.
 - TASK-017 👀 → ✅ Done tras review aprobada (2026-09-22): DoD completa (Parquet por TF persistido + consulta sin recomputar); `test_timeframes.py` (13 tests); prueba registrada (RF-005/RF-009/RNF-002/RI-001); ruta crítica 5/12 (42%); desbloquea TASK-021 (siguiente en ruta crítica) y TASK-044.
+- TASK-021 implementada → 👀 Review (2026-09-22): `GET /series` (activo/rango/timeframe) devuelve `OhlcResponse` desde el Parquet pre-resampling sin recomputar (RF-008/RX-002/RF-009); inyección `series_query` en `create_app` (default `FXTRAD_DATA_DIR`); 12 tests nuevos (`test_series_endpoint.py`, integración real DuckDB — DoD "coincide con consulta directa") → suite 226 ✅ + 2 skip, cobertura api 100%, ruff/black/mypy OK; habilita TASK-024/026/022.
+- TASK-021 👀 → ✅ Done tras review aprobada (2026-09-22): DoD completa (respuesta en contrato OhlcResponse, coincidencia con DuckDB); prueba registrada (RF-008/RF-009/RX-002); ruta crítica 6/12 (50%); desbloquea TASK-024 (siguiente en ruta crítica), TASK-026, TASK-022 y TASK-044.
+- TASK-023 implementada → 👀 Review (2026-09-22): scaffold SPA React 18 + Vite 5 + TS 5 en `frontend/` (ADR-003) sobre el paquete de contrato TS (TASK-009) conservado; dev server HTTP 200, lint/typecheck/build verdes, 6 tests (cobertura App 100%); habilita EP-UI-000, TASK-024 y TASK-UI-000/003.
+- TASK-023 👀 → ✅ Done tras review aprobada (2026-09-22): DoD completa (app levanta en dev, lint y typecheck en verde); prueba registrada (RNF-005); habilita TASK-024 (ruta crítica) y EP-UI-000.
+- TASK-024 implementada → 👀 Review (2026-09-22): ChartPane base CMP-007 con lightweight-charts v4 (ADR-005) consumiendo `GET /series` (TASK-021) en contrato OHLC sin transformación (RNF-008); `ChartPane.test.tsx` (6 tests: estados loading/empty/error+retry/success, leyenda OHLC, atajos +/−/1, dispose) + `series.test.ts` (4 tests) → suite frontend 16/16, cobertura 96.18% (ChartPane 91.72%, series 96.96%); lint/typecheck/build/prettier OK; dev server HTTP 200 con proxy `/series` → `http://localhost:8000`; prueba registrada (RF-009/RF-010); pasa a revisión. Deps TASK-021/TASK-023 ✅; nota: velas validadas con fetch mockeado sobre el contrato real (sin E2E con backend en vivo).
 
 ## 7. Trazabilidad — salud
 
@@ -237,3 +243,8 @@ Ninguno.
 | 2026-09-22 | TASK-017 | 📥 → 👀 | Implementación verificada: pre-resampling persistido por TF (`{symbol}.{tf}.parquet`, ADR-007) y consultado sin recomputar; `test_timeframes.py` (13 tests) + `test_queries.py` ajustado (1m→canónico, rechazo 3m); cobertura storage 94% (series 97%, queries 83%); suite 214 ✅ + 2 skip, ruff/black/mypy OK; prueba registrada (RF-005/RF-009/RNF-002/RI-001); pasa a revisión. Deps TASK-014/TASK-015 ✅ |
 | 2026-09-22 | TASK-017 | 👀 → ✅ | Review validada: DoD completa (archivos `{symbol}.{tf}.parquet` persistidos y consultados sin recomputar); `test_timeframes.py` (13 tests); suite 214 ✅ + 2 skip, cobertura storage 94%, ruff/black/mypy OK; prueba registrada (RF-005/RF-009/RNF-002/RI-001); habilita TASK-021/044 |
 | 2026-09-22 | TASK-015 | Limpieza historial | Eliminada fila duplicada/malformada del historial (TASK-015 ⭐, sintaxis rota y columnas de más); la entrada válida TASK-015 👀→✅ se conserva intacta (append-only) |
+| 2026-09-22 | TASK-021 | 📥 → 👀 | Implementación verificada: `GET /series` (activo, rango, timeframe) en `api/routes.py` devolviendo `OhlcResponse` (RX-002/RNF-008), inyección de `series_query` en `create_app` (default `FXTRAD_DATA_DIR`); `test_series_endpoint.py` (12 tests: contrato + integración real Parquet/DuckDB comparando contra consulta directa — DoD); suite 226 ✅ + 2 skip, cobertura api 100%, ruff/black/mypy OK; prueba registrada (RF-008/RF-009/RX-002); pasa a revisión |
+| 2026-09-22 | TASK-021 | 👀 → ✅ | Review validada: DoD completa (GET /series sirve OHLC por activo/rango/timeframe en contrato OhlcResponse y coincide con la consulta directa a DuckDB); `test_series_endpoint.py` (12 tests); suite 226 ✅ + 2 skip, cobertura api 100%, ruff/black/mypy OK; prueba registrada (RF-008/RF-009/RX-002); ruta crítica 6/12 (50%); habilita TASK-024/026/022/044 |
+| 2026-09-22 | TASK-023 | 📥 → 👀 | Implementación verificada: scaffold SPA en `frontend/` (fxtrad-web, React 18 + Vite 5 + TS 5, ADR-003; `src/contracts/` de TASK-009 conservado); dev server Vite 5.4.21 HTTP 200, `npm run lint` + `npm run typecheck` + `npm run build` OK, 6 tests (smoke App 100% + alineación contrato), prettier OK; prueba registrada (RNF-005); pasa a revisión. Nota: contracts reformateados (solo estilo) al adoptar prettier |
+| 2026-09-22 | TASK-023 | 👀 → ✅ | Review validada: DoD completa (app levanta en dev — Vite 5.4.21 HTTP 200, lint + typecheck en verde); `frontend/` SPA con dev/build/prettier OK y 6 tests (cobertura App 100%); prueba registrada (RNF-005); habilita TASK-024 y EP-UI-000 (TASK-UI-000/001/002/003) |
+| 2026-09-22 | TASK-024 | 📥 → 👀 | Implementación verificada: ChartPane base CMP-007 (lightweight-charts v4, ADR-005) consumiendo GET /series en contrato OHLC sin transformación (RNF-008); `ChartPane.test.tsx` (6) + `series.test.ts` (4) → suite frontend 16/16, cobertura 96.18%, lint/typecheck/build/prettier OK, dev server HTTP 200 con proxy `/series`; prueba registrada (RF-009/RF-010); pasa a revisión. Deps TASK-021/TASK-023 ✅ |

@@ -32,7 +32,7 @@
 ## Contratos de datos que estos componentes consumen (para /sdd-implement)
 
 - `GET /assets` → `[{symbol, type, coverage_start, coverage_end, status}]`
-- `GET /assets/{symbol}/series?from&to&timeframe` → `[{time, open, high, low, close}]`
+- `GET /series?symbol&timeframe&start&end` → `{symbol, timeframe, candles: [{time, open, high, low, close}]}` (OhlcResponse, TASK-021/RX-002)
 - `POST /downloads` + `POST /downloads/status` → estado de descarga asíncrona (Celery)
 - `GET /downloads` (historial, RI-002) → `[{date, active, range, status, rows}]`
 
