@@ -5,6 +5,8 @@ import {
   FrameRateMeter,
   type FrameRateMeterOptions,
 } from '../../performance/frame-rate';
+import { installCanvas2DContextMock } from '../../testing/canvas-2d';
+import type { OverlayShape } from '../../charting/overlay-geometry';
 import ChartPane from './ChartPane';
 
 const RESPONSE = {
@@ -21,15 +23,27 @@ const chartMocks = vi.hoisted(() => {
   const fitContent = vi.fn();
   const setVisibleLogicalRange = vi.fn();
   const getVisibleLogicalRange = vi.fn(() => ({ from: 0, to: 100 }));
+  const timeToCoordinate = vi.fn(() => 10);
+  const priceToCoordinate = vi.fn(() => 40);
+  const subscribeVisibleLogicalRangeChange = vi.fn();
+  const subscribeSizeChange = vi.fn();
+  const unsubscribeVisibleLogicalRangeChange = vi.fn();
+  const unsubscribeSizeChange = vi.fn();
   const subscribeCrosshairMove = vi.fn();
   const remove = vi.fn();
   const addCandlestickSeries = vi.fn(() => ({
     setData,
+    priceToCoordinate,
   }));
   const timeScale = vi.fn(() => ({
     fitContent,
     setVisibleLogicalRange,
     getVisibleLogicalRange,
+    timeToCoordinate,
+    subscribeVisibleLogicalRangeChange,
+    subscribeSizeChange,
+    unsubscribeVisibleLogicalRangeChange,
+    unsubscribeSizeChange,
   }));
   const createChart = vi.fn<(...args: unknown[]) => unknown>(() => ({
     addCandlestickSeries,
@@ -42,6 +56,12 @@ const chartMocks = vi.hoisted(() => {
     fitContent,
     setVisibleLogicalRange,
     getVisibleLogicalRange,
+    timeToCoordinate,
+    priceToCoordinate,
+    subscribeVisibleLogicalRangeChange,
+    subscribeSizeChange,
+    unsubscribeVisibleLogicalRangeChange,
+    unsubscribeSizeChange,
     subscribeCrosshairMove,
     addCandlestickSeries,
     remove,
@@ -110,7 +130,10 @@ function createManualScheduler() {
 }
 
 describe('ChartPane', () => {
+  let ctx: ReturnType<typeof installCanvas2DContextMock>['ctx'];
+
   beforeEach(() => {
+    ({ ctx } = installCanvas2DContextMock());
     fetchMock.mockReset();
     vi.stubGlobal('fetch', fetchMock);
     for (const mock of Object.values(chartMocks)) {
@@ -120,6 +143,7 @@ describe('ChartPane', () => {
 
   afterEach(() => {
     cleanup();
+    vi.restoreAllMocks();
     vi.unstubAllGlobals();
   });
 
@@ -236,5 +260,38 @@ describe('ChartPane', () => {
     expect(screen.getByText('C 1.09500')).toBeTruthy();
     await waitFor(() => expect(screen.getByText('C 1.20950')).toBeTruthy());
     expect(chartMocks.setData).toHaveBeenCalledTimes(2);
+  });
+
+  it('renders an overlay canvas synced with the chart axes on success', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+    const overlay = document.querySelector('.chart-pane__graph canvas');
+    expect(overlay).not.toBeNull();
+    expect(overlay?.getAttribute('aria-hidden')).toBe('true');
+    expect(chartMocks.subscribeVisibleLogicalRangeChange).toHaveBeenCalledTimes(1);
+    expect(chartMocks.subscribeSizeChange).toHaveBeenCalledTimes(1);
+  });
+
+  it('reprojects drawn anchors after a visible range change', async () => {
+    const drawing: OverlayShape = {
+      id: 'tendencia-1',
+      kind: 'line',
+      from: { time: 1_781_000_000, price: 1.08 },
+      to: { time: 1_781_003_600, price: 1.095 },
+    };
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    render(<ChartPane symbol="EURUSD" timeframe="1h" drawings={[drawing]} />);
+    await waitFor(() => expect(ctx.stroke).toHaveBeenCalled());
+    expect(ctx.moveTo).toHaveBeenCalledWith(10, 40);
+    expect(ctx.lineTo).toHaveBeenCalledWith(10, 40);
+    const handler = chartMocks.subscribeVisibleLogicalRangeChange.mock.calls[0]?.[0] as () => void;
+    const timeCalls = chartMocks.timeToCoordinate.mock.calls.length;
+    ctx.stroke.mockClear();
+    handler();
+    await waitFor(() => expect(ctx.stroke).toHaveBeenCalledTimes(1));
+    expect(chartMocks.timeToCoordinate.mock.calls.length).toBeGreaterThan(timeCalls);
+    expect(chartMocks.timeToCoordinate).toHaveBeenCalledWith(1_781_000_000);
+    expect(chartMocks.timeToCoordinate).toHaveBeenCalledWith(1_781_003_600);
   });
 });

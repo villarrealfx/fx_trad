@@ -10,3 +10,6 @@ export const COLOR_BORDER = '#30363D';
 export const COLOR_TEXT = '#E6EDF3';
 export const COLOR_UP = '#26A69A';
 export const COLOR_DOWN = '#EF5350';
+
+/** Token accent del design system (#58A6FF); trazo del overlay de dibujos (TASK-027). */
+export const COLOR_FOCUS = '#58A6FF';

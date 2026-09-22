@@ -7,10 +7,16 @@ import {
   type ISeriesApi,
 } from 'lightweight-charts';
 import type { Candle, Timeframe } from '../../contracts/ohlc';
+import { createOverlayBinding, type OverlayBinding } from '../../charting/chart-binding';
+import OverlayCanvas from '../../charting/OverlayCanvas';
+import type { OverlayShape } from '../../charting/overlay-geometry';
 import { createFrameBatcher, type FrameBatcher } from '../../performance/frame-batch';
 import { fetchSeries } from '../../services/series';
 import { COLOR_BG, COLOR_BORDER, COLOR_DOWN, COLOR_TEXT, COLOR_UP } from './theme';
 import './ChartPane.css';
+
+/** Sin trazos por defecto (estable; la creación es TASK-028/029/030). */
+const EMPTY_DRAWINGS: ReadonlyArray<OverlayShape> = [];
 
 /** Estados de carga del panel (interaction-specs SCR-004, CMP-007). */
 type ChartStatus = 'loading' | 'empty' | 'error' | 'success';
@@ -24,6 +30,8 @@ export interface ChartPaneProps {
   start?: number;
   /** Fin del rango en segundos UTC (inclusivo, opcional). */
   end?: number;
+  /** Trazos superpuestos anclados a precio/tiempo (TASK-027). */
+  drawings?: ReadonlyArray<OverlayShape>;
 }
 
 /** Formatea un precio al formato de dominio FX (5 decimales). */
@@ -39,7 +47,13 @@ function formatPrice(value: number | undefined): string {
  * empty, error y success, leyenda OHLC textual (a11y SCR-004) y atajos
  * ``+``/``-`` (zoom) y ``1`` (ajuste de vista).
  */
-export default function ChartPane({ symbol, timeframe, start, end }: ChartPaneProps) {
+export default function ChartPane({
+  symbol,
+  timeframe,
+  start,
+  end,
+  drawings = EMPTY_DRAWINGS,
+}: ChartPaneProps) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
@@ -49,6 +63,7 @@ export default function ChartPane({ symbol, timeframe, start, end }: ChartPanePr
   const [errorMessage, setErrorMessage] = useState('');
   const [legendBar, setLegendBar] = useState<Candle | null>(null);
   const [retryToken, setRetryToken] = useState(0);
+  const [overlayBinding, setOverlayBinding] = useState<OverlayBinding | null>(null);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -97,10 +112,12 @@ export default function ChartPane({ symbol, timeframe, start, end }: ChartPanePr
     });
     chartRef.current = chart;
     seriesRef.current = series;
+    setOverlayBinding(createOverlayBinding(chart, series));
     return () => {
       chart.remove();
       chartRef.current = null;
       seriesRef.current = null;
+      setOverlayBinding(null);
       legendBatcherRef.current?.cancel();
       legendBatcherRef.current = null;
     };
@@ -166,14 +183,17 @@ export default function ChartPane({ symbol, timeframe, start, end }: ChartPanePr
 
   return (
     <div className="chart-pane">
-      <div
-        ref={hostRef}
-        className="chart-pane__host"
-        role="img"
-        aria-label={`Gráfico de velas ${symbol} ${timeframe}`}
-        tabIndex={0}
-        onKeyDown={handleKeyDown}
-      />
+      <div className="chart-pane__graph">
+        <div
+          ref={hostRef}
+          className="chart-pane__host"
+          role="img"
+          aria-label={`Gráfico de velas ${symbol} ${timeframe}`}
+          tabIndex={0}
+          onKeyDown={handleKeyDown}
+        />
+        <OverlayCanvas hostRef={hostRef} binding={overlayBinding} shapes={drawings} />
+      </div>
       {status === 'loading' && <div className="chart-pane__overlay">Cargando serie…</div>}
       {status === 'empty' && (
         <div className="chart-pane__overlay">
