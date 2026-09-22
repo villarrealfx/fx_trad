@@ -120,7 +120,7 @@ class TestRangeValidation:
 
 
 class TestTimeframeContract:
-    """El contrato RNF-008/TASK-009 solo ofrece hoy la base ``1s``."""
+    """El contrato RNF-008/TASK-009: base ``1s`` por defecto y rechazo de no canónicos."""
 
     def test_default_timeframe_is_one_second(self, tmp_path: Path) -> None:
         store = _build_store(tmp_path)
@@ -132,8 +132,8 @@ class TestTimeframeContract:
     def test_unsupported_timeframe_raises(self, tmp_path: Path) -> None:
         store = _build_store(tmp_path)
 
-        with pytest.raises(InvalidTimeframeError, match="1s"):
-            SeriesQuery(store).read("EURUSD", timeframe="1m")
+        with pytest.raises(InvalidTimeframeError, match="canónico"):
+            SeriesQuery(store).read("EURUSD", timeframe="3m")  # type: ignore[arg-type]
 
 
 class TestHasSeries:
