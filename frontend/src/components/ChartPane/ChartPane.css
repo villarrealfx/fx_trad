@@ -25,6 +25,51 @@
   box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.85);
 }
 
+.chart-pane__tools {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+}
+
+.chart-pane__tools button,
+.chart-pane__confirm button {
+  min-height: 24px;
+  padding: 4px 8px;
+  border: 1px solid #30363d;
+  border-radius: 4px;
+  background: #161b22;
+  color: #e6edf3;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.chart-pane__tools button[aria-pressed='true'] {
+  border-color: #58a6ff;
+  box-shadow: inset 0 0 0 1px rgba(88, 166, 255, 0.45);
+}
+
+.chart-pane__tools button:focus-visible,
+.chart-pane__confirm button:focus-visible {
+  outline: 2px solid #58a6ff;
+  outline-offset: 2px;
+}
+
+.chart-pane__confirm {
+  position: absolute;
+  transform: translate(-50%, calc(-100% - 8px));
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  background: #161b22;
+  color: #e6edf3;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 3;
+}
+
 .chart-pane__overlay {
   position: absolute;
   inset: 0;

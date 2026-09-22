@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent } from 'react';
 import {
   ColorType,
   createChart,
@@ -9,7 +9,14 @@ import {
 import type { Candle, Timeframe } from '../../contracts/ohlc';
 import { createOverlayBinding, type OverlayBinding } from '../../charting/chart-binding';
 import OverlayCanvas from '../../charting/OverlayCanvas';
-import type { OverlayShape } from '../../charting/overlay-geometry';
+import {
+  hitTestMarker,
+  projectPoint,
+  type MarketDirection,
+  type MarkerShape,
+  type OverlayShape,
+  type PixelPoint,
+} from '../../charting/overlay-geometry';
 import { createFrameBatcher, type FrameBatcher } from '../../performance/frame-batch';
 import { fetchSeries } from '../../services/series';
 import { COLOR_BG, COLOR_BORDER, COLOR_DOWN, COLOR_TEXT, COLOR_UP } from './theme';
@@ -17,6 +24,9 @@ import './ChartPane.css';
 
 /** Sin trazos por defecto (estable; la creación es TASK-028/029/030). */
 const EMPTY_DRAWINGS: ReadonlyArray<OverlayShape> = [];
+
+/** Tool por defecto del simulador: compra (auto-selección, journey J-003). */
+const DEFAULT_MARKER_TOOL: MarketDirection = 'buy';
 
 /** Estados de carga del panel (interaction-specs SCR-004, CMP-007). */
 type ChartStatus = 'loading' | 'empty' | 'error' | 'success';
@@ -64,6 +74,11 @@ export default function ChartPane({
   const [legendBar, setLegendBar] = useState<Candle | null>(null);
   const [retryToken, setRetryToken] = useState(0);
   const [overlayBinding, setOverlayBinding] = useState<OverlayBinding | null>(null);
+  const candlesRef = useRef<ReadonlyArray<Candle>>([]);
+  const [markers, setMarkers] = useState<ReadonlyArray<MarkerShape>>([]);
+  const [markerTool, setMarkerTool] = useState<MarketDirection>(DEFAULT_MARKER_TOOL);
+  const [selectedMarkerId, setSelectedMarkerId] = useState<string | null>(null);
+  const confirmRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -136,6 +151,7 @@ export default function ChartPane({
         }
         const last = response.candles[response.candles.length - 1];
         lastRef.current = last;
+        candlesRef.current = response.candles;
         setLegendBar(last);
         seriesRef.current?.setData(response.candles as CandlestickData[]);
         chartRef.current?.timeScale().fitContent();
@@ -167,9 +183,74 @@ export default function ChartPane({
     chart.timeScale().setVisibleLogicalRange({ from: center - half, to: center + half });
   }
 
-  /** Maneja los atajos de teclado del panel (+/− zoom, 1 ajustar). */
+  /** Proyecta un marcador a píxeles con el mapeo actual (TASK-030). */
+  function markerPixel(marker: MarkerShape): PixelPoint | null {
+    if (overlayBinding === null) return null;
+    return projectPoint(marker.position, overlayBinding);
+  }
+
+  /**
+   * Crea un marcador en la vela bajo el cursor (via RF-012): la marca toma el
+   * precio de la barra (close) y queda anclada a tiempo+precio reales.
+   * Si el clic cae sobre un marcador existente, lo selecciona para borrar.
+   */
+  function handleChartClick(event: MouseEvent<HTMLDivElement>): void {
+    const chart = chartRef.current;
+    const host = hostRef.current;
+    if (chart === null || host === null) return;
+    const rect = host.getBoundingClientRect();
+    const cursor = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+    for (const marker of markers) {
+      const pixel = markerPixel(marker);
+      if (pixel !== null && hitTestMarker(cursor, pixel)) {
+        setSelectedMarkerId(marker.id);
+        return;
+      }
+    }
+    const time = chart.timeScale().coordinateToTime(cursor.x);
+    if (time === null) return;
+    const barTime = Number(time);
+    const candle = candlesRef.current.find((item) => item.time === barTime);
+    const duplicated = markers.some(
+      (marker) => marker.direction === markerTool && marker.position.time === barTime,
+    );
+    if (candle === undefined || duplicated) return;
+    const marker: MarkerShape = {
+      id: `${markerTool}-${barTime}`,
+      kind: 'marker',
+      position: { time: barTime, price: candle.close },
+      direction: markerTool,
+    };
+    setMarkers((current) => [...current, marker]);
+    setSelectedMarkerId(null);
+  }
+
+  /** Descarta la selección del marcador (Cancelar/Escape). */
+  function clearSelection(): void {
+    setSelectedMarkerId(null);
+  }
+
+  /** Borra el marcador seleccionado (efímero RI-003: solo sesión). */
+  function deleteSelected(): void {
+    if (selectedMarkerId === null) return;
+    setMarkers((current) => current.filter((marker) => marker.id !== selectedMarkerId));
+    setSelectedMarkerId(null);
+  }
+
+  useEffect(() => {
+    if (selectedMarkerId !== null) {
+      confirmRef.current?.focus();
+    }
+  }, [selectedMarkerId]);
+
+  /** Maneja los atajos de teclado del panel (+/− zoom, 1 ajustar, Esc cancelar). */
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>): void {
-    if (event.key === '+' || event.key === '=') {
+    if (event.key === 'Escape') {
+      if (selectedMarkerId !== null) {
+        event.preventDefault();
+        setSelectedMarkerId(null);
+      }
+    } else if (event.key === '+' || event.key === '=') {
       event.preventDefault();
       applyZoom(0.5);
     } else if (event.key === '-' || event.key === '_') {
@@ -181,8 +262,31 @@ export default function ChartPane({
     }
   }
 
+  const selectedMarker = markers.find((marker) => marker.id === selectedMarkerId) ?? null;
+  const selectedPixel = selectedMarker === null ? null : markerPixel(selectedMarker);
+  const overlayShapes = useMemo(
+    () => [...drawings, ...markers] as ReadonlyArray<OverlayShape>,
+    [drawings, markers],
+  );
+
   return (
     <div className="chart-pane">
+      <div className="chart-pane__tools" role="group" aria-label="Simulador de compra/venta">
+        <button
+          type="button"
+          aria-pressed={markerTool === 'buy'}
+          onClick={() => setMarkerTool('buy')}
+        >
+          Compra
+        </button>
+        <button
+          type="button"
+          aria-pressed={markerTool === 'sell'}
+          onClick={() => setMarkerTool('sell')}
+        >
+          Venta
+        </button>
+      </div>
       <div className="chart-pane__graph">
         <div
           ref={hostRef}
@@ -191,8 +295,26 @@ export default function ChartPane({
           aria-label={`Gráfico de velas ${symbol} ${timeframe}`}
           tabIndex={0}
           onKeyDown={handleKeyDown}
+          onClick={handleChartClick}
         />
-        <OverlayCanvas hostRef={hostRef} binding={overlayBinding} shapes={drawings} />
+        <OverlayCanvas hostRef={hostRef} binding={overlayBinding} shapes={overlayShapes} />
+        {selectedMarker !== null && selectedPixel !== null && (
+          <div
+            className="chart-pane__confirm"
+            style={{ left: selectedPixel.x, top: selectedPixel.y }}
+            role="group"
+            aria-label={`Marcador ${selectedMarker.direction === 'buy' ? 'de compra' : 'de venta'}
+              seleccionado`}
+          >
+            <span>¿Borrar marcador?</span>
+            <button type="button" ref={confirmRef} onClick={deleteSelected}>
+              Borrar
+            </button>
+            <button type="button" onClick={clearSelection}>
+              Cancelar
+            </button>
+          </div>
+        )}
       </div>
       {status === 'loading' && <div className="chart-pane__overlay">Cargando serie…</div>}
       {status === 'empty' && (

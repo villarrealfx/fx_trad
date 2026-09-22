@@ -13,6 +13,13 @@ const ANCHORED_LINE: OverlayShape = {
   to: { time: 1_781_003_600, price: 1.75 },
 };
 
+const BUY_MARKER: OverlayShape = {
+  id: 'buy-1',
+  kind: 'marker',
+  position: { time: 1_781_000_000, price: 1.5 },
+  direction: 'buy',
+};
+
 /** Binding falso que recuerda los listeners suscritos para dispararlos a mano. */
 function createFakeBinding(): {
   binding: OverlayBinding;
@@ -138,5 +145,13 @@ describe('OverlayCanvas', () => {
   it('paints nothing until a binding is available', () => {
     renderWithHost(null, [ANCHORED_LINE]);
     expect(ctx.stroke).not.toHaveBeenCalled();
+  });
+
+  it('fills a buy marker triangle anchored to its price/time', async () => {
+    const { binding } = createFakeBinding();
+    renderWithHost(binding, [BUY_MARKER]);
+    await waitFor(() => expect(ctx.fill).toHaveBeenCalledTimes(1));
+    expect(ctx.fillStyle).toBe('#26A69A');
+    expect(ctx.moveTo).toHaveBeenCalledWith(0, 20);
   });
 });

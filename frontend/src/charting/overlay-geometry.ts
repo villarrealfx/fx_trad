@@ -1,6 +1,6 @@
 /**
  * Geometría del overlay de dibujos sincronizado con los ejes del gráfico
- * (ADR-005, RF-011, TASK-027).
+ * (ADR-005, RF-011/RF-012, TASK-027/030).
  *
  * Un trazo se define por anclas de dominio (segundo UTC + precio) y se
  * proyecta a píxeles con el mapeo actual de lightweight-charts. El anclaje
@@ -17,17 +17,30 @@ export interface PriceTimePoint {
   price: number;
 }
 
-/**
- * Trazo dibujable sobre el overlay (efímero, RI-003). Unión extensible
- * (RF-016): TASK-028/029/030 agregarán rectángulos, Fibonacci y marcadores.
- */
-export type OverlayShape = {
-  /** Identificador único del trazo dentro de la sesión. */
-  id: string;
-  kind: 'line';
-  from: PriceTimePoint;
-  to: PriceTimePoint;
-};
+/** Dirección de un marcador del simulador de compra/venta (RF-012). */
+export type MarketDirection = 'buy' | 'sell';
+
+/** Trazo efímero (RI-003) superpuesto al gráfico. Unión extensible (RF-016):
+ *  TASK-028/029 agregan rectángulos y Fibonacci; TASK-030 introduce marcador. */
+export type OverlayShape =
+  | {
+      /** Identificador único del trazo dentro de la sesión. */
+      id: string;
+      kind: 'line';
+      from: PriceTimePoint;
+      to: PriceTimePoint;
+    }
+  | {
+      /** Identificador único del marcador dentro de la sesión. */
+      id: string;
+      kind: 'marker';
+      /** Ancla del marcador: barra (precio/tiempo) bajo el cursor (RF-012). */
+      position: PriceTimePoint;
+      direction: MarketDirection;
+    };
+
+/** Subtipo específico de marcador del simulador (compra/venta). */
+export type MarkerShape = Extract<OverlayShape, { kind: 'marker' }>;
 
 /** Mapeo precio/tiempo → píxeles provisto por el chart (TASK-027). */
 export interface CoordinateMapper {
@@ -45,7 +58,9 @@ export interface PixelPoint {
 
 /** Resultado de proyectar un trazo (o descartarlo si sale de la vista). */
 export type OverlayFragment =
-  { kind: 'line'; from: PixelPoint; to: PixelPoint } | { kind: 'hidden' };
+  | { kind: 'line'; from: PixelPoint; to: PixelPoint }
+  | { kind: 'marker'; position: PixelPoint; direction: MarketDirection }
+  | { kind: 'hidden' };
 
 /** Proyecta una ancla de dominio a píxeles; null si sale de la vista. */
 export function projectPoint(point: PriceTimePoint, mapper: CoordinateMapper): PixelPoint | null {
@@ -67,5 +82,24 @@ export function projectShape(shape: OverlayShape, mapper: CoordinateMapper): Ove
       if (from === null || to === null) return { kind: 'hidden' };
       return { kind: 'line', from, to };
     }
+    case 'marker': {
+      const position = projectPoint(shape.position, mapper);
+      if (position === null) return { kind: 'hidden' };
+      return { kind: 'marker', position, direction: shape.direction };
+    }
   }
+}
+
+/** Radio de grabado para seleccionar un marcador con el cursor (TASK-030). */
+export const MARKER_HIT_RADIUS = 12;
+
+/** Hit-test euclidiano de un marcador proyectado contra el punto del cursor. */
+export function hitTestMarker(
+  cursor: PixelPoint,
+  position: PixelPoint,
+  radius: number = MARKER_HIT_RADIUS,
+): boolean {
+  const dx = cursor.x - position.x;
+  const dy = cursor.y - position.y;
+  return dx * dx + dy * dy <= radius * radius;
 }

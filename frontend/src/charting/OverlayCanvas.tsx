@@ -1,8 +1,8 @@
 import { useEffect, useRef, type RefObject } from 'react';
-import { COLOR_FOCUS } from '../components/ChartPane/theme';
+import { COLOR_DOWN, COLOR_FOCUS, COLOR_UP } from '../components/ChartPane/theme';
 import { createFrameBatcher, type FrameBatcher } from '../performance/frame-batch';
 import type { OverlayBinding } from './chart-binding';
-import { projectShape, type OverlayShape } from './overlay-geometry';
+import { projectShape, type MarketDirection, type OverlayShape } from './overlay-geometry';
 
 /**
  * Lienzo overlay de dibujos sincronizado con los ejes de lightweight-charts
@@ -23,6 +23,26 @@ export interface OverlayCanvasProps {
   shapes: ReadonlyArray<OverlayShape>;
   /** Color del trazo; por defecto el token accent del design system. */
   strokeColor?: string;
+}
+
+/** Triángulo del marcador (▲ compra / ▼ venta) con base sobre el ancla. */
+const MARKER_SIZE = 6;
+
+function drawMarker(
+  context: CanvasRenderingContext2D,
+  position: { x: number; y: number },
+  direction: MarketDirection,
+): void {
+  const size = MARKER_SIZE;
+  const tipOffset = direction === 'buy' ? -size : size;
+  context.fillStyle = direction === 'buy' ? COLOR_UP : COLOR_DOWN;
+  context.beginPath();
+  context.moveTo(position.x, position.y);
+  context.lineTo(position.x + size, position.y);
+  context.lineTo(position.x, position.y + tipOffset);
+  context.lineTo(position.x - size, position.y);
+  context.closePath();
+  context.fill();
 }
 
 /** Overlay decorativo, no interactivo (los tools son TASK-028/029/030). */
@@ -62,11 +82,15 @@ export default function OverlayCanvas({
       context.lineWidth = 1.5;
       for (const shape of shapes) {
         const fragment = projectShape(shape, binding);
-        if (fragment.kind !== 'line') continue;
-        context.beginPath();
-        context.moveTo(fragment.from.x, fragment.from.y);
-        context.lineTo(fragment.to.x, fragment.to.y);
-        context.stroke();
+        if (fragment.kind === 'hidden') continue;
+        if (fragment.kind === 'line') {
+          context.beginPath();
+          context.moveTo(fragment.from.x, fragment.from.y);
+          context.lineTo(fragment.to.x, fragment.to.y);
+          context.stroke();
+          continue;
+        }
+        drawMarker(context, fragment.position, fragment.direction);
       }
     };
 

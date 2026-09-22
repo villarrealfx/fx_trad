@@ -25,6 +25,7 @@ const chartMocks = vi.hoisted(() => {
   const getVisibleLogicalRange = vi.fn(() => ({ from: 0, to: 100 }));
   const timeToCoordinate = vi.fn(() => 10);
   const priceToCoordinate = vi.fn(() => 40);
+  const coordinateToTime = vi.fn(() => 1_781_000_000);
   const subscribeVisibleLogicalRangeChange = vi.fn();
   const subscribeSizeChange = vi.fn();
   const unsubscribeVisibleLogicalRangeChange = vi.fn();
@@ -40,6 +41,7 @@ const chartMocks = vi.hoisted(() => {
     setVisibleLogicalRange,
     getVisibleLogicalRange,
     timeToCoordinate,
+    coordinateToTime,
     subscribeVisibleLogicalRangeChange,
     subscribeSizeChange,
     unsubscribeVisibleLogicalRangeChange,
@@ -58,6 +60,7 @@ const chartMocks = vi.hoisted(() => {
     getVisibleLogicalRange,
     timeToCoordinate,
     priceToCoordinate,
+    coordinateToTime,
     subscribeVisibleLogicalRangeChange,
     subscribeSizeChange,
     unsubscribeVisibleLogicalRangeChange,
@@ -293,5 +296,94 @@ describe('ChartPane', () => {
     expect(chartMocks.timeToCoordinate.mock.calls.length).toBeGreaterThan(timeCalls);
     expect(chartMocks.timeToCoordinate).toHaveBeenCalledWith(1_781_000_000);
     expect(chartMocks.timeToCoordinate).toHaveBeenCalledWith(1_781_003_600);
+  });
+
+  it('creates a buy marker at the close of the bar under the cursor', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+    const host = screen.getByRole('img', { name: 'Gráfico de velas EURUSD 1h' });
+    fireEvent.click(host, { clientX: 5, clientY: 5 });
+    await waitFor(() => expect(ctx.fill).toHaveBeenCalledTimes(1));
+    expect(chartMocks.coordinateToTime).toHaveBeenCalledWith(5);
+    expect(ctx.fillStyle).toBe('#26A69A');
+    expect(ctx.moveTo).toHaveBeenCalledWith(10, 40);
+  });
+
+  it('switches the simulator to sell and places a sell marker', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+    const sell = screen.getByRole('button', { name: 'Venta' });
+    fireEvent.click(sell);
+    expect(sell.getAttribute('aria-pressed')).toBe('true');
+    const host = screen.getByRole('img', { name: 'Gráfico de velas EURUSD 1h' });
+    fireEvent.click(host, { clientX: 5, clientY: 5 });
+    await waitFor(() => expect(ctx.fill).toHaveBeenCalledTimes(1));
+    expect(ctx.fillStyle).toBe('#EF5350');
+  });
+
+  it('dedupes markers placed on the same bar and direction', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+    const host = screen.getByRole('img', { name: 'Gráfico de velas EURUSD 1h' });
+    fireEvent.click(host, { clientX: 5, clientY: 5 });
+    await waitFor(() => expect(ctx.fill).toHaveBeenCalledTimes(1));
+    fireEvent.click(host, { clientX: 8, clientY: 5 });
+    await waitFor(() => expect(chartMocks.coordinateToTime).toHaveBeenCalledTimes(2));
+    expect(ctx.fill).toHaveBeenCalledTimes(1);
+  });
+
+  it('selects a marker on click and deletes it via inline confirm', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+    const host = screen.getByRole('img', { name: 'Gráfico de velas EURUSD 1h' });
+    fireEvent.click(host, { clientX: 5, clientY: 5 });
+    await waitFor(() => expect(ctx.fill).toHaveBeenCalledTimes(1));
+    fireEvent.click(host, { clientX: 10, clientY: 40 });
+    const confirm = screen.getByRole('group', { name: 'Marcador de compra seleccionado' });
+    expect(confirm).toBeTruthy();
+    await waitFor(() => expect(document.activeElement?.textContent).toBe('Borrar'));
+    fireEvent.click(screen.getByRole('button', { name: 'Borrar' }));
+    await waitFor(() =>
+      expect(screen.queryByRole('group', { name: 'Marcador de compra seleccionado' })).toBeNull(),
+    );
+  });
+
+  it('keeps the marker when deletion is cancelled', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+    const host = screen.getByRole('img', { name: 'Gráfico de velas EURUSD 1h' });
+    fireEvent.click(host, { clientX: 5, clientY: 5 });
+    await waitFor(() => expect(ctx.fill).toHaveBeenCalledTimes(1));
+    fireEvent.click(host, { clientX: 10, clientY: 40 });
+    await waitFor(() =>
+      expect(screen.getByRole('group', { name: 'Marcador de compra seleccionado' })).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }));
+    await waitFor(() =>
+      expect(screen.queryByRole('group', { name: 'Marcador de compra seleccionado' })).toBeNull(),
+    );
+    expect(ctx.fill).toHaveBeenCalledTimes(1);
+  });
+
+  it('deselects a marker with Escape', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+    const host = screen.getByRole('img', { name: 'Gráfico de velas EURUSD 1h' });
+    fireEvent.click(host, { clientX: 5, clientY: 5 });
+    await waitFor(() => expect(ctx.fill).toHaveBeenCalledTimes(1));
+    fireEvent.click(host, { clientX: 10, clientY: 40 });
+    await waitFor(() =>
+      expect(screen.getByRole('group', { name: 'Marcador de compra seleccionado' })).toBeTruthy(),
+    );
+    fireEvent.keyDown(host, { key: 'Escape' });
+    await waitFor(() =>
+      expect(screen.queryByRole('group', { name: 'Marcador de compra seleccionado' })).toBeNull(),
+    );
   });
 });
