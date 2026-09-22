@@ -1,5 +1,10 @@
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  FRAME_BUDGET_MS,
+  FrameRateMeter,
+  type FrameRateMeterOptions,
+} from '../../performance/frame-rate';
 import ChartPane from './ChartPane';
 
 const RESPONSE = {
@@ -38,6 +43,7 @@ const chartMocks = vi.hoisted(() => {
     setVisibleLogicalRange,
     getVisibleLogicalRange,
     subscribeCrosshairMove,
+    addCandlestickSeries,
     remove,
     timeScale,
     createChart,
@@ -55,6 +61,53 @@ const createResponse = (body: unknown): Response =>
     status: 200,
     headers: { 'Content-Type': 'application/json' },
   });
+
+/** Genera un dataset de 2 años a 1h (~17.5k velas), escenario RNF-001. */
+function buildTwoYearsSeries(): {
+  symbol: string;
+  timeframe: string;
+  candles: { time: number; open: number; high: number; low: number; close: number }[];
+} {
+  const candles = [];
+  const startTime = 1_767_225_600;
+  const totalHours = 2 * 365 * 24;
+  for (let hour = 0; hour < totalHours; hour += 1) {
+    const base = 1.08 + Math.sin(hour / 240) * 0.01;
+    candles.push({
+      time: startTime + hour * 3600,
+      open: base,
+      high: base + 0.0005,
+      low: base - 0.0005,
+      close: base + 0.0001,
+    });
+  }
+  return { symbol: 'EURUSD', timeframe: '1h', candles };
+}
+
+/** Planificador manual de frames para el FrameRateMeter (tests deterministas). */
+function createManualScheduler() {
+  let time = 0;
+  let nextId = 0;
+  let pending: { id: number; cb: FrameRequestCallback } | null = null;
+  return {
+    now: (): number => time,
+    schedule: (cb: FrameRequestCallback): number => {
+      const id = ++nextId;
+      pending = { id, cb };
+      return id;
+    },
+    cancel: (id: number): void => {
+      if (pending !== null && pending.id === id) pending = null;
+    },
+    advance: (ms: number): void => {
+      time += ms;
+      const job = pending;
+      if (job === null) return;
+      pending = null;
+      job.cb(time);
+    },
+  };
+}
 
 describe('ChartPane', () => {
   beforeEach(() => {
@@ -131,5 +184,57 @@ describe('ChartPane', () => {
     await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
     view.unmount();
     expect(chartMocks.remove).toHaveBeenCalled();
+  });
+
+  it('sustains the frame budget while panning/zooming a two-year dataset', async () => {
+    const twoYears = buildTwoYearsSeries();
+    fetchMock.mockResolvedValue(createResponse(twoYears));
+    render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => {
+      const calls = chartMocks.setData.mock.calls;
+      expect(calls.at(-1)?.[0]).toEqual(twoYears.candles);
+    });
+    const host = screen.getByRole('img', { name: 'Gráfico de velas EURUSD 1h' });
+    for (let step = 0; step < 60; step += 1) {
+      fireEvent.keyDown(host, { key: step % 2 === 0 ? '+' : '1' });
+    }
+    const scheduler = createManualScheduler();
+    const meterOptions: FrameRateMeterOptions = {
+      now: scheduler.now,
+      schedule: scheduler.schedule,
+      cancel: scheduler.cancel,
+    };
+    const meter = new FrameRateMeter(meterOptions);
+    meter.start();
+    for (let frame = 0; frame < 60; frame += 1) {
+      scheduler.advance(FRAME_BUDGET_MS);
+    }
+    const metrics = meter.stop();
+    expect(metrics.avgFps).toBeGreaterThan(58);
+    expect(metrics.droppedFrames).toBe(0);
+    expect(chartMocks.setData).toHaveBeenCalledTimes(2);
+    expect(chartMocks.createChart).toHaveBeenCalledTimes(1);
+  });
+
+  it('batches crosshair legend updates to a single commit per frame', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(screen.getByText('C 1.09500')).toBeTruthy());
+    const handler = chartMocks.subscribeCrosshairMove.mock.calls[0]?.[0] as (param: {
+      time: number;
+      seriesData: Map<unknown, { open: number; high: number; low: number; close: number }>;
+    }) => void;
+    const seriesInstance = chartMocks.addCandlestickSeries.mock.results[0]?.value;
+    for (let step = 0; step < 20; step += 1) {
+      handler({
+        time: 1_781_003_600,
+        seriesData: new Map([
+          [seriesInstance, { open: 1.2, high: 1.21, low: 1.19, close: 1.2 + step * 0.0005 }],
+        ]),
+      });
+    }
+    expect(screen.getByText('C 1.09500')).toBeTruthy();
+    await waitFor(() => expect(screen.getByText('C 1.20950')).toBeTruthy());
+    expect(chartMocks.setData).toHaveBeenCalledTimes(2);
   });
 });

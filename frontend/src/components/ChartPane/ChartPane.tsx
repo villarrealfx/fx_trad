@@ -7,6 +7,7 @@ import {
   type ISeriesApi,
 } from 'lightweight-charts';
 import type { Candle, Timeframe } from '../../contracts/ohlc';
+import { createFrameBatcher, type FrameBatcher } from '../../performance/frame-batch';
 import { fetchSeries } from '../../services/series';
 import { COLOR_BG, COLOR_BORDER, COLOR_DOWN, COLOR_TEXT, COLOR_UP } from './theme';
 import './ChartPane.css';
@@ -43,6 +44,7 @@ export default function ChartPane({ symbol, timeframe, start, end }: ChartPanePr
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
   const lastRef = useRef<Candle | null>(null);
+  const legendBatcherRef = useRef<FrameBatcher | null>(null);
   const [status, setStatus] = useState<ChartStatus>('loading');
   const [errorMessage, setErrorMessage] = useState('');
   const [legendBar, setLegendBar] = useState<Candle | null>(null);
@@ -76,19 +78,22 @@ export default function ChartPane({ symbol, timeframe, start, end }: ChartPanePr
       wickUpColor: COLOR_UP,
       wickDownColor: COLOR_DOWN,
     });
+    legendBatcherRef.current = createFrameBatcher();
     chart.subscribeCrosshairMove((param) => {
       const data = param.seriesData.get(series) as Partial<Candle> | undefined;
-      if (param.time !== undefined && data !== undefined && data.open !== undefined) {
-        setLegendBar({
-          time: Number(param.time),
-          open: data.open,
-          high: data.high,
-          low: data.low,
-          close: data.close,
-        } as Candle);
-        return;
-      }
-      setLegendBar(lastRef.current);
+      legendBatcherRef.current?.schedule(() => {
+        if (param.time !== undefined && data !== undefined && data.open !== undefined) {
+          setLegendBar({
+            time: Number(param.time),
+            open: data.open,
+            high: data.high,
+            low: data.low,
+            close: data.close,
+          } as Candle);
+          return;
+        }
+        setLegendBar(lastRef.current);
+      });
     });
     chartRef.current = chart;
     seriesRef.current = series;
@@ -96,6 +101,8 @@ export default function ChartPane({ symbol, timeframe, start, end }: ChartPanePr
       chart.remove();
       chartRef.current = null;
       seriesRef.current = null;
+      legendBatcherRef.current?.cancel();
+      legendBatcherRef.current = null;
     };
   }, []);
 
