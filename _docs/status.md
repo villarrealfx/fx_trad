@@ -1,6 +1,6 @@
 # Estado del Proyecto: Plataforma de Análisis Técnico (estilo TradingView)
 
-> Última actualización: 2026-09-21
+> Última actualización: 2026-09-22
 > Fuente: `_docs/backlog.md` (v2), `_docs/traceability.md` (v2)
 
 ## 1. Resumen ejecutivo
@@ -8,25 +8,23 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 61 | +15 (backlog v2: TASK-047 + 14 TASK-UI-XXX) |
-| 📥 Backlog | 48 | -1 |
+| 📥 Backlog | 45 | -3 |
 | 🔨 Doing | 0 | — |
-| 👀 Review | 1 | +1 |
-| ✅ Done | 12 | — |
+| 👀 Review | 0 | -1 |
+| ✅ Done | 16 | +4 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 19.7% (12/61) | — |
+| % Completado | 26.2% (16/61) | +6.5 |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (47)
+### 📥 Backlog (45)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
 | TASK-011 | Normalización UTC y esquema | EP-002 | S | TASK-010 |
-| TASK-014 | Agregación OHLC 1m/5m/15m/1h/4h/1d | EP-002 | L | TASK-010, TASK-012 |
-| TASK-017 | Parquet pre-resampling | EP-003 | M | TASK-014, TASK-015 |
 | TASK-018 | MetadatosDescarga | EP-003 | S | TASK-015 |
 | TASK-019 | Upsert incremental (merge time) | EP-003 | M | TASK-016, TASK-018 |
 | TASK-020 | Endpoint GET /assets | EP-004 | S | TASK-016 |
@@ -80,7 +78,7 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (15)
+### ✅ Done (16)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
@@ -98,6 +96,8 @@ Sin tareas.
 | TASK-006 | Endpoint GET /downloads/{task_id} | EP-001 | 2026-09-21 | `test_download_status.py` (4 estados + filas) + `test_tasks.py::TestCeleryDownloadStatus` (mapeo AsyncResult); 147 ✅ + 2 skip |
 | TASK-007 | Normalización a segundos UTC | EP-001 | 2026-09-21 | `test_times.py` (TZ no-UTC Madrid/NY/offset fijo → 1786442400, naive→UTC, identidad UTC); 153 ✅ + 2 skip |
 | TASK-008 | Validación ventana ≤ 2 años | EP-001 | 2026-09-21 | `test_window.py` (rechazo >2 años con mensaje, límite inclusivo, integración DownloadRequest); 162 ✅ + 2 skip |
+| TASK-014 | Agregación OHLC 1m/5m/15m/1h/4h/1d | EP-002 | 2026-09-22 | `backend/tests/pipeline/test_resample.py` (16 tests, 100% cobertura) — RF-009 |
+| TASK-017 | Parquet pre-resampling | EP-003 | 2026-09-22 | `backend/tests/storage/test_timeframes.py` (13 tests, fichas por TF sin recomputar) — RF-005/RF-009/RNF-002/RI-001 |
 
 ### 🔴 Blocked (0)
 
@@ -105,14 +105,14 @@ Sin tareas.
 
 ## 3. Ruta crítica — estado
 
-Estado: 3/12 completadas (25%) · ETA: desconocido (sin velocidad histórica).
+Estado: 5/12 completadas (42%) · ETA: desconocido (sin velocidad histórica).
 
 ```mermaid
 graph LR
   T9[TASK-009 ✅] --> T10[TASK-010 ✅]
   T10 --> T12[TASK-012 ✅]
-  T12 --> T14[TASK-014 📥]
-  T14 --> T17[TASK-017 📥]
+  T12 --> T14[TASK-014 ✅]
+  T14 --> T17[TASK-017 ✅]
   T17 --> T21[TASK-021 📥]
   T21 --> T24[TASK-024 📥]
   T24 --> T27[TASK-027 📥]
@@ -161,6 +161,8 @@ Ninguno.
 - TASK-015 implementada → 👀 Review (2026-09-21): módulo `storage` (`ParquetSeriesStore`, `DuplicateTimeError`) con Parquet por activo, `time BIGINT` único (RI-001) y consulta DuckDB de rango; 12 tests nuevos (`test_series.py`) → 174 ✅ + 2 skip, ruff/black/mypy OK; habilita TASK-016/017/018.
 - TASK-016 implementada → 👀 Review (2026-09-21): capa `SeriesQuery` (`InvalidTimeframeError`, `InvalidRangeError`) sobre `ParquetSeriesStore`; valida timeframe base `1s` / rango invertido (RF-005, RNF-002) y delega en `read_range` de TASK-015; 11 tests nuevos (`test_queries.py`) → 185 ✅ + 2 skip, ruff/black/mypy OK; habilita TASK-017/018/019/020/021.
 - TASK-016 👀 → ✅ Done tras review aprobada (2026-09-21): DoD completa — `SeriesQuery.read` valida timeframe base `1s` y range invertido → `InvalidRangeError`, delega en `read_range` de TASK-015; 11 tests (`test_queries.py`) → 186 ✅ + 2 skip, cobertura `queries` 100%, ruff/black/mypy OK; prueba registrada (RF-005/RNF-002/RI-001); habilita TASK-017/018/019/020/021.
+- TASK-017 implementada → 👀 Review (2026-09-22): pre-resampling persistido por TF (`{symbol}.{tf}.parquet`, TASK-014-TF canónico; ADR-007), consulta por TF sin recomputar (RF-009, RNF-008); 13 tests nuevos (`test_timeframes.py`) + `test_queries.py` ajustado (rechazo solo no canónicos) → suite 214 ✅ + 2 skip, cobertura storage 94% (series 97%, queries 83%), ruff/black/mypy OK; DoD cubierta (persistidos + consulta sin recomputar); habilita TASK-021/044.
+- TASK-017 👀 → ✅ Done tras review aprobada (2026-09-22): DoD completa (Parquet por TF persistido + consulta sin recomputar); `test_timeframes.py` (13 tests); prueba registrada (RF-005/RF-009/RNF-002/RI-001); ruta crítica 5/12 (42%); desbloquea TASK-021 (siguiente en ruta crítica) y TASK-044.
 
 ## 7. Trazabilidad — salud
 
@@ -230,4 +232,8 @@ Ninguno.
 | 2026-09-21 | TASK-008 | 👀 → ✅ Done | Review validada: DoD completa (solicitud > 2 años rechazada con mensaje explícito, límite inclusivo); 162 tests ✅ + 2 skip, ruff/black/mypy OK; prueba registrada (RNF-003) |
 | 2026-09-21 | TASK-015 | 👀 → ✅ Done | Review validada: DoD completa (SerieOHLC Parquet por activo, time único BIGINT, consulta DuckDB de rango `1s`); `test_series.py` (12 tests, 100% cobertura) + integración `test_queries.py`; 186 ✅ + 2 skip, ruff/black/mypy OK; DoD cumplida; habilita TASK-017/018/019/020/021 |
 | 2026-09-21 | TASK-008 | Resync backlog.md | Estado reflejado en backlog.md (👀→✅), saldando desync con status.md |
-| 2026-09-21 | TASK-015 | 👀 → ✅ Done | ⭐ | DoD completa (SerieOHLC Parquet time único) | Pakikumpirma via /sdd-track update TASK-015 review → validada 2026-09-21: 186 ✅ + 2 skip, ruff/black/mypy OK |
+| 2026-09-22 | TASK-014 | 📥 → 👀 | Implementación verificada: `backend/src/fxtrad/pipeline/resample.py` + `test_resample.py` (16 tests, cobertura 100%, suite 201 ✅ + 2 skip, ruff/black/mypy OK); DoD de resampling confirmada (1h == 60×1m; fixture por timeframe); pasa a revisión |
+| 2026-09-22 | TASK-014 | 👀 → ✅ | Review validada: DoD completa (resampling 1h=60×1m, fixture por timeframe, cobertura pipeline 100%); prueba registrada (RF-009); habilita TASK-017 |
+| 2026-09-22 | TASK-017 | 📥 → 👀 | Implementación verificada: pre-resampling persistido por TF (`{symbol}.{tf}.parquet`, ADR-007) y consultado sin recomputar; `test_timeframes.py` (13 tests) + `test_queries.py` ajustado (1m→canónico, rechazo 3m); cobertura storage 94% (series 97%, queries 83%); suite 214 ✅ + 2 skip, ruff/black/mypy OK; prueba registrada (RF-005/RF-009/RNF-002/RI-001); pasa a revisión. Deps TASK-014/TASK-015 ✅ |
+| 2026-09-22 | TASK-017 | 👀 → ✅ | Review validada: DoD completa (archivos `{symbol}.{tf}.parquet` persistidos y consultados sin recomputar); `test_timeframes.py` (13 tests); suite 214 ✅ + 2 skip, cobertura storage 94%, ruff/black/mypy OK; prueba registrada (RF-005/RF-009/RNF-002/RI-001); habilita TASK-021/044 |
+| 2026-09-22 | TASK-015 | Limpieza historial | Eliminada fila duplicada/malformada del historial (TASK-015 ⭐, sintaxis rota y columnas de más); la entrada válida TASK-015 👀→✅ se conserva intacta (append-only) |

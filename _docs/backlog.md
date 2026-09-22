@@ -135,7 +135,7 @@
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-014 | Agregación OHLC a 1m/5m/15m/1h/4h/1d | backend | L | TASK-010, TASK-012 | Una vela 1h coincide con la agregación de 60 velas 1m; fixture verificada para cada timeframe | 📥 |
+| TASK-014 | Agregación OHLC a 1m/5m/15m/1h/4h/1d | backend | L | TASK-010, TASK-012 | Una vela 1h coincide con la agregación de 60 velas 1m; fixture verificada para cada timeframe | ✅ |
 
 #### HU-016: Cálculo de indicadores en el pipeline
 - **Requisito origen:** RF-013
@@ -171,7 +171,7 @@
 |----|-------|------|------|------|-----|--------|
 | TASK-015 | Esquema SerieOHLC en Parquet por activo (time único) | bd | M | TASK-009 | Se crea un Parquet por activo con time BIGINT único; consulta DuckDB devuelve el rango | ✅ |
 | TASK-016 | Capa de consulta DuckDB por activo/rango/timeframe | bd | M | TASK-015 | Una query parametrizada devuelve OHLC del rango; test con dataset de fixture | ✅ |
-| TASK-017 | Parquet pre-resampling por timeframe | bd | M | TASK-014, TASK-015 | Los archivos por timeframe quedan persistidos y se consultan sin recomputar; test | 📥 |
+| TASK-017 | Parquet pre-resampling por timeframe | bd | M | TASK-014, TASK-015 | Los archivos por timeframe quedan persistidos y se consultan sin recomputar; test | ✅ |
 
 #### HU-008: Descargas incrementales sin duplicados
 - **Requisito origen:** RF-006, RI-002
