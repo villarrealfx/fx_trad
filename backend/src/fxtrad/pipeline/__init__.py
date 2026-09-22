@@ -10,12 +10,22 @@ from __future__ import annotations
 from fxtrad.pipeline.calendar import MarketCalendar
 from fxtrad.pipeline.clean import CleaningResult, RawCandle, clean_candles
 from fxtrad.pipeline.filter import filter_open_candles, filter_open_timestamps
+from fxtrad.pipeline.resample import (
+    InvalidSourceTimeframeError,
+    InvalidTimeframeError,
+    ResamplingResult,
+    resample_ohlc,
+)
 
 __all__ = [
     "CleaningResult",
+    "InvalidSourceTimeframeError",
+    "InvalidTimeframeError",
     "MarketCalendar",
     "RawCandle",
+    "ResamplingResult",
     "clean_candles",
     "filter_open_candles",
     "filter_open_timestamps",
+    "resample_ohlc",
 ]
