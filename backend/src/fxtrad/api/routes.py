@@ -1,8 +1,12 @@
-"""Rutas HTTP de descargas (RF-001, HU-001).
+"""Rutas HTTP de descargas y series (RF-001/RF-008/RX-002, HU-001/HU-009).
 
 ``POST /downloads`` valida la solicitud (TASK-001) y la encola en la cola
 asíncrona (ADR-006). Responde 202 Accepted con el identificador de la tarea;
 un body inválido se rechaza con 422 sin encolar nada (criterio HU-001).
+
+``GET /series`` devuelve la serie OHLC de un activo por rango y timeframe
+(TASK-021), delegando en la capa de consulta de `storage` (RF-009/ADR-007);
+responde en el contrato ``OhlcResponse`` del frontend (RX-002, RNF-008).
 
 El ``task_id`` lo genera la cola, no esta ruta: así el endpoint depende de la
 interfaz ``DownloadQueue`` y TASK-004 aporta la implementación real con Celery.
@@ -13,10 +17,16 @@ from __future__ import annotations
 from typing import Annotated
 
 import structlog
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, Field
 
+from fxtrad.contracts.ohlc import OhlcResponse, Timeframe
 from fxtrad.ingest import DownloadInfo, DownloadQueue, DownloadRequest, DownloadStatusQuery
+from fxtrad.storage import (
+    InvalidRangeError,
+    InvalidTimeframeError,
+    SeriesQuery,
+)
 
 logger = structlog.get_logger()
 
@@ -49,6 +59,15 @@ def _get_download_status_query(request: Request) -> DownloadStatusQuery:
 
 
 DownloadStatusDependency = Annotated[DownloadStatusQuery, Depends(_get_download_status_query)]
+
+
+def _get_series_query(request: Request) -> SeriesQuery:
+    """Devuelve la consulta de series inyectada al crear la aplicación (TASK-021)."""
+    query: SeriesQuery = request.app.state.series_query
+    return query
+
+
+SeriesQueryDependency = Annotated[SeriesQuery, Depends(_get_series_query)]
 
 
 @router.post(
@@ -107,6 +126,57 @@ def get_download_status(
         filas=info.filas,
     )
     return info
+
+
+@router.get(
+    "/series",
+    response_model=OhlcResponse,
+    summary="Devuelve la serie OHLC de un activo en el rango y timeframe",
+)
+def get_series(
+    request: Request,
+    symbol: str,
+    series_query: SeriesQueryDependency,
+    timeframe: Timeframe = "1s",
+    start: int | None = None,
+    end: int | None = None,
+) -> OhlcResponse:
+    """Devuelve las velas del activo en el rango ``[start, end]`` (TASK-021).
+
+    Args:
+        request: Request HTTP (para correlación y estado de la aplicación).
+        symbol: Símbolo del activo (identificador del catálogo).
+        series_query: Capa de consulta OHLC por activo/rango/timeframe.
+        timeframe: Granularidad canónica (RF-009); ``1s`` por defecto.
+        start: Inicio del rango en segundos UTC (inclusivo); si es ``None``,
+            no hay cota inferior.
+        end: Fin del rango en segundos UTC (inclusivo); si es ``None``, no
+            hay cota superior.
+
+    Returns:
+        Serie OHLC del rango/timeframe en el contrato del frontend (RNF-008).
+
+    Raises:
+        HTTPException: 404 si el activo no tiene serie; 400 si el rango es
+            inválido o el símbolo no es seguro; 422 si el timeframe no es
+            canónico (validado por el tipo ``Timeframe``).
+    """
+    try:
+        candles = series_query.read(symbol, timeframe=timeframe, start=start, end=end)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except (InvalidRangeError, InvalidTimeframeError, ValueError) as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    logger.info(
+        "serie_solicitada",
+        correlation_id=request.headers.get("x-correlation-id"),
+        activo=symbol,
+        timeframe=timeframe,
+        inicio=start,
+        fin=end,
+        velas=len(candles),
+    )
+    return OhlcResponse(symbol=symbol, timeframe=timeframe, candles=candles)
 
 
 __all__ = ["DownloadAccepted", "router"]
