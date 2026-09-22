@@ -10,17 +10,17 @@
 | Tareas totales | 61 | +15 (backlog v2: TASK-047 + 14 TASK-UI-XXX) |
 | 📥 Backlog | 42 | -6 |
 | 🔨 Doing | 0 | — |
-| 👀 Review | 1 | +1 |
-| ✅ Done | 18 | +6 |
+| 👀 Review | 0 | -1 |
+| ✅ Done | 19 | +7 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 29.5% (18/61) | +9.8 |
+| % Completado | 31.1% (19/61) | +11.4 |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (43)
+### 📥 Backlog (42)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
@@ -71,13 +71,11 @@
 
 Sin tareas.
 
-### 👀 Review (1)
+### 👀 Review (0)
 
-| ID | Tarea | Épica | En review desde |
-|----|-------|-------|-----------------|
-| TASK-024 | lightweight-charts + datos API | EP-UI-004 | 2026-09-22 |
+Sin tareas.
 
-### ✅ Done (18)
+### ✅ Done (19)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
@@ -99,6 +97,7 @@ Sin tareas.
 | TASK-017 | Parquet pre-resampling | EP-003 | 2026-09-22 | `backend/tests/storage/test_timeframes.py` (13 tests, fichas por TF sin recomputar) — RF-005/RF-009/RNF-002/RI-001 |
 | TASK-021 | Endpoint GET /series | EP-004 | 2026-09-22 | `backend/tests/api/test_series_endpoint.py` (12 tests, contrato OhlcResponse + integración DuckDB) — RF-008/RF-009/RX-002 |
 | TASK-023 | Scaffold React 18 + Vite 5 + TS 5 | EP-UI-000 | 2026-09-22 | `frontend/`: `npm run dev` (Vite 5, HTTP 200) + `npm run lint`/`typecheck`/`test` (6 tests, App 100%) verdes — RNF-005 |
+| TASK-024 | lightweight-charts + datos API | EP-UI-004 | 2026-09-22 | `frontend/` `ChartPane.test.tsx` (6: estados loading/empty/error+retry/success, leyenda OHLC, atajos +/−/1, dispose) + `series.test.ts` (4); suite 16/16, cobertura 96.18% — RF-009/RF-010 |
 
 ### 🔴 Blocked (0)
 
@@ -106,7 +105,7 @@ Sin tareas.
 
 ## 3. Ruta crítica — estado
 
-Estado: 6/12 completadas (50%) · ETA: desconocido (sin velocidad histórica).
+Estado: 7/12 completadas (58%) · ETA: desconocido (sin velocidad histórica).
 
 ```mermaid
 graph LR
@@ -115,7 +114,7 @@ graph LR
   T12 --> T14[TASK-014 ✅]
   T14 --> T17[TASK-017 ✅]
   T17 --> T21[TASK-021 ✅]
-  T21 --> T24[TASK-024 👀]
+  T21 --> T24[TASK-024 ✅]
   T24 --> T27[TASK-027 📥]
   T27 --> T30[TASK-030 📥]
   T30 --> T35[TASK-035 📥]
@@ -169,6 +168,7 @@ Ninguno.
 - TASK-023 implementada → 👀 Review (2026-09-22): scaffold SPA React 18 + Vite 5 + TS 5 en `frontend/` (ADR-003) sobre el paquete de contrato TS (TASK-009) conservado; dev server HTTP 200, lint/typecheck/build verdes, 6 tests (cobertura App 100%); habilita EP-UI-000, TASK-024 y TASK-UI-000/003.
 - TASK-023 👀 → ✅ Done tras review aprobada (2026-09-22): DoD completa (app levanta en dev, lint y typecheck en verde); prueba registrada (RNF-005); habilita TASK-024 (ruta crítica) y EP-UI-000.
 - TASK-024 implementada → 👀 Review (2026-09-22): ChartPane base CMP-007 con lightweight-charts v4 (ADR-005) consumiendo `GET /series` (TASK-021) en contrato OHLC sin transformación (RNF-008); `ChartPane.test.tsx` (6 tests: estados loading/empty/error+retry/success, leyenda OHLC, atajos +/−/1, dispose) + `series.test.ts` (4 tests) → suite frontend 16/16, cobertura 96.18% (ChartPane 91.72%, series 96.96%); lint/typecheck/build/prettier OK; dev server HTTP 200 con proxy `/series` → `http://localhost:8000`; prueba registrada (RF-009/RF-010); pasa a revisión. Deps TASK-021/TASK-023 ✅; nota: velas validadas con fetch mockeado sobre el contrato real (sin E2E con backend en vivo).
+- TASK-024 👀 → ✅ Done tras review aprobada (2026-09-22): DoD completa (velas reales vía GET /series en contrato OHLC sin transformación — RNF-008; suite frontend 16/16, cobertura 96.18%, lint/typecheck/build verdes, dev HTTP 200); prueba registrada (RF-009/RF-010); ruta crítica 7/12 (58%); desbloquea TASK-025 (siguiente en ruta crítica), TASK-027, TASK-026, TASK-032, TASK-033, TASK-UI-040. Nota: E2E con backend en vivo diferido a TASK-026/TASK-UI-040.
 
 ## 7. Trazabilidad — salud
 
@@ -248,3 +248,4 @@ Ninguno.
 | 2026-09-22 | TASK-023 | 📥 → 👀 | Implementación verificada: scaffold SPA en `frontend/` (fxtrad-web, React 18 + Vite 5 + TS 5, ADR-003; `src/contracts/` de TASK-009 conservado); dev server Vite 5.4.21 HTTP 200, `npm run lint` + `npm run typecheck` + `npm run build` OK, 6 tests (smoke App 100% + alineación contrato), prettier OK; prueba registrada (RNF-005); pasa a revisión. Nota: contracts reformateados (solo estilo) al adoptar prettier |
 | 2026-09-22 | TASK-023 | 👀 → ✅ | Review validada: DoD completa (app levanta en dev — Vite 5.4.21 HTTP 200, lint + typecheck en verde); `frontend/` SPA con dev/build/prettier OK y 6 tests (cobertura App 100%); prueba registrada (RNF-005); habilita TASK-024 y EP-UI-000 (TASK-UI-000/001/002/003) |
 | 2026-09-22 | TASK-024 | 📥 → 👀 | Implementación verificada: ChartPane base CMP-007 (lightweight-charts v4, ADR-005) consumiendo GET /series en contrato OHLC sin transformación (RNF-008); `ChartPane.test.tsx` (6) + `series.test.ts` (4) → suite frontend 16/16, cobertura 96.18%, lint/typecheck/build/prettier OK, dev server HTTP 200 con proxy `/series`; prueba registrada (RF-009/RF-010); pasa a revisión. Deps TASK-021/TASK-023 ✅ |
+| 2026-09-22 | TASK-024 | 👀 → ✅ | Review validada: DoD completa (ChartPane v4 renderiza velas reales vía GET /series en contrato OHLC sin transformación RNF-008; suite frontend 16/16, cobertura 96.18%, lint/typecheck/build verdes, dev HTTP 200); prueba registrada (RF-009/RF-010); ruta crítica 7/12 (58%); habilita TASK-025/027/026/032/033/TASK-UI-040. E2E con backend vivo diferido a TASK-026/TASK-UI-040 |
