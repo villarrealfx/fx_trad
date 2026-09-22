@@ -12,7 +12,7 @@
  */
 
 /** Granularidad de agregación de cada vela (RF-009). */
-export const TIMEFRAMES = ["1s", "1m", "5m", "15m", "1h", "4h", "1d"] as const;
+export const TIMEFRAMES = ['1s', '1m', '5m', '15m', '1h', '4h', '1d'] as const;
 
 /** Granularidad de agregación de cada vela (RF-009). */
 export type Timeframe = (typeof TIMEFRAMES)[number];
@@ -52,16 +52,16 @@ export interface OhlcResponse {
 
 /** Campos de {@link Candle} en orden canónico (alineado con el schema). */
 export const CANDLE_FIELD_NAMES: readonly (keyof Candle)[] = [
-  "time",
-  "open",
-  "high",
-  "low",
-  "close",
+  'time',
+  'open',
+  'high',
+  'low',
+  'close',
 ] as const;
 
 /** Campos de {@link OhlcResponse} en orden canónico (alineado con el schema). */
 export const OHLC_RESPONSE_FIELD_NAMES: readonly (keyof OhlcResponse)[] = [
-  "symbol",
-  "timeframe",
-  "candles",
+  'symbol',
+  'timeframe',
+  'candles',
 ] as const;
