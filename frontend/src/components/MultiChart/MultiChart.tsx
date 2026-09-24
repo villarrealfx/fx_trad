@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ChartSyncController } from '../../charting/chart-sync';
 import { TIMEFRAMES, type Timeframe } from '../../contracts/ohlc';
 import ChartPane from '../ChartPane/ChartPane';
 import Button from '../ui/Button';
@@ -43,6 +44,7 @@ export interface MultiChartProps {
  * el pulido de tabs WAI-ARIA (TASK-UI-050) llegan después.
  */
 export default function MultiChart({ symbol }: MultiChartProps) {
+  const [sync] = useState(() => new ChartSyncController());
   const [panes, setPanes] = useState<readonly PaneConfig[]>(() => [
     { id: nextPaneId(), timeframe: '1h' },
     { id: nextPaneId(), timeframe: '1d' },
@@ -96,7 +98,7 @@ export default function MultiChart({ symbol }: MultiChartProps) {
               />
             </div>
             <div className="multi-chart__graph">
-              <ChartPane symbol={symbol} timeframe={pane.timeframe} />
+              <ChartPane symbol={symbol} timeframe={pane.timeframe} sync={sync} syncId={pane.id} />
             </div>
           </article>
         ))}

@@ -19,6 +19,7 @@ import {
 } from 'lightweight-charts';
 import type { Candle, Timeframe } from '../../contracts/ohlc';
 import { createOverlayBinding, type OverlayBinding } from '../../charting/chart-binding';
+import type { ChartSyncController } from '../../charting/chart-sync';
 import OverlayCanvas from '../../charting/OverlayCanvas';
 import {
   hitTestFragment,
@@ -98,6 +99,10 @@ export interface ChartPaneProps {
   drawings?: ReadonlyArray<OverlayShape>;
   /** Parámetros de indicadores a renderizar (RF-013). Si se omite, no se dibujan. */
   indicators?: IndicatorParameters;
+  /** Controlador de sincronización entre paneles (TASK-034, RF-014). */
+  sync?: ChartSyncController;
+  /** Id de este panel dentro del controlador de sincronización. */
+  syncId?: string;
 }
 
 /** Handle imperativo del panel para el export PNG (TASK-035, RF-015). */
@@ -126,7 +131,7 @@ function formatPrice(value: number | undefined): string {
  * ``+``/``-`` (zoom) y ``1`` (ajuste de vista).
  */
 const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane(
-  { symbol, timeframe, start, end, drawings = EMPTY_DRAWINGS, indicators },
+  { symbol, timeframe, start, end, drawings = EMPTY_DRAWINGS, indicators, sync, syncId = 'pane' },
   ref,
 ) {
   const hostRef = useRef<HTMLDivElement | null>(null);
@@ -182,6 +187,20 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
       wickDownColor: COLOR_DOWN,
     });
     legendBatcherRef.current = createFrameBatcher();
+    let suppress = 0;
+    let lastRange = { from: Number.NaN, to: Number.NaN };
+    /** Publica el crosshair actual a los demás paneles (RF-014). */
+    const publishCrosshair = (param: MouseEventParams<Time>): void => {
+      if (sync === undefined || suppress > 0) return;
+      if (param.time === undefined || param.point === undefined) return;
+      const data = param.seriesData.get(series) as Partial<Candle> | undefined;
+      const price = data?.close ?? series.coordinateToPrice(param.point.y);
+      if (price === undefined || price === null) return;
+      sync.publish({
+        source: syncId,
+        crosshair: { time: Number(param.time), price: Number(price) },
+      });
+    };
     chart.subscribeCrosshairMove((param) => {
       const data = param.seriesData.get(series) as Partial<Candle> | undefined;
       legendBatcherRef.current?.schedule(() => {
@@ -197,6 +216,7 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
         }
         setLegendBar(lastRef.current);
       });
+      publishCrosshair(param);
       previewHandlerRef.current(param);
     });
     chartRef.current = chart;
@@ -204,8 +224,50 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
     setOverlayBinding(createOverlayBinding(chart, series));
     const onChartClick = (param: MouseEventParams<Time>): void => clickHandlerRef.current(param);
     chart.subscribeClick(onChartClick);
+
+    let unsubscribeVisibleRange: (() => void) | null = null;
+    let unsubscribeSync: (() => void) | null = null;
+    if (sync !== undefined) {
+      const onVisibleRange = (): void => {
+        if (suppress > 0) return;
+        const range = chart.timeScale().getVisibleRange();
+        if (range === null) return;
+        const from = Number(range.from);
+        const to = Number(range.to);
+        if (from === lastRange.from && to === lastRange.to) return;
+        lastRange = { from, to };
+        sync.publish({ source: syncId, timeRange: { from, to } });
+      };
+      chart.timeScale().subscribeVisibleTimeRangeChange(onVisibleRange);
+      unsubscribeVisibleRange = () =>
+        chart.timeScale().unsubscribeVisibleTimeRangeChange(onVisibleRange);
+      unsubscribeSync = sync.subscribe((message) => {
+        if (message.source === syncId) return;
+        suppress += 1;
+        if (message.timeRange !== undefined) {
+          chart.timeScale().setVisibleRange({
+            from: message.timeRange.from as Time,
+            to: message.timeRange.to as Time,
+          });
+        }
+        if (message.crosshair === null) {
+          chart.clearCrosshairPosition();
+        } else if (message.crosshair !== undefined) {
+          chart.setCrosshairPosition(
+            message.crosshair.price,
+            message.crosshair.time as Time,
+            series,
+          );
+        }
+        queueMicrotask(() => {
+          suppress -= 1;
+        });
+      });
+    }
     return () => {
       chart.unsubscribeClick(onChartClick);
+      unsubscribeVisibleRange?.();
+      unsubscribeSync?.();
       chart.remove();
       chartRef.current = null;
       seriesRef.current = null;
@@ -213,7 +275,7 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
       legendBatcherRef.current?.cancel();
       legendBatcherRef.current = null;
     };
-  }, []);
+  }, [sync, syncId]);
 
   useEffect(() => {
     let cancelled = false;
