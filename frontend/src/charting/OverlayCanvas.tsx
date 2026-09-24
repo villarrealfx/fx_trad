@@ -127,7 +127,14 @@ export default function OverlayCanvas({
   return (
     <canvas
       ref={assignCanvas}
-      style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}
+      style={{
+        position: 'absolute',
+        inset: 0,
+        width: '100%',
+        height: '100%',
+        pointerEvents: 'none',
+        zIndex: 3,
+      }}
       aria-hidden="true"
     />
   );

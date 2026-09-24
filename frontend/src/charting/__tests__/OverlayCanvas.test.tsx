@@ -147,6 +147,18 @@ describe('OverlayCanvas', () => {
     expect(ctx.stroke).not.toHaveBeenCalled();
   });
 
+  it('stacks the overlay above the chart canvases (z-index, TASK-048)', () => {
+    const { binding } = createFakeBinding();
+    renderWithHost(binding, [ANCHORED_LINE]);
+
+    const canvas = document.querySelector('canvas') as HTMLCanvasElement;
+    expect(Number(canvas.style.zIndex)).toBeGreaterThanOrEqual(3);
+    // El canvas es un elemento reemplazado: sin tamaño CSS explícito usaría su
+    // tamaño intrínseco (×devicePixelRatio) y el overlay quedaría desalineado.
+    expect(canvas.style.width).toBe('100%');
+    expect(canvas.style.height).toBe('100%');
+  });
+
   it('fills a buy marker triangle anchored to its price/time', async () => {
     const { binding } = createFakeBinding();
     renderWithHost(binding, [BUY_MARKER]);
