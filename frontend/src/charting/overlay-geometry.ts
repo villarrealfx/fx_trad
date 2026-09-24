@@ -20,6 +20,9 @@ export interface PriceTimePoint {
 /** Dirección de un marcador del simulador de compra/venta (RF-012). */
 export type MarketDirection = 'buy' | 'sell';
 
+/** Niveles de retroceso de Fibonacci por defecto (RF-011, SCR-004). */
+export const FIB_LEVELS = [0, 0.236, 0.382, 0.5, 0.618, 0.786, 1] as const;
+
 /** Trazo efímero (RI-003) superpuesto al gráfico. Unión extensible (RF-016):
  *  TASK-028/029 agregan rectángulos y Fibonacci; TASK-030 introduce marcador. */
 export type OverlayShape =
@@ -37,6 +40,15 @@ export type OverlayShape =
       /** Esquina de anclaje 1 (tiempo/precio). */
       from: PriceTimePoint;
       /** Esquina de anclaje 2 (tiempo/precio). */
+      to: PriceTimePoint;
+    }
+  | {
+      /** Identificador único del retroceso de Fibonacci (RF-011). */
+      id: string;
+      kind: 'fib';
+      /** Ancla del swing 1 (0%). */
+      from: PriceTimePoint;
+      /** Ancla del swing 2 (100%). */
       to: PriceTimePoint;
     }
   | {
@@ -69,6 +81,12 @@ export interface PixelPoint {
 export type OverlayFragment =
   | { kind: 'line'; from: PixelPoint; to: PixelPoint }
   | { kind: 'rect'; from: PixelPoint; to: PixelPoint }
+  | {
+      kind: 'fib';
+      from: PixelPoint;
+      to: PixelPoint;
+      levels: { ratio: number; y: number }[];
+    }
   | { kind: 'marker'; position: PixelPoint; direction: MarketDirection }
   | { kind: 'hidden' };
 
@@ -97,6 +115,17 @@ export function projectShape(shape: OverlayShape, mapper: CoordinateMapper): Ove
       const to = projectPoint(shape.to, mapper);
       if (from === null || to === null) return { kind: 'hidden' };
       return { kind: 'rect', from, to };
+    }
+    case 'fib': {
+      const from = projectPoint(shape.from, mapper);
+      const to = projectPoint(shape.to, mapper);
+      if (from === null || to === null) return { kind: 'hidden' };
+      const levels = FIB_LEVELS.flatMap((ratio) => {
+        const price = shape.from.price + ratio * (shape.to.price - shape.from.price);
+        const y = mapper.priceToCoordinate(price);
+        return y === null ? [] : [{ ratio, y }];
+      });
+      return { kind: 'fib', from, to, levels };
     }
     case 'marker': {
       const position = projectPoint(shape.position, mapper);
@@ -131,6 +160,13 @@ export function hitTestFragment(
   if (fragment.kind === 'marker') return hitTestMarker(cursor, fragment.position, radius);
   if (fragment.kind === 'line') {
     return distanceToSegment(cursor, fragment.from, fragment.to) <= radius;
+  }
+  if (fragment.kind === 'fib') {
+    const x1 = Math.min(fragment.from.x, fragment.to.x);
+    const x2 = Math.max(fragment.from.x, fragment.to.x);
+    return fragment.levels.some(
+      (level) => distanceToSegment(cursor, { x: x1, y: level.y }, { x: x2, y: level.y }) <= radius,
+    );
   }
   const { from, to } = fragment;
   const topLeft = { x: Math.min(from.x, to.x), y: Math.min(from.y, to.y) };

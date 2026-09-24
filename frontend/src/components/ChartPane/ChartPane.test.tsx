@@ -463,6 +463,17 @@ describe('ChartPane', () => {
     await waitFor(() => expect(ctx.strokeRect).toHaveBeenCalled());
   });
 
+  it('draws a fibonacci retracement from two clicks', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    const { container } = render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+    fireEvent.click(screen.getByRole('button', { name: 'Fibonacci' }));
+    emitChartClick(1_781_000_000, 5, 5);
+    emitChartClick(1_781_003_600, 60, 80);
+    expect(container.querySelector('.chart-pane')?.getAttribute('data-shapes')).toBe('1');
+    await waitFor(() => expect(ctx.stroke).toHaveBeenCalled());
+  });
+
   it('erases a drawn shape with the erase tool', async () => {
     fetchMock.mockResolvedValue(createResponse(RESPONSE));
     const { container } = render(<ChartPane symbol="EURUSD" timeframe="1h" />);

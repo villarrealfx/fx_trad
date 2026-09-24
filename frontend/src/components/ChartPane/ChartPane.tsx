@@ -57,8 +57,8 @@ const EMPTY_DRAWINGS: ReadonlyArray<OverlayShape> = [];
 /** Tool por defecto del simulador: compra (auto-selección, journey J-003). */
 const DEFAULT_MARKER_TOOL: MarketDirection = 'buy';
 
-/** Herramienta activa del panel: simulador (buy/sell) o dibujo (line/rect/erase). */
-type ActiveTool = MarketDirection | 'line' | 'rect' | 'erase';
+/** Herramienta activa del panel: simulador (buy/sell) o dibujo (line/rect/fib/erase). */
+type ActiveTool = MarketDirection | 'line' | 'rect' | 'fib' | 'erase';
 
 /** Escala de precios reservada para el RSI (banda inferior del pane, v4). */
 const RSI_PRICE_SCALE_ID = 'rsi';
@@ -335,7 +335,9 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
     const shape: OverlayShape =
       activeTool === 'line'
         ? { id, kind: 'line', from: drawFrom, to: anchor }
-        : { id, kind: 'rect', from: drawFrom, to: anchor };
+        : activeTool === 'rect'
+          ? { id, kind: 'rect', from: drawFrom, to: anchor }
+          : { id, kind: 'fib', from: drawFrom, to: anchor };
     setDrawnShapes((current) => [...current, shape]);
     setDrawFrom(null);
     setPreviewShape(null);
@@ -353,7 +355,7 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
       eraseAt(cursor);
       return;
     }
-    if (activeTool === 'line' || activeTool === 'rect') {
+    if (activeTool === 'line' || activeTool === 'rect' || activeTool === 'fib') {
       handleDrawClick(param, cursor);
       return;
     }
@@ -485,7 +487,12 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
 
   /** Actualiza el preview del trazo en curso con el movimiento del crosshair. */
   previewHandlerRef.current = (param) => {
-    if (drawFrom === null || (activeTool !== 'line' && activeTool !== 'rect')) return;
+    if (
+      drawFrom === null ||
+      (activeTool !== 'line' && activeTool !== 'rect' && activeTool !== 'fib')
+    ) {
+      return;
+    }
     const y = param.point?.y;
     const price = y === undefined ? null : priceAt(y);
     if (param.time === undefined || price === null) return;
@@ -517,6 +524,13 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
           onClick={() => setActiveTool('rect')}
         >
           Rectángulo
+        </button>
+        <button
+          type="button"
+          aria-pressed={activeTool === 'fib'}
+          onClick={() => setActiveTool('fib')}
+        >
+          Fibonacci
         </button>
         <button
           type="button"

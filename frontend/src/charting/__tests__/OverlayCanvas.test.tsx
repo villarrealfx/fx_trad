@@ -4,6 +4,7 @@ import { createRef } from 'react';
 import type { OverlayBinding } from '../chart-binding';
 import { installCanvas2DContextMock } from '../../testing/canvas-2d';
 import type { OverlayShape } from '../overlay-geometry';
+import { FIB_LEVELS } from '../overlay-geometry';
 import OverlayCanvas from '../OverlayCanvas';
 
 const ANCHORED_LINE: OverlayShape = {
@@ -183,5 +184,19 @@ describe('OverlayCanvas', () => {
     expect(y).toBeCloseTo(20);
     expect(width).toBeCloseTo(1);
     expect(height).toBeCloseTo(10);
+  });
+
+  it('strokes every fibonacci level with its label (TASK-029)', async () => {
+    const { binding } = createFakeBinding();
+    const fib: OverlayShape = {
+      id: 'fib-1',
+      kind: 'fib',
+      from: { time: 1_781_000_000, price: 1.5 },
+      to: { time: 1_781_003_600, price: 1.6 },
+    };
+    renderWithHost(binding, [fib]);
+
+    await waitFor(() => expect(ctx.stroke).toHaveBeenCalledTimes(FIB_LEVELS.length));
+    expect(ctx.fillText).toHaveBeenCalledTimes(FIB_LEVELS.length);
   });
 });

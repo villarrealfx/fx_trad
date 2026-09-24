@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
+  FIB_LEVELS,
   MARKER_HIT_RADIUS,
   hitTestFragment,
   hitTestMarker,
@@ -167,6 +168,48 @@ describe('projectShape rect (TASK-028)', () => {
   });
 });
 
+describe('projectShape fib (TASK-029)', () => {
+  const FIB: OverlayShape = {
+    id: 'fib-1',
+    kind: 'fib',
+    from: { time: 1_781_000_000, price: 1.0 },
+    to: { time: 1_781_003_600, price: 2.0 },
+  };
+
+  it('projects every fibonacci level between both anchors', () => {
+    const mapper = makeMapper(
+      (time) => (time === 1_781_000_000 ? 0 : 100),
+      (price) => price * 100,
+    );
+    const fragment = projectShape(FIB, mapper);
+    if (fragment.kind !== 'fib') throw new Error('expected fib fragment');
+
+    expect(fragment.levels).toHaveLength(FIB_LEVELS.length);
+    expect(fragment.levels[0]).toEqual({ ratio: 0, y: 100 });
+    expect(fragment.levels[fragment.levels.length - 1]).toEqual({ ratio: 1, y: 200 });
+  });
+
+  it('hides the fib when an anchor leaves the visible range', () => {
+    const mapper = makeMapper(
+      () => null,
+      () => 100,
+    );
+    expect(projectShape(FIB, mapper)).toEqual({ kind: 'hidden' });
+  });
+
+  it('drops levels whose price is not visible', () => {
+    const mapper = makeMapper(
+      () => 0,
+      (price) => (price === 1.5 ? null : 100),
+    );
+    const fragment = projectShape(FIB, mapper);
+    if (fragment.kind !== 'fib') throw new Error('expected fib fragment');
+
+    expect(fragment.levels.length).toBeLessThan(FIB_LEVELS.length);
+    expect(fragment.levels.every((level) => level.y === 100)).toBe(true);
+  });
+});
+
 describe('hitTestFragment (TASK-028)', () => {
   it('hits a line near its segment and misses far away', () => {
     const line = { kind: 'line' as const, from: { x: 0, y: 0 }, to: { x: 100, y: 0 } };
@@ -178,6 +221,17 @@ describe('hitTestFragment (TASK-028)', () => {
     const rect = { kind: 'rect' as const, from: { x: 0, y: 0 }, to: { x: 100, y: 80 } };
     expect(hitTestFragment({ x: 0, y: 40 }, rect)).toBe(true);
     expect(hitTestFragment({ x: 50, y: 40 }, rect)).toBe(false);
+  });
+
+  it('hits a fibonacci level line (TASK-029)', () => {
+    const fib = {
+      kind: 'fib' as const,
+      from: { x: 0, y: 0 },
+      to: { x: 100, y: 100 },
+      levels: [{ ratio: 0.5, y: 50 }],
+    };
+    expect(hitTestFragment({ x: 50, y: 52 }, fib)).toBe(true);
+    expect(hitTestFragment({ x: 50, y: 0 }, fib)).toBe(false);
   });
 
   it('never hits a hidden fragment', () => {

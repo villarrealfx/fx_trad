@@ -1,5 +1,5 @@
 import { useEffect, useRef, type MutableRefObject, type Ref, type RefObject } from 'react';
-import { COLOR_DOWN, COLOR_FOCUS, COLOR_UP } from '../components/ChartPane/theme';
+import { COLOR_DOWN, COLOR_FOCUS, COLOR_TEXT_MUTED, COLOR_UP } from '../components/ChartPane/theme';
 import { createFrameBatcher, type FrameBatcher } from '../performance/frame-batch';
 import type { OverlayBinding } from './chart-binding';
 import { projectShape, type MarketDirection, type OverlayShape } from './overlay-geometry';
@@ -109,6 +109,23 @@ export default function OverlayCanvas({
           const width = Math.abs(fragment.to.x - fragment.from.x);
           const height = Math.abs(fragment.to.y - fragment.from.y);
           context.strokeRect(x, y, width, height);
+          continue;
+        }
+        if (fragment.kind === 'fib') {
+          const x1 = Math.min(fragment.from.x, fragment.to.x);
+          const x2 = Math.max(fragment.from.x, fragment.to.x);
+          for (const level of fragment.levels) {
+            context.beginPath();
+            context.moveTo(x1, level.y);
+            context.lineTo(x2, level.y);
+            context.stroke();
+          }
+          context.fillStyle = COLOR_TEXT_MUTED;
+          context.font = '10px sans-serif';
+          context.textBaseline = 'middle';
+          for (const level of fragment.levels) {
+            context.fillText(String(level.ratio), x2 + 4, level.y);
+          }
           continue;
         }
         drawMarker(context, fragment.position, fragment.direction);
