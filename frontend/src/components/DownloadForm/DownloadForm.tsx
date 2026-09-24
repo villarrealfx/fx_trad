@@ -1,6 +1,7 @@
 import { useMemo, useState, type FormEvent } from 'react';
 import { ASSET_TYPE_OPTIONS, assetsByType, type AssetType } from '../../catalog';
 import { requestDownload } from '../../services/downloads';
+import { endOfDayEpoch, isoDay, shiftDays, startOfDayEpoch } from '../../utils/dates';
 import Button from '../ui/Button';
 import DateRange from '../ui/DateRange';
 import Select from '../ui/Select';
@@ -12,28 +13,6 @@ const WINDOW_DAYS = 730;
 
 /** Estado del envío del formulario (SCR-002). */
 type SubmitStatus = 'idle' | 'loading' | 'success' | 'error';
-
-/** Fecha ISO `YYYY-MM-DD` de un `Date`. */
-function isoDay(date: Date): string {
-  return date.toISOString().slice(0, 10);
-}
-
-/** Suma (o resta) días a una fecha ISO `YYYY-MM-DD`. */
-function shiftDays(iso: string, days: number): string {
-  const date = new Date(`${iso}T00:00:00Z`);
-  date.setUTCDate(date.getUTCDate() + days);
-  return isoDay(date);
-}
-
-/** Inicio del día ISO en segundos UTC (00:00:00Z). */
-function startOfDayEpoch(iso: string): number {
-  return Math.floor(Date.parse(`${iso}T00:00:00Z`) / 1000);
-}
-
-/** Fin del día ISO en segundos UTC (23:59:59Z). */
-function endOfDayEpoch(iso: string): number {
-  return Math.floor(Date.parse(`${iso}T23:59:59Z`) / 1000);
-}
 
 /** Props del formulario de descarga (SCR-002). */
 export interface DownloadFormProps {

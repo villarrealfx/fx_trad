@@ -58,6 +58,15 @@ describe('App', () => {
     expect(await screen.findByRole('button', { name: 'Exportar' })).toBeTruthy();
   });
 
+  it('opens the chart from the selector with the chosen query (TASK-026)', async () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole('link', { name: 'Abrir' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Abrir gráfico' }));
+
+    expect(await screen.findByRole('button', { name: 'Exportar' })).toBeTruthy();
+  });
+
   it('opens the export modal and downloads a PNG', async () => {
     render(<App />);
 

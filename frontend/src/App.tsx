@@ -1,17 +1,26 @@
 /**
  * Componente raíz de la aplicación.
  *
- * Layout + routing (TASK-UI-003): shell con appbar/navegación y una pantalla
- * activa (single-window). SCR-004 monta el gráfico (ChartPane + indicadores +
- * export); el resto muestra un placeholder hasta que sus tareas de pantalla se
- * implementen (TASK-UI-010/020/030/050/060).
+ * Layout + routing (TASK-UI-003) con vista activa única: SCR-004 monta el
+ * gráfico (ChartPane + indicadores + export), SCR-003 el selector de
+ * activo/rango/timeframe (TASK-026) y SCR-002 el formulario de descarga. El
+ * resto muestra un placeholder hasta que sus tareas de pantalla se implementen.
  */
 import { useCallback, useRef, useState } from 'react';
-import { DEFAULT_ROUTE, DEFAULT_TIMEFRAME, ROUTES, routeFor, type AppRoute } from './app/routes';
+import {
+  DEFAULT_ROUTE,
+  ROUTES,
+  parseChartQuery,
+  parseLocation,
+  routeFor,
+  type AppRoute,
+  type ChartQuery,
+} from './app/routes';
 import { navigate, useHashRoute } from './app/useHashRoute';
 import AppShell from './components/AppShell/AppShell';
 import ChartPane from './components/ChartPane/ChartPane';
 import type { ChartPaneHandle } from './components/ChartPane/ChartPane';
+import ChartSelector from './components/ChartSelector/ChartSelector';
 import DownloadForm from './components/DownloadForm/DownloadForm';
 import ExportModal from './components/ExportModal/ExportModal';
 import IndicatorPanel from './components/IndicatorPanel/IndicatorPanel';
@@ -23,16 +32,18 @@ import {
   toIndicatorParameters,
   type IndicatorConfig,
 } from './indicators/config';
+import { endOfDayEpoch, startOfDayEpoch } from './utils/dates';
 
-/** Símbolo del gráfico de ejemplo del scaffold. */
-const DEMO_SYMBOL = 'EURUSD';
-
-/** Pantalla SCR-004: gráfico principal + indicadores + export (scaffold). */
-function ChartScreen() {
+/** Pantalla SCR-004: gráfico de la selección + indicadores + export. */
+function ChartScreen({ selection }: { selection: ChartQuery }) {
   const [configs, setConfigs] = useState<readonly IndicatorConfig[]>(DEFAULT_INDICATOR_CONFIGS);
   const paneRef = useRef<ChartPaneHandle>(null);
   const [exportOpen, setExportOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+
+  const { symbol, timeframe } = selection;
+  const start = selection.start !== undefined ? startOfDayEpoch(selection.start) : undefined;
+  const end = selection.end !== undefined ? endOfDayEpoch(selection.end) : undefined;
 
   /** Compone el lienzo del ChartPane a la escala pedida (RF-015). */
   const compose = useCallback((scale: ExportScale) => paneRef.current?.compose(scale) ?? null, []);
@@ -42,8 +53,10 @@ function ChartScreen() {
       <div className="chart-screen__graph" style={{ height: 420 }}>
         <ChartPane
           ref={paneRef}
-          symbol={DEMO_SYMBOL}
-          timeframe={DEFAULT_TIMEFRAME}
+          symbol={symbol}
+          timeframe={timeframe}
+          start={start}
+          end={end}
           indicators={toIndicatorParameters(configs)}
         />
       </div>
@@ -55,8 +68,8 @@ function ChartScreen() {
         open={exportOpen}
         onClose={() => setExportOpen(false)}
         compose={compose}
-        symbol={DEMO_SYMBOL}
-        timeframe={DEFAULT_TIMEFRAME}
+        symbol={symbol}
+        timeframe={timeframe}
         onExported={(filename) => setToast(`Captura descargada: ${filename}`)}
       />
       {toast !== null && <Toast tone="success" message={toast} onClose={() => setToast(null)} />}
@@ -84,12 +97,26 @@ function DownloadScreen() {
   );
 }
 
+/** Pantalla SCR-003: selector de activo/rango/timeframe → SCR-004 (TASK-026). */
+function OpenChartScreen() {
+  return (
+    <section aria-label="Abrir gráfico">
+      <h2>Abrir gráfico</h2>
+      <ChartSelector onOpen={navigate} />
+    </section>
+  );
+}
+
 export default function App() {
-  const path = useHashRoute(DEFAULT_ROUTE);
+  const location = useHashRoute(DEFAULT_ROUTE);
+  const { path, params } = parseLocation(location);
   const route = routeFor(path);
 
   function renderScreen() {
-    if (route.screen === 'SCR-004') return <ChartScreen />;
+    if (route.screen === 'SCR-004') {
+      return <ChartScreen selection={parseChartQuery(params)} />;
+    }
+    if (route.screen === 'SCR-003') return <OpenChartScreen />;
     if (route.screen === 'SCR-002') return <DownloadScreen />;
     return <ScreenPlaceholder route={route} />;
   }

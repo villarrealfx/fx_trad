@@ -1,0 +1,10 @@
+/*
+ * Selector de gráfico (TASK-026, SCR-003). Solo tokens.
+ */
+.chart-selector {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  max-width: 720px;
+  padding: var(--space-lg);
+}
