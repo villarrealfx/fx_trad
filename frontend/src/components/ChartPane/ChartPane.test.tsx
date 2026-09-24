@@ -229,6 +229,32 @@ describe('ChartPane', () => {
     await waitFor(() => expect(screen.getByText('Sin datos en este periodo')).toBeTruthy());
   });
 
+  it('shows a candle skeleton with an accessible loading status', () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+
+    const status = screen.getByRole('status');
+    expect(status.textContent).toContain('Cargando serie…');
+    expect(status.querySelectorAll('.chart-pane__skeleton-bar')).toHaveLength(14);
+  });
+
+  it('warns when the requested range exceeds the available coverage (partial)', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    render(<ChartPane symbol="EURUSD" timeframe="1h" start={1_780_999_000} end={1_781_004_000} />);
+
+    expect(
+      await screen.findByText('La cobertura disponible es menor al rango solicitado'),
+    ).toBeTruthy();
+  });
+
+  it('does not warn about partial coverage for a full range', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(screen.getByText('C 1.09500')).toBeTruthy());
+
+    expect(screen.queryByText('La cobertura disponible es menor al rango solicitado')).toBeNull();
+  });
+
   it('shows an error and retries the request', async () => {
     fetchMock
       .mockRejectedValueOnce(new TypeError('Failed to fetch'))

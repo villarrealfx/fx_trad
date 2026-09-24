@@ -35,6 +35,7 @@ import { createFrameBatcher, type FrameBatcher } from '../../performance/frame-b
 import { composeChartCanvas, type ExportScale } from '../../export';
 import ChartToolbar, { type ChartToolDescriptor } from '../ChartToolbar/ChartToolbar';
 import { type ChartToolType } from '../DrawTool/DrawTool';
+import StatusBanner from '../ui/StatusBanner';
 import { fetchSeries } from '../../services/series';
 import {
   computeIndicators,
@@ -137,6 +138,7 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
   const legendBatcherRef = useRef<FrameBatcher | null>(null);
   const [status, setStatus] = useState<ChartStatus>('loading');
   const [errorMessage, setErrorMessage] = useState('');
+  const [partialCoverage, setPartialCoverage] = useState(false);
   const [legendBar, setLegendBar] = useState<Candle | null>(null);
   const [retryToken, setRetryToken] = useState(0);
   const [overlayBinding, setOverlayBinding] = useState<OverlayBinding | null>(null);
@@ -216,6 +218,7 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
   useEffect(() => {
     let cancelled = false;
     setStatus('loading');
+    setPartialCoverage(false);
     seriesRef.current?.setData([]);
     fetchSeries({ symbol, timeframe, start, end })
       .then((response) => {
@@ -225,11 +228,15 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
           return;
         }
         const last = response.candles[response.candles.length - 1];
+        const first = response.candles[0];
         lastRef.current = last;
         candlesRef.current = response.candles;
         setLegendBar(last);
         seriesRef.current?.setData(response.candles as CandlestickData[]);
         chartRef.current?.timeScale().fitContent();
+        setPartialCoverage(
+          (start !== undefined && first.time > start) || (end !== undefined && last.time < end),
+        );
         setStatus('success');
       })
       .catch((error: unknown) => {
@@ -557,7 +564,20 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
           </div>
         )}
       </div>
-      {status === 'loading' && <div className="chart-pane__overlay">Cargando serie…</div>}
+      {status === 'loading' && (
+        <div className="chart-pane__overlay" role="status" aria-live="polite">
+          <span className="chart-pane__sr">Cargando serie…</span>
+          <div className="chart-pane__skeleton" aria-hidden="true">
+            {Array.from({ length: 14 }, (_, index) => (
+              <span
+                key={index}
+                className="chart-pane__skeleton-bar"
+                style={{ height: `${30 + ((index * 7) % 55)}%` }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
       {status === 'empty' && (
         <div className="chart-pane__overlay">
           <p>Sin datos en este periodo</p>
@@ -570,6 +590,12 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
             Reintentar
           </button>
         </div>
+      )}
+      {status === 'success' && partialCoverage && (
+        <StatusBanner
+          tone="warning"
+          message="La cobertura disponible es menor al rango solicitado"
+        />
       )}
       <footer className="chart-pane__legend" aria-label="Leyenda OHLC">
         <span>O {formatPrice(legendBar?.open)}</span>

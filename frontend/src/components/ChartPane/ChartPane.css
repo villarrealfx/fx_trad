@@ -103,3 +103,49 @@
   height: 8px;
   border-radius: 50%;
 }
+
+/* Texto solo para lectores de pantalla (estado de carga accesible). */
+.chart-pane__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Skeleton de velas durante la carga (SCR-004 loading). */
+.chart-pane__skeleton {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  width: 70%;
+  height: 60%;
+}
+
+.chart-pane__skeleton-bar {
+  flex: 1;
+  border-radius: var(--radius-sm);
+  background: var(--color-border);
+  animation: chart-pane-skeleton-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes chart-pane-skeleton-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chart-pane__skeleton-bar {
+    animation: none;
+  }
+}
