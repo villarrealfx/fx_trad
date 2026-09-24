@@ -1,6 +1,6 @@
 # Estado del Proyecto: Plataforma de Análisis Técnico (estilo TradingView)
 
-> Última actualización: 2026-09-22 13:30
+> Última actualización: 2026-09-24 08:22
 > Fuente: `_docs/backlog.md` (v2), `_docs/traceability.md` (v2)
 
 ## 1. Resumen ejecutivo
@@ -8,19 +8,19 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 61 | +15 (backlog v2: TASK-047 + 14 TASK-UI-XXX) |
-| 📥 Backlog | 39 | -2 |
+| 📥 Backlog | 38 | -3 |
 | 🔨 Doing | 0 | — |
-| 👀 Review | 0 | — |
-| ✅ Done | 22 | +2 |
+| 👀 Review | 0 | -1 |
+| ✅ Done | 23 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 36.1% (22/61) | +3.3 |
+| % Completado | 37.7% (23/61) | +1.6 |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (40)
+### 📥 Backlog (38)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
@@ -42,7 +42,6 @@
 | TASK-026 | Selector activo/rango/timeframe | EP-UI-003 | M | TASK-021, TASK-024 |
 | TASK-028 | Línea y rectángulo (crear/borrar) | EP-UI-004 | L | TASK-027 |
 | TASK-029 | Retrocesos de Fibonacci | EP-UI-004 | M | TASK-028 |
-| TASK-031 | Cálculo MA, RSI, ATR | EP-002 | M | TASK-010 |
 | TASK-032 | Render indicadores + panel parámetros | EP-UI-004 | M | TASK-024, TASK-031 |
 | TASK-UI-040 | SCR-004 ChartPane + estados + leyenda OHLC | EP-UI-004 | M | TASK-024, TASK-025 |
 | TASK-UI-041 | SCR-004 Toolbar + DrawTool (atajos, aria-pressed) | EP-UI-004 | M | TASK-028, TASK-029, TASK-030 |
@@ -72,7 +71,7 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (22)
+### ✅ Done (23)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
@@ -98,6 +97,7 @@ Sin tareas.
 | TASK-025 | Zoom/pan fluido a 60 FPS (2 años) | EP-UI-004 | 2026-09-22 | `frontend/` `frame-rate.test.ts` + `frame-batch.test.ts` (FrameRateMeter rAF, métricas avgFps/p95/max/dropped, presupuesto 16.67 ms) + `ChartPane.test.tsx` (pan/zoom dataset 2 años sin re-feed ni drops; leyenda batcheada — RF-010/RNF-001; sesión real → TASK-UI-040) |
 | TASK-027 | Overlay canvas sincronizado | EP-UI-004 | 2026-09-22 | `frontend/` `overlay-geometry.test.ts` + `OverlayCanvas.test.tsx` (13 tests: re-proyección de anclas en pan/zoom/resize, coalescing 1 frame, aria-hidden) — RF-011 |
 | TASK-030 | Marcadores entrada/salida | EP-UI-004 | 2026-09-22 | `ChartPane.test.tsx` (6 tests marcadores: crear buy, toggle sell+aria-pressed, dedupe, selección+borrado con confirm, cancel, Escape) + `overlay-geometry.test.ts` (proyección/hit-test) — RF-012 |
+| TASK-031 | Cálculo MA, RSI, ATR | EP-002 | 2026-09-24 | `backend/tests/pipeline/test_indicators.py` (21 tests, fixture golden MA20/RSI14/ATR14 Wilder) — RF-013 |
 
 ### 🔴 Blocked (0)
 
@@ -185,7 +185,7 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. Iniciar **TASK-035** (deps TASK-030 ✅ + TASK-031 📥 — parcial) o **TASK-028** (línea/rectángulo; deps TASK-027 ✅).
+1. Iniciar **TASK-032** (render de indicadores + panel; deps TASK-024 ✅ + TASK-031 ✅ — 100% desbloqueada) o **TASK-028** (línea/rectángulo; deps TASK-027 ✅).
 2. Alternativa paralela: **TASK-UI-040** (ChartPane estados + leyenda; deps TASK-024+025 ✅) o **TASK-033** (layout 3 paneles; deps TASK-024 ✅).
 
 ## 9. Historial de cambios (append-only)
@@ -257,3 +257,5 @@ Ninguno.
 | 2026-09-22 | TASK-027 | 👀 → ✅ | Review validada: DoD aceptada por usuario (anclaje precio/tiempo cubierto por tests de re-proyección en pan/zoom; verificación manual aceptada en review); 13 tests charting ✅, lint/typecheck OK; prueba registrada (RF-011); ruta crítica 8/12 (67%); habilita TASK-028/030 (siguiente en ruta crítica: TASK-030) |
 | 2026-09-22 | TASK-030 | 📥 → 🔨 → 👀 | Implementación verificada (commit `e965fe9`, marcadores buy/sell superpuestos con precio de barra bajo cursor, borrables, no persistentes — RI-003); prueba ya en traceability RF-012 (ChartPane.test.tsx: crear, toggle, dedupe, borrado con confirm/Escape); salto Doing→Review confirmado por usuario; DoD cubierta por tests. Ruta crítica: siguiente nodo |
 | 2026-09-22 | TASK-030 | 👀 → ✅ | Review validada: DoD completa (precio barra bajo cursor, borrables con confirm/Escape, no persistentes — RI-003); `ChartPane.test.tsx` (6 tests marcadores) + geometría; suite 57/57, lint/typecheck OK; prueba registrada (RF-012); ruta crítica 9/12 (75%); habilita TASK-035 (parcial) y TASK-UI-041 |
+| 2026-09-24 | TASK-031 | 📥 → 👀 | Implementación verificada (`indicators.py` + `test_indicators.py`, 21 tests, suite 247 ✅ + 2 skip; ruff/black/mypy OK); fixture golden MA20/RSI14/ATR14 Wilder; prueba RF-013 en traceability; pasa a revisión |
+| 2026-09-24 | TASK-031 | 👀 → ✅ | Review validada: DoD completa (fixture golden MA20/RSI14/ATR14 Wilder + 21 tests; suite 247 ✅ + 2 skip, ruff/black/mypy OK); prueba RF-013 registrada; habilita TASK-032/043 |

@@ -148,7 +148,7 @@
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-031 | Cálculo de MA, RSI y ATR (defaults MA 20/50/200, RSI 14, ATR 14) | backend | M | TASK-010 | Valores MA/RSI/ATR validados contra un fixture de referencia; test unitario | 📥 |
+| TASK-031 | Cálculo de MA, RSI y ATR (defaults MA 20/50/200, RSI 14, ATR 14) | backend | M | TASK-010 | Valores MA/RSI/ATR validados contra un fixture de referencia; test unitario | ✅ |
 
 ### EP-003: Almacenamiento Parquet + DuckDB
 - **Tipo:** Dominio
