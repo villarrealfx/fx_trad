@@ -24,6 +24,7 @@ import ChartSelector from './components/ChartSelector/ChartSelector';
 import DownloadForm from './components/DownloadForm/DownloadForm';
 import ExportModal from './components/ExportModal/ExportModal';
 import IndicatorPanel from './components/IndicatorPanel/IndicatorPanel';
+import MultiChart from './components/MultiChart/MultiChart';
 import Button from './components/ui/Button';
 import Toast from './components/ui/Toast';
 import type { ExportScale } from './export';
@@ -115,6 +116,9 @@ export default function App() {
   function renderScreen() {
     if (route.screen === 'SCR-004') {
       return <ChartScreen selection={parseChartQuery(params)} />;
+    }
+    if (route.screen === 'SCR-005') {
+      return <MultiChart symbol={parseChartQuery(params).symbol} />;
     }
     if (route.screen === 'SCR-003') return <OpenChartScreen />;
     if (route.screen === 'SCR-002') return <DownloadScreen />;

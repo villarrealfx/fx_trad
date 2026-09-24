@@ -56,6 +56,9 @@ describe('App', () => {
 
     fireEvent.click(screen.getByRole('link', { name: 'Gráfico' }));
     expect(await screen.findByRole('button', { name: 'Exportar' })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('link', { name: 'Multigráfico' }));
+    await waitFor(() => expect(screen.getAllByTestId('chart-pane')).toHaveLength(2));
   });
 
   it('opens the chart from the selector with the chosen query (TASK-026)', async () => {
