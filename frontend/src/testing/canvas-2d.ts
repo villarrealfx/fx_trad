@@ -10,7 +10,13 @@ export interface Canvas2DContextMock {
   stroke: ReturnType<typeof vi.fn>;
   closePath: ReturnType<typeof vi.fn>;
   fill: ReturnType<typeof vi.fn>;
+  fillRect: ReturnType<typeof vi.fn>;
+  drawImage: ReturnType<typeof vi.fn>;
+  fillText: ReturnType<typeof vi.fn>;
   fillStyle: string;
+  font: string;
+  textBaseline: string;
+  textAlign: string;
 }
 
 /**
@@ -28,7 +34,13 @@ export function installCanvas2DContextMock(): { ctx: Canvas2DContextMock } {
     stroke: vi.fn(),
     closePath: vi.fn(),
     fill: vi.fn(),
+    fillRect: vi.fn(),
+    drawImage: vi.fn(),
+    fillText: vi.fn(),
     fillStyle: '',
+    font: '',
+    textBaseline: '',
+    textAlign: '',
   };
   vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(ctx as never);
   return { ctx };

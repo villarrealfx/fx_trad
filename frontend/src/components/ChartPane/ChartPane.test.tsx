@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { createRef } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   FRAME_BUDGET_MS,
@@ -7,7 +8,9 @@ import {
 } from '../../performance/frame-rate';
 import { installCanvas2DContextMock } from '../../testing/canvas-2d';
 import type { OverlayShape } from '../../charting/overlay-geometry';
+import { DEFAULT_INDICATOR_PARAMETERS } from '../../indicators/indicators';
 import ChartPane from './ChartPane';
+import type { ChartPaneHandle } from './ChartPane';
 
 const RESPONSE = {
   symbol: 'EURUSD',
@@ -32,10 +35,18 @@ const chartMocks = vi.hoisted(() => {
   const unsubscribeSizeChange = vi.fn();
   const subscribeCrosshairMove = vi.fn();
   const remove = vi.fn();
+  const takeScreenshot = vi.fn<() => HTMLCanvasElement>(
+    () => ({ width: 800, height: 400 }) as unknown as HTMLCanvasElement,
+  );
   const addCandlestickSeries = vi.fn(() => ({
     setData,
     priceToCoordinate,
   }));
+  const lineSetData = vi.fn();
+  const addLineSeries = vi.fn<(...args: unknown[]) => unknown>(() => ({ setData: lineSetData }));
+  const removeSeries = vi.fn();
+  const applyPriceScaleOptions = vi.fn();
+  const priceScale = vi.fn(() => ({ applyOptions: applyPriceScaleOptions }));
   const timeScale = vi.fn(() => ({
     fitContent,
     setVisibleLogicalRange,
@@ -49,9 +60,13 @@ const chartMocks = vi.hoisted(() => {
   }));
   const createChart = vi.fn<(...args: unknown[]) => unknown>(() => ({
     addCandlestickSeries,
+    addLineSeries,
+    removeSeries,
+    priceScale,
     timeScale,
     subscribeCrosshairMove,
     remove,
+    takeScreenshot,
   }));
   return {
     setData,
@@ -67,9 +82,15 @@ const chartMocks = vi.hoisted(() => {
     unsubscribeSizeChange,
     subscribeCrosshairMove,
     addCandlestickSeries,
+    lineSetData,
+    addLineSeries,
+    removeSeries,
+    applyPriceScaleOptions,
+    priceScale,
     remove,
     timeScale,
     createChart,
+    takeScreenshot,
   };
 });
 
@@ -385,5 +406,107 @@ describe('ChartPane', () => {
     await waitFor(() =>
       expect(screen.queryByRole('group', { name: 'Marcador de compra seleccionado' })).toBeNull(),
     );
+  });
+
+  it('renders MA and ATR overlays plus the RSI band with the legend labels', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    render(<ChartPane symbol="EURUSD" timeframe="1h" indicators={DEFAULT_INDICATOR_PARAMETERS} />);
+    await waitFor(() => expect(chartMocks.addLineSeries).toHaveBeenCalledTimes(5));
+    expect(chartMocks.lineSetData).toHaveBeenCalledTimes(5);
+    expect(chartMocks.priceScale).toHaveBeenCalledWith('right');
+    expect(chartMocks.priceScale).toHaveBeenCalledWith('rsi');
+    expect(chartMocks.applyPriceScaleOptions).toHaveBeenCalledWith({
+      scaleMargins: { top: 0.12, bottom: 0.34 },
+    });
+    expect(chartMocks.applyPriceScaleOptions).toHaveBeenCalledWith({
+      scaleMargins: { top: 0.72, bottom: 0.02 },
+    });
+    const rsiCalls = chartMocks.addLineSeries.mock.calls.filter(
+      (call) => (call[0] as { priceScaleId?: string }).priceScaleId === 'rsi',
+    );
+    expect(rsiCalls.at(-1)).toBeDefined();
+    const ma20Call = chartMocks.addLineSeries.mock.calls.find(
+      (call) => (call[0] as { color?: string }).color === '#58A6FF',
+    );
+    expect(ma20Call).toBeDefined();
+    expect(screen.getByText('MA20')).toBeTruthy();
+    expect(screen.getByText('MA50')).toBeTruthy();
+    expect(screen.getByText('MA200')).toBeTruthy();
+    expect(screen.getByText('ATR(14)')).toBeTruthy();
+    expect(screen.getByText('RSI(14)')).toBeTruthy();
+  });
+
+  it('redraws the indicators when the parameters change', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    const view = render(
+      <ChartPane symbol="EURUSD" timeframe="1h" indicators={DEFAULT_INDICATOR_PARAMETERS} />,
+    );
+    await waitFor(() => expect(chartMocks.addLineSeries).toHaveBeenCalledTimes(5));
+    view.rerender(
+      <ChartPane
+        symbol="EURUSD"
+        timeframe="1h"
+        indicators={{ ...DEFAULT_INDICATOR_PARAMETERS, maPeriods: [10, 50, 200] }}
+      />,
+    );
+    await waitFor(() => expect(chartMocks.addLineSeries).toHaveBeenCalledTimes(10));
+    expect(chartMocks.removeSeries).toHaveBeenCalledTimes(5);
+    expect(screen.getByText('MA10')).toBeTruthy();
+    expect(screen.queryByText('MA20')).toBeNull();
+    expect(screen.getByText('RSI(14)')).toBeTruthy();
+  });
+
+  it('skips indicator series when no parameters are provided', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(screen.getByText('C 1.09500')).toBeTruthy());
+    expect(chartMocks.addLineSeries).not.toHaveBeenCalled();
+    expect(chartMocks.priceScale).not.toHaveBeenCalled();
+    expect(screen.queryByText('RSI(14)')).toBeNull();
+  });
+
+  it('composes chart and overlay layers at the requested scale for export', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    const ref = createRef<ChartPaneHandle>();
+    const { container } = render(
+      <ChartPane
+        ref={ref}
+        symbol="EURUSD"
+        timeframe="1h"
+        indicators={DEFAULT_INDICATOR_PARAMETERS}
+      />,
+    );
+    await waitFor(() => expect(chartMocks.setData).toHaveBeenCalled());
+    const host = container.querySelector('.chart-pane__host') as HTMLElement;
+    Object.defineProperty(host, 'clientWidth', { configurable: true, value: 800 });
+    Object.defineProperty(host, 'clientHeight', { configurable: true, value: 400 });
+
+    const composed = ref.current?.compose(2);
+
+    expect(chartMocks.takeScreenshot).toHaveBeenCalledTimes(1);
+    expect(composed).not.toBeNull();
+    expect(composed?.width).toBe(1600);
+    expect(composed?.height).toBe(800);
+    expect(ctx.fillRect).toHaveBeenCalledWith(0, 0, 1600, 800);
+    expect(ctx.drawImage).toHaveBeenCalledTimes(2);
+    expect(ctx.fillText).toHaveBeenCalledWith('EURUSD · 1h', 24, 24);
+  });
+
+  it('composes the overlay only when the chart layer is unavailable (partial)', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    const ref = createRef<ChartPaneHandle>();
+    const { container } = render(<ChartPane ref={ref} symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(chartMocks.setData).toHaveBeenCalled());
+    chartMocks.takeScreenshot.mockImplementationOnce(() => {
+      throw new Error('gráfico no listo');
+    });
+    const host = container.querySelector('.chart-pane__host') as HTMLElement;
+    Object.defineProperty(host, 'clientWidth', { configurable: true, value: 640 });
+    Object.defineProperty(host, 'clientHeight', { configurable: true, value: 360 });
+
+    const composed = ref.current?.compose(1);
+
+    expect(composed?.width).toBe(640);
+    expect(ctx.drawImage).toHaveBeenCalledTimes(1);
   });
 });

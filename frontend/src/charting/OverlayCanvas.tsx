@@ -1,4 +1,4 @@
-import { useEffect, useRef, type RefObject } from 'react';
+import { useEffect, useRef, type MutableRefObject, type Ref, type RefObject } from 'react';
 import { COLOR_DOWN, COLOR_FOCUS, COLOR_UP } from '../components/ChartPane/theme';
 import { createFrameBatcher, type FrameBatcher } from '../performance/frame-batch';
 import type { OverlayBinding } from './chart-binding';
@@ -23,6 +23,8 @@ export interface OverlayCanvasProps {
   shapes: ReadonlyArray<OverlayShape>;
   /** Color del trazo; por defecto el token accent del design system. */
   strokeColor?: string;
+  /** Ref opcional al `<canvas>` overlay para su composición en export (TASK-035). */
+  canvasRef?: Ref<HTMLCanvasElement>;
 }
 
 /** Triángulo del marcador (▲ compra / ▼ venta) con base sobre el ancla. */
@@ -51,9 +53,20 @@ export default function OverlayCanvas({
   binding,
   shapes,
   strokeColor = COLOR_FOCUS,
+  canvasRef: externalCanvasRef,
 }: OverlayCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const batcherRef = useRef<FrameBatcher | null>(null);
+
+  /** Asigna el nodo al ref interno y, si existe, al ref externo de export. */
+  const assignCanvas = (node: HTMLCanvasElement | null): void => {
+    canvasRef.current = node;
+    if (typeof externalCanvasRef === 'function') {
+      externalCanvasRef(node);
+    } else if (externalCanvasRef != null) {
+      (externalCanvasRef as MutableRefObject<HTMLCanvasElement | null>).current = node;
+    }
+  };
 
   useEffect(() => {
     batcherRef.current = createFrameBatcher();
@@ -113,7 +126,7 @@ export default function OverlayCanvas({
 
   return (
     <canvas
-      ref={canvasRef}
+      ref={assignCanvas}
       style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}
       aria-hidden="true"
     />

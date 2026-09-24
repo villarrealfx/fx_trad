@@ -84,9 +84,22 @@
 
 .chart-pane__legend {
   display: flex;
+  flex-wrap: wrap;
   gap: 16px;
   min-height: 28px;
   padding: 6px 12px;
   font-size: 12px;
   font-variant-numeric: tabular-nums;
+}
+
+.chart-pane__indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chart-pane__indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
 }

@@ -1,10 +1,21 @@
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent } from 'react';
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type MouseEvent,
+} from 'react';
 import {
   ColorType,
   createChart,
   type CandlestickData,
   type IChartApi,
   type ISeriesApi,
+  type LineData,
+  type Time,
 } from 'lightweight-charts';
 import type { Candle, Timeframe } from '../../contracts/ohlc';
 import { createOverlayBinding, type OverlayBinding } from '../../charting/chart-binding';
@@ -18,8 +29,23 @@ import {
   type PixelPoint,
 } from '../../charting/overlay-geometry';
 import { createFrameBatcher, type FrameBatcher } from '../../performance/frame-batch';
+import { composeChartCanvas, type ExportScale } from '../../export';
 import { fetchSeries } from '../../services/series';
-import { COLOR_BG, COLOR_BORDER, COLOR_DOWN, COLOR_TEXT, COLOR_UP } from './theme';
+import {
+  computeIndicators,
+  toLinePoints,
+  type IndicatorParameters,
+} from '../../indicators/indicators';
+import {
+  ATR_SERIES_COLOR,
+  COLOR_BG,
+  COLOR_BORDER,
+  COLOR_DOWN,
+  COLOR_TEXT,
+  COLOR_UP,
+  MA_SERIES_COLORS,
+  RSI_SERIES_COLOR,
+} from './theme';
 import './ChartPane.css';
 
 /** Sin trazos por defecto (estable; la creación es TASK-028/029/030). */
@@ -27,6 +53,15 @@ const EMPTY_DRAWINGS: ReadonlyArray<OverlayShape> = [];
 
 /** Tool por defecto del simulador: compra (auto-selección, journey J-003). */
 const DEFAULT_MARKER_TOOL: MarketDirection = 'buy';
+
+/** Escala de precios reservada para el RSI (banda inferior del pane, v4). */
+const RSI_PRICE_SCALE_ID = 'rsi';
+
+/** Margen inferior reservado a la banda RSI en la escala del precio (v4). */
+const MAIN_SCALE_MARGINS = { top: 0.12, bottom: 0.34 };
+
+/** Posición de la banda RSI dentro del pane (v4 no soporta panes separados). */
+const RSI_SCALE_MARGINS = { top: 0.72, bottom: 0.02 };
 
 /** Estados de carga del panel (interaction-specs SCR-004, CMP-007). */
 type ChartStatus = 'loading' | 'empty' | 'error' | 'success';
@@ -42,6 +77,20 @@ export interface ChartPaneProps {
   end?: number;
   /** Trazos superpuestos anclados a precio/tiempo (TASK-027). */
   drawings?: ReadonlyArray<OverlayShape>;
+  /** Parámetros de indicadores a renderizar (RF-013). Si se omite, no se dibujan. */
+  indicators?: IndicatorParameters;
+}
+
+/** Handle imperativo del panel para el export PNG (TASK-035, RF-015). */
+export interface ChartPaneHandle {
+  /**
+   * Compone velas + indicadores (canvas de la librería) y dibujos (overlay)
+   * en un canvas fuera de pantalla a la escala indicada.
+   *
+   * @param scale Factor de resolución (default 2x, P-2).
+   * @returns El canvas compuesto, o `null` si no hay gráfico (empty/error).
+   */
+  compose(scale?: ExportScale): HTMLCanvasElement | null;
 }
 
 /** Formatea un precio al formato de dominio FX (5 decimales). */
@@ -57,16 +106,15 @@ function formatPrice(value: number | undefined): string {
  * empty, error y success, leyenda OHLC textual (a11y SCR-004) y atajos
  * ``+``/``-`` (zoom) y ``1`` (ajuste de vista).
  */
-export default function ChartPane({
-  symbol,
-  timeframe,
-  start,
-  end,
-  drawings = EMPTY_DRAWINGS,
-}: ChartPaneProps) {
+const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane(
+  { symbol, timeframe, start, end, drawings = EMPTY_DRAWINGS, indicators },
+  ref,
+) {
   const hostRef = useRef<HTMLDivElement | null>(null);
+  const overlayCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
+  const indicatorSeriesRef = useRef<ISeriesApi<'Line'>[]>([]);
   const lastRef = useRef<Candle | null>(null);
   const legendBatcherRef = useRef<FrameBatcher | null>(null);
   const [status, setStatus] = useState<ChartStatus>('loading');
@@ -169,6 +217,49 @@ export default function ChartPane({
     };
   }, [symbol, timeframe, start, end, retryToken]);
 
+  /** Dibuja o redibuja MA/ATR (overlays) y el RSI (banda inferior, v4) — RF-013. */
+  useEffect(() => {
+    const chart = chartRef.current;
+    if (chart === null) return;
+    for (const serie of indicatorSeriesRef.current) chart.removeSeries(serie);
+    indicatorSeriesRef.current = [];
+    if (status !== 'success' || candlesRef.current.length === 0 || indicators === undefined) {
+      return;
+    }
+    const { times, ma, rsi, atr } = computeIndicators(candlesRef.current, indicators);
+    for (const [index, period] of indicators.maPeriods.entries()) {
+      const serie = chart.addLineSeries({
+        priceLineVisible: false,
+        lastValueVisible: false,
+        color: MA_SERIES_COLORS[index % MA_SERIES_COLORS.length],
+        lineWidth: 1,
+        priceScaleId: 'right',
+      });
+      serie.setData(toLinePoints(times, ma.get(period) ?? []) as LineData<Time>[]);
+      indicatorSeriesRef.current.push(serie);
+    }
+    const atrSerie = chart.addLineSeries({
+      priceLineVisible: false,
+      lastValueVisible: false,
+      color: ATR_SERIES_COLOR,
+      lineWidth: 1,
+      priceScaleId: 'right',
+    });
+    atrSerie.setData(toLinePoints(times, atr.get(indicators.atrPeriod) ?? []) as LineData<Time>[]);
+    indicatorSeriesRef.current.push(atrSerie);
+    const rsiSerie = chart.addLineSeries({
+      priceLineVisible: false,
+      lastValueVisible: false,
+      color: RSI_SERIES_COLOR,
+      lineWidth: 1,
+      priceScaleId: RSI_PRICE_SCALE_ID,
+    });
+    rsiSerie.setData(toLinePoints(times, rsi.get(indicators.rsiPeriod) ?? []) as LineData<Time>[]);
+    indicatorSeriesRef.current.push(rsiSerie);
+    chart.priceScale('right').applyOptions({ scaleMargins: MAIN_SCALE_MARGINS });
+    chart.priceScale(RSI_PRICE_SCALE_ID).applyOptions({ scaleMargins: RSI_SCALE_MARGINS });
+  }, [status, indicators]);
+
   /** Aplica zoom a la vista actual alrededor del centro visible (atajo +/−). */
   function applyZoom(factor: number): void {
     const chart = chartRef.current;
@@ -269,6 +360,44 @@ export default function ChartPane({
     [drawings, markers],
   );
 
+  /** Entradas de la leyenda de indicadores activos (RF-013). */
+  const indicatorEntries: ReadonlyArray<{ label: string; color: string }> = useMemo(() => {
+    if (status !== 'success' || indicators === undefined) return [];
+    const entries = indicators.maPeriods.map((period, index) => ({
+      label: `MA${period}`,
+      color: MA_SERIES_COLORS[index % MA_SERIES_COLORS.length],
+    }));
+    entries.push({ label: `ATR(${indicators.atrPeriod})`, color: ATR_SERIES_COLOR });
+    entries.push({ label: `RSI(${indicators.rsiPeriod})`, color: RSI_SERIES_COLOR });
+    return entries;
+  }, [status, indicators]);
+
+  /** Expone la composición del lienzo para el export PNG (TASK-035, RF-015). */
+  useImperativeHandle(
+    ref,
+    () => ({
+      compose(scale: ExportScale = 2): HTMLCanvasElement | null {
+        const host = hostRef.current;
+        const chart = chartRef.current;
+        if (host === null || chart === null) return null;
+        let chartCanvas: HTMLCanvasElement | null = null;
+        try {
+          chartCanvas = chart.takeScreenshot();
+        } catch {
+          chartCanvas = null;
+        }
+        return composeChartCanvas({
+          layers: { chartCanvas, overlayCanvas: overlayCanvasRef.current },
+          width: host.clientWidth,
+          height: host.clientHeight,
+          scale,
+          annotation: `${symbol} · ${timeframe}`,
+        });
+      },
+    }),
+    [symbol, timeframe],
+  );
+
   return (
     <div className="chart-pane">
       <div className="chart-pane__tools" role="group" aria-label="Simulador de compra/venta">
@@ -297,7 +426,12 @@ export default function ChartPane({
           onKeyDown={handleKeyDown}
           onClick={handleChartClick}
         />
-        <OverlayCanvas hostRef={hostRef} binding={overlayBinding} shapes={overlayShapes} />
+        <OverlayCanvas
+          hostRef={hostRef}
+          binding={overlayBinding}
+          shapes={overlayShapes}
+          canvasRef={overlayCanvasRef}
+        />
         {selectedMarker !== null && selectedPixel !== null && (
           <div
             className="chart-pane__confirm"
@@ -335,7 +469,19 @@ export default function ChartPane({
         <span>H {formatPrice(legendBar?.high)}</span>
         <span>L {formatPrice(legendBar?.low)}</span>
         <span>C {formatPrice(legendBar?.close)}</span>
+        {indicatorEntries.map((entry, index) => (
+          <span className="chart-pane__indicator" key={`${entry.label}-${index}`}>
+            <span
+              className="chart-pane__indicator-dot"
+              style={{ background: entry.color }}
+              aria-hidden="true"
+            />
+            {entry.label}
+          </span>
+        ))}
       </footer>
     </div>
   );
-}
+});
+
+export default ChartPane;
