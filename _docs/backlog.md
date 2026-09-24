@@ -320,7 +320,7 @@
 | TASK-024 | Integración de lightweight-charts v4 con datos de la API (ChartPane base CMP-007) | frontend | M | TASK-021, TASK-023 | Renderiza velas reales de un activo; contrato OHLC sin transformación (RNF-008); smoke test | ✅ |
 | TASK-025 | Zoom/pan fluido a 60 FPS con dataset de 2 años | frontend | M | TASK-024 | Pan/zoom continuo sin caídas perceptibles; profiling vía requestAnimationFrame (RNF-001) | ✅ |
 | TASK-027 | Overlay canvas sincronizado con los ejes del gráfico | frontend | L | TASK-024 | El trazo se mantiene anclado a precio/tiempo durante zoom y pan; verificación manual | ✅ |
-| TASK-028 | Herramientas de línea y rectángulo (crear/borrar) | frontend | L | TASK-027 | Se crean y borran líneas y rectángulos; persisten solo en sesión (RI-003) | 📥 |
+| TASK-028 | Herramientas de línea y rectángulo (crear/borrar) | frontend | L | TASK-027 | Se crean y borran líneas y rectángulos; persisten solo en sesión (RI-003) | ✅ |
 | TASK-029 | Retrocesos de Fibonacci (crear/borrar) | frontend | M | TASK-028 | Niveles de Fibonacci dibujados y borrables con anclas correctas | 📥 |
 | TASK-030 | Marcadores de entrada/salida (buy/sell) superpuestos | frontend | M | TASK-027 | Las marcas de compra/venta toman el precio de la barra bajo el cursor, son borrables y no persistentes (RI-003) | ✅ |
 | TASK-048 | Fix: los marcadores compra/venta no se plasman al hacer clic en el gráfico (RF-012) | frontend | S | TASK-030 | Con Compra/Venta activo, un clic sobre una vela crea el marcador ▲/▼ anclado a tiempo+precio y se dibuja en el overlay; test de comportamiento + verificación en navegador | ✅ |

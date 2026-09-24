@@ -1,6 +1,6 @@
 # Estado del Proyecto: Plataforma de Análisis Técnico (estilo TradingView)
 
-> Última actualización: 2026-09-24 09:56
+> Última actualización: 2026-09-24 12:10
 > Fuente: `_docs/backlog.md` (v2), `_docs/traceability.md` (v2)
 
 ## 1. Resumen ejecutivo
@@ -8,19 +8,19 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 62 | +1 (TASK-048) |
-| 📥 Backlog | 31 | -5 |
+| 📥 Backlog | 30 | -6 |
 | 🔨 Doing | 0 | — |
-| 👀 Review | 0 | — |
-| ✅ Done | 31 | +5 |
+| 👀 Review | 0 | -1 |
+| ✅ Done | 32 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 50.0% (31/62) | +8.1 |
+| % Completado | 51.6% (32/62) | +1.6 |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (31)
+### 📥 Backlog (30)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
@@ -37,7 +37,6 @@
 | TASK-UI-021 | SCR-002 Progreso + historial + estados | EP-UI-002 | L | TASK-006, TASK-047, TASK-UI-020 |
 | TASK-UI-030 | SCR-003 Estados y validación cobertura | EP-UI-003 | M | TASK-020, TASK-026 |
 | TASK-026 | Selector activo/rango/timeframe | EP-UI-003 | M | TASK-021, TASK-024 |
-| TASK-028 | Línea y rectángulo (crear/borrar) | EP-UI-004 | L | TASK-027 |
 | TASK-029 | Retrocesos de Fibonacci | EP-UI-004 | M | TASK-028 |
 | TASK-UI-040 | SCR-004 ChartPane + estados + leyenda OHLC | EP-UI-004 | M | TASK-024, TASK-025 |
 | TASK-UI-041 | SCR-004 Toolbar + DrawTool (atajos, aria-pressed) | EP-UI-004 | M | TASK-028, TASK-029, TASK-030 |
@@ -64,7 +63,7 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (31)
+### ✅ Done (32)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
@@ -99,6 +98,7 @@ Sin tareas.
 | TASK-UI-002 | Feedback/overlay | EP-UI-000 | 2026-09-24 | `frontend/src/components/ui/__tests__/` (StatusBanner/ProgressBar/Toast/Modal/Tab; 23 tests) — EP-UI-000 |
 | TASK-UI-060 | Modal export | EP-UI-006 | 2026-09-24 | `frontend/src/components/ExportModal/__tests__/ExportModal.test.tsx` (7 tests) + `app.test.tsx` — RF-015 |
 | TASK-048 | Fix marcadores compra/venta | EP-UI-004 | 2026-09-24 | `ChartPane.test.tsx` (marcadores vía subscribeClick) + `OverlayCanvas.test.tsx` (z-index≥3 y tamaño 100%) + verificación navegador real dpr=2 — RF-012 |
+| TASK-028 | Línea y rectángulo (crear/borrar) | EP-UI-004 | 2026-09-24 | `overlay-geometry.test.ts` (rect + hitTestFragment) + `OverlayCanvas.test.tsx` (strokeRect) + `ChartPane.test.tsx` (crear/borrar línea y rect, preview, erase, aria-pressed) — RF-011 |
 
 ### 🔴 Blocked (0)
 
@@ -189,8 +189,8 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. **Ruta crítica completa (12/12)**. Próximo foco: TASK-UI-003 (layout+routing → habilita UI-004/010/020/030), TASK-020 (`GET /assets`) y TASK-028 (dibujos → 029/UI-041).
-2. Paralela en frontend desbloqueado: **TASK-028** (dep TASK-027 ✅), **TASK-UI-040** (dep TASK-024+025 ✅) o **TASK-033** (dep TASK-024 ✅).
+1. **Iniciar TASK-029** (Fibonacci, dep TASK-028 ✅) — continúa el tramo de dibujos → TASK-UI-041.
+2. Paralela en frontend: **TASK-UI-040** (dep TASK-024+025 ✅), **TASK-UI-003** (layout+routing) o **TASK-033** (dep TASK-024 ✅).
 
 ## 9. Historial de cambios (append-only)
 
@@ -275,3 +275,5 @@ Ninguno.
 | 2026-09-24 | TASK-UI-002 | 📥 → 🔨 → 👀 → ✅ | Feedback/overlay (`components/ui/`: StatusBanner/ProgressBar/Toast/Modal/Tab); focus trap/Escape/restauración, `aria-live`, WAI-ARIA tablist; 23 tests; verificación visual OK (usuario) |
 | 2026-09-24 | TASK-UI-060 | 📥 → 🔨 → 👀 → ✅ | Modal export (`components/ExportModal/`): RadioGroup resolución/formato, preview con alt, estados loading/empty/error/partial/success, descarga + Toast; focus trap vía Modal; 7 tests; verificación visual OK (usuario: 'el resto funciona bien') |
 | 2026-09-24 | TASK-048 | 📥 → 🔨 → 👀 → ✅ | Fix RF-012: overlay tras los canvas del chart (z-index 3) y canvas reemplazado estirado ×dpr (width/height 100%); handler vía subscribeClick; 163 tests + verificación navegador real dpr=2 (commit 175bd5d) |
+| 2026-09-24 | TASK-028 | 📥 → 🔨 → 👀 | Motor de dibujo: `rect` en `overlay-geometry`, `strokeRect` en `OverlayCanvas`, tools line/rect/erase con creación a 2 clics (`coordinateToPrice`), preview por crosshair y borrado (`hitTestFragment`); 176 tests frontend ✅ (ChartPane 82.96% ramas); prueba RF-011 en traceability; DoD manual pendiente en review |
+| 2026-09-24 | TASK-028 | 👀 → ✅ | Review validada: DoD completa — línea y rectángulo se crean a 2 clics y se borran (RI-003, efímero, sin persistencia); 176 tests frontend ✅ (ChartPane 82.96% ramas); prueba RF-011 registrada; habilita TASK-029 y TASK-UI-041 |
