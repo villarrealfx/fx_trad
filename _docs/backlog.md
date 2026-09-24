@@ -380,7 +380,7 @@
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-037 | Monorepo (backend/frontend/worker) + lint/formato | infra | S | — | Estructura de carpetas creada; lint y formato configurados y ejecutables | 📥 |
+| TASK-037 | Monorepo (backend/frontend/worker) + lint/formato | infra | S | — | Estructura de carpetas creada; lint y formato configurados y ejecutables | ✅ |
 | TASK-038 | Docker Compose (frontend, backend, worker, broker, volumen data/) | infra | M | TASK-037 | `docker compose up` levanta los 4 servicios con volumen `data/` (ADR-009) | 📥 |
 | TASK-039 | GitHub Actions lint + tests | infra | S | TASK-037 | El workflow corre en push y pasa en verde | 📥 |
 | TASK-040 | Auditoría de licencias OSS ($0) | infra | S | TASK-037 | Inventario sin componentes comerciales (RNF-006); documento de auditoría | 📥 |

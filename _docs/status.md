@@ -1,6 +1,6 @@
 # Estado del Proyecto: Plataforma de Análisis Técnico (estilo TradingView)
 
-> Última actualización: 2026-09-24 14:29
+> Última actualización: 2026-09-24 14:34
 > Fuente: `_docs/backlog.md` (v2), `_docs/traceability.md` (v2)
 
 ## 1. Resumen ejecutivo
@@ -8,19 +8,19 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 62 | +1 (TASK-048) |
-| 📥 Backlog | 18 | -18 |
+| 📥 Backlog | 17 | -19 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | — |
-| ✅ Done | 44 | +1 |
+| ✅ Done | 45 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 71.0% (44/62) | +1.6 |
+| % Completado | 72.6% (45/62) | +1.6 |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (18)
+### 📥 Backlog (17)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
@@ -33,7 +33,6 @@
 | TASK-UI-010 | SCR-001 Biblioteca (AssetList CMP-006) | EP-UI-001 | L | TASK-020, TASK-UI-001, TASK-UI-003 |
 | TASK-UI-021 | SCR-002 Progreso + historial + estados | EP-UI-002 | L | TASK-006, TASK-047, TASK-UI-020 |
 | TASK-UI-030 | SCR-003 Estados y validación cobertura | EP-UI-003 | M | TASK-020, TASK-026 |
-| TASK-037 | Monorepo + lint/formato | TEC-001 | S | — |
 | TASK-038 | Docker Compose (4 servicios) | TEC-001 | M | TASK-037 |
 | TASK-039 | GHA lint + tests | TEC-001 | S | TASK-037 |
 | TASK-040 | Auditoría licencias OSS ($0) | TEC-001 | S | TASK-037 |
@@ -51,7 +50,7 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (44)
+### ✅ Done (45)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
@@ -99,6 +98,7 @@ Sin tareas.
 | TASK-034 | Sincronización crosshair/zoom | EP-UI-005 | 2026-09-24 | `chart-sync.test.ts` (bus con source) + `ChartPane.test.tsx` (ventana temporal UTC + crosshair replicado, eco ignorado) — RF-014 |
 | TASK-UI-050 | Tabs WAI-ARIA + tope 3 panes | EP-UI-005 | 2026-09-24 | `MultiChart.test.tsx` (tablist con flechas, añadir deshabilitado a 3 + tooltip, cierre por tab, leyenda combinada) + fix overlay/toolbar y sync robusto — RF-014 |
 | TASK-046 | Smoke test navegadores desktop | TEC-001 | 2026-09-24 | `frontend/smoke-test.md` (build de producción OK, preview 200, 6 rutas + chart sin errores en Chromium/Brave; Firefox manual) — RNF-005 |
+| TASK-037 | Monorepo + lint/formato | TEC-001 | 2026-09-24 | `.editorconfig` + `Makefile` (`make lint`/`format`/`test`/`build`) + `README.md`; `make lint` y `make test` verdes — RNF-006 |
 
 ### 🔴 Blocked (0)
 
@@ -189,7 +189,7 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. **Iniciar TASK-UI-021** (progreso + historial; requiere `TASK-047` `GET /downloads`) o **TASK-037** (monorepo/infra).
+1. **Iniciar TASK-038/039/040/041/042** (deps TASK-037 ✅) — CI/Docker/logging/contratos; o **TASK-UI-021** (requiere `TASK-047`).
 2. Paralela: **TASK-UI-010/UI-030** (requieren `GET /assets` = TASK-020).
 
 > EP-UI-005 (SCR-005) completa: TASK-033 + TASK-034 + TASK-UI-050 ✅.
@@ -293,3 +293,4 @@ Ninguno.
 | 2026-09-24 | TASK-034 | 📥 → 🔨 → 👀 → ✅ | Sincronización de paneles: `ChartSyncController` (pub/sub con `source`); ventana temporal por tiempo UTC (`setVisibleRange`) y crosshair replicado (`setCrosshairPosition`), eco ignorado; 235 tests frontend ✅; validado en navegador; prueba RF-014 |
 | 2026-09-24 | TASK-UI-050 | 📥 → 🔨 → 👀 → ✅ | Tabs WAI-ARIA del multigráfico (CMP-011): tope 3 deshabilitado + tooltip, cierre por tab, leyenda combinada textual; fix de overlay que cubría la toolbar y sync robusto (evita "Value is null" en el panel con datos); 237 tests frontend ✅; validado en navegador; prueba RF-014 |
 | 2026-09-24 | TASK-046 | 📥 → 🔨 → 👀 → ✅ | Smoke de escritorio: `frontend/smoke-test.md` con checklist; build de producción OK, `vite preview` 200 y recorrido de las 6 rutas sin errores en Chromium/Brave; Firefox manual; prueba RNF-005 |
+| 2026-09-24 | TASK-037 | 📥 → 🔨 → 👀 → ✅ | Monorepo y tooling: `.editorconfig`, `Makefile` (`make lint`/`format`/`test`/`build` sobre backend+frontend) y `README.md` con la estructura; `make lint` (ruff/black/mypy src + eslint/tsc/prettier) y `make test` (pytest + 237 vitest) verdes; prueba RNF-006 |
