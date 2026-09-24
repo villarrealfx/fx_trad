@@ -327,7 +327,7 @@
 | TASK-032 | Render de indicadores y panel de parámetros | frontend | M | TASK-024, TASK-031 | Cambiar un parámetro (p. ej. periodo de MA) redibuja el indicador; verificación manual | ✅ |
 | TASK-UI-040 | ChartPane CMP-007 con estados (loading/empty/error/success/partial) + leyenda OHLC accesible | frontend | M | TASK-024, TASK-025 | Overlays por estado (skeleton velas, "Sin datos en este periodo", retry); leyenda OHLC textual del crosshair; zoom en cursor a 60 FPS (KPI-2) | ✅ |
 | TASK-UI-041 | ChartToolbar CMP-008 + DrawTool CMP-009 integrados (aria-pressed, atajos `+`/`-`/`1`, tooltip icon-only) | frontend | M | TASK-028, TASK-029, TASK-030 | Toolbar 100% por teclado; herramienta activa con `aria-pressed`; atajos operativos; targets ≥24px con espaciado 8px | ✅ |
-| TASK-UI-042 | IndicatorItem CMP-010 + panel configuración con defaults (MA 20/50/200, RSI 14, ATR 14), overlay (MA/ATR) y panel (RSI) | frontend | M | TASK-032 | Añadir/quitar/reconfigurar redibuja; valores por defecto visibles; estados config-open/removed; a11y | 📥 |
+| TASK-UI-042 | IndicatorItem CMP-010 + panel configuración con defaults (MA 20/50/200, RSI 14, ATR 14), overlay (MA/ATR) y panel (RSI) | frontend | M | TASK-032 | Añadir/quitar/reconfigurar redibuja; valores por defecto visibles; estados config-open/removed; a11y | ✅ |
 
 ### EP-UI-005: Pantalla SCR-005 (Multigráfico sincronizado)
 - **Tipo:** UI
