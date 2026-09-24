@@ -1,13 +1,15 @@
 /**
  * Componente raíz de la aplicación.
  *
- * Scaffold de TASK-023 con la integración provisional del panel de velas
- * (TASK-024, CMP-007), del panel de indicadores (TASK-032, RF-013) y del modal
- * de export (TASK-UI-060, SCR-006): renderiza un ChartPane de ejemplo con un
- * activo/timeframe fijos y abre el modal de export que compone y descarga el
- * PNG. El layout completo (appbar, routing, selectores) llega con TASK-UI-003.
+ * Layout + routing (TASK-UI-003): shell con appbar/navegación y una pantalla
+ * activa (single-window). SCR-004 monta el gráfico (ChartPane + indicadores +
+ * export); el resto muestra un placeholder hasta que sus tareas de pantalla se
+ * implementen (TASK-UI-010/020/030/050/060).
  */
 import { useCallback, useRef, useState } from 'react';
+import { DEFAULT_ROUTE, DEFAULT_TIMEFRAME, ROUTES, routeFor, type AppRoute } from './app/routes';
+import { navigate, useHashRoute } from './app/useHashRoute';
+import AppShell from './components/AppShell/AppShell';
 import ChartPane from './components/ChartPane/ChartPane';
 import type { ChartPaneHandle } from './components/ChartPane/ChartPane';
 import ExportModal from './components/ExportModal/ExportModal';
@@ -17,7 +19,11 @@ import Toast from './components/ui/Toast';
 import type { ExportScale } from './export';
 import { DEFAULT_INDICATOR_PARAMETERS, type IndicatorParameters } from './indicators/indicators';
 
-export default function App() {
+/** Símbolo del gráfico de ejemplo del scaffold. */
+const DEMO_SYMBOL = 'EURUSD';
+
+/** Pantalla SCR-004: gráfico principal + indicadores + export (scaffold). */
+function ChartScreen() {
   const [indicators, setIndicators] = useState<IndicatorParameters>(DEFAULT_INDICATOR_PARAMETERS);
   const paneRef = useRef<ChartPaneHandle>(null);
   const [exportOpen, setExportOpen] = useState(false);
@@ -27,12 +33,15 @@ export default function App() {
   const compose = useCallback((scale: ExportScale) => paneRef.current?.compose(scale) ?? null, []);
 
   return (
-    <main>
-      <h1>fxtrad</h1>
-      <p>Plataforma de análisis técnico</p>
-      <section style={{ height: 480 }} aria-label="Vista previa del gráfico">
-        <ChartPane ref={paneRef} symbol="EURUSD" timeframe="1h" indicators={indicators} />
-      </section>
+    <section className="chart-screen" aria-label="Gráfico principal">
+      <div className="chart-screen__graph" style={{ height: 420 }}>
+        <ChartPane
+          ref={paneRef}
+          symbol={DEMO_SYMBOL}
+          timeframe={DEFAULT_TIMEFRAME}
+          indicators={indicators}
+        />
+      </div>
       <IndicatorPanel params={indicators} onChange={setIndicators} />
       <section aria-label="Exportación de la captura">
         <Button label="Exportar" onClick={() => setExportOpen(true)} />
@@ -41,11 +50,32 @@ export default function App() {
         open={exportOpen}
         onClose={() => setExportOpen(false)}
         compose={compose}
-        symbol="EURUSD"
-        timeframe="1h"
+        symbol={DEMO_SYMBOL}
+        timeframe={DEFAULT_TIMEFRAME}
         onExported={(filename) => setToast(`Captura descargada: ${filename}`)}
       />
       {toast !== null && <Toast tone="success" message={toast} onClose={() => setToast(null)} />}
-    </main>
+    </section>
+  );
+}
+
+/** Placeholder de las pantallas pendientes de implementar. */
+function ScreenPlaceholder({ route }: { route: AppRoute }) {
+  return (
+    <section className="screen-placeholder" aria-label={route.label}>
+      <h2>{route.label}</h2>
+      <p>Pantalla {route.screen} pendiente de implementación.</p>
+    </section>
+  );
+}
+
+export default function App() {
+  const path = useHashRoute(DEFAULT_ROUTE);
+  const route = routeFor(path);
+
+  return (
+    <AppShell routes={ROUTES} activePath={route.path} onNavigate={navigate}>
+      {route.screen === 'SCR-004' ? <ChartScreen /> : <ScreenPlaceholder route={route} />}
+    </AppShell>
   );
 }

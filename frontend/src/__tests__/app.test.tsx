@@ -37,11 +37,22 @@ describe('App', () => {
   afterEach(() => {
     cleanup();
     vi.clearAllMocks();
+    window.location.hash = '';
   });
 
   it('renders the app heading', () => {
     render(<App />);
     expect(screen.getByRole('heading', { name: 'fxtrad' })).toBeTruthy();
+  });
+
+  it('navigates between screens through the app shell', async () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole('link', { name: 'Biblioteca' }));
+    expect(await screen.findByRole('heading', { name: 'Biblioteca' })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('link', { name: 'Gráfico' }));
+    expect(await screen.findByRole('button', { name: 'Exportar' })).toBeTruthy();
   });
 
   it('opens the export modal and downloads a PNG', async () => {

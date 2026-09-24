@@ -1,0 +1,77 @@
+/*
+ * Layout principal (TASK-UI-003). Solo tokens del design system.
+ */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* Skip link: oculto hasta recibir foco (WCAG 2.4.1). */
+.app-shell__skip {
+  position: absolute;
+  top: -40px;
+  left: var(--space-sm);
+  z-index: 20;
+  padding: var(--space-xs) var(--space-sm);
+  border: 1px solid var(--color-focus);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.app-shell__skip:focus {
+  top: var(--space-sm);
+}
+
+.app-shell__appbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  height: 48px;
+  padding: 0 var(--space-md);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.app-shell__brand {
+  margin: 0;
+  font-family: var(--font-family);
+  font-size: var(--font-h2-size);
+  font-weight: var(--font-h2-weight);
+}
+
+.app-shell__nav {
+  display: flex;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+}
+
+.app-shell__link {
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  font-size: var(--font-body-size);
+  text-decoration: none;
+}
+
+.app-shell__link:hover {
+  color: var(--color-text);
+}
+
+.app-shell__link[aria-current='page'] {
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+.app-shell__link:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.app-shell__main {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  outline: none;
+}
