@@ -278,7 +278,7 @@
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-UI-020 | Form de descarga (activo, tipo, fecha inicio/fin; nota 1s UTC fija; validación inline; preserva valores en error) | frontend | M | TASK-003, TASK-UI-001 | Validación inline por campo (inicio≤fin, rango dentro de ventana 2 años RNF-003); valores preservados tras error; a11y labels; POST /downloads responde 202 + feedback | 📥 |
+| TASK-UI-020 | Form de descarga (activo, tipo, fecha inicio/fin; nota 1s UTC fija; validación inline; preserva valores en error) | frontend | M | TASK-003, TASK-UI-001 | Validación inline por campo (inicio≤fin, rango dentro de ventana 2 años RNF-003); valores preservados tras error; a11y labels; POST /downloads responde 202 + feedback | ✅ |
 | TASK-UI-021 | Progreso asíncrono + historial + estados (éxito/fallo/parcial) + sugerencia de rango faltante (incremental RF-006) | frontend | L | TASK-006, TASK-047, TASK-UI-020 | ProgressBar determinista sin timeout visual; fila historial con estado/filas (GET /downloads); partial sugiere rango faltante; banners auto-dismiss success 5s | 📥 |
 
 ### EP-UI-003: Pantalla SCR-003 (Abrir gráfico)
