@@ -1,0 +1,79 @@
+/*
+ * Item de indicador (CMP-010, TASK-UI-042). Solo tokens.
+ */
+.indicator-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto auto;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-xs) var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-body-size);
+}
+
+.indicator-item[data-state='config-open'] {
+  border-color: var(--color-focus);
+}
+
+.indicator-item__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.indicator-item__name {
+  font-variant-numeric: tabular-nums;
+}
+
+.indicator-item__visible {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--color-text-muted);
+  font-size: var(--font-small-size);
+}
+
+.indicator-item__action {
+  min-height: 24px;
+  padding: var(--space-xs) var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--font-small-size);
+  cursor: pointer;
+}
+
+.indicator-item__action:focus-visible,
+.indicator-item__input:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.indicator-item__config {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding-top: var(--space-xs);
+}
+
+.indicator-item__label {
+  color: var(--color-text-muted);
+  font-size: var(--font-small-size);
+}
+
+.indicator-item__input {
+  width: 72px;
+  min-height: 28px;
+  padding: var(--space-xs) var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font: inherit;
+}

@@ -611,6 +611,27 @@ describe('ChartPane', () => {
     expect(screen.getByText('RSI(14)')).toBeTruthy();
   });
 
+  it('skips the hidden RSI and ATR series (TASK-UI-042)', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    render(
+      <ChartPane
+        symbol="EURUSD"
+        timeframe="1h"
+        indicators={{
+          maPeriods: [20],
+          rsiPeriod: 14,
+          atrPeriod: 14,
+          showRsi: false,
+          showAtr: false,
+        }}
+      />,
+    );
+
+    await waitFor(() => expect(chartMocks.addLineSeries).toHaveBeenCalledTimes(1));
+    expect(screen.queryByText('RSI(14)')).toBeNull();
+    expect(screen.queryByText('ATR(14)')).toBeNull();
+  });
+
   it('redraws the indicators when the parameters change', async () => {
     fetchMock.mockResolvedValue(createResponse(RESPONSE));
     const view = render(

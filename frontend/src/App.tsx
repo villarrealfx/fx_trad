@@ -18,14 +18,18 @@ import IndicatorPanel from './components/IndicatorPanel/IndicatorPanel';
 import Button from './components/ui/Button';
 import Toast from './components/ui/Toast';
 import type { ExportScale } from './export';
-import { DEFAULT_INDICATOR_PARAMETERS, type IndicatorParameters } from './indicators/indicators';
+import {
+  DEFAULT_INDICATOR_CONFIGS,
+  toIndicatorParameters,
+  type IndicatorConfig,
+} from './indicators/config';
 
 /** Símbolo del gráfico de ejemplo del scaffold. */
 const DEMO_SYMBOL = 'EURUSD';
 
 /** Pantalla SCR-004: gráfico principal + indicadores + export (scaffold). */
 function ChartScreen() {
-  const [indicators, setIndicators] = useState<IndicatorParameters>(DEFAULT_INDICATOR_PARAMETERS);
+  const [configs, setConfigs] = useState<readonly IndicatorConfig[]>(DEFAULT_INDICATOR_CONFIGS);
   const paneRef = useRef<ChartPaneHandle>(null);
   const [exportOpen, setExportOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -40,10 +44,10 @@ function ChartScreen() {
           ref={paneRef}
           symbol={DEMO_SYMBOL}
           timeframe={DEFAULT_TIMEFRAME}
-          indicators={indicators}
+          indicators={toIndicatorParameters(configs)}
         />
       </div>
-      <IndicatorPanel params={indicators} onChange={setIndicators} />
+      <IndicatorPanel configs={configs} onChange={setConfigs} />
       <section aria-label="Exportación de la captura">
         <Button label="Exportar" onClick={() => setExportOpen(true)} />
       </section>

@@ -1,0 +1,72 @@
+/**
+ * Configuración de indicadores como lista editable (TASK-UI-042, CMP-010).
+ *
+ * El panel maneja una lista de indicadores (añadir/quitar/reconfigurar/ocultar)
+ * y la convierte a `IndicatorParameters` para que el ChartPane redibuje (RF-013).
+ */
+import {
+  ATR_PERIOD_DEFAULT,
+  MA_PERIODS_DEFAULT,
+  RSI_PERIOD_DEFAULT,
+  type IndicatorParameters,
+} from './indicators';
+
+/** Tipo de indicador del panel (CMP-010). */
+export type IndicatorKind = 'MA' | 'RSI' | 'ATR';
+
+/** Indicador configurable del panel. */
+export interface IndicatorConfig {
+  /** Identificador único estable del item. */
+  id: string;
+  kind: IndicatorKind;
+  period: number;
+  /** Si el indicador se dibuja en el gráfico. */
+  visible: boolean;
+}
+
+/** Lista por defecto (J-004): MA 20/50/200, ATR 14 y RSI 14. */
+export const DEFAULT_INDICATOR_CONFIGS: ReadonlyArray<IndicatorConfig> = [
+  ...MA_PERIODS_DEFAULT.map((period) => ({
+    id: `ma-${period}`,
+    kind: 'MA' as const,
+    period,
+    visible: true,
+  })),
+  { id: `atr-${ATR_PERIOD_DEFAULT}`, kind: 'ATR', period: ATR_PERIOD_DEFAULT, visible: true },
+  { id: `rsi-${RSI_PERIOD_DEFAULT}`, kind: 'RSI', period: RSI_PERIOD_DEFAULT, visible: true },
+];
+
+/** Periodo por defecto al añadir un indicador de cada tipo. */
+export const NEW_INDICATOR_PERIOD: Record<IndicatorKind, number> = {
+  MA: 10,
+  RSI: 14,
+  ATR: 14,
+};
+
+/** Etiqueta visible de un item (p. ej. `MA 20`, `RSI`, `ATR`). */
+export function indicatorLabel(config: IndicatorConfig): string {
+  return config.kind === 'MA' ? `MA ${config.period}` : config.kind;
+}
+
+/**
+ * Convierte la lista de configuración a los parámetros del ChartPane.
+ *
+ * Los MA se toman de los items visibles; RSI/ATR usan el primer item de su tipo
+ * y su visibilidad se expresa con `showRsi`/`showAtr`.
+ */
+export function toIndicatorParameters(
+  configs: ReadonlyArray<IndicatorConfig>,
+): IndicatorParameters {
+  const maPeriods = configs
+    .filter((config) => config.kind === 'MA' && config.visible)
+    .map((config) => config.period);
+  const rsi = configs.find((config) => config.kind === 'RSI');
+  const atr = configs.find((config) => config.kind === 'ATR');
+  return {
+    maPeriods,
+    rsiPeriod: rsi?.period ?? RSI_PERIOD_DEFAULT,
+    atrPeriod: atr?.period ?? ATR_PERIOD_DEFAULT,
+    showRsi: rsi?.visible ?? false,
+    showAtr: atr?.visible ?? false,
+  };
+}

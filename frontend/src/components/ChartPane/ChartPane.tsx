@@ -272,26 +272,36 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
       serie.setData(toLinePoints(times, ma.get(period) ?? []) as LineData<Time>[]);
       indicatorSeriesRef.current.push(serie);
     }
-    const atrSerie = chart.addLineSeries({
-      priceLineVisible: false,
-      lastValueVisible: false,
-      color: ATR_SERIES_COLOR,
-      lineWidth: 1,
-      priceScaleId: 'right',
-    });
-    atrSerie.setData(toLinePoints(times, atr.get(indicators.atrPeriod) ?? []) as LineData<Time>[]);
-    indicatorSeriesRef.current.push(atrSerie);
-    const rsiSerie = chart.addLineSeries({
-      priceLineVisible: false,
-      lastValueVisible: false,
-      color: RSI_SERIES_COLOR,
-      lineWidth: 1,
-      priceScaleId: RSI_PRICE_SCALE_ID,
-    });
-    rsiSerie.setData(toLinePoints(times, rsi.get(indicators.rsiPeriod) ?? []) as LineData<Time>[]);
-    indicatorSeriesRef.current.push(rsiSerie);
+    if (indicators.showAtr !== false) {
+      const atrSerie = chart.addLineSeries({
+        priceLineVisible: false,
+        lastValueVisible: false,
+        color: ATR_SERIES_COLOR,
+        lineWidth: 1,
+        priceScaleId: 'right',
+      });
+      atrSerie.setData(
+        toLinePoints(times, atr.get(indicators.atrPeriod) ?? []) as LineData<Time>[],
+      );
+      indicatorSeriesRef.current.push(atrSerie);
+    }
+    if (indicators.showRsi !== false) {
+      const rsiSerie = chart.addLineSeries({
+        priceLineVisible: false,
+        lastValueVisible: false,
+        color: RSI_SERIES_COLOR,
+        lineWidth: 1,
+        priceScaleId: RSI_PRICE_SCALE_ID,
+      });
+      rsiSerie.setData(
+        toLinePoints(times, rsi.get(indicators.rsiPeriod) ?? []) as LineData<Time>[],
+      );
+      indicatorSeriesRef.current.push(rsiSerie);
+    }
     chart.priceScale('right').applyOptions({ scaleMargins: MAIN_SCALE_MARGINS });
-    chart.priceScale(RSI_PRICE_SCALE_ID).applyOptions({ scaleMargins: RSI_SCALE_MARGINS });
+    if (indicators.showRsi !== false) {
+      chart.priceScale(RSI_PRICE_SCALE_ID).applyOptions({ scaleMargins: RSI_SCALE_MARGINS });
+    }
   }, [status, indicators]);
 
   /** Aplica zoom a la vista actual alrededor del centro visible (atajo +/−). */
@@ -470,11 +480,14 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
       label: `MA${period}`,
       color: MA_SERIES_COLORS[index % MA_SERIES_COLORS.length],
     }));
-    entries.push({ label: `ATR(${indicators.atrPeriod})`, color: ATR_SERIES_COLOR });
-    entries.push({ label: `RSI(${indicators.rsiPeriod})`, color: RSI_SERIES_COLOR });
+    if (indicators.showAtr !== false) {
+      entries.push({ label: `ATR(${indicators.atrPeriod})`, color: ATR_SERIES_COLOR });
+    }
+    if (indicators.showRsi !== false) {
+      entries.push({ label: `RSI(${indicators.rsiPeriod})`, color: RSI_SERIES_COLOR });
+    }
     return entries;
   }, [status, indicators]);
-
   /** Expone la composición del lienzo para el export PNG (TASK-035, RF-015). */
   useImperativeHandle(
     ref,

@@ -30,6 +30,10 @@ export interface IndicatorParameters {
   readonly rsiPeriod: number;
   /** Ventana del ATR de Wilder. */
   readonly atrPeriod: number;
+  /** Si el RSI se dibuja (default: sí). TASK-UI-042. */
+  readonly showRsi?: boolean;
+  /** Si el ATR se dibuja (default: sí). TASK-UI-042. */
+  readonly showAtr?: boolean;
 }
 
 /** Parámetros por defecto (J-004): MA 20/50/200, RSI 14, ATR 14. */

@@ -1,112 +1,119 @@
-import type { IndicatorParameters } from '../../indicators/indicators';
+import { useState } from 'react';
+import {
+  NEW_INDICATOR_PERIOD,
+  indicatorLabel,
+  type IndicatorConfig,
+  type IndicatorKind,
+} from '../../indicators/config';
 import { ATR_SERIES_COLOR, MA_SERIES_COLORS, RSI_SERIES_COLOR } from '../ChartPane/theme';
+import IndicatorItem from '../IndicatorItem/IndicatorItem';
+import Button from '../ui/Button';
+import Select from '../ui/Select';
 import './IndicatorPanel.css';
 
-export interface IndicatorPanelProps {
-  /** Parámetros activos de los indicadores (RF-013). */
-  readonly params: IndicatorParameters;
-  /** Notifica los parámetros editados (redibuja el ChartPane). */
-  readonly onChange: (params: IndicatorParameters) => void;
+/** Opciones de tipo de indicador para añadir. */
+const KIND_OPTIONS = [
+  { value: 'MA', label: 'Media móvil (MA)' },
+  { value: 'RSI', label: 'RSI' },
+  { value: 'ATR', label: 'ATR' },
+];
+
+/** Contador de secuencia para ids únicos de nuevos indicadores. */
+let indicatorSequence = 0;
+
+/** Genera un id único para un indicador nuevo. */
+function nextIndicatorId(kind: IndicatorKind): string {
+  indicatorSequence += 1;
+  return `${kind.toLowerCase()}-${indicatorSequence}`;
 }
 
-/** Parsea un periodo desde el input; devuelve null si no es un entero ≥ 1. */
-function parsePeriod(raw: string): number | null {
-  const period = Number.parseInt(raw, 10);
-  if (Number.isNaN(period) || period < 1) return null;
-  return period;
+/** Props del panel de indicadores (CMP-010). */
+export interface IndicatorPanelProps {
+  /** Lista de indicadores configurados. */
+  configs: ReadonlyArray<IndicatorConfig>;
+  /** Notifica la lista editada (redibuja el ChartPane). */
+  onChange: (configs: IndicatorConfig[]) => void;
 }
 
 /**
- * Panel de parámetros de los indicadores (TASK-032, RF-013).
+ * Panel de indicadores (TASK-UI-042, CMP-010).
  *
- * Controlado: muestra los periodos activos con sus colores y permite editar
- * cada ventana (MA/RSI/ATR). Los labels son visibles (a11y F003) y los cambios
- * se delegan al padre para que el ChartPane recompute y redibuje (J-004).
+ * Lista editable de indicadores: añadir, quitar, ocultar y reconfigurar el
+ * periodo. Los cambios se delegan al padre, que convierte la lista a
+ * `IndicatorParameters` y redibuja el gráfico (RF-013, J-004).
  */
-export default function IndicatorPanel({ params, onChange }: IndicatorPanelProps) {
-  function updateMa(index: number, raw: string): void {
-    const period = parsePeriod(raw);
-    if (period === null) return;
-    const maPeriods = params.maPeriods.map((value, i) => (i === index ? period : value));
-    onChange({ ...params, maPeriods });
+export default function IndicatorPanel({ configs, onChange }: IndicatorPanelProps) {
+  const [openId, setOpenId] = useState<string | null>(null);
+  const [newKind, setNewKind] = useState<IndicatorKind>('MA');
+
+  /** Aplica un cambio parcial a un indicador. */
+  function update(id: string, patch: Partial<IndicatorConfig>): void {
+    onChange(configs.map((config) => (config.id === id ? { ...config, ...patch } : config)));
   }
 
-  function updateRsi(raw: string): void {
-    const period = parsePeriod(raw);
-    if (period === null) return;
-    onChange({ ...params, rsiPeriod: period });
+  /** Quita un indicador del panel. */
+  function remove(id: string): void {
+    onChange(configs.filter((config) => config.id !== id));
+    setOpenId((current) => (current === id ? null : current));
   }
 
-  function updateAtr(raw: string): void {
-    const period = parsePeriod(raw);
-    if (period === null) return;
-    onChange({ ...params, atrPeriod: period });
+  /** Añade un indicador del tipo seleccionado con su periodo por defecto. */
+  function add(): void {
+    onChange([
+      ...configs,
+      {
+        id: nextIndicatorId(newKind),
+        kind: newKind,
+        period: NEW_INDICATOR_PERIOD[newKind],
+        visible: true,
+      },
+    ]);
   }
+
+  /** Colores de serie alineados con el ChartPane (MA rota por índice). */
+  let maIndex = 0;
+  const items = configs.map((config) => {
+    let color: string;
+    if (config.kind === 'MA') {
+      color = MA_SERIES_COLORS[maIndex % MA_SERIES_COLORS.length];
+      maIndex += 1;
+    } else {
+      color = config.kind === 'ATR' ? ATR_SERIES_COLOR : RSI_SERIES_COLOR;
+    }
+    return { config, color };
+  });
 
   return (
     <section className="indicator-panel" aria-label="Indicadores">
       <h2 className="indicator-panel__title">Indicadores</h2>
       <ul className="indicator-panel__list">
-        {params.maPeriods.map((period, index) => (
-          <li key={`ma-${index}`} className="indicator-panel__row">
-            <span
-              className="indicator-panel__dot"
-              style={{ background: MA_SERIES_COLORS[index % MA_SERIES_COLORS.length] }}
-              aria-hidden="true"
-            />
-            <label className="indicator-panel__label" htmlFor={`indicator-ma-${index}`}>
-              MA {period}
-            </label>
-            <input
-              id={`indicator-ma-${index}`}
-              className="indicator-panel__input"
-              type="number"
-              min={1}
-              step={1}
-              value={period}
-              onChange={(event) => updateMa(index, event.target.value)}
-            />
-          </li>
+        {items.map(({ config, color }) => (
+          <IndicatorItem
+            key={config.id}
+            id={config.id}
+            name={indicatorLabel(config)}
+            period={config.period}
+            visible={config.visible}
+            configOpen={openId === config.id}
+            color={color}
+            onToggleConfig={() =>
+              setOpenId((current) => (current === config.id ? null : config.id))
+            }
+            onToggleVisible={() => update(config.id, { visible: !config.visible })}
+            onPeriodChange={(period) => update(config.id, { period })}
+            onRemove={() => remove(config.id)}
+          />
         ))}
-        <li className="indicator-panel__row">
-          <span
-            className="indicator-panel__dot"
-            style={{ background: ATR_SERIES_COLOR }}
-            aria-hidden="true"
-          />
-          <label className="indicator-panel__label" htmlFor="indicator-atr">
-            ATR
-          </label>
-          <input
-            id="indicator-atr"
-            className="indicator-panel__input"
-            type="number"
-            min={1}
-            step={1}
-            value={params.atrPeriod}
-            onChange={(event) => updateAtr(event.target.value)}
-          />
-        </li>
-        <li className="indicator-panel__row">
-          <span
-            className="indicator-panel__dot"
-            style={{ background: RSI_SERIES_COLOR }}
-            aria-hidden="true"
-          />
-          <label className="indicator-panel__label" htmlFor="indicator-rsi">
-            RSI
-          </label>
-          <input
-            id="indicator-rsi"
-            className="indicator-panel__input"
-            type="number"
-            min={1}
-            step={1}
-            value={params.rsiPeriod}
-            onChange={(event) => updateRsi(event.target.value)}
-          />
-        </li>
       </ul>
+      <div className="indicator-panel__add">
+        <Select
+          label="Añadir indicador"
+          options={KIND_OPTIONS}
+          value={newKind}
+          onChange={(value) => setNewKind(value as IndicatorKind)}
+        />
+        <Button label="Añadir" variant="ghost" onClick={add} />
+      </div>
     </section>
   );
 }
