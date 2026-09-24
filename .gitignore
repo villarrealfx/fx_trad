@@ -264,3 +264,5 @@ temp/
 .opencode/cache/
 .opencode/logs/
 .opencode/history/
+# Copia local del skill: se conserva pero nunca se versiona
+.opencode/command/sdd-backlog copy.md
