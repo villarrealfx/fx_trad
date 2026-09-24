@@ -1,6 +1,6 @@
 # Estado del Proyecto: Plataforma de Análisis Técnico (estilo TradingView)
 
-> Última actualización: 2026-09-24 12:26
+> Última actualización: 2026-09-24 12:35
 > Fuente: `_docs/backlog.md` (v2), `_docs/traceability.md` (v2)
 
 ## 1. Resumen ejecutivo
@@ -8,19 +8,19 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 62 | +1 (TASK-048) |
-| 📥 Backlog | 29 | -7 |
+| 📥 Backlog | 28 | -8 |
 | 🔨 Doing | 0 | — |
-| 👀 Review | 0 | -1 |
-| ✅ Done | 33 | +1 |
+| 👀 Review | 0 | — |
+| ✅ Done | 34 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 53.2% (33/62) | +1.6 |
+| % Completado | 54.8% (34/62) | +1.6 |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (29)
+### 📥 Backlog (28)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
@@ -38,7 +38,6 @@
 | TASK-UI-030 | SCR-003 Estados y validación cobertura | EP-UI-003 | M | TASK-020, TASK-026 |
 | TASK-026 | Selector activo/rango/timeframe | EP-UI-003 | M | TASK-021, TASK-024 |
 | TASK-UI-040 | SCR-004 ChartPane + estados + leyenda OHLC | EP-UI-004 | M | TASK-024, TASK-025 |
-| TASK-UI-041 | SCR-004 Toolbar + DrawTool (atajos, aria-pressed) | EP-UI-004 | M | TASK-028, TASK-029, TASK-030 |
 | TASK-UI-042 | SCR-004 IndicatorItem + panel config | EP-UI-004 | M | TASK-032 |
 | TASK-033 | Layout 3 paneles | EP-UI-005 | M | TASK-024 |
 | TASK-034 | Sincronización crosshair/zoom | EP-UI-005 | M | TASK-033 |
@@ -62,7 +61,7 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (33)
+### ✅ Done (34)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
@@ -99,6 +98,7 @@ Sin tareas.
 | TASK-048 | Fix marcadores compra/venta | EP-UI-004 | 2026-09-24 | `ChartPane.test.tsx` (marcadores vía subscribeClick) + `OverlayCanvas.test.tsx` (z-index≥3 y tamaño 100%) + verificación navegador real dpr=2 — RF-012 |
 | TASK-028 | Línea y rectángulo (crear/borrar) | EP-UI-004 | 2026-09-24 | `overlay-geometry.test.ts` (rect + hitTestFragment) + `OverlayCanvas.test.tsx` (strokeRect) + `ChartPane.test.tsx` (crear/borrar línea y rect, preview, erase, aria-pressed) — RF-011 |
 | TASK-029 | Retrocesos de Fibonacci (crear/borrar) | EP-UI-004 | 2026-09-24 | `overlay-geometry.test.ts` (niveles fib + hit-test) + `OverlayCanvas.test.tsx` (7 niveles + etiquetas) + `ChartPane.test.tsx` (Fibonacci a 2 clics) — RF-011 |
+| TASK-UI-041 | Toolbar + DrawTool | EP-UI-004 | 2026-09-24 | `DrawTool.test.tsx` (aria-pressed/tooltip/disabled) + `ChartToolbar.test.tsx` (role=toolbar, Ajustar vista) + `ChartPane.test.tsx` (ajuste de vista) — RF-011 |
 
 ### 🔴 Blocked (0)
 
@@ -189,8 +189,8 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. **Iniciar TASK-UI-041** (ChartToolbar CMP-008 + DrawTool CMP-009; deps 028/029/030 ✅) — cierra la toolbar de dibujo de SCR-004.
-2. Paralela en frontend: **TASK-UI-040** (dep TASK-024+025 ✅), **TASK-UI-003** (layout+routing) o **TASK-033** (dep TASK-024 ✅).
+1. **Iniciar TASK-UI-040** (ChartPane estados + leyenda OHLC; dep TASK-024+025 ✅).
+2. Paralela en frontend: **TASK-UI-003** (layout+routing → habilita UI-004/010/020/030), **TASK-033** (dep TASK-024 ✅) o **TASK-026** (selector).
 
 ## 9. Historial de cambios (append-only)
 
@@ -279,3 +279,4 @@ Ninguno.
 | 2026-09-24 | TASK-028 | 👀 → ✅ | Review validada: DoD completa — línea y rectángulo se crean a 2 clics y se borran (RI-003, efímero, sin persistencia); 176 tests frontend ✅ (ChartPane 82.96% ramas); prueba RF-011 registrada; habilita TASK-029 y TASK-UI-041 |
 | 2026-09-24 | TASK-029 | 📥 → 🔨 → 👀 | Fibonacci (RF-011): 7 niveles `FIB_LEVELS` entre 2 anclas, etiquetas, preview y borrado; 182 tests frontend ✅ (charting 93.4% ramas); prueba RF-011 en traceability; validado en navegador por el usuario |
 | 2026-09-24 | TASK-029 | 👀 → ✅ | Review validada: DoD completa — niveles de Fibonacci dibujados y borrables con anclas correctas (RI-003, efímero, validado en navegador); 182 tests frontend ✅; prueba RF-011 registrada; habilita TASK-UI-041 |
+| 2026-09-24 | TASK-UI-041 | 📥 → 🔨 → 👀 → ✅ | Toolbar de dibujo (CMP-008/009): `ChartToolbar` (`role="toolbar"`, `Ajustar vista`) + `DrawTool` icon-only (`aria-pressed`/tooltip/disabled), integrados en `ChartPane` (atajos `+`/`-`/`1`); 191 tests frontend ✅; validado en navegador por el usuario; prueba RF-011 |
