@@ -32,15 +32,15 @@ Exportar.
 
 ## Checklist
 
-| # | Comprobación | Chromium (Brave) | Firefox | Edge | Safari |
-|---|--------------|------------------|---------|------|--------|
-| 1 | `npm run build` sin errores | ✅ | n/a | n/a | n/a |
-| 2 | `vite preview` responde 200 | ✅ | n/a | n/a | n/a |
-| 3 | Marca `fxtrad` + 6 enlaces de navegación | ✅ | ⬜ manual | ⬜ | ⬜ |
-| 4 | Chart host + toolbar presentes (SCR-004) | ✅ | ⬜ manual | ⬜ | ⬜ |
-| 5 | Las 6 rutas cargan su pantalla | ✅ | ⬜ manual | ⬜ | ⬜ |
-| 6 | 0 errores de página/consola | ✅ | ⬜ manual | ⬜ | ⬜ |
-| 7 | Sin plugins/licencias de pago | ✅ | ✅ | ✅ | ✅ |
+| #   | Comprobación                             | Chromium (Brave) | Firefox   | Edge | Safari |
+| --- | ---------------------------------------- | ---------------- | --------- | ---- | ------ |
+| 1   | `npm run build` sin errores              | ✅               | n/a       | n/a  | n/a    |
+| 2   | `vite preview` responde 200              | ✅               | n/a       | n/a  | n/a    |
+| 3   | Marca `fxtrad` + 6 enlaces de navegación | ✅               | ⬜ manual | ⬜   | ⬜     |
+| 4   | Chart host + toolbar presentes (SCR-004) | ✅               | ⬜ manual | ⬜   | ⬜     |
+| 5   | Las 6 rutas cargan su pantalla           | ✅               | ⬜ manual | ⬜   | ⬜     |
+| 6   | 0 errores de página/consola              | ✅               | ⬜ manual | ⬜   | ⬜     |
+| 7   | Sin plugins/licencias de pago            | ✅               | ✅        | ✅   | ✅     |
 
 ## Evidencia (2026-09-24)
 
@@ -59,7 +59,7 @@ Exportar.
 ## Notas
 
 - El backend de datos de ejemplo solo contiene **EURUSD 1h**; los paneles con
-  otros activos/timeframes muestran estado *empty*/error (aislado por panel), lo
+  otros activos/timeframes muestran estado _empty_/error (aislado por panel), lo
   que no afecta a la carga ni a la navegación.
 - Si se desea E2E automatizado **multi-navegador** (Chromium/Firefox/WebKit), se
   registraría `TECH-XXX` para Playwright con su ADR (no incluido por ahora).
