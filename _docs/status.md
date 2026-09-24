@@ -1,26 +1,26 @@
 # Estado del Proyecto: Plataforma de Análisis Técnico (estilo TradingView)
 
-> Última actualización: 2026-09-24 08:22
+> Última actualización: 2026-09-24 09:32
 > Fuente: `_docs/backlog.md` (v2), `_docs/traceability.md` (v2)
 
 ## 1. Resumen ejecutivo
 
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
-| Tareas totales | 61 | +15 (backlog v2: TASK-047 + 14 TASK-UI-XXX) |
-| 📥 Backlog | 38 | -3 |
+| Tareas totales | 61 | — |
+| 📥 Backlog | 36 | — |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | -1 |
-| ✅ Done | 23 | +1 |
+| ✅ Done | 25 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 37.7% (23/61) | +1.6 |
+| % Completado | 41.0% (25/61) | +1.7 |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (38)
+### 📥 Backlog (36)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
@@ -42,14 +42,12 @@
 | TASK-026 | Selector activo/rango/timeframe | EP-UI-003 | M | TASK-021, TASK-024 |
 | TASK-028 | Línea y rectángulo (crear/borrar) | EP-UI-004 | L | TASK-027 |
 | TASK-029 | Retrocesos de Fibonacci | EP-UI-004 | M | TASK-028 |
-| TASK-032 | Render indicadores + panel parámetros | EP-UI-004 | M | TASK-024, TASK-031 |
 | TASK-UI-040 | SCR-004 ChartPane + estados + leyenda OHLC | EP-UI-004 | M | TASK-024, TASK-025 |
 | TASK-UI-041 | SCR-004 Toolbar + DrawTool (atajos, aria-pressed) | EP-UI-004 | M | TASK-028, TASK-029, TASK-030 |
 | TASK-UI-042 | SCR-004 IndicatorItem + panel config | EP-UI-004 | M | TASK-032 |
 | TASK-033 | Layout 3 paneles | EP-UI-005 | M | TASK-024 |
 | TASK-034 | Sincronización crosshair/zoom | EP-UI-005 | M | TASK-033 |
 | TASK-UI-050 | SCR-005 Tabs WAI-ARIA + tope 3 panes | EP-UI-005 | S | TASK-033, TASK-034 |
-| TASK-035 | Composición canvas velas+ind+dibs | EP-UI-006 | M | TASK-030, TASK-032 |
 | TASK-036 | Export PNG (toBlob) | EP-UI-006 | S | TASK-035 |
 | TASK-UI-060 | SCR-006 Modal export (resolución, preview, focus trap) | EP-UI-006 | M | TASK-036, TASK-UI-002 |
 | TASK-037 | Monorepo + lint/formato | TEC-001 | S | — |
@@ -71,10 +69,11 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (23)
+### ✅ Done (25)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
+| TASK-035 | Composición canvas velas+ind+dibs | EP-UI-006 | 2026-09-24 | `frontend/src/export/__tests__/compose.test.ts` (6 tests: capas chart/overlay + anotación ticker·TF, escala 1x/2x/4x, empty=`null`, partial) + `ChartPane.test.tsx` (handle `compose`) — RF-015; DoD visual atestada |
 | TASK-015 | SerieOHLC Parquet (time único) | EP-003 | 2026-09-21 | `test_series.py` (12 tests, 100% cobertura) |
 | TASK-016 | Consulta DuckDB activo/rango/TF | EP-003 | 2026-09-21 | `test_queries.py` (11 tests, 100% cobertura) |
 | TASK-009 | Contrato OHLC compartido | EP-002 | 2026-09-18 | `test_ohlc_contract.py` + `ohlc.test.ts` (alineación canónica) |
@@ -98,6 +97,7 @@ Sin tareas.
 | TASK-027 | Overlay canvas sincronizado | EP-UI-004 | 2026-09-22 | `frontend/` `overlay-geometry.test.ts` + `OverlayCanvas.test.tsx` (13 tests: re-proyección de anclas en pan/zoom/resize, coalescing 1 frame, aria-hidden) — RF-011 |
 | TASK-030 | Marcadores entrada/salida | EP-UI-004 | 2026-09-22 | `ChartPane.test.tsx` (6 tests marcadores: crear buy, toggle sell+aria-pressed, dedupe, selección+borrado con confirm, cancel, Escape) + `overlay-geometry.test.ts` (proyección/hit-test) — RF-012 |
 | TASK-031 | Cálculo MA, RSI, ATR | EP-002 | 2026-09-24 | `backend/tests/pipeline/test_indicators.py` (21 tests, fixture golden MA20/RSI14/ATR14 Wilder) — RF-013 |
+| TASK-032 | Render indicadores + panel | EP-UI-004 | 2026-09-24 | `indicators.test.ts` (23) + `IndicatorPanel.test.tsx` (4) + `ChartPane.test.tsx` (redibujo al cambiar parámetros) — RF-013 |
 
 ### 🔴 Blocked (0)
 
@@ -105,7 +105,7 @@ Sin tareas.
 
 ## 3. Ruta crítica — estado
 
-Estado: 9/12 completadas (75%) · ETA: desconocido (sin velocidad histórica).
+Estado: 10/12 completadas (83%) · ETA: desconocido (sin velocidad histórica).
 
 ```mermaid
 graph LR
@@ -117,7 +117,7 @@ graph LR
   T21 --> T24[TASK-024 ✅]
   T24 --> T27[TASK-027 ✅]
   T27 --> T30[TASK-030 ✅]
-  T30 --> T35[TASK-035 📥]
+  T30 --> T35[TASK-035 ✅]
   T35 --> T36[TASK-036 📥]
   T36 --> U60[TASK-UI-060 📥]
 ```
@@ -146,6 +146,8 @@ Ninguno.
 
 ### 🟢 Informativas
 
+- TASK-035 👀 → ✅ Done tras review (2026-09-24): DoD completa — verificación visual del lienzo compuesto atestada por usuario ('confirme visual'); `compose.test.ts` (6) + integración `ChartPane.test.tsx` (21) ✅, lint/typecheck OK; prueba RF-015 registrada; **ruta crítica 10/12 (83%)**; habilita TASK-036 (ruta crítica) y TASK-UI-060.
+- TASK-035 📥 → 👀 Review (2026-09-24): salto confirmado por usuario (precedente TASK-027/030). `frontend/src/export/` (`compose.ts` + `index.ts`); `compose.test.ts` 6/6 ✅ (fondo + capas chart/overlay + anotación ticker·TF, escala 1x/2x/4x, empty=`null`, partial) + `ChartPane.test.tsx` 21/21 ✅ (handle `compose` expuesto, capas escaladas + anotación, parcial si el chart no está listo); traceability RF-015 ya registra `compose.test.ts → TASK-035`. DoD parcial: **verificación visual pendiente en review**. Habilita TASK-036/UI-060 (ruta crítica, último eslabón).
 - TASK-025 👀 → ✅ Done tras review aprobada (2026-09-22): DoD completa (pan/zoom 60 FPS medido con `FrameRateMeter` rAF + leyenda OHLC batcheada por frame; suite frontend 31/31, cobertura 99.73%, lint/typecheck/build/prettier OK); prueba registrada (RF-010/RNF-001); habilita TASK-UI-040 (deps TASK-024 + TASK-025 ✅). Nota: validación de sesión en navegador real diferida a TASK-UI-040.
 - TASK-027 👀 → ✅ Done tras review aprobada (2026-09-22): DoD aceptada (anclaje verificado por tests de re-proyección en pan/zoom/resize; verificación manual aceptada en review); 13 tests charting ✅, lint/typecheck OK; prueba registrada (RF-011); ruta crítica 8/12 (67%); habilita TASK-028/030 (siguiente en ruta crítica: TASK-030).
 - Backlog v2 aprobado: 61 tareas (46 heredadas + 15 nuevas) con épicas de UI por pantalla.
@@ -185,8 +187,8 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. Iniciar **TASK-032** (render de indicadores + panel; deps TASK-024 ✅ + TASK-031 ✅ — 100% desbloqueada) o **TASK-028** (línea/rectángulo; deps TASK-027 ✅).
-2. Alternativa paralela: **TASK-UI-040** (ChartPane estados + leyenda; deps TASK-024+025 ✅) o **TASK-033** (layout 3 paneles; deps TASK-024 ✅).
+1. **Iniciar TASK-036** (Export PNG toBlob, EP-UI-006): deps TASK-035 ✅ — 100% desbloqueada; último eslabón de la ruta crítica antes de TASK-UI-060. Nota: PA-2 (formato/resolución del PNG) sigue abierto, se asume default PNG 2x.
+2. Paralela en frontend desbloqueado: **TASK-028** (línea/rectángulo; dep TASK-027 ✅), **TASK-UI-040** (dep TASK-024+025 ✅) o **TASK-033** (dep TASK-024 ✅).
 
 ## 9. Historial de cambios (append-only)
 
@@ -259,3 +261,7 @@ Ninguno.
 | 2026-09-22 | TASK-030 | 👀 → ✅ | Review validada: DoD completa (precio barra bajo cursor, borrables con confirm/Escape, no persistentes — RI-003); `ChartPane.test.tsx` (6 tests marcadores) + geometría; suite 57/57, lint/typecheck OK; prueba registrada (RF-012); ruta crítica 9/12 (75%); habilita TASK-035 (parcial) y TASK-UI-041 |
 | 2026-09-24 | TASK-031 | 📥 → 👀 | Implementación verificada (`indicators.py` + `test_indicators.py`, 21 tests, suite 247 ✅ + 2 skip; ruff/black/mypy OK); fixture golden MA20/RSI14/ATR14 Wilder; prueba RF-013 en traceability; pasa a revisión |
 | 2026-09-24 | TASK-031 | 👀 → ✅ | Review validada: DoD completa (fixture golden MA20/RSI14/ATR14 Wilder + 21 tests; suite 247 ✅ + 2 skip, ruff/black/mypy OK); prueba RF-013 registrada; habilita TASK-032/043 |
+| 2026-09-24 | TASK-032 | 📥 → 👀 | Implementación verificada (port TS indicadores, overlays MA/ATR + banda RSI, IndicatorPanel; 87 tests frontend ✅, lint/typecheck OK; prueba RF-013 en traceability); DoD de redibujo pendiente de validación manual en review |
+| 2026-09-24 | TASK-032 | 👀 → ✅ | Review validada: DoD completa (redibujo al cambiar parámetros cubierto por `ChartPane.test.tsx` + panel; verificación manual atestada por usuario); 87 tests frontend ✅, lint/typecheck OK; prueba RF-013 registrada; desbloquea TASK-035 (ruta crítica) y TASK-UI-042 |
+| 2026-09-24 | TASK-035 | 📥 → 🔨 → 👀 | Salto a Review confirmado por usuario (precedente TASK-027/030); `frontend/src/export/` (`compose.ts`) + `compose.test.ts` 6/6 (+ integración `ChartPane.test.tsx` 21/21); traceability RF-015 ya registrada; DoD parcial — verificación visual pendiente en review; deps TASK-030/TASK-032 ✅; habilita TASK-036 (ruta crítica) y TASK-UI-060 |
+| 2026-09-24 | TASK-035 | 👀 → ✅ | Review validada: DoD completa — verificación visual del lienzo compuesto atestada por usuario ('confirme visual'); `compose.test.ts` (6) + `ChartPane.test.tsx` (21) ✅, lint/typecheck OK; prueba RF-015 registrada; ruta crítica 10/12 (83%); habilita TASK-036 (ruta crítica) y TASK-UI-060 |

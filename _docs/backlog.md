@@ -321,7 +321,7 @@
 | TASK-028 | Herramientas de línea y rectángulo (crear/borrar) | frontend | L | TASK-027 | Se crean y borran líneas y rectángulos; persisten solo en sesión (RI-003) | 📥 |
 | TASK-029 | Retrocesos de Fibonacci (crear/borrar) | frontend | M | TASK-028 | Niveles de Fibonacci dibujados y borrables con anclas correctas | 📥 |
 | TASK-030 | Marcadores de entrada/salida (buy/sell) superpuestos | frontend | M | TASK-027 | Las marcas de compra/venta toman el precio de la barra bajo el cursor, son borrables y no persistentes (RI-003) | ✅ |
-| TASK-032 | Render de indicadores y panel de parámetros | frontend | M | TASK-024, TASK-031 | Cambiar un parámetro (p. ej. periodo de MA) redibuja el indicador; verificación manual | 📥 |
+| TASK-032 | Render de indicadores y panel de parámetros | frontend | M | TASK-024, TASK-031 | Cambiar un parámetro (p. ej. periodo de MA) redibuja el indicador; verificación manual | ✅ |
 | TASK-UI-040 | ChartPane CMP-007 con estados (loading/empty/error/success/partial) + leyenda OHLC accesible | frontend | M | TASK-024, TASK-025 | Overlays por estado (skeleton velas, "Sin datos en este periodo", retry); leyenda OHLC textual del crosshair; zoom en cursor a 60 FPS (KPI-2) | 📥 |
 | TASK-UI-041 | ChartToolbar CMP-008 + DrawTool CMP-009 integrados (aria-pressed, atajos `+`/`-`/`1`, tooltip icon-only) | frontend | M | TASK-028, TASK-029, TASK-030 | Toolbar 100% por teclado; herramienta activa con `aria-pressed`; atajos operativos; targets ≥24px con espaciado 8px | 📥 |
 | TASK-UI-042 | IndicatorItem CMP-010 + panel configuración con defaults (MA 20/50/200, RSI 14, ATR 14), overlay (MA/ATR) y panel (RSI) | frontend | M | TASK-032 | Añadir/quitar/reconfigurar redibuja; valores por defecto visibles; estados config-open/removed; a11y | 📥 |
@@ -364,7 +364,7 @@
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-035 | Composición del canvas de velas + indicadores + dibujos | frontend | M | TASK-030, TASK-032 | El lienzo compuesto incluye los tres elementos; verificado visualmente | 📥 |
+| TASK-035 | Composición del canvas de velas + indicadores + dibujos | frontend | M | TASK-030, TASK-032 | El lienzo compuesto incluye los tres elementos; verificado visualmente | ✅ |
 | TASK-036 | Export PNG (toBlob) sin persistir dibujos | frontend | S | TASK-035 | Se descarga un PNG con gráfico+dibujos+indicadores; no queda registro interno (RI-003); formato/resolución definidos (P-2, default PNG 2x) | 📥 |
 | TASK-UI-060 | Modal export (CMP-014): resolución/formato RadioGroup, preview, focus trap, Escape, estados | frontend | M | TASK-036, TASK-UI-002 | Modal con foco inicial al título y restauración al cerrar; Escape cierra; estados loading/empty/error/success/partial; descarga disparada + Toast | 📥 |
 
