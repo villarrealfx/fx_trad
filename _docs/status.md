@@ -1,6 +1,6 @@
 # Estado del Proyecto: Plataforma de Análisis Técnico (estilo TradingView)
 
-> Última actualización: 2026-09-24 13:21
+> Última actualización: 2026-09-24 13:40
 > Fuente: `_docs/backlog.md` (v2), `_docs/traceability.md` (v2)
 
 ## 1. Resumen ejecutivo
@@ -8,19 +8,19 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 62 | +1 (TASK-048) |
-| 📥 Backlog | 23 | -13 |
+| 📥 Backlog | 22 | -14 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | — |
-| ✅ Done | 39 | +1 |
+| ✅ Done | 40 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 62.9% (39/62) | +1.6 |
+| % Completado | 64.5% (40/62) | +1.6 |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (23)
+### 📥 Backlog (22)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
@@ -33,7 +33,6 @@
 | TASK-UI-010 | SCR-001 Biblioteca (AssetList CMP-006) | EP-UI-001 | L | TASK-020, TASK-UI-001, TASK-UI-003 |
 | TASK-UI-021 | SCR-002 Progreso + historial + estados | EP-UI-002 | L | TASK-006, TASK-047, TASK-UI-020 |
 | TASK-UI-030 | SCR-003 Estados y validación cobertura | EP-UI-003 | M | TASK-020, TASK-026 |
-| TASK-026 | Selector activo/rango/timeframe | EP-UI-003 | M | TASK-021, TASK-024 |
 | TASK-033 | Layout 3 paneles | EP-UI-005 | M | TASK-024 |
 | TASK-034 | Sincronización crosshair/zoom | EP-UI-005 | M | TASK-033 |
 | TASK-UI-050 | SCR-005 Tabs WAI-ARIA + tope 3 panes | EP-UI-005 | S | TASK-033, TASK-034 |
@@ -56,7 +55,7 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (39)
+### ✅ Done (40)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
@@ -99,6 +98,7 @@ Sin tareas.
 | TASK-UI-004 | A11y base | EP-UI-000 | 2026-09-24 | `frontend/src/__tests__/a11y.test.tsx` (axe-core sin violaciones) + `styles.css` (foco visible `--color-focus`, `prefers-reduced-motion`) — RNF-005 |
 | TASK-UI-020 | Form descarga + validación | EP-UI-002 | 2026-09-24 | `DownloadForm.test.tsx` (6: campos, tipo→activo, inicio≤fin, ventana 2 años, POST 202 + task_id, error preserva valores) + `downloads.test.ts` — RF-001/RNF-003 |
 | TASK-UI-042 | IndicatorItem + panel config | EP-UI-004 | 2026-09-24 | `IndicatorItem.test.tsx` (5: default/config-open, visibilidad, aria-expanded, quitar) + `IndicatorPanel.test.tsx` (añadir/quitar/ocultar/reconfigurar + toIndicatorParameters) + `ChartPane.test.tsx` (RSI/ATR ocultos) — RF-013 |
+| TASK-026 | Selector activo/rango/timeframe | EP-UI-003 | 2026-09-24 | `ChartSelector.test.tsx` (4) + `routes.test.ts` (parse/build de la selección) + `app.test.tsx` (SCR-003 → SCR-004) — RF-007/RF-008 |
 
 ### 🔴 Blocked (0)
 
@@ -189,8 +189,8 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. **Iniciar TASK-UI-021** (progreso + historial; deps TASK-006 ✅ + TASK-047 📥 + UI-020 ✅ — requiere TASK-047) o **TASK-026** (selector; deps TASK-021+024 ✅).
-2. Paralela: **TASK-033** (layout 3 paneles; dep TASK-024 ✅) o **TASK-UI-010** (requiere `GET /assets` = TASK-020).
+1. **Iniciar TASK-UI-021** (progreso + historial; deps TASK-006 ✅ + TASK-047 📥 + UI-020 ✅ — requiere TASK-047) o **TASK-033** (layout 3 paneles; dep TASK-024 ✅).
+2. Paralela: **TASK-046** (smoke browsers; dep TASK-026 ✅) o **TASK-UI-010/UI-030** (requieren `GET /assets` = TASK-020).
 
 ## 9. Historial de cambios (append-only)
 
@@ -286,3 +286,4 @@ Ninguno.
 | 2026-09-24 | TASK-UI-004 | 📥 → 🔨 → 👀 → ✅ | Accesibilidad base: foco visible global (`--color-focus`), `prefers-reduced-motion`, `color-scheme: dark` y escaneo axe-core sin violaciones (ADR-011); 199 tests frontend ✅; validado en navegador; prueba RNF-005 |
 | 2026-09-24 | TASK-UI-020 | 📥 → 🔨 → 👀 → ✅ | Form SCR-002: Tipo/Activo/DateRange + nota 1s UTC, validación inline (inicio≤fin, ventana ≤2 años), POST /downloads 202 + feedback y valores preservados; servicio `downloads.ts`; 207 tests frontend ✅; validado en navegador; prueba RF-001/RNF-003 |
 | 2026-09-24 | TASK-UI-042 | 📥 → 🔨 → 👀 → ✅ | Panel CMP-010: `IndicatorItem` (default/config-open, visibilidad, aria-expanded) + `IndicatorPanel` (añadir/quitar/ocultar/reconfigurar) + `toIndicatorParameters` y ocultar RSI/ATR en el ChartPane; 215 tests frontend ✅; validado en navegador; prueba RF-013 |
+| 2026-09-24 | TASK-026 | 📥 → 🔨 → 👀 → ✅ | Selector SCR-003: `ChartSelector` (activo/DateRange/timeframe radiogroup) navega a SCR-004 con la selección en la URL (`parseLocation`/`buildChartUrl`); `ChartScreen` carga activo/timeframe/rango; 227 tests frontend ✅; validado en navegador; prueba RF-007/RF-008 |

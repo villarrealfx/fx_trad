@@ -297,7 +297,7 @@
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-026 | Selector de activo/rango/timeframe en la UI (navegación a SCR-004) | frontend | M | TASK-021, TASK-024 | Al cambiar la selección se carga el gráfico con los datos del rango (RF-007/008) | 📥 |
+| TASK-026 | Selector de activo/rango/timeframe en la UI (navegación a SCR-004) | frontend | M | TASK-021, TASK-024 | Al cambiar la selección se carga el gráfico con los datos del rango (RF-007/008) | ✅ |
 | TASK-UI-030 | Estados y validación de SCR-003 (cobertura desde GET /assets, rangos fuera de cobertura, empty→CTA SCR-002) | frontend | M | TASK-020, TASK-026 | Empty bloquea "Abrir gráfico" con CTA a SCR-002; rango fuera de cobertura rechazado inline con foco al campo; partial avisa rango útil exacto; a11y fieldsets | 📥 |
 
 ### EP-UI-004: Pantalla SCR-004 (Gráfico principal)
