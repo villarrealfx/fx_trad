@@ -28,12 +28,16 @@ const chartMocks = vi.hoisted(() => {
   const getVisibleLogicalRange = vi.fn(() => ({ from: 0, to: 100 }));
   const timeToCoordinate = vi.fn(() => 10);
   const priceToCoordinate = vi.fn(() => 40);
+  const coordinateToPrice = vi.fn(() => 1.5);
   const coordinateToTime = vi.fn(() => 1_781_000_000);
   const subscribeVisibleLogicalRangeChange = vi.fn();
   const subscribeSizeChange = vi.fn();
   const unsubscribeVisibleLogicalRangeChange = vi.fn();
   const unsubscribeSizeChange = vi.fn();
-  const subscribeCrosshairMove = vi.fn();
+  const crosshairListeners: ((param: unknown) => void)[] = [];
+  const subscribeCrosshairMove = vi.fn((handler: (param: unknown) => void) => {
+    crosshairListeners.push(handler);
+  });
   const clickListeners: ((param: unknown) => void)[] = [];
   const subscribeClick = vi.fn((handler: (param: unknown) => void) => {
     clickListeners.push(handler);
@@ -46,6 +50,7 @@ const chartMocks = vi.hoisted(() => {
   const addCandlestickSeries = vi.fn(() => ({
     setData,
     priceToCoordinate,
+    coordinateToPrice,
   }));
   const lineSetData = vi.fn();
   const addLineSeries = vi.fn<(...args: unknown[]) => unknown>(() => ({ setData: lineSetData }));
@@ -82,6 +87,7 @@ const chartMocks = vi.hoisted(() => {
     getVisibleLogicalRange,
     timeToCoordinate,
     priceToCoordinate,
+    coordinateToPrice,
     coordinateToTime,
     subscribeVisibleLogicalRangeChange,
     subscribeSizeChange,
@@ -101,6 +107,7 @@ const chartMocks = vi.hoisted(() => {
     subscribeClick,
     unsubscribeClick,
     clickListeners,
+    crosshairListeners,
   };
 });
 
@@ -147,6 +154,15 @@ function emitChartClick(time: number | undefined, x: number, y: number): void {
   });
 }
 
+/** Emite un movimiento de crosshair del chart. */
+function emitCrosshairMove(time: number | undefined, x: number, y: number): void {
+  act(() => {
+    for (const handler of chartMocks.crosshairListeners) {
+      handler({ time, point: { x, y }, seriesData: new Map() });
+    }
+  });
+}
+
 /** Planificador manual de frames para el FrameRateMeter (tests deterministas). */
 function createManualScheduler() {
   let time = 0;
@@ -180,6 +196,7 @@ describe('ChartPane', () => {
     fetchMock.mockReset();
     vi.stubGlobal('fetch', fetchMock);
     chartMocks.clickListeners.length = 0;
+    chartMocks.crosshairListeners.length = 0;
     for (const value of Object.values(chartMocks)) {
       if (typeof value === 'function') {
         (value as ReturnType<typeof vi.fn>).mockClear();
@@ -421,6 +438,101 @@ describe('ChartPane', () => {
     await waitFor(() =>
       expect(screen.queryByRole('group', { name: 'Marcador de compra seleccionado' })).toBeNull(),
     );
+  });
+
+  it('draws a line from two clicks with the line tool', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    const { container } = render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+    fireEvent.click(screen.getByRole('button', { name: 'Línea' }));
+    emitChartClick(1_781_000_000, 5, 5);
+    emitChartClick(1_781_003_600, 60, 80);
+    expect(container.querySelector('.chart-pane')?.getAttribute('data-shapes')).toBe('1');
+    await waitFor(() => expect(ctx.stroke).toHaveBeenCalled());
+    expect(ctx.moveTo).toHaveBeenCalledWith(10, 40);
+  });
+
+  it('draws a rectangle from two clicks with the rect tool', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    const { container } = render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+    fireEvent.click(screen.getByRole('button', { name: 'Rectángulo' }));
+    emitChartClick(1_781_000_000, 5, 5);
+    emitChartClick(1_781_003_600, 60, 80);
+    expect(container.querySelector('.chart-pane')?.getAttribute('data-shapes')).toBe('1');
+    await waitFor(() => expect(ctx.strokeRect).toHaveBeenCalled());
+  });
+
+  it('erases a drawn shape with the erase tool', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    const { container } = render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+    fireEvent.click(screen.getByRole('button', { name: 'Línea' }));
+    emitChartClick(1_781_000_000, 5, 5);
+    emitChartClick(1_781_003_600, 60, 80);
+    await waitFor(() => expect(ctx.stroke).toHaveBeenCalled());
+    expect(container.querySelector('.chart-pane')?.getAttribute('data-shapes')).toBe('1');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Borrar trazo' }));
+    emitChartClick(1_781_000_000, 10, 40);
+
+    expect(container.querySelector('.chart-pane')?.getAttribute('data-shapes')).toBe('0');
+  });
+
+  it('marks the active tool with aria-pressed', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+
+    const line = screen.getByRole('button', { name: 'Línea' });
+    fireEvent.click(line);
+
+    expect(line.getAttribute('aria-pressed')).toBe('true');
+    expect(screen.getByRole('button', { name: 'Compra' }).getAttribute('aria-pressed')).toBe(
+      'false',
+    );
+  });
+
+  it('shows a preview of the pending shape while drawing', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    const { container } = render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+    const host = screen.getByRole('img', { name: 'Gráfico de velas EURUSD 1h' });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Línea' }));
+    emitChartClick(1_781_000_000, 5, 5);
+    emitCrosshairMove(1_781_003_600, 60, 80);
+    expect(container.querySelector('.chart-pane')?.getAttribute('data-shapes')).toBe('1');
+
+    fireEvent.keyDown(host, { key: 'Escape' });
+    expect(container.querySelector('.chart-pane')?.getAttribute('data-shapes')).toBe('0');
+  });
+
+  it('erases a marker with the erase tool', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    const { container } = render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+    emitChartClick(1_781_000_000, 5, 5);
+    expect(container.querySelector('.chart-pane')?.getAttribute('data-shapes')).toBe('1');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Borrar trazo' }));
+    emitChartClick(1_781_000_000, 10, 40);
+
+    expect(container.querySelector('.chart-pane')?.getAttribute('data-shapes')).toBe('0');
+  });
+
+  it('cancels a pending draw with Escape', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    const { container } = render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+    const host = screen.getByRole('img', { name: 'Gráfico de velas EURUSD 1h' });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Línea' }));
+    emitChartClick(1_781_000_000, 5, 5);
+    fireEvent.keyDown(host, { key: 'Escape' });
+    emitChartClick(1_781_003_600, 60, 80);
+
+    expect(container.querySelector('.chart-pane')?.getAttribute('data-shapes')).toBe('0');
   });
 
   it('renders MA and ATR overlays plus the RSI band with the legend labels', async () => {

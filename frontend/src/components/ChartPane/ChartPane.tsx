@@ -21,12 +21,15 @@ import type { Candle, Timeframe } from '../../contracts/ohlc';
 import { createOverlayBinding, type OverlayBinding } from '../../charting/chart-binding';
 import OverlayCanvas from '../../charting/OverlayCanvas';
 import {
+  hitTestFragment,
   hitTestMarker,
   projectPoint,
+  projectShape,
   type MarketDirection,
   type MarkerShape,
   type OverlayShape,
   type PixelPoint,
+  type PriceTimePoint,
 } from '../../charting/overlay-geometry';
 import { createFrameBatcher, type FrameBatcher } from '../../performance/frame-batch';
 import { composeChartCanvas, type ExportScale } from '../../export';
@@ -53,6 +56,9 @@ const EMPTY_DRAWINGS: ReadonlyArray<OverlayShape> = [];
 
 /** Tool por defecto del simulador: compra (auto-selección, journey J-003). */
 const DEFAULT_MARKER_TOOL: MarketDirection = 'buy';
+
+/** Herramienta activa del panel: simulador (buy/sell) o dibujo (line/rect/erase). */
+type ActiveTool = MarketDirection | 'line' | 'rect' | 'erase';
 
 /** Escala de precios reservada para el RSI (banda inferior del pane, v4). */
 const RSI_PRICE_SCALE_ID = 'rsi';
@@ -124,11 +130,14 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
   const [overlayBinding, setOverlayBinding] = useState<OverlayBinding | null>(null);
   const candlesRef = useRef<ReadonlyArray<Candle>>([]);
   const [markers, setMarkers] = useState<ReadonlyArray<MarkerShape>>([]);
-  const [markerTool, setMarkerTool] = useState<MarketDirection>(DEFAULT_MARKER_TOOL);
+  const [activeTool, setActiveTool] = useState<ActiveTool>(DEFAULT_MARKER_TOOL);
+  const [drawnShapes, setDrawnShapes] = useState<ReadonlyArray<OverlayShape>>([]);
+  const [drawFrom, setDrawFrom] = useState<PriceTimePoint | null>(null);
+  const [previewShape, setPreviewShape] = useState<OverlayShape | null>(null);
   const [selectedMarkerId, setSelectedMarkerId] = useState<string | null>(null);
   const confirmRef = useRef<HTMLButtonElement | null>(null);
-  /** Último handler de click del chart (evita capturar estado obsoleto). */
   const clickHandlerRef = useRef<(param: MouseEventParams<Time>) => void>(() => {});
+  const previewHandlerRef = useRef<(param: MouseEventParams<Time>) => void>(() => {});
 
   useEffect(() => {
     const host = hostRef.current;
@@ -174,6 +183,7 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
         }
         setLegendBar(lastRef.current);
       });
+      previewHandlerRef.current(param);
     });
     chartRef.current = chart;
     seriesRef.current = series;
@@ -285,18 +295,68 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
     return projectPoint(marker.position, overlayBinding);
   }
 
+  /** Precio del eje correspondiente a una coordenada vertical del gráfico. */
+  function priceAt(y: number): number | null {
+    return seriesRef.current?.coordinateToPrice(y) ?? null;
+  }
+
+  /** Hit-test de los trazos dibujados (línea/rect) contra el cursor. */
+  function shapeHitTest(shape: OverlayShape, cursor: PixelPoint): boolean {
+    if (overlayBinding === null) return false;
+    return hitTestFragment(cursor, projectShape(shape, overlayBinding));
+  }
+
+  /** Borra el marcador o trazo bajo el cursor (tool `erase`, RI-003). */
+  function eraseAt(cursor: PixelPoint): void {
+    for (const marker of markers) {
+      const pixel = markerPixel(marker);
+      if (pixel !== null && hitTestMarker(cursor, pixel)) {
+        setMarkers((current) => current.filter((item) => item.id !== marker.id));
+        setSelectedMarkerId(null);
+        return;
+      }
+    }
+    const hit = drawnShapes.find((shape) => shapeHitTest(shape, cursor));
+    if (hit !== undefined) {
+      setDrawnShapes((current) => current.filter((shape) => shape.id !== hit.id));
+    }
+  }
+
+  /** Crea línea/rectángulo a dos clics con anclas de tiempo/precio (RF-011). */
+  function handleDrawClick(param: MouseEventParams<Time>, cursor: PixelPoint): void {
+    const price = priceAt(cursor.y);
+    if (param.time === undefined || price === null) return;
+    const anchor = { time: Number(param.time), price };
+    if (drawFrom === null) {
+      setDrawFrom(anchor);
+      return;
+    }
+    const id = `${activeTool}-${drawFrom.time}-${anchor.time}`;
+    const shape: OverlayShape =
+      activeTool === 'line'
+        ? { id, kind: 'line', from: drawFrom, to: anchor }
+        : { id, kind: 'rect', from: drawFrom, to: anchor };
+    setDrawnShapes((current) => [...current, shape]);
+    setDrawFrom(null);
+    setPreviewShape(null);
+  }
+
   /**
-   * Crea un marcador en la vela bajo el cursor (RF-012): la marca toma el
-   * precio de la barra (close) y queda anclada a tiempo+precio reales.
-   * Si el clic cae sobre un marcador existente, lo selecciona para borrar.
-   *
-   * Usa el evento nativo del chart (`subscribeClick`), que entrega el tiempo de
-   * la barra y el punto en píxeles ya resueltos por la librería.
+   * Crea un marcador en la vela bajo el cursor (RF-012) o gestiona las
+   * herramientas de dibujo (línea/rect) y borrado (RI-003).
    */
   function handleChartClick(param: MouseEventParams<Time>): void {
     const point = param.point;
     if (point === undefined) return;
     const cursor = { x: point.x, y: point.y };
+    if (activeTool === 'erase') {
+      eraseAt(cursor);
+      return;
+    }
+    if (activeTool === 'line' || activeTool === 'rect') {
+      handleDrawClick(param, cursor);
+      return;
+    }
     for (const marker of markers) {
       const pixel = markerPixel(marker);
       if (pixel !== null && hitTestMarker(cursor, pixel)) {
@@ -308,14 +368,14 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
     const barTime = Number(param.time);
     const candle = candlesRef.current.find((item) => item.time === barTime);
     const duplicated = markers.some(
-      (marker) => marker.direction === markerTool && marker.position.time === barTime,
+      (marker) => marker.direction === activeTool && marker.position.time === barTime,
     );
     if (candle === undefined || duplicated) return;
     const marker: MarkerShape = {
-      id: `${markerTool}-${barTime}`,
+      id: `${activeTool}-${barTime}`,
       kind: 'marker',
       position: { time: barTime, price: candle.close },
-      direction: markerTool,
+      direction: activeTool,
     };
     setMarkers((current) => [...current, marker]);
     setSelectedMarkerId(null);
@@ -339,12 +399,23 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
     }
   }, [selectedMarkerId]);
 
+  /** Al cambiar de herramienta, cancela el trazo pendiente y la selección. */
+  useEffect(() => {
+    setDrawFrom(null);
+    setPreviewShape(null);
+    setSelectedMarkerId(null);
+  }, [activeTool]);
+
   /** Maneja los atajos de teclado del panel (+/− zoom, 1 ajustar, Esc cancelar). */
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>): void {
     if (event.key === 'Escape') {
       if (selectedMarkerId !== null) {
         event.preventDefault();
         setSelectedMarkerId(null);
+      } else if (drawFrom !== null) {
+        event.preventDefault();
+        setDrawFrom(null);
+        setPreviewShape(null);
       }
     } else if (event.key === '+' || event.key === '=') {
       event.preventDefault();
@@ -361,8 +432,14 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
   const selectedMarker = markers.find((marker) => marker.id === selectedMarkerId) ?? null;
   const selectedPixel = selectedMarker === null ? null : markerPixel(selectedMarker);
   const overlayShapes = useMemo(
-    () => [...drawings, ...markers] as ReadonlyArray<OverlayShape>,
-    [drawings, markers],
+    () =>
+      [
+        ...drawings,
+        ...markers,
+        ...drawnShapes,
+        ...(previewShape === null ? [] : [previewShape]),
+      ] as ReadonlyArray<OverlayShape>,
+    [drawings, markers, drawnShapes, previewShape],
   );
 
   /** Entradas de la leyenda de indicadores activos (RF-013). */
@@ -406,20 +483,59 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
   /** Mantiene el handler de click actualizado para la suscripción del chart. */
   clickHandlerRef.current = handleChartClick;
 
+  /** Actualiza el preview del trazo en curso con el movimiento del crosshair. */
+  previewHandlerRef.current = (param) => {
+    if (drawFrom === null || (activeTool !== 'line' && activeTool !== 'rect')) return;
+    const y = param.point?.y;
+    const price = y === undefined ? null : priceAt(y);
+    if (param.time === undefined || price === null) return;
+    setPreviewShape({
+      id: 'preview',
+      kind: activeTool,
+      from: drawFrom,
+      to: { time: Number(param.time), price },
+    } as OverlayShape);
+  };
+
   return (
-    <div className="chart-pane">
-      <div className="chart-pane__tools" role="group" aria-label="Simulador de compra/venta">
+    <div className="chart-pane" data-shapes={overlayShapes.length}>
+      <div
+        className="chart-pane__tools"
+        role="group"
+        aria-label="Herramientas de dibujo y simulador"
+      >
         <button
           type="button"
-          aria-pressed={markerTool === 'buy'}
-          onClick={() => setMarkerTool('buy')}
+          aria-pressed={activeTool === 'line'}
+          onClick={() => setActiveTool('line')}
+        >
+          Línea
+        </button>
+        <button
+          type="button"
+          aria-pressed={activeTool === 'rect'}
+          onClick={() => setActiveTool('rect')}
+        >
+          Rectángulo
+        </button>
+        <button
+          type="button"
+          aria-pressed={activeTool === 'erase'}
+          onClick={() => setActiveTool('erase')}
+        >
+          Borrar trazo
+        </button>
+        <button
+          type="button"
+          aria-pressed={activeTool === 'buy'}
+          onClick={() => setActiveTool('buy')}
         >
           Compra
         </button>
         <button
           type="button"
-          aria-pressed={markerTool === 'sell'}
-          onClick={() => setMarkerTool('sell')}
+          aria-pressed={activeTool === 'sell'}
+          onClick={() => setActiveTool('sell')}
         >
           Venta
         </button>

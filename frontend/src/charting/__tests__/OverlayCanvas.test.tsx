@@ -166,4 +166,22 @@ describe('OverlayCanvas', () => {
     expect(ctx.fillStyle).toBe('#26A69A');
     expect(ctx.moveTo).toHaveBeenCalledWith(0, 20);
   });
+
+  it('strokes a rectangle anchored to its two corners (TASK-028)', async () => {
+    const { binding } = createFakeBinding();
+    const rect: OverlayShape = {
+      id: 'rect-1',
+      kind: 'rect',
+      from: { time: 1_781_000_000, price: 1.5 },
+      to: { time: 1_781_003_600, price: 1.6 },
+    };
+    renderWithHost(binding, [rect]);
+
+    await waitFor(() => expect(ctx.strokeRect).toHaveBeenCalledTimes(1));
+    const [x, y, width, height] = ctx.strokeRect.mock.calls[0] as number[];
+    expect(x).toBeCloseTo(0);
+    expect(y).toBeCloseTo(20);
+    expect(width).toBeCloseTo(1);
+    expect(height).toBeCloseTo(10);
+  });
 });

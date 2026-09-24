@@ -103,6 +103,14 @@ export default function OverlayCanvas({
           context.stroke();
           continue;
         }
+        if (fragment.kind === 'rect') {
+          const x = Math.min(fragment.from.x, fragment.to.x);
+          const y = Math.min(fragment.from.y, fragment.to.y);
+          const width = Math.abs(fragment.to.x - fragment.from.x);
+          const height = Math.abs(fragment.to.y - fragment.from.y);
+          context.strokeRect(x, y, width, height);
+          continue;
+        }
         drawMarker(context, fragment.position, fragment.direction);
       }
     };

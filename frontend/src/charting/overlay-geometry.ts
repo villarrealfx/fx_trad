@@ -31,6 +31,15 @@ export type OverlayShape =
       to: PriceTimePoint;
     }
   | {
+      /** Identificador único del rectángulo dentro de la sesión. */
+      id: string;
+      kind: 'rect';
+      /** Esquina de anclaje 1 (tiempo/precio). */
+      from: PriceTimePoint;
+      /** Esquina de anclaje 2 (tiempo/precio). */
+      to: PriceTimePoint;
+    }
+  | {
       /** Identificador único del marcador dentro de la sesión. */
       id: string;
       kind: 'marker';
@@ -59,6 +68,7 @@ export interface PixelPoint {
 /** Resultado de proyectar un trazo (o descartarlo si sale de la vista). */
 export type OverlayFragment =
   | { kind: 'line'; from: PixelPoint; to: PixelPoint }
+  | { kind: 'rect'; from: PixelPoint; to: PixelPoint }
   | { kind: 'marker'; position: PixelPoint; direction: MarketDirection }
   | { kind: 'hidden' };
 
@@ -82,12 +92,58 @@ export function projectShape(shape: OverlayShape, mapper: CoordinateMapper): Ove
       if (from === null || to === null) return { kind: 'hidden' };
       return { kind: 'line', from, to };
     }
+    case 'rect': {
+      const from = projectPoint(shape.from, mapper);
+      const to = projectPoint(shape.to, mapper);
+      if (from === null || to === null) return { kind: 'hidden' };
+      return { kind: 'rect', from, to };
+    }
     case 'marker': {
       const position = projectPoint(shape.position, mapper);
       if (position === null) return { kind: 'hidden' };
       return { kind: 'marker', position, direction: shape.direction };
     }
   }
+}
+
+/** Distancia euclidiana de un punto al segmento ``a``–``b``. */
+function distanceToSegment(point: PixelPoint, a: PixelPoint, b: PixelPoint): number {
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const lengthSquared = dx * dx + dy * dy;
+  if (lengthSquared === 0) return Math.hypot(point.x - a.x, point.y - a.y);
+  const t = Math.max(0, Math.min(1, ((point.x - a.x) * dx + (point.y - a.y) * dy) / lengthSquared));
+  return Math.hypot(point.x - (a.x + t * dx), point.y - (a.y + t * dy));
+}
+
+/**
+ * Hit-test de un fragmento proyectado contra el cursor (TASK-028).
+ *
+ * `line` usa la distancia al segmento; `rect` la distancia a sus cuatro
+ * aristas; `marker` el radio de grabado; `hidden` nunca impacta.
+ */
+export function hitTestFragment(
+  cursor: PixelPoint,
+  fragment: OverlayFragment,
+  radius: number = MARKER_HIT_RADIUS,
+): boolean {
+  if (fragment.kind === 'hidden') return false;
+  if (fragment.kind === 'marker') return hitTestMarker(cursor, fragment.position, radius);
+  if (fragment.kind === 'line') {
+    return distanceToSegment(cursor, fragment.from, fragment.to) <= radius;
+  }
+  const { from, to } = fragment;
+  const topLeft = { x: Math.min(from.x, to.x), y: Math.min(from.y, to.y) };
+  const bottomRight = { x: Math.max(from.x, to.x), y: Math.max(from.y, to.y) };
+  const topRight = { x: bottomRight.x, y: topLeft.y };
+  const bottomLeft = { x: topLeft.x, y: bottomRight.y };
+  const edges: [PixelPoint, PixelPoint][] = [
+    [topLeft, topRight],
+    [topRight, bottomRight],
+    [bottomRight, bottomLeft],
+    [bottomLeft, topLeft],
+  ];
+  return edges.some(([a, b]) => distanceToSegment(cursor, a, b) <= radius);
 }
 
 /** Radio de grabado para seleccionar un marcador con el cursor (TASK-030). */

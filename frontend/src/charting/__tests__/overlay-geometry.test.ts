@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
   MARKER_HIT_RADIUS,
+  hitTestFragment,
   hitTestMarker,
   projectPoint,
   projectShape,
@@ -134,5 +135,52 @@ describe('hitTestMarker', () => {
   it('misses a marker outside the grab radius', () => {
     const far = MARKER_HIT_RADIUS + 1;
     expect(hitTestMarker({ x: 0, y: 0 }, { x: far, y: 0 })).toBe(false);
+  });
+});
+
+describe('projectShape rect (TASK-028)', () => {
+  const RECT: OverlayShape = {
+    id: 'rect-1',
+    kind: 'rect',
+    from: { time: 1_781_000_000, price: 1.08 },
+    to: { time: 1_781_003_600, price: 1.095 },
+  };
+
+  it('projects both corners of a rectangle', () => {
+    const mapper = makeMapper(
+      (time) => (time === 1_781_000_000 ? 0 : 100),
+      (price) => (price === 1.08 ? 50 : 25),
+    );
+    expect(projectShape(RECT, mapper)).toEqual({
+      kind: 'rect',
+      from: { x: 0, y: 50 },
+      to: { x: 100, y: 25 },
+    });
+  });
+
+  it('hides a rectangle when any corner leaves the visible range', () => {
+    const mapper = makeMapper(
+      () => 0,
+      (price) => (price === 1.08 ? 50 : null),
+    );
+    expect(projectShape(RECT, mapper)).toEqual({ kind: 'hidden' });
+  });
+});
+
+describe('hitTestFragment (TASK-028)', () => {
+  it('hits a line near its segment and misses far away', () => {
+    const line = { kind: 'line' as const, from: { x: 0, y: 0 }, to: { x: 100, y: 0 } };
+    expect(hitTestFragment({ x: 50, y: 5 }, line)).toBe(true);
+    expect(hitTestFragment({ x: 50, y: 30 }, line)).toBe(false);
+  });
+
+  it('hits a rectangle on its edges but not its empty center', () => {
+    const rect = { kind: 'rect' as const, from: { x: 0, y: 0 }, to: { x: 100, y: 80 } };
+    expect(hitTestFragment({ x: 0, y: 40 }, rect)).toBe(true);
+    expect(hitTestFragment({ x: 50, y: 40 }, rect)).toBe(false);
+  });
+
+  it('never hits a hidden fragment', () => {
+    expect(hitTestFragment({ x: 0, y: 0 }, { kind: 'hidden' })).toBe(false);
   });
 });
