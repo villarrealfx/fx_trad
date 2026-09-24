@@ -4,7 +4,8 @@ Implementa la decisión ADR-004: cada activo se guarda como un archivo Parquet
 de columnas ``time`` (BIGINT, segundos UTC, único por activo) y
 ``open/high/low/close`` (DOUBLE), consultable con DuckDB. La escritura es
 atómica y rechaza ``time`` duplicados (RI-001). El merge incremental entre
-periodos descargados es responsabilidad de TASK-019.
+periodos descargados (TASK-019, RF-006) fusiona por ``time`` sin duplicar ni
+borrar filas (KPI-4).
 
 TASK-017 (pre-resampling por timeframe, ADR-007/RNF-008): además de la base
 ``1s`` (``{simbolo}.parquet``), se puede persistir una serie agregada por
@@ -88,6 +89,39 @@ class ParquetSeriesStore:
         """Indica si el activo ya tiene una serie Parquet para el timeframe."""
         return self.path_for(symbol, timeframe).is_file()
 
+    def coverage(self, symbol: str) -> tuple[int, int] | None:
+        """Devuelve el rango ``[min(time), max(time)]`` de la base 1s del activo.
+
+        Determina la cobertura almacenada del activo (RF-007, CMP-006): el rango
+        completo de timestamps UTC persistidos en ``{symbol}.parquet``, sin
+        importar si el Parquet pre-resampling por timeframe existe (TASK-017).
+        Sirve al catálogo GET /assets (TASK-020).
+
+        Args:
+            symbol: Símbolo del activo (nombre de archivo de la base 1s).
+
+        Returns:
+            Tupla ``(inicio, fin)`` con el mínimo y el máximo ``time`` en
+            segundos UTC, o ``None`` si el activo no tiene serie almacenada
+            (o el Parquet está vacío).
+
+        Raises:
+            ValueError: si el símbolo no es un identificador seguro.
+        """
+        path = self.path_for(symbol)
+        if not path.is_file():
+            return None
+        connection = duckdb.connect()
+        try:
+            row = connection.execute(
+                "SELECT min(time), max(time) FROM read_parquet(?)", [str(path)]
+            ).fetchone()
+        finally:
+            connection.close()
+        if row is None or row[0] is None:
+            return None
+        return (int(row[0]), int(row[1]))
+
     def write(self, symbol: str, candles: Sequence[Candle], timeframe: str = "1s") -> int:
         """Escribe la serie del activo en su Parquet de forma atómica.
 
@@ -109,17 +143,7 @@ class ParquetSeriesStore:
         path = self.path_for(symbol, timeframe)
         self._reject_duplicate_times(candles)
         rows = sorted((c.time, c.open, c.high, c.low, c.close) for c in candles)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        tmp_path = path.with_suffix(".parquet.tmp")
-        connection = duckdb.connect()
-        try:
-            connection.execute(_CREATE_TABLE)
-            if rows:
-                connection.executemany("INSERT INTO series VALUES (?, ?, ?, ?, ?)", rows)
-            connection.execute(f"COPY series TO '{tmp_path}' (FORMAT PARQUET)")
-        finally:
-            connection.close()
-        os.replace(tmp_path, path)
+        self._write_parquet(path, rows)
         logger.info(
             "serie_escrita",
             activo=symbol,
@@ -128,6 +152,55 @@ class ParquetSeriesStore:
             ruta=str(path),
         )
         return len(rows)
+
+    def merge(self, symbol: str, candles: Sequence[Candle], timeframe: str = "1s") -> int:
+        """Incrementa la serie sin duplicar ``time`` ni borrar filas (RF-006).
+
+        Une las velas nuevas con las ya persistidas, priorizando la versión
+        nueva cuando ambas comparten un ``time`` (upsert RI-001) y garantizando
+        KPI-4 (0 filas duplicadas por descarga). El resultado se reescribe de
+        forma atómica (respeta la misma mecánica que ``write``).
+
+        Args:
+            symbol: Símbolo del activo (nombre de archivo).
+            candles: Velas del periodo nuevo a fusionar.
+            timeframe: Granularidad de la serie (RF-009); puede ser cualquier
+                canónico pre-resampling (TASK-017, ADR-007).
+
+        Returns:
+            Total de filas almacenadas tras el merge.
+
+        Raises:
+            DuplicateTimeError: si ``candles`` contiene ``time`` repetidos
+                (RI-001).
+            ValueError: si el símbolo no es un identificador seguro.
+            InvalidTimeframeError: si ``timeframe`` no es canónico.
+        """
+        path = self.path_for(symbol, timeframe)
+        self._reject_duplicate_times(candles)
+        incoming = sorted((c.time, c.open, c.high, c.low, c.close) for c in candles)
+        if not path.is_file():
+            self._write_parquet(path, incoming)
+            logger.info(
+                "serie_escrita",
+                activo=symbol,
+                timeframe=timeframe,
+                velas=len(incoming),
+                ruta=str(path),
+            )
+            return len(incoming)
+        existing = self._read_rows(path)
+        merged = self._merge_rows(existing, incoming)
+        self._write_parquet(path, merged)
+        logger.info(
+            "serie_incremental",
+            activo=symbol,
+            timeframe=timeframe,
+            filas_previas=len(existing),
+            filas_nuevas=len(incoming),
+            filas_totales=len(merged),
+        )
+        return len(merged)
 
     def read_range(self, symbol: str, start: int, end: int, timeframe: str = "1s") -> list[Candle]:
         """Devuelve las velas del rango inclusivo ``[start, end]`` ordenadas.
@@ -172,6 +245,54 @@ class ParquetSeriesStore:
             Candle(time=int(time), open=open_, high=high, low=low, close=close)
             for time, open_, high, low, close in rows
         ]
+
+    @staticmethod
+    def _write_parquet(path: Path, rows: Sequence[tuple[int, float, float, float, float]]) -> None:
+        """Escribe ``rows`` ordenadas por ``time`` en el Parquet de forma atómica.
+
+        Crea la tabla ``series`` en una conexión efímera, inserta las filas y
+        copia a un archivo temporal que se renombra con ``os.replace`` para que
+        la escritura sea atómica (patrón de ``write``/``merge``).
+        """
+        rows = sorted(rows)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp_path = path.with_suffix(".parquet.tmp")
+        connection = duckdb.connect()
+        try:
+            connection.execute(_CREATE_TABLE)
+            if rows:
+                connection.executemany("INSERT INTO series VALUES (?, ?, ?, ?, ?)", rows)
+            connection.execute(f"COPY series TO '{tmp_path}' (FORMAT PARQUET)")
+        finally:
+            connection.close()
+        os.replace(tmp_path, path)
+
+    @staticmethod
+    def _read_rows(path: Path) -> list[tuple[int, float, float, float, float]]:
+        """Lee todas las filas del Parquet indicado (previo al merge)."""
+        connection = duckdb.connect()
+        try:
+            rows = connection.execute(
+                f"SELECT {_COLUMNS} FROM read_parquet(?)", [str(path)]
+            ).fetchall()
+        finally:
+            connection.close()
+        return [tuple(row) for row in rows]
+
+    @staticmethod
+    def _merge_rows(
+        existing: Sequence[tuple[int, float, float, float, float]],
+        incoming: Sequence[tuple[int, float, float, float, float]],
+    ) -> list[tuple[int, float, float, float, float]]:
+        """Fusiona ambas series por ``time``; la fila nueva gana en colisiones.
+
+        El diccionario garantiza un único valor por clave: KPI-4 (0 filas
+        duplicadas por descarga). El orden de inserción se corrige con el
+        ordenamiento final por ``time`` (RI-001).
+        """
+        merged_by_time = {row[0]: row for row in existing}
+        merged_by_time.update({row[0]: row for row in incoming})
+        return sorted(merged_by_time.values())
 
     @staticmethod
     def _reject_duplicate_times(candles: Sequence[Candle]) -> None:

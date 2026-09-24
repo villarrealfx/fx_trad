@@ -8,6 +8,9 @@ un body inválido se rechaza con 422 sin encolar nada (criterio HU-001).
 (TASK-021), delegando en la capa de consulta de `storage` (RF-009/ADR-007);
 responde en el contrato ``OhlcResponse`` del frontend (RX-002, RNF-008).
 
+``GET /assets`` devuelve el catálogo de activos con datos almacenados en el
+contrato CMP-006 (TASK-020, RF-007), compuesto por `CatalogQuery`.
+
 El ``task_id`` lo genera la cola, no esta ruta: así el endpoint depende de la
 interfaz ``DownloadQueue`` y TASK-004 aporta la implementación real con Celery.
 """
@@ -20,6 +23,7 @@ import structlog
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, Field
 
+from fxtrad.api.catalog import AssetRow, CatalogQuery
 from fxtrad.contracts.ohlc import OhlcResponse, Timeframe
 from fxtrad.ingest import DownloadInfo, DownloadQueue, DownloadRequest, DownloadStatusQuery
 from fxtrad.storage import (
@@ -68,6 +72,46 @@ def _get_series_query(request: Request) -> SeriesQuery:
 
 
 SeriesQueryDependency = Annotated[SeriesQuery, Depends(_get_series_query)]
+
+
+def _get_catalog_query(request: Request) -> CatalogQuery:
+    """Devuelve la consulta de catálogo inyectada al crear la aplicación."""
+    query: CatalogQuery = request.app.state.catalog_query
+    return query
+
+
+CatalogQueryDependency = Annotated[CatalogQuery, Depends(_get_catalog_query)]
+
+
+@router.get(
+    "/assets",
+    response_model=list[AssetRow],
+    summary="Devuelve el catálogo de activos con datos almacenados",
+)
+def get_assets(
+    request: Request,
+    catalog_query: CatalogQueryDependency,
+) -> list[AssetRow]:
+    """Devuelve los activos con cobertura y estado en el contrato CMP-006.
+
+    Compone el catálogo canónico de RF-001 con la cobertura almacenada en el
+    Parquet 1s y el último estado de descarga (RF-007, TASK-020): la
+    biblioteca del frontend lista solo activos con datos guardados (SCR-001).
+
+    Args:
+        request: Request HTTP (para correlación).
+        catalog_query: Consulta de catálogo inyectada (cobertura + estado).
+
+    Returns:
+        Filas de activos con datos almacenados, en orden canónico.
+    """
+    rows = catalog_query.list()
+    logger.info(
+        "catalogo_activos_consultado",
+        correlation_id=request.headers.get("x-correlation-id"),
+        activos=len(rows),
+    )
+    return rows
 
 
 @router.post(

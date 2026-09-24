@@ -136,3 +136,30 @@ class TestReadRange:
         assert store.has_series("EURUSD") is False
         store.write("EURUSD", _series([1.1]))
         assert store.has_series("EURUSD") is True
+
+
+class TestCoverage:
+    """La cobertura refleja el min/max ``time`` de la base 1s (RF-007/CMP-006)."""
+
+    def test_coverage_returns_min_and_max_time(self, tmp_path: Path) -> None:
+        store = ParquetSeriesStore(tmp_path)
+        store.write("EURUSD", _series([1.1, 1.2, 1.3]))
+
+        assert store.coverage("EURUSD") == (_BASE_TIME, _BASE_TIME + 7200)
+
+    def test_coverage_is_none_without_series(self, tmp_path: Path) -> None:
+        store = ParquetSeriesStore(tmp_path)
+
+        assert store.coverage("EURUSD") is None
+
+    def test_coverage_ignores_resampled_timeframes(self, tmp_path: Path) -> None:
+        store = ParquetSeriesStore(tmp_path)
+        store.write("EURUSD", _series([1.1, 1.2]), timeframe="1h")
+
+        assert store.coverage("EURUSD") is None
+
+    def test_coverage_rejects_unsafe_symbol(self, tmp_path: Path) -> None:
+        store = ParquetSeriesStore(tmp_path)
+
+        with pytest.raises(ValueError, match="inválido"):
+            store.coverage("../evil")

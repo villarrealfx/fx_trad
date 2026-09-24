@@ -210,6 +210,9 @@ config/master.key
 *.sqlite3
 *.db
 *.db-journal
+*.duckdb
+*.duckdb.wal
+data/
 dump.sql
 *.dump
 

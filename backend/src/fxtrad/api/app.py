@@ -7,15 +7,17 @@ from pathlib import Path
 
 from fastapi import FastAPI
 
+from fxtrad.api.catalog import CatalogQuery
 from fxtrad.api.routes import router
 from fxtrad.ingest import CeleryDownloadStatus, DownloadQueue, DownloadStatusQuery
-from fxtrad.storage import ParquetSeriesStore, SeriesQuery
+from fxtrad.storage import DownloadMetadataStore, ParquetSeriesStore, SeriesQuery
 
 
 def create_app(
     download_queue: DownloadQueue,
     download_status_query: DownloadStatusQuery | None = None,
     series_query: SeriesQuery | None = None,
+    catalog_query: CatalogQuery | None = None,
 ) -> FastAPI:
     """Crea la aplicación FastAPI con dependencias inyectadas.
 
@@ -27,14 +29,19 @@ def create_app(
         series_query: Consulta de series OHLC por activo/rango/timeframe
             (TASK-021); por defecto se construye sobre el directorio de datos
             (ADR-004/ADR-007).
+        catalog_query: Consulta del catálogo de activos con cobertura y estado
+            (TASK-020, RF-007/CMP-006); por defecto se construye sobre el
+            directorio de datos (ADR-004).
 
     Returns:
-        Aplicación FastAPI lista para servir las rutas de descargas y series.
+        Aplicación FastAPI lista para servir las rutas de descargas, series y
+        catálogo.
     """
     app = FastAPI(title="fxtrad-backend", version="0.1.0")
     app.state.download_queue = download_queue
     app.state.download_status_query = download_status_query or CeleryDownloadStatus()
     app.state.series_query = series_query or _default_series_query()
+    app.state.catalog_query = catalog_query or _default_catalog_query()
     app.include_router(router)
     return app
 
@@ -48,6 +55,17 @@ def _default_series_query() -> SeriesQuery:
     """
     data_dir = Path(os.getenv("FXTRAD_DATA_DIR", "data"))
     return SeriesQuery(ParquetSeriesStore(data_dir))
+
+
+def _default_catalog_query() -> CatalogQuery:
+    """Construye la consulta de catálogo por defecto sobre el directorio de datos.
+
+    El catálogo (RF-007/CMP-006) combina la cobertura del Parquet 1s
+    (``ParquetSeriesStore``) y el último estado de descarga de la tabla DuckDB
+    (``DownloadMetadataStore``, TASK-018/RI-002) sobre ``FXTRAD_DATA_DIR``.
+    """
+    data_dir = Path(os.getenv("FXTRAD_DATA_DIR", "data"))
+    return CatalogQuery(ParquetSeriesStore(data_dir), DownloadMetadataStore(data_dir))
 
 
 __all__ = ["create_app"]
