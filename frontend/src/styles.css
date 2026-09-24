@@ -12,3 +12,21 @@ body {
   background: var(--color-bg);
   color: var(--color-text);
 }
+
+/* Foco visible global con el token del design system (WCAG 2.4.7). */
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Respeta la preferencia de movimiento reducido (WCAG 2.3.3). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

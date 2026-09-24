@@ -179,6 +179,8 @@ graph LR
 | ADR-007 | Caché de series (Karst) | Aceptado |
 | ADR-008 | Observabilidad + CI/CD | Aceptado |
 | ADR-009 | Despliegue local con Docker Compose | Aceptado |
+| ADR-010 | Transporte FreeServ/Dukascopy en Python | Aceptado |
+| ADR-011 | Accesibilidad automatizada con axe-core | Aceptado |
 
 ## 12. Diagrama C4 (nivel 2, contenedores)
 
