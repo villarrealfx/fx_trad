@@ -1,0 +1,37 @@
+/*
+ * Botón de herramienta (CMP-009, TASK-UI-041). Solo tokens.
+ */
+.draw-tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  min-height: 28px;
+  padding: var(--space-xs);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.draw-tool[aria-pressed='true'] {
+  border-color: var(--color-focus);
+  color: var(--color-focus);
+}
+
+.draw-tool:hover:not(:disabled) {
+  border-color: var(--color-text-muted);
+}
+
+.draw-tool:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.draw-tool:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

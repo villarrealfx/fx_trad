@@ -504,6 +504,17 @@ describe('ChartPane', () => {
     );
   });
 
+  it('fits the view from the toolbar action', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+    chartMocks.fitContent.mockClear();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Ajustar vista' }));
+
+    expect(chartMocks.fitContent).toHaveBeenCalledTimes(1);
+  });
+
   it('shows a preview of the pending shape while drawing', async () => {
     fetchMock.mockResolvedValue(createResponse(RESPONSE));
     const { container } = render(<ChartPane symbol="EURUSD" timeframe="1h" />);

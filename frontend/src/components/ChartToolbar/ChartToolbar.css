@@ -1,0 +1,39 @@
+/*
+ * Barra de herramientas del gráfico (CMP-008, TASK-UI-041). Solo tokens.
+ */
+.chart-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm);
+}
+
+.chart-toolbar__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  min-height: 28px;
+  padding: var(--space-xs);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.chart-toolbar__action:hover:not(:disabled) {
+  border-color: var(--color-text-muted);
+}
+
+.chart-toolbar__action:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.chart-toolbar__action:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

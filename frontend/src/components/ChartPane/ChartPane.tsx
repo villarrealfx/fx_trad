@@ -33,6 +33,8 @@ import {
 } from '../../charting/overlay-geometry';
 import { createFrameBatcher, type FrameBatcher } from '../../performance/frame-batch';
 import { composeChartCanvas, type ExportScale } from '../../export';
+import ChartToolbar, { type ChartToolDescriptor } from '../ChartToolbar/ChartToolbar';
+import { type ChartToolType } from '../DrawTool/DrawTool';
 import { fetchSeries } from '../../services/series';
 import {
   computeIndicators,
@@ -58,7 +60,17 @@ const EMPTY_DRAWINGS: ReadonlyArray<OverlayShape> = [];
 const DEFAULT_MARKER_TOOL: MarketDirection = 'buy';
 
 /** Herramienta activa del panel: simulador (buy/sell) o dibujo (line/rect/fib/erase). */
-type ActiveTool = MarketDirection | 'line' | 'rect' | 'fib' | 'erase';
+type ActiveTool = ChartToolType;
+
+/** Herramientas de la barra (CMP-008/009); `label` es el nombre accesible. */
+const TOOL_DESCRIPTORS: ReadonlyArray<ChartToolDescriptor> = [
+  { type: 'line', icon: '✏️', label: 'Línea' },
+  { type: 'rect', icon: '▭', label: 'Rectángulo' },
+  { type: 'fib', icon: 'Φ', label: 'Fibonacci' },
+  { type: 'buy', icon: '▲', label: 'Compra' },
+  { type: 'sell', icon: '▼', label: 'Venta' },
+  { type: 'erase', icon: '🗑', label: 'Borrar trazo' },
+];
 
 /** Escala de precios reservada para el RSI (banda inferior del pane, v4). */
 const RSI_PRICE_SCALE_ID = 'rsi';
@@ -506,54 +518,12 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
 
   return (
     <div className="chart-pane" data-shapes={overlayShapes.length}>
-      <div
-        className="chart-pane__tools"
-        role="group"
-        aria-label="Herramientas de dibujo y simulador"
-      >
-        <button
-          type="button"
-          aria-pressed={activeTool === 'line'}
-          onClick={() => setActiveTool('line')}
-        >
-          Línea
-        </button>
-        <button
-          type="button"
-          aria-pressed={activeTool === 'rect'}
-          onClick={() => setActiveTool('rect')}
-        >
-          Rectángulo
-        </button>
-        <button
-          type="button"
-          aria-pressed={activeTool === 'fib'}
-          onClick={() => setActiveTool('fib')}
-        >
-          Fibonacci
-        </button>
-        <button
-          type="button"
-          aria-pressed={activeTool === 'erase'}
-          onClick={() => setActiveTool('erase')}
-        >
-          Borrar trazo
-        </button>
-        <button
-          type="button"
-          aria-pressed={activeTool === 'buy'}
-          onClick={() => setActiveTool('buy')}
-        >
-          Compra
-        </button>
-        <button
-          type="button"
-          aria-pressed={activeTool === 'sell'}
-          onClick={() => setActiveTool('sell')}
-        >
-          Venta
-        </button>
-      </div>
+      <ChartToolbar
+        tools={TOOL_DESCRIPTORS}
+        active={activeTool}
+        onTool={setActiveTool}
+        onZoomFit={() => chartRef.current?.timeScale().fitContent()}
+      />
       <div className="chart-pane__graph">
         <div
           ref={hostRef}
