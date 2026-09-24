@@ -1,6 +1,6 @@
 # Estado del Proyecto: Plataforma de Análisis Técnico (estilo TradingView)
 
-> Última actualización: 2026-09-24 12:43
+> Última actualización: 2026-09-24 12:51
 > Fuente: `_docs/backlog.md` (v2), `_docs/traceability.md` (v2)
 
 ## 1. Resumen ejecutivo
@@ -8,19 +8,19 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 62 | +1 (TASK-048) |
-| 📥 Backlog | 27 | -9 |
+| 📥 Backlog | 26 | -10 |
 | 🔨 Doing | 0 | — |
-| 👀 Review | 0 | -1 |
-| ✅ Done | 35 | +1 |
+| 👀 Review | 0 | — |
+| ✅ Done | 36 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 56.5% (35/62) | +1.7 |
+| % Completado | 58.1% (36/62) | +1.6 |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (27)
+### 📥 Backlog (26)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
@@ -30,7 +30,6 @@
 | TASK-020 | Endpoint GET /assets | EP-004 | S | TASK-016 |
 | TASK-022 | Contrato respuesta TS (lightweight-charts) | EP-004 | S | TASK-009 |
 | TASK-047 | Endpoint GET /downloads (historial RI-002) | EP-004 | S | TASK-018 |
-| TASK-UI-003 | Layout principal + routing (6 rutas, skip link) | EP-UI-000 | M | TASK-023, TASK-UI-000 |
 | TASK-UI-004 | A11y base (foco, ARIA, axe en CI, reduced-motion) | EP-UI-000 | M | TASK-UI-003 |
 | TASK-UI-010 | SCR-001 Biblioteca (AssetList CMP-006) | EP-UI-001 | L | TASK-020, TASK-UI-001, TASK-UI-003 |
 | TASK-UI-020 | SCR-002 Form descarga + validación | EP-UI-002 | M | TASK-003, TASK-UI-001 |
@@ -60,7 +59,7 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (35)
+### ✅ Done (36)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
@@ -99,6 +98,7 @@ Sin tareas.
 | TASK-029 | Retrocesos de Fibonacci (crear/borrar) | EP-UI-004 | 2026-09-24 | `overlay-geometry.test.ts` (niveles fib + hit-test) + `OverlayCanvas.test.tsx` (7 niveles + etiquetas) + `ChartPane.test.tsx` (Fibonacci a 2 clics) — RF-011 |
 | TASK-UI-041 | Toolbar + DrawTool | EP-UI-004 | 2026-09-24 | `DrawTool.test.tsx` (aria-pressed/tooltip/disabled) + `ChartToolbar.test.tsx` (role=toolbar, Ajustar vista) + `ChartPane.test.tsx` (ajuste de vista) — RF-011 |
 | TASK-UI-040 | ChartPane estados + leyenda OHLC | EP-UI-004 | 2026-09-24 | `ChartPane.test.tsx` (skeleton role=status, empty, error+retry, partial con StatusBanner, leyenda OHLC) — RF-010 |
+| TASK-UI-003 | Layout + routing | EP-UI-000 | 2026-09-24 | `AppShell.test.tsx` (appbar 48px, main, skip link WCAG 2.4.1, aria-current, navegación) + `app.test.tsx` (routing SCR-001…006) — RNF-005 |
 
 ### 🔴 Blocked (0)
 
@@ -189,8 +189,8 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. **Iniciar TASK-UI-003** (layout+routing; dep TASK-023 + TASK-UI-000 ✅ — habilita UI-004/010/020/030) o **TASK-033** (layout 3 paneles; dep TASK-024 ✅).
-2. Paralela: **TASK-026** (selector activo/rango/timeframe; deps TASK-021+024 ✅) o **TASK-028→029→UI-041** ya cerradas.
+1. **Iniciar TASK-UI-004** (a11y base; dep TASK-UI-003 ✅) o **TASK-UI-010/020** (dependen de API/UX).
+2. Paralela: **TASK-026** (selector; deps TASK-021+024 ✅) o **TASK-033** (layout 3 paneles; dep TASK-024 ✅).
 
 ## 9. Historial de cambios (append-only)
 
@@ -282,3 +282,4 @@ Ninguno.
 | 2026-09-24 | TASK-UI-041 | 📥 → 🔨 → 👀 → ✅ | Toolbar de dibujo (CMP-008/009): `ChartToolbar` (`role="toolbar"`, `Ajustar vista`) + `DrawTool` icon-only (`aria-pressed`/tooltip/disabled), integrados en `ChartPane` (atajos `+`/`-`/`1`); 191 tests frontend ✅; validado en navegador por el usuario; prueba RF-011 |
 | 2026-09-24 | TASK-UI-040 | 📥 → 🔨 → 👀 | Estados CMP-007: skeleton de velas accesible (`role="status"`), empty, error+retry, partial por cobertura recortada (`StatusBanner`) y leyenda OHLC textual; 194 tests frontend ✅; prueba RF-010 en traceability; DoD manual pendiente en review (partial por test) |
 | 2026-09-24 | TASK-UI-040 | 👀 → ✅ | Review validada: DoD completa — estados CMP-007 (skeleton accesible, empty, error+retry, partial) + leyenda OHLC textual; partial cubierto por test (no visible desde App); 194 tests frontend ✅; prueba RF-010 registrada |
+| 2026-09-24 | TASK-UI-003 | 📥 → 🔨 → 👀 → ✅ | Layout + routing: `AppShell` (appbar 48px, nav, skip link WCAG 2.4.1) + router por hash (6 rutas SCR-001…006, single-window); 198 tests frontend ✅; validado en navegador por el usuario; prueba RNF-005 |
