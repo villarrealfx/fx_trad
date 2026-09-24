@@ -242,7 +242,7 @@
 | TASK-UI-001 | Primitivas form: Button (CMP-001), Input (CMP-002), Select (CMP-003), RadioGroup (CMP-004), DateRange (CMP-005) | frontend | L | TASK-UI-000 | Cada componente con estados default/hover/focus/error/disabled/loading según components.md; label visible siempre; contraste AA; test visual | ✅ |
 | TASK-UI-002 | Feedback/overlay: StatusBanner (CMP-012), ProgressBar (CMP-013), Modal (CMP-014), Toast (CMP-015), Tab (CMP-011) con foco y roles | frontend | L | TASK-UI-000 | Estados por interacción (success/error/warning, `role=alert`/`aria-live`, focus trap en Modal); usa tokens | ✅ |
 | TASK-UI-003 | Layout principal + routing (appbar 48px, rutas SCR-001…006, single-window, skip link) | frontend | M | TASK-023, TASK-UI-000 | Navegación entre las 6 pantallas funcionando; skip link presente y operativo (WCAG 2.4.1) | ✅ |
-| TASK-UI-004 | Accesibilidad base (foco visible, ARIA raíz, contraste en CI, prefers-reduced-motion) | frontend | M | TASK-UI-003 | Foco visible (token color-focus), axe-core/Lighthouse en CI verde, `prefers-reduced-motion` deshabilita transiciones | 📥 |
+| TASK-UI-004 | Accesibilidad base (foco visible, ARIA raíz, contraste en CI, prefers-reduced-motion) | frontend | M | TASK-UI-003 | Foco visible (token color-focus), axe-core/Lighthouse en CI verde, `prefers-reduced-motion` deshabilita transiciones | ✅ |
 
 ### EP-UI-001: Pantalla SCR-001 (Biblioteca de activos)
 - **Tipo:** UI
