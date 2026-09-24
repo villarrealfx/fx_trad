@@ -1,0 +1,42 @@
+/*
+ * Toast (CMP-015, TASK-UI-002). Solo tokens.
+ */
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-width: 240px;
+  max-width: 420px;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-sm);
+}
+
+.toast--success {
+  border-left: 3px solid var(--color-up);
+}
+
+.toast--error {
+  border-left: 3px solid var(--color-down);
+}
+
+.toast__message {
+  flex: 1;
+  font-size: var(--font-body-size);
+}
+
+.toast__close {
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.toast__close:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}

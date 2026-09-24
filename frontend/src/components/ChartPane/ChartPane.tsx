@@ -6,7 +6,6 @@ import {
   useRef,
   useState,
   type KeyboardEvent,
-  type MouseEvent,
 } from 'react';
 import {
   ColorType,
@@ -15,6 +14,7 @@ import {
   type IChartApi,
   type ISeriesApi,
   type LineData,
+  type MouseEventParams,
   type Time,
 } from 'lightweight-charts';
 import type { Candle, Timeframe } from '../../contracts/ohlc';
@@ -127,6 +127,8 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
   const [markerTool, setMarkerTool] = useState<MarketDirection>(DEFAULT_MARKER_TOOL);
   const [selectedMarkerId, setSelectedMarkerId] = useState<string | null>(null);
   const confirmRef = useRef<HTMLButtonElement | null>(null);
+  /** Último handler de click del chart (evita capturar estado obsoleto). */
+  const clickHandlerRef = useRef<(param: MouseEventParams<Time>) => void>(() => {});
 
   useEffect(() => {
     const host = hostRef.current;
@@ -176,7 +178,10 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
     chartRef.current = chart;
     seriesRef.current = series;
     setOverlayBinding(createOverlayBinding(chart, series));
+    const onChartClick = (param: MouseEventParams<Time>): void => clickHandlerRef.current(param);
+    chart.subscribeClick(onChartClick);
     return () => {
+      chart.unsubscribeClick(onChartClick);
       chart.remove();
       chartRef.current = null;
       seriesRef.current = null;
@@ -281,16 +286,17 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
   }
 
   /**
-   * Crea un marcador en la vela bajo el cursor (via RF-012): la marca toma el
+   * Crea un marcador en la vela bajo el cursor (RF-012): la marca toma el
    * precio de la barra (close) y queda anclada a tiempo+precio reales.
    * Si el clic cae sobre un marcador existente, lo selecciona para borrar.
+   *
+   * Usa el evento nativo del chart (`subscribeClick`), que entrega el tiempo de
+   * la barra y el punto en píxeles ya resueltos por la librería.
    */
-  function handleChartClick(event: MouseEvent<HTMLDivElement>): void {
-    const chart = chartRef.current;
-    const host = hostRef.current;
-    if (chart === null || host === null) return;
-    const rect = host.getBoundingClientRect();
-    const cursor = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+  function handleChartClick(param: MouseEventParams<Time>): void {
+    const point = param.point;
+    if (point === undefined) return;
+    const cursor = { x: point.x, y: point.y };
     for (const marker of markers) {
       const pixel = markerPixel(marker);
       if (pixel !== null && hitTestMarker(cursor, pixel)) {
@@ -298,9 +304,8 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
         return;
       }
     }
-    const time = chart.timeScale().coordinateToTime(cursor.x);
-    if (time === null) return;
-    const barTime = Number(time);
+    if (param.time === undefined) return;
+    const barTime = Number(param.time);
     const candle = candlesRef.current.find((item) => item.time === barTime);
     const duplicated = markers.some(
       (marker) => marker.direction === markerTool && marker.position.time === barTime,
@@ -398,6 +403,9 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
     [symbol, timeframe],
   );
 
+  /** Mantiene el handler de click actualizado para la suscripción del chart. */
+  clickHandlerRef.current = handleChartClick;
+
   return (
     <div className="chart-pane">
       <div className="chart-pane__tools" role="group" aria-label="Simulador de compra/venta">
@@ -424,7 +432,6 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
           aria-label={`Gráfico de velas ${symbol} ${timeframe}`}
           tabIndex={0}
           onKeyDown={handleKeyDown}
-          onClick={handleChartClick}
         />
         <OverlayCanvas
           hostRef={hostRef}

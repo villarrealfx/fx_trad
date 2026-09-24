@@ -15,13 +15,15 @@
 | Épicas técnicas | 4 (TEC-001…TEC-004) |
 | Historias | 23 (15 dominio + 8 UI) |
 | Tareas backend | 23 |
-| Tareas frontend | 28 |
+| Tareas frontend | 29 |
 | Tareas BD | 5 |
 | Tareas infra | 5 |
-| Esfuerzo total | 184 puntos |
+| Esfuerzo total | 186 puntos |
 | Ruta crítica | TASK-009 → TASK-010 → TASK-012 → TASK-014 → TASK-017 → TASK-021 → TASK-024 → TASK-027 → TASK-030 → TASK-035 → TASK-036 → TASK-UI-060 (~41 pts) |
 
 > Nota de incrementalidad: se conservan los IDs de las 46 tareas v1 (compatibilidad con `_docs/status.md` y `/sdd-track`). Se añaden 15 tareas nuevas (TASK-047 + 14 `TASK-UI-XXX`).
+>
+> Deuda detectada en verificación (2026-09-24): `TASK-048` corrige que los marcadores compra/venta (RF-012, TASK-030) no se plasman en el navegador pese a pasar los tests unitarios.
 
 ## 2. Leyenda
 
@@ -236,9 +238,9 @@
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
 | TASK-023 | Scaffold frontend React 18 + Vite 5 + TS 5 | frontend | S | — | La app levanta en dev; lint y typecheck en verde | ✅ |
-| TASK-UI-000 | Setup tokens design system (color, tipografía, spacing, radius, shadow; dark único) | frontend | M | TASK-023 | Tokens consumibles desde código (design-system.md); ratios de contraste calculados ≥4.5:1 texto normal / ≥3:1 grande | 📥 |
-| TASK-UI-001 | Primitivas form: Button (CMP-001), Input (CMP-002), Select (CMP-003), RadioGroup (CMP-004), DateRange (CMP-005) | frontend | L | TASK-UI-000 | Cada componente con estados default/hover/focus/error/disabled/loading según components.md; label visible siempre; contraste AA; test visual | 📥 |
-| TASK-UI-002 | Feedback/overlay: StatusBanner (CMP-012), ProgressBar (CMP-013), Modal (CMP-014), Toast (CMP-015), Tab (CMP-011) con foco y roles | frontend | L | TASK-UI-000 | Estados por interacción (success/error/warning, `role=alert`/`aria-live`, focus trap en Modal); usa tokens | 📥 |
+| TASK-UI-000 | Setup tokens design system (color, tipografía, spacing, radius, shadow; dark único) | frontend | M | TASK-023 | Tokens consumibles desde código (design-system.md); ratios de contraste calculados ≥4.5:1 texto normal / ≥3:1 grande | ✅ |
+| TASK-UI-001 | Primitivas form: Button (CMP-001), Input (CMP-002), Select (CMP-003), RadioGroup (CMP-004), DateRange (CMP-005) | frontend | L | TASK-UI-000 | Cada componente con estados default/hover/focus/error/disabled/loading según components.md; label visible siempre; contraste AA; test visual | ✅ |
+| TASK-UI-002 | Feedback/overlay: StatusBanner (CMP-012), ProgressBar (CMP-013), Modal (CMP-014), Toast (CMP-015), Tab (CMP-011) con foco y roles | frontend | L | TASK-UI-000 | Estados por interacción (success/error/warning, `role=alert`/`aria-live`, focus trap en Modal); usa tokens | ✅ |
 | TASK-UI-003 | Layout principal + routing (appbar 48px, rutas SCR-001…006, single-window, skip link) | frontend | M | TASK-023, TASK-UI-000 | Navegación entre las 6 pantallas funcionando; skip link presente y operativo (WCAG 2.4.1) | 📥 |
 | TASK-UI-004 | Accesibilidad base (foco visible, ARIA raíz, contraste en CI, prefers-reduced-motion) | frontend | M | TASK-UI-003 | Foco visible (token color-focus), axe-core/Lighthouse en CI verde, `prefers-reduced-motion` deshabilita transiciones | 📥 |
 
@@ -321,6 +323,7 @@
 | TASK-028 | Herramientas de línea y rectángulo (crear/borrar) | frontend | L | TASK-027 | Se crean y borran líneas y rectángulos; persisten solo en sesión (RI-003) | 📥 |
 | TASK-029 | Retrocesos de Fibonacci (crear/borrar) | frontend | M | TASK-028 | Niveles de Fibonacci dibujados y borrables con anclas correctas | 📥 |
 | TASK-030 | Marcadores de entrada/salida (buy/sell) superpuestos | frontend | M | TASK-027 | Las marcas de compra/venta toman el precio de la barra bajo el cursor, son borrables y no persistentes (RI-003) | ✅ |
+| TASK-048 | Fix: los marcadores compra/venta no se plasman al hacer clic en el gráfico (RF-012) | frontend | S | TASK-030 | Con Compra/Venta activo, un clic sobre una vela crea el marcador ▲/▼ anclado a tiempo+precio y se dibuja en el overlay; test de comportamiento + verificación en navegador | 📥 |
 | TASK-032 | Render de indicadores y panel de parámetros | frontend | M | TASK-024, TASK-031 | Cambiar un parámetro (p. ej. periodo de MA) redibuja el indicador; verificación manual | ✅ |
 | TASK-UI-040 | ChartPane CMP-007 con estados (loading/empty/error/success/partial) + leyenda OHLC accesible | frontend | M | TASK-024, TASK-025 | Overlays por estado (skeleton velas, "Sin datos en este periodo", retry); leyenda OHLC textual del crosshair; zoom en cursor a 60 FPS (KPI-2) | 📥 |
 | TASK-UI-041 | ChartToolbar CMP-008 + DrawTool CMP-009 integrados (aria-pressed, atajos `+`/`-`/`1`, tooltip icon-only) | frontend | M | TASK-028, TASK-029, TASK-030 | Toolbar 100% por teclado; herramienta activa con `aria-pressed`; atajos operativos; targets ≥24px con espaciado 8px | 📥 |
@@ -365,8 +368,8 @@
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
 | TASK-035 | Composición del canvas de velas + indicadores + dibujos | frontend | M | TASK-030, TASK-032 | El lienzo compuesto incluye los tres elementos; verificado visualmente | ✅ |
-| TASK-036 | Export PNG (toBlob) sin persistir dibujos | frontend | S | TASK-035 | Se descarga un PNG con gráfico+dibujos+indicadores; no queda registro interno (RI-003); formato/resolución definidos (P-2, default PNG 2x) | 📥 |
-| TASK-UI-060 | Modal export (CMP-014): resolución/formato RadioGroup, preview, focus trap, Escape, estados | frontend | M | TASK-036, TASK-UI-002 | Modal con foco inicial al título y restauración al cerrar; Escape cierra; estados loading/empty/error/success/partial; descarga disparada + Toast | 📥 |
+| TASK-036 | Export PNG (toBlob) sin persistir dibujos | frontend | S | TASK-035 | Se descarga un PNG con gráfico+dibujos+indicadores; no queda registro interno (RI-003); formato/resolución definidos (P-2, default PNG 2x) | ✅ |
+| TASK-UI-060 | Modal export (CMP-014): resolución/formato RadioGroup, preview, focus trap, Escape, estados | frontend | M | TASK-036, TASK-UI-002 | Modal con foco inicial al título y restauración al cerrar; Escape cierra; estados loading/empty/error/success/partial; descarga disparada + Toast | ✅ |
 
 ## 5. Épicas técnicas (transversales)
 

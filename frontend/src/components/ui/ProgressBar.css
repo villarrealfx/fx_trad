@@ -1,0 +1,39 @@
+/*
+ * Barra de progreso (CMP-013, TASK-UI-002). Solo tokens.
+ */
+.progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  width: 100%;
+}
+
+.progress__header {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  color: var(--color-text-muted);
+  font-size: var(--font-small-size);
+  font-variant-numeric: tabular-nums;
+}
+
+.progress__track {
+  position: relative;
+  height: 6px;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: var(--color-border);
+}
+
+.progress__fill {
+  height: 100%;
+  background: var(--color-up);
+}
+
+.progress[data-status='paused'] .progress__fill {
+  background: var(--color-warning);
+}
+
+.progress[data-status='complete'] .progress__fill {
+  background: var(--color-up);
+}

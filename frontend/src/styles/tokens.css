@@ -1,0 +1,47 @@
+/*
+ * Custom properties del design system (TASK-UI-000, EP-UI-000).
+ *
+ * Espejo de `tokens.ts` para consumo desde CSS (`var(--color-bg)`, etc.).
+ * Dark-first: único tema del MVP. No editar un fichero sin el otro: un test
+ * verifica que ambos se mantengan sincronizados.
+ */
+:root {
+  /* Color */
+  --color-bg: #0a0c10;
+  --color-surface: #161b22;
+  --color-border: #30363d;
+  --color-text: #e6edf3;
+  --color-text-muted: #8b949e;
+  --color-up: #26a69a;
+  --color-down: #ef5350;
+  --color-warning: #c9b458;
+  --color-focus: #58a6ff;
+
+  /* Tipografía */
+  --font-family: Inter, system-ui, sans-serif;
+  --font-h1-size: 24px;
+  --font-h1-weight: 700;
+  --font-h2-size: 16px;
+  --font-h2-weight: 600;
+  --font-body-size: 14px;
+  --font-body-weight: 400;
+  --font-small-size: 12px;
+  --font-small-weight: 400;
+  --font-num-size: 12px;
+  --font-num-weight: 500;
+
+  /* Espaciado (base 8) */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  /* Radios */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+
+  /* Sombras */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-modal: 0 12px 32px rgba(0, 0, 0, 0.6);
+}

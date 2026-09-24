@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { createRef } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
@@ -34,6 +34,11 @@ const chartMocks = vi.hoisted(() => {
   const unsubscribeVisibleLogicalRangeChange = vi.fn();
   const unsubscribeSizeChange = vi.fn();
   const subscribeCrosshairMove = vi.fn();
+  const clickListeners: ((param: unknown) => void)[] = [];
+  const subscribeClick = vi.fn((handler: (param: unknown) => void) => {
+    clickListeners.push(handler);
+  });
+  const unsubscribeClick = vi.fn();
   const remove = vi.fn();
   const takeScreenshot = vi.fn<() => HTMLCanvasElement>(
     () => ({ width: 800, height: 400 }) as unknown as HTMLCanvasElement,
@@ -65,6 +70,8 @@ const chartMocks = vi.hoisted(() => {
     priceScale,
     timeScale,
     subscribeCrosshairMove,
+    subscribeClick,
+    unsubscribeClick,
     remove,
     takeScreenshot,
   }));
@@ -91,6 +98,9 @@ const chartMocks = vi.hoisted(() => {
     timeScale,
     createChart,
     takeScreenshot,
+    subscribeClick,
+    unsubscribeClick,
+    clickListeners,
   };
 });
 
@@ -128,6 +138,15 @@ function buildTwoYearsSeries(): {
   return { symbol: 'EURUSD', timeframe: '1h', candles };
 }
 
+/** Emite un click del chart con el tiempo/punto ya resueltos por la librería. */
+function emitChartClick(time: number | undefined, x: number, y: number): void {
+  act(() => {
+    for (const handler of chartMocks.clickListeners) {
+      handler({ time, point: { x, y } });
+    }
+  });
+}
+
 /** Planificador manual de frames para el FrameRateMeter (tests deterministas). */
 function createManualScheduler() {
   let time = 0;
@@ -160,8 +179,11 @@ describe('ChartPane', () => {
     ({ ctx } = installCanvas2DContextMock());
     fetchMock.mockReset();
     vi.stubGlobal('fetch', fetchMock);
-    for (const mock of Object.values(chartMocks)) {
-      mock.mockClear();
+    chartMocks.clickListeners.length = 0;
+    for (const value of Object.values(chartMocks)) {
+      if (typeof value === 'function') {
+        (value as ReturnType<typeof vi.fn>).mockClear();
+      }
     }
   });
 
@@ -323,10 +345,8 @@ describe('ChartPane', () => {
     fetchMock.mockResolvedValue(createResponse(RESPONSE));
     render(<ChartPane symbol="EURUSD" timeframe="1h" />);
     await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
-    const host = screen.getByRole('img', { name: 'Gráfico de velas EURUSD 1h' });
-    fireEvent.click(host, { clientX: 5, clientY: 5 });
+    emitChartClick(1_781_000_000, 5, 5);
     await waitFor(() => expect(ctx.fill).toHaveBeenCalledTimes(1));
-    expect(chartMocks.coordinateToTime).toHaveBeenCalledWith(5);
     expect(ctx.fillStyle).toBe('#26A69A');
     expect(ctx.moveTo).toHaveBeenCalledWith(10, 40);
   });
@@ -338,8 +358,7 @@ describe('ChartPane', () => {
     const sell = screen.getByRole('button', { name: 'Venta' });
     fireEvent.click(sell);
     expect(sell.getAttribute('aria-pressed')).toBe('true');
-    const host = screen.getByRole('img', { name: 'Gráfico de velas EURUSD 1h' });
-    fireEvent.click(host, { clientX: 5, clientY: 5 });
+    emitChartClick(1_781_000_000, 5, 5);
     await waitFor(() => expect(ctx.fill).toHaveBeenCalledTimes(1));
     expect(ctx.fillStyle).toBe('#EF5350');
   });
@@ -348,22 +367,19 @@ describe('ChartPane', () => {
     fetchMock.mockResolvedValue(createResponse(RESPONSE));
     render(<ChartPane symbol="EURUSD" timeframe="1h" />);
     await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
-    const host = screen.getByRole('img', { name: 'Gráfico de velas EURUSD 1h' });
-    fireEvent.click(host, { clientX: 5, clientY: 5 });
+    emitChartClick(1_781_000_000, 5, 5);
     await waitFor(() => expect(ctx.fill).toHaveBeenCalledTimes(1));
-    fireEvent.click(host, { clientX: 8, clientY: 5 });
-    await waitFor(() => expect(chartMocks.coordinateToTime).toHaveBeenCalledTimes(2));
-    expect(ctx.fill).toHaveBeenCalledTimes(1);
+    emitChartClick(1_781_000_000, 8, 5);
+    await waitFor(() => expect(ctx.fill).toHaveBeenCalledTimes(1));
   });
 
   it('selects a marker on click and deletes it via inline confirm', async () => {
     fetchMock.mockResolvedValue(createResponse(RESPONSE));
     render(<ChartPane symbol="EURUSD" timeframe="1h" />);
     await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
-    const host = screen.getByRole('img', { name: 'Gráfico de velas EURUSD 1h' });
-    fireEvent.click(host, { clientX: 5, clientY: 5 });
+    emitChartClick(1_781_000_000, 5, 5);
     await waitFor(() => expect(ctx.fill).toHaveBeenCalledTimes(1));
-    fireEvent.click(host, { clientX: 10, clientY: 40 });
+    emitChartClick(1_781_000_000, 10, 40);
     const confirm = screen.getByRole('group', { name: 'Marcador de compra seleccionado' });
     expect(confirm).toBeTruthy();
     await waitFor(() => expect(document.activeElement?.textContent).toBe('Borrar'));
@@ -377,10 +393,9 @@ describe('ChartPane', () => {
     fetchMock.mockResolvedValue(createResponse(RESPONSE));
     render(<ChartPane symbol="EURUSD" timeframe="1h" />);
     await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
-    const host = screen.getByRole('img', { name: 'Gráfico de velas EURUSD 1h' });
-    fireEvent.click(host, { clientX: 5, clientY: 5 });
+    emitChartClick(1_781_000_000, 5, 5);
     await waitFor(() => expect(ctx.fill).toHaveBeenCalledTimes(1));
-    fireEvent.click(host, { clientX: 10, clientY: 40 });
+    emitChartClick(1_781_000_000, 10, 40);
     await waitFor(() =>
       expect(screen.getByRole('group', { name: 'Marcador de compra seleccionado' })).toBeTruthy(),
     );
@@ -396,9 +411,9 @@ describe('ChartPane', () => {
     render(<ChartPane symbol="EURUSD" timeframe="1h" />);
     await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
     const host = screen.getByRole('img', { name: 'Gráfico de velas EURUSD 1h' });
-    fireEvent.click(host, { clientX: 5, clientY: 5 });
+    emitChartClick(1_781_000_000, 5, 5);
     await waitFor(() => expect(ctx.fill).toHaveBeenCalledTimes(1));
-    fireEvent.click(host, { clientX: 10, clientY: 40 });
+    emitChartClick(1_781_000_000, 10, 40);
     await waitFor(() =>
       expect(screen.getByRole('group', { name: 'Marcador de compra seleccionado' })).toBeTruthy(),
     );

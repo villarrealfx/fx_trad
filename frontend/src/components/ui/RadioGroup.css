@@ -1,0 +1,38 @@
+/*
+ * Grupo de radios en línea (CMP-004, TASK-UI-001).
+ */
+.radio-group {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.radio-group__legend {
+  padding: 0;
+  color: var(--color-text);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+}
+
+.radio-group__options {
+  display: inline-flex;
+  gap: var(--space-md);
+}
+
+.radio-group__option {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.radio-group__option input:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.radio-group:disabled .radio-group__option {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

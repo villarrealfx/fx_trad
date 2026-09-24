@@ -6,5 +6,9 @@
 
 body {
   margin: 0;
-  font-family: system-ui, sans-serif;
+  font-family: var(--font-family);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  background: var(--color-bg);
+  color: var(--color-text);
 }

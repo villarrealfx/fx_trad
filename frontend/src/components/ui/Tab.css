@@ -1,0 +1,58 @@
+/*
+ * Barra de pestañas (CMP-011, TASK-UI-002). Solo tokens.
+ */
+.tab {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.tab__item {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+.tab__item[data-active='true'] {
+  border-color: var(--color-focus);
+}
+
+.tab__button {
+  min-height: 28px;
+  padding: var(--space-xs) var(--space-sm);
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.tab__item[data-active='true'] .tab__button {
+  color: var(--color-focus);
+}
+
+.tab__remove,
+.tab__add {
+  min-height: 28px;
+  padding: var(--space-xs) var(--space-sm);
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.tab__button:focus-visible,
+.tab__remove:focus-visible,
+.tab__add:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 1px;
+}
+
+.tab__button:disabled,
+.tab__remove:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

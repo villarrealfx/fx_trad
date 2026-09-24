@@ -1,0 +1,50 @@
+/*
+ * Campo de formulario compartido (CMP-002/CMP-003, TASK-UI-001).
+ * Usa exclusivamente tokens del design system.
+ */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+.field__label {
+  color: var(--color-text);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+}
+
+.field__input,
+.field__select {
+  min-height: 32px;
+  padding: var(--space-xs) var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.field__input:focus-visible,
+.field__select:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 1px;
+}
+
+.field__input:disabled,
+.field__select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.field__input--error,
+.field__select--error {
+  border-color: var(--color-down);
+}
+
+.field__error {
+  margin: 0;
+  color: var(--color-down);
+  font-size: var(--font-small-size);
+}

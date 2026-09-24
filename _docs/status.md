@@ -1,26 +1,26 @@
 # Estado del Proyecto: Plataforma de Análisis Técnico (estilo TradingView)
 
-> Última actualización: 2026-09-24 09:32
+> Última actualización: 2026-09-24 09:56
 > Fuente: `_docs/backlog.md` (v2), `_docs/traceability.md` (v2)
 
 ## 1. Resumen ejecutivo
 
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
-| Tareas totales | 61 | — |
-| 📥 Backlog | 36 | — |
+| Tareas totales | 62 | +1 (TASK-048) |
+| 📥 Backlog | 32 | -4 |
 | 🔨 Doing | 0 | — |
-| 👀 Review | 0 | -1 |
-| ✅ Done | 25 | +1 |
+| 👀 Review | 0 | — |
+| ✅ Done | 30 | +4 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 41.0% (25/61) | +1.7 |
+| % Completado | 48.4% (30/62) | +6.5 |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (36)
+### 📥 Backlog (32)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
@@ -30,9 +30,6 @@
 | TASK-020 | Endpoint GET /assets | EP-004 | S | TASK-016 |
 | TASK-022 | Contrato respuesta TS (lightweight-charts) | EP-004 | S | TASK-009 |
 | TASK-047 | Endpoint GET /downloads (historial RI-002) | EP-004 | S | TASK-018 |
-| TASK-UI-000 | Setup tokens design system | EP-UI-000 | M | TASK-023 |
-| TASK-UI-001 | Primitivas form (Button, Input, Select, RadioGroup, DateRange) | EP-UI-000 | L | TASK-UI-000 |
-| TASK-UI-002 | Feedback/overlay (StatusBanner, ProgressBar, Modal, Toast, Tab) | EP-UI-000 | L | TASK-UI-000 |
 | TASK-UI-003 | Layout principal + routing (6 rutas, skip link) | EP-UI-000 | M | TASK-023, TASK-UI-000 |
 | TASK-UI-004 | A11y base (foco, ARIA, axe en CI, reduced-motion) | EP-UI-000 | M | TASK-UI-003 |
 | TASK-UI-010 | SCR-001 Biblioteca (AssetList CMP-006) | EP-UI-001 | L | TASK-020, TASK-UI-001, TASK-UI-003 |
@@ -44,12 +41,11 @@
 | TASK-029 | Retrocesos de Fibonacci | EP-UI-004 | M | TASK-028 |
 | TASK-UI-040 | SCR-004 ChartPane + estados + leyenda OHLC | EP-UI-004 | M | TASK-024, TASK-025 |
 | TASK-UI-041 | SCR-004 Toolbar + DrawTool (atajos, aria-pressed) | EP-UI-004 | M | TASK-028, TASK-029, TASK-030 |
+| TASK-048 | Fix marcadores compra/venta (RF-012) | EP-UI-004 | S | TASK-030 |
 | TASK-UI-042 | SCR-004 IndicatorItem + panel config | EP-UI-004 | M | TASK-032 |
 | TASK-033 | Layout 3 paneles | EP-UI-005 | M | TASK-024 |
 | TASK-034 | Sincronización crosshair/zoom | EP-UI-005 | M | TASK-033 |
 | TASK-UI-050 | SCR-005 Tabs WAI-ARIA + tope 3 panes | EP-UI-005 | S | TASK-033, TASK-034 |
-| TASK-036 | Export PNG (toBlob) | EP-UI-006 | S | TASK-035 |
-| TASK-UI-060 | SCR-006 Modal export (resolución, preview, focus trap) | EP-UI-006 | M | TASK-036, TASK-UI-002 |
 | TASK-037 | Monorepo + lint/formato | TEC-001 | S | — |
 | TASK-038 | Docker Compose (4 servicios) | TEC-001 | M | TASK-037 |
 | TASK-039 | GHA lint + tests | TEC-001 | S | TASK-037 |
@@ -69,10 +65,11 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (25)
+### ✅ Done (30)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
+| TASK-036 | Export PNG (toBlob) | EP-UI-006 | 2026-09-24 | `frontend/src/export/__tests__/png.test.ts` (toBlob→blob, ExportError/EmptyExportError, filename `fxtrad-**-2x.png`, download+revoke sin localStorage) + `app.test.tsx` (harness dev export) — RF-015/RI-003; descarga manual atestada |
 | TASK-035 | Composición canvas velas+ind+dibs | EP-UI-006 | 2026-09-24 | `frontend/src/export/__tests__/compose.test.ts` (6 tests: capas chart/overlay + anotación ticker·TF, escala 1x/2x/4x, empty=`null`, partial) + `ChartPane.test.tsx` (handle `compose`) — RF-015; DoD visual atestada |
 | TASK-015 | SerieOHLC Parquet (time único) | EP-003 | 2026-09-21 | `test_series.py` (12 tests, 100% cobertura) |
 | TASK-016 | Consulta DuckDB activo/rango/TF | EP-003 | 2026-09-21 | `test_queries.py` (11 tests, 100% cobertura) |
@@ -98,6 +95,10 @@ Sin tareas.
 | TASK-030 | Marcadores entrada/salida | EP-UI-004 | 2026-09-22 | `ChartPane.test.tsx` (6 tests marcadores: crear buy, toggle sell+aria-pressed, dedupe, selección+borrado con confirm, cancel, Escape) + `overlay-geometry.test.ts` (proyección/hit-test) — RF-012 |
 | TASK-031 | Cálculo MA, RSI, ATR | EP-002 | 2026-09-24 | `backend/tests/pipeline/test_indicators.py` (21 tests, fixture golden MA20/RSI14/ATR14 Wilder) — RF-013 |
 | TASK-032 | Render indicadores + panel | EP-UI-004 | 2026-09-24 | `indicators.test.ts` (23) + `IndicatorPanel.test.tsx` (4) + `ChartPane.test.tsx` (redibujo al cambiar parámetros) — RF-013 |
+| TASK-UI-000 | Setup tokens design system | EP-UI-000 | 2026-09-24 | `frontend/src/styles/__tests__/tokens.test.ts` (contraste WCAG + anti-drift CSS↔TS) — EP-UI-000 |
+| TASK-UI-001 | Primitivas form | EP-UI-000 | 2026-09-24 | `frontend/src/components/ui/__tests__/` (Button/Input/Select/RadioGroup/DateRange; 24 tests) — EP-UI-000 |
+| TASK-UI-002 | Feedback/overlay | EP-UI-000 | 2026-09-24 | `frontend/src/components/ui/__tests__/` (StatusBanner/ProgressBar/Toast/Modal/Tab; 23 tests) — EP-UI-000 |
+| TASK-UI-060 | Modal export | EP-UI-006 | 2026-09-24 | `frontend/src/components/ExportModal/__tests__/ExportModal.test.tsx` (7 tests) + `app.test.tsx` — RF-015 |
 
 ### 🔴 Blocked (0)
 
@@ -105,7 +106,7 @@ Sin tareas.
 
 ## 3. Ruta crítica — estado
 
-Estado: 10/12 completadas (83%) · ETA: desconocido (sin velocidad histórica).
+Estado: 12/12 completadas (100%) · ETA: desconocido (sin velocidad histórica).
 
 ```mermaid
 graph LR
@@ -118,8 +119,8 @@ graph LR
   T24 --> T27[TASK-027 ✅]
   T27 --> T30[TASK-030 ✅]
   T30 --> T35[TASK-035 ✅]
-  T35 --> T36[TASK-036 📥]
-  T36 --> U60[TASK-UI-060 📥]
+  T35 --> T36[TASK-036 ✅]
+  T36 --> U60[TASK-UI-060 ✅]
 ```
 
 ## 4. Métricas
@@ -146,6 +147,7 @@ Ninguno.
 
 ### 🟢 Informativas
 
+- TASK-036 👀 → ✅ Done tras review (2026-09-24): DoD completa — `export/png.ts` (`canvasToBlob`/`exportChartPng`/`downloadBlob`/`buildExportFilename`, PNG 2x default + WebP, sin persistencia RI-003); `png.test.ts` + `app.test.tsx` → suite 104/104, lint/typecheck OK; prueba RF-015/RI-003 registrada; descarga manual atestada por usuario ('confirme el png manual ok'); **ruta crítica 11/12 (92%)**; habilita TASK-UI-060 (último nodo).
 - TASK-035 👀 → ✅ Done tras review (2026-09-24): DoD completa — verificación visual del lienzo compuesto atestada por usuario ('confirme visual'); `compose.test.ts` (6) + integración `ChartPane.test.tsx` (21) ✅, lint/typecheck OK; prueba RF-015 registrada; **ruta crítica 10/12 (83%)**; habilita TASK-036 (ruta crítica) y TASK-UI-060.
 - TASK-035 📥 → 👀 Review (2026-09-24): salto confirmado por usuario (precedente TASK-027/030). `frontend/src/export/` (`compose.ts` + `index.ts`); `compose.test.ts` 6/6 ✅ (fondo + capas chart/overlay + anotación ticker·TF, escala 1x/2x/4x, empty=`null`, partial) + `ChartPane.test.tsx` 21/21 ✅ (handle `compose` expuesto, capas escaladas + anotación, parcial si el chart no está listo); traceability RF-015 ya registra `compose.test.ts → TASK-035`. DoD parcial: **verificación visual pendiente en review**. Habilita TASK-036/UI-060 (ruta crítica, último eslabón).
 - TASK-025 👀 → ✅ Done tras review aprobada (2026-09-22): DoD completa (pan/zoom 60 FPS medido con `FrameRateMeter` rAF + leyenda OHLC batcheada por frame; suite frontend 31/31, cobertura 99.73%, lint/typecheck/build/prettier OK); prueba registrada (RF-010/RNF-001); habilita TASK-UI-040 (deps TASK-024 + TASK-025 ✅). Nota: validación de sesión en navegador real diferida a TASK-UI-040.
@@ -187,8 +189,8 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. **Iniciar TASK-036** (Export PNG toBlob, EP-UI-006): deps TASK-035 ✅ — 100% desbloqueada; último eslabón de la ruta crítica antes de TASK-UI-060. Nota: PA-2 (formato/resolución del PNG) sigue abierto, se asume default PNG 2x.
-2. Paralela en frontend desbloqueado: **TASK-028** (línea/rectángulo; dep TASK-027 ✅), **TASK-UI-040** (dep TASK-024+025 ✅) o **TASK-033** (dep TASK-024 ✅).
+1. **Ruta crítica completa (12/12)**: EP-UI-006 (export SCR-006) cerrado. Próximo foco: desbloquear pantallas restantes (TASK-UI-003/004 layout+a11y, TASK-020/026 API/selector) y el fix **TASK-048** (marcadores RF-012).
+2. Paralela en frontend desbloqueado: **TASK-028** (dep TASK-027 ✅), **TASK-UI-040** (dep TASK-024+025 ✅) o **TASK-033** (dep TASK-024 ✅).
 
 ## 9. Historial de cambios (append-only)
 
@@ -265,3 +267,10 @@ Ninguno.
 | 2026-09-24 | TASK-032 | 👀 → ✅ | Review validada: DoD completa (redibujo al cambiar parámetros cubierto por `ChartPane.test.tsx` + panel; verificación manual atestada por usuario); 87 tests frontend ✅, lint/typecheck OK; prueba RF-013 registrada; desbloquea TASK-035 (ruta crítica) y TASK-UI-042 |
 | 2026-09-24 | TASK-035 | 📥 → 🔨 → 👀 | Salto a Review confirmado por usuario (precedente TASK-027/030); `frontend/src/export/` (`compose.ts`) + `compose.test.ts` 6/6 (+ integración `ChartPane.test.tsx` 21/21); traceability RF-015 ya registrada; DoD parcial — verificación visual pendiente en review; deps TASK-030/TASK-032 ✅; habilita TASK-036 (ruta crítica) y TASK-UI-060 |
 | 2026-09-24 | TASK-035 | 👀 → ✅ | Review validada: DoD completa — verificación visual del lienzo compuesto atestada por usuario ('confirme visual'); `compose.test.ts` (6) + `ChartPane.test.tsx` (21) ✅, lint/typecheck OK; prueba RF-015 registrada; ruta crítica 10/12 (83%); habilita TASK-036 (ruta crítica) y TASK-UI-060 |
+| 2026-09-24 | TASK-036 | 📥 → 👀 | Export PNG `toBlob` (`export/png.ts`): `canvasToBlob`/`exportChartPng`/`downloadBlob`/`buildExportFilename`; PNG 2x default + WebP; sin persistencia (RI-003); 104 tests frontend ✅, `png.ts` 100%, lint/typecheck OK; prueba RF-015/RI-003 en traceability; DoD manual (descarga) pendiente en review |
+| 2026-09-24 | TASK-036 | 👀 → ✅ | Review validada: DoD completa — descarga PNG 2x con velas+indicadores+dibujos atestada por usuario ('confirme el png manual ok'); `png.test.ts` (toBlob/ExportError/EmptyExportError/download+revoke sin localStorage) + `app.test.tsx`; suite 104/104, lint/typecheck OK; prueba RF-015/RI-003 registrada; ruta crítica 11/12 (92%); habilita TASK-UI-060 (último nodo) |
+| 2026-09-24 | TASK-048 | alta backlog | Deuda detectada en verificación visual: los marcadores compra/venta (RF-012, TASK-030) no se plasman en el navegador pese a pasar los tests (probada vía `subscribeClick` sin éxito); registrada para corrección con repro y verificación en navegador |
+| 2026-09-24 | TASK-UI-000 | 📥 → 🔨 → 👀 → ✅ | Tokens del design system (`src/styles/tokens.ts`/`tokens.css`, `contrast.ts`); contraste WCAG AA verificado + anti-drift CSS↔TS; verificación visual del tema OK (usuario): 113 tests |
+| 2026-09-24 | TASK-UI-001 | 📥 → 🔨 → 👀 → ✅ | Primitivas form (`components/ui/`: Button/Input/Select/RadioGroup/DateRange); labels asociadas, errores `role=alert`, tokens; 24 tests; verificación visual OK (usuario) |
+| 2026-09-24 | TASK-UI-002 | 📥 → 🔨 → 👀 → ✅ | Feedback/overlay (`components/ui/`: StatusBanner/ProgressBar/Toast/Modal/Tab); focus trap/Escape/restauración, `aria-live`, WAI-ARIA tablist; 23 tests; verificación visual OK (usuario) |
+| 2026-09-24 | TASK-UI-060 | 📥 → 🔨 → 👀 → ✅ | Modal export (`components/ExportModal/`): RadioGroup resolución/formato, preview con alt, estados loading/empty/error/partial/success, descarga + Toast; focus trap vía Modal; 7 tests; verificación visual OK (usuario: 'el resto funciona bien') |
