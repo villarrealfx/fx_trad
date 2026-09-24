@@ -186,8 +186,8 @@
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-018 | Tabla MetadatosDescarga (activo, rango, estado, fecha, filas) | bd | S | TASK-015 | Tabla DuckDB creada; inserta y lee registros de descarga; test unitario | 📥 |
-| TASK-019 | Upsert incremental por merge sobre `time` | bd | M | TASK-016, TASK-018 | Descargar un periodo nuevo sobre una base existente no duplica time ni borra filas; KPI-4 = 0 duplicados | 📥 |
+| TASK-018 | Tabla MetadatosDescarga (activo, rango, estado, fecha, filas) | bd | S | TASK-015 | Tabla DuckDB creada; inserta y lee registros de descarga; test unitario | ✅ |
+| TASK-019 | Upsert incremental por merge sobre `time` | bd | M | TASK-016, TASK-018 | Descargar un periodo nuevo sobre una base existente no duplica time ni borra filas; KPI-4 = 0 duplicados | ✅ |
 
 ### EP-004: API REST de datos
 - **Tipo:** Dominio
@@ -208,7 +208,7 @@
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-020 | Endpoint GET /assets (catálogo con cobertura y estado) | backend | S | TASK-016 | Devuelve el catálogo de activos con datos almacenados (contrato CMP-006); test unitario | 📥 |
+| TASK-020 | Endpoint GET /assets (catálogo con cobertura y estado) | backend | S | TASK-016 | Devuelve el catálogo de activos con datos almacenados (contrato CMP-006); test unitario | ✅ |
 | TASK-021 | Endpoint GET /series (activo, rango, timeframe) | backend | M | TASK-016, TASK-017 | Devuelve la serie OHLC del rango/timeframe y coincide con la consulta directa a DuckDB; test | ✅ |
 | TASK-022 | Contrato de respuesta en TS types alineado a lightweight-charts | frontend | S | TASK-009 | Los tipos comparten esquema con TASK-009 y compilan sin transformaciones en el frontend | 📥 |
 

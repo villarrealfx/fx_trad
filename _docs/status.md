@@ -1,6 +1,6 @@
 # Estado del Proyecto: Plataforma de Análisis Técnico (estilo TradingView)
 
-> Última actualización: 2026-09-24 14:34
+> Última actualización: 2026-09-24 15:31
 > Fuente: `_docs/backlog.md` (v2), `_docs/traceability.md` (v2)
 
 ## 1. Resumen ejecutivo
@@ -8,26 +8,24 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 62 | +1 (TASK-048) |
-| 📥 Backlog | 17 | -19 |
+| 📥 Backlog | 14 | -22 |
 | 🔨 Doing | 0 | — |
-| 👀 Review | 0 | — |
-| ✅ Done | 45 | +1 |
+| 👀 Review | 0 | -1 |
+| ✅ Done | 48 | +4 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 72.6% (45/62) | +1.6 |
+| % Completado | 77.4% (48/62) | +4.8 |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (17)
+### 📥 Backlog (14)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
 | TASK-011 | Normalización UTC y esquema | EP-002 | S | TASK-010 |
-| TASK-018 | MetadatosDescarga | EP-003 | S | TASK-015 |
-| TASK-019 | Upsert incremental (merge time) | EP-003 | M | TASK-016, TASK-018 |
-| TASK-020 | Endpoint GET /assets | EP-004 | S | TASK-016 |
+| TASK-022 | YAML de configuración de activos | EP-002 | S | TASK-016 |
 | TASK-022 | Contrato respuesta TS (lightweight-charts) | EP-004 | S | TASK-009 |
 | TASK-047 | Endpoint GET /downloads (historial RI-002) | EP-004 | S | TASK-018 |
 | TASK-UI-010 | SCR-001 Biblioteca (AssetList CMP-006) | EP-UI-001 | L | TASK-020, TASK-UI-001, TASK-UI-003 |
@@ -50,10 +48,13 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (45)
+### ✅ Done (48)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
+| TASK-020 | Endpoint GET /assets | EP-004 | 2026-09-24 | `backend/tests/api/test_assets_endpoint.py` (10 tests: contrato CMP-006, activos con datos almacenados, cobertura min/max del Parquet 1s, status del último registro de descarga, integración real Parquet+DuckDB) + `backend/tests/storage/test_series.py::TestCoverage` (4 tests) — RF-007 |
+| TASK-019 | Upsert incremental (merge time) | EP-003 | 2026-09-24 | `backend/tests/storage/test_upsert.py` (12 tests: merge por `time` sin duplicar ni borrar — KPI-4 COUNT=COUNT(DISTINCT), colisión gana la nueva, primer periodo ≡ write, pre-resampling `1m`) — RF-006/RI-001 |
+| TASK-018 | MetadatosDescarga | EP-003 | 2026-09-24 | `backend/tests/storage/test_metadata.py` (17 tests: tabla DuckDB `download_metadata` PK activo/inicio/fin, INSERT OR REPLACE idempotente, historial por `fecha_descarga` DESC/ASC + LIMIT, get/count, validación rango) — RF-006/RI-002 |
 | TASK-036 | Export PNG (toBlob) | EP-UI-006 | 2026-09-24 | `frontend/src/export/__tests__/png.test.ts` (toBlob→blob, ExportError/EmptyExportError, filename `fxtrad-**-2x.png`, download+revoke sin localStorage) + `app.test.tsx` (harness dev export) — RF-015/RI-003; descarga manual atestada |
 | TASK-035 | Composición canvas velas+ind+dibs | EP-UI-006 | 2026-09-24 | `frontend/src/export/__tests__/compose.test.ts` (6 tests: capas chart/overlay + anotación ticker·TF, escala 1x/2x/4x, empty=`null`, partial) + `ChartPane.test.tsx` (handle `compose`) — RF-015; DoD visual atestada |
 | TASK-015 | SerieOHLC Parquet (time único) | EP-003 | 2026-09-21 | `test_series.py` (12 tests, 100% cobertura) |
@@ -294,3 +295,9 @@ Ninguno.
 | 2026-09-24 | TASK-UI-050 | 📥 → 🔨 → 👀 → ✅ | Tabs WAI-ARIA del multigráfico (CMP-011): tope 3 deshabilitado + tooltip, cierre por tab, leyenda combinada textual; fix de overlay que cubría la toolbar y sync robusto (evita "Value is null" en el panel con datos); 237 tests frontend ✅; validado en navegador; prueba RF-014 |
 | 2026-09-24 | TASK-046 | 📥 → 🔨 → 👀 → ✅ | Smoke de escritorio: `frontend/smoke-test.md` con checklist; build de producción OK, `vite preview` 200 y recorrido de las 6 rutas sin errores en Chromium/Brave; Firefox manual; prueba RNF-005 |
 | 2026-09-24 | TASK-037 | 📥 → 🔨 → 👀 → ✅ | Monorepo y tooling: `.editorconfig`, `Makefile` (`make lint`/`format`/`test`/`build` sobre backend+frontend) y `README.md` con la estructura; `make lint` (ruff/black/mypy src + eslint/tsc/prettier) y `make test` (pytest + 237 vitest) verdes; prueba RNF-006 |
+| 2026-09-24 | TASK-018 | 📥 → 👀 | Salto confirmado por usuario (precedente TASK-027/030/035). Tabla DuckDB `download_metadata` (`DownloadMetadataStore` en `storage/metadata.py`, PK activo/inicio/fin, `INSERT OR REPLACE`; historial por `fecha_descarga` DESC/ASC + `LIMIT`); `test_metadata.py` 17 ✅ → suite 264 ✅ + 2 skip; ruff/black/mypy OK; prueba RF-006/RI-002 registrada; habilita TASK-019/047 |
+| 2026-09-24 | TASK-018 | 👀 → ✅ | Review validada: DoD completa (tabla DuckDB creada; inserta y lee registros de descarga; test unitario); `test_metadata.py` 17 ✅, suite 264 ✅ + 2 skip, ruff/black/mypy OK; prueba RF-006/RI-002 registrada; habilita TASK-019 y TASK-047 |
+| 2026-09-24 | TASK-019 | 📥 → 👀 | Salto confirmado por usuario (precedente TASK-018/027/030/035). `ParquetSeriesStore.merge()` (upsert por `time`, RF-006/RI-001/KPI-4) + helpers `_write_parquet`/`_read_rows`/`_merge_rows`; `write()` refactorizado sin regresión; `test_upsert.py` 12 ✅ → suite 276 ✅ + 2 skip; ruff/black/mypy OK; prueba RF-006/RI-001 registrada |
+| 2026-09-24 | TASK-019 | 👀 → ✅ | Review validada: DoD completa (periodo nuevo sobre base existente sin duplicar `time` ni borrar filas; KPI-4 = 0 duplicados verificado con COUNT = COUNT(DISTINCT time)); `test_upsert.py` 12 ✅, suite 276 ✅ + 2 skip, ruff/black/mypy OK; prueba RF-006/RI-001 registrada; **RF-006 backend completo** — resta TASK-UI-021; habilita TASK-045 |
+| 2026-09-24 | TASK-020 | 📥 → 👀 | Salto confirmado por usuario (precedente TASK-018/019/027/030/035). `GET /assets` (RF-007/CMP-006): `ParquetSeriesStore.coverage()` (min/max time base 1s) + `CatalogQuery` (activos con datos almacenados, status del último registro: exito→completo, parcial/fallo→parcial) + endpoint con inyección `catalog_query`; `test_assets_endpoint.py` 10 ✅ (contrato, stubs, integración real) + `TestCoverage` 4 ✅ → suite 290 ✅ + 2 skip; ruff/black/mypy OK; prueba RF-007 registrada; habilita TASK-UI-010 y TASK-UI-030 |
+| 2026-09-24 | TASK-020 | 👀 → ✅ | Review validada: DoD completa (catálogo de activos con datos almacenados en contrato CMP-006; cobertura min/max del Parquet 1s; status del último registro de descarga; excluye sin datos; vista vacía = []); `test_assets_endpoint.py` 10 ✅ + `TestCoverage` 4 ✅, suite 290 ✅ + 2 skip, ruff/black/mypy OK; prueba RF-007 registrada; **RF-007 backend completo** — habilita TASK-UI-010 y TASK-UI-030 |
