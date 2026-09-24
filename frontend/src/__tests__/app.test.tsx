@@ -51,6 +51,9 @@ describe('App', () => {
     fireEvent.click(screen.getByRole('link', { name: 'Biblioteca' }));
     expect(await screen.findByRole('heading', { name: 'Biblioteca' })).toBeTruthy();
 
+    fireEvent.click(screen.getByRole('link', { name: 'Descarga' }));
+    expect(await screen.findByRole('button', { name: 'Iniciar descarga' })).toBeTruthy();
+
     fireEvent.click(screen.getByRole('link', { name: 'Gráfico' }));
     expect(await screen.findByRole('button', { name: 'Exportar' })).toBeTruthy();
   });

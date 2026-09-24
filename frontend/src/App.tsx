@@ -12,6 +12,7 @@ import { navigate, useHashRoute } from './app/useHashRoute';
 import AppShell from './components/AppShell/AppShell';
 import ChartPane from './components/ChartPane/ChartPane';
 import type { ChartPaneHandle } from './components/ChartPane/ChartPane';
+import DownloadForm from './components/DownloadForm/DownloadForm';
 import ExportModal from './components/ExportModal/ExportModal';
 import IndicatorPanel from './components/IndicatorPanel/IndicatorPanel';
 import Button from './components/ui/Button';
@@ -69,13 +70,29 @@ function ScreenPlaceholder({ route }: { route: AppRoute }) {
   );
 }
 
+/** Pantalla SCR-002: formulario de descarga de datos históricos. */
+function DownloadScreen() {
+  return (
+    <section aria-label="Descarga de datos históricos">
+      <h2>Descargar datos históricos</h2>
+      <DownloadForm />
+    </section>
+  );
+}
+
 export default function App() {
   const path = useHashRoute(DEFAULT_ROUTE);
   const route = routeFor(path);
 
+  function renderScreen() {
+    if (route.screen === 'SCR-004') return <ChartScreen />;
+    if (route.screen === 'SCR-002') return <DownloadScreen />;
+    return <ScreenPlaceholder route={route} />;
+  }
+
   return (
     <AppShell routes={ROUTES} activePath={route.path} onNavigate={navigate}>
-      {route.screen === 'SCR-004' ? <ChartScreen /> : <ScreenPlaceholder route={route} />}
+      {renderScreen()}
     </AppShell>
   );
 }
