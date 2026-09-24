@@ -384,7 +384,7 @@
 | TASK-038 | Docker Compose (frontend, backend, worker, broker, volumen data/) | infra | M | TASK-037 | `docker compose up` levanta los 4 servicios con volumen `data/` (ADR-009) | 📥 |
 | TASK-039 | GitHub Actions lint + tests | infra | S | TASK-037 | El workflow corre en push y pasa en verde | 📥 |
 | TASK-040 | Auditoría de licencias OSS ($0) | infra | S | TASK-037 | Inventario sin componentes comerciales (RNF-006); documento de auditoría | 📥 |
-| TASK-046 | Smoke test en navegadores de escritorio modernos | infra | S | TASK-026 | La app funciona en navegadores de escritorio modernos sin plugins (RNF-005) | 📥 |
+| TASK-046 | Smoke test en navegadores de escritorio modernos | infra | S | TASK-026 | La app funciona en navegadores de escritorio modernos sin plugins (RNF-005) | ✅ |
 
 ### TEC-002: Observabilidad
 - **Origen:** RNF-006, RNF-007 (ADR-008)

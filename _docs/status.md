@@ -1,6 +1,6 @@
 # Estado del Proyecto: Plataforma de Análisis Técnico (estilo TradingView)
 
-> Última actualización: 2026-09-24 14:16
+> Última actualización: 2026-09-24 14:29
 > Fuente: `_docs/backlog.md` (v2), `_docs/traceability.md` (v2)
 
 ## 1. Resumen ejecutivo
@@ -8,19 +8,19 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 62 | +1 (TASK-048) |
-| 📥 Backlog | 19 | -17 |
+| 📥 Backlog | 18 | -18 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | — |
-| ✅ Done | 43 | +1 |
+| ✅ Done | 44 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 69.4% (43/62) | +1.7 |
+| % Completado | 71.0% (44/62) | +1.6 |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (19)
+### 📥 Backlog (18)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
@@ -37,7 +37,6 @@
 | TASK-038 | Docker Compose (4 servicios) | TEC-001 | M | TASK-037 |
 | TASK-039 | GHA lint + tests | TEC-001 | S | TASK-037 |
 | TASK-040 | Auditoría licencias OSS ($0) | TEC-001 | S | TASK-037 |
-| TASK-046 | Smoke test navegadores desktop | TEC-001 | S | TASK-026 |
 | TASK-041 | Logging structlog + correlación Celery | TEC-002 | S | TASK-037 |
 | TASK-042 | Interfaces/contratos de módulos | TEC-003 | S | TASK-037 |
 | TASK-043 | Registro extensible de indicadores | TEC-003 | M | TASK-031, TASK-042 |
@@ -52,7 +51,7 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (43)
+### ✅ Done (44)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
@@ -99,6 +98,7 @@ Sin tareas.
 | TASK-033 | Layout 3 paneles | EP-UI-005 | 2026-09-24 | `MultiChart.test.tsx` (2 paneles independientes, añadir hasta 3, quitar, timeframe por panel) + `app.test.tsx` (ruta SCR-005) — RF-014 |
 | TASK-034 | Sincronización crosshair/zoom | EP-UI-005 | 2026-09-24 | `chart-sync.test.ts` (bus con source) + `ChartPane.test.tsx` (ventana temporal UTC + crosshair replicado, eco ignorado) — RF-014 |
 | TASK-UI-050 | Tabs WAI-ARIA + tope 3 panes | EP-UI-005 | 2026-09-24 | `MultiChart.test.tsx` (tablist con flechas, añadir deshabilitado a 3 + tooltip, cierre por tab, leyenda combinada) + fix overlay/toolbar y sync robusto — RF-014 |
+| TASK-046 | Smoke test navegadores desktop | TEC-001 | 2026-09-24 | `frontend/smoke-test.md` (build de producción OK, preview 200, 6 rutas + chart sin errores en Chromium/Brave; Firefox manual) — RNF-005 |
 
 ### 🔴 Blocked (0)
 
@@ -189,8 +189,8 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. **Iniciar TASK-UI-021** (progreso + historial; requiere `TASK-047` `GET /downloads`) o **TASK-046** (smoke browsers; dep TASK-026 ✅).
-2. Paralela: **TASK-UI-010/UI-030** (requieren `GET /assets` = TASK-020) o **TASK-037** (infra).
+1. **Iniciar TASK-UI-021** (progreso + historial; requiere `TASK-047` `GET /downloads`) o **TASK-037** (monorepo/infra).
+2. Paralela: **TASK-UI-010/UI-030** (requieren `GET /assets` = TASK-020).
 
 > EP-UI-005 (SCR-005) completa: TASK-033 + TASK-034 + TASK-UI-050 ✅.
 
@@ -292,3 +292,4 @@ Ninguno.
 | 2026-09-24 | TASK-033 | 📥 → 🔨 → 👀 → ✅ | Layout multigráfico SCR-005: `MultiChart` con hasta 3 paneles independientes (timeframe por panel, añadir/quitar con límite), ruta `/multichart`; 231 tests frontend ✅; validado en navegador; prueba RF-014 |
 | 2026-09-24 | TASK-034 | 📥 → 🔨 → 👀 → ✅ | Sincronización de paneles: `ChartSyncController` (pub/sub con `source`); ventana temporal por tiempo UTC (`setVisibleRange`) y crosshair replicado (`setCrosshairPosition`), eco ignorado; 235 tests frontend ✅; validado en navegador; prueba RF-014 |
 | 2026-09-24 | TASK-UI-050 | 📥 → 🔨 → 👀 → ✅ | Tabs WAI-ARIA del multigráfico (CMP-011): tope 3 deshabilitado + tooltip, cierre por tab, leyenda combinada textual; fix de overlay que cubría la toolbar y sync robusto (evita "Value is null" en el panel con datos); 237 tests frontend ✅; validado en navegador; prueba RF-014 |
+| 2026-09-24 | TASK-046 | 📥 → 🔨 → 👀 → ✅ | Smoke de escritorio: `frontend/smoke-test.md` con checklist; build de producción OK, `vite preview` 200 y recorrido de las 6 rutas sin errores en Chromium/Brave; Firefox manual; prueba RNF-005 |
