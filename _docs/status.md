@@ -1,6 +1,6 @@
 # Estado del Proyecto: Plataforma de Análisis Técnico (estilo TradingView)
 
-> Última actualización: 2026-09-24 12:35
+> Última actualización: 2026-09-24 12:43
 > Fuente: `_docs/backlog.md` (v2), `_docs/traceability.md` (v2)
 
 ## 1. Resumen ejecutivo
@@ -8,19 +8,19 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 62 | +1 (TASK-048) |
-| 📥 Backlog | 28 | -8 |
+| 📥 Backlog | 27 | -9 |
 | 🔨 Doing | 0 | — |
-| 👀 Review | 0 | — |
-| ✅ Done | 34 | +1 |
+| 👀 Review | 0 | -1 |
+| ✅ Done | 35 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 54.8% (34/62) | +1.6 |
+| % Completado | 56.5% (35/62) | +1.7 |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (28)
+### 📥 Backlog (27)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
@@ -37,7 +37,6 @@
 | TASK-UI-021 | SCR-002 Progreso + historial + estados | EP-UI-002 | L | TASK-006, TASK-047, TASK-UI-020 |
 | TASK-UI-030 | SCR-003 Estados y validación cobertura | EP-UI-003 | M | TASK-020, TASK-026 |
 | TASK-026 | Selector activo/rango/timeframe | EP-UI-003 | M | TASK-021, TASK-024 |
-| TASK-UI-040 | SCR-004 ChartPane + estados + leyenda OHLC | EP-UI-004 | M | TASK-024, TASK-025 |
 | TASK-UI-042 | SCR-004 IndicatorItem + panel config | EP-UI-004 | M | TASK-032 |
 | TASK-033 | Layout 3 paneles | EP-UI-005 | M | TASK-024 |
 | TASK-034 | Sincronización crosshair/zoom | EP-UI-005 | M | TASK-033 |
@@ -61,7 +60,7 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (34)
+### ✅ Done (35)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
@@ -99,6 +98,7 @@ Sin tareas.
 | TASK-028 | Línea y rectángulo (crear/borrar) | EP-UI-004 | 2026-09-24 | `overlay-geometry.test.ts` (rect + hitTestFragment) + `OverlayCanvas.test.tsx` (strokeRect) + `ChartPane.test.tsx` (crear/borrar línea y rect, preview, erase, aria-pressed) — RF-011 |
 | TASK-029 | Retrocesos de Fibonacci (crear/borrar) | EP-UI-004 | 2026-09-24 | `overlay-geometry.test.ts` (niveles fib + hit-test) + `OverlayCanvas.test.tsx` (7 niveles + etiquetas) + `ChartPane.test.tsx` (Fibonacci a 2 clics) — RF-011 |
 | TASK-UI-041 | Toolbar + DrawTool | EP-UI-004 | 2026-09-24 | `DrawTool.test.tsx` (aria-pressed/tooltip/disabled) + `ChartToolbar.test.tsx` (role=toolbar, Ajustar vista) + `ChartPane.test.tsx` (ajuste de vista) — RF-011 |
+| TASK-UI-040 | ChartPane estados + leyenda OHLC | EP-UI-004 | 2026-09-24 | `ChartPane.test.tsx` (skeleton role=status, empty, error+retry, partial con StatusBanner, leyenda OHLC) — RF-010 |
 
 ### 🔴 Blocked (0)
 
@@ -189,8 +189,8 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. **Iniciar TASK-UI-040** (ChartPane estados + leyenda OHLC; dep TASK-024+025 ✅).
-2. Paralela en frontend: **TASK-UI-003** (layout+routing → habilita UI-004/010/020/030), **TASK-033** (dep TASK-024 ✅) o **TASK-026** (selector).
+1. **Iniciar TASK-UI-003** (layout+routing; dep TASK-023 + TASK-UI-000 ✅ — habilita UI-004/010/020/030) o **TASK-033** (layout 3 paneles; dep TASK-024 ✅).
+2. Paralela: **TASK-026** (selector activo/rango/timeframe; deps TASK-021+024 ✅) o **TASK-028→029→UI-041** ya cerradas.
 
 ## 9. Historial de cambios (append-only)
 
@@ -280,3 +280,5 @@ Ninguno.
 | 2026-09-24 | TASK-029 | 📥 → 🔨 → 👀 | Fibonacci (RF-011): 7 niveles `FIB_LEVELS` entre 2 anclas, etiquetas, preview y borrado; 182 tests frontend ✅ (charting 93.4% ramas); prueba RF-011 en traceability; validado en navegador por el usuario |
 | 2026-09-24 | TASK-029 | 👀 → ✅ | Review validada: DoD completa — niveles de Fibonacci dibujados y borrables con anclas correctas (RI-003, efímero, validado en navegador); 182 tests frontend ✅; prueba RF-011 registrada; habilita TASK-UI-041 |
 | 2026-09-24 | TASK-UI-041 | 📥 → 🔨 → 👀 → ✅ | Toolbar de dibujo (CMP-008/009): `ChartToolbar` (`role="toolbar"`, `Ajustar vista`) + `DrawTool` icon-only (`aria-pressed`/tooltip/disabled), integrados en `ChartPane` (atajos `+`/`-`/`1`); 191 tests frontend ✅; validado en navegador por el usuario; prueba RF-011 |
+| 2026-09-24 | TASK-UI-040 | 📥 → 🔨 → 👀 | Estados CMP-007: skeleton de velas accesible (`role="status"`), empty, error+retry, partial por cobertura recortada (`StatusBanner`) y leyenda OHLC textual; 194 tests frontend ✅; prueba RF-010 en traceability; DoD manual pendiente en review (partial por test) |
+| 2026-09-24 | TASK-UI-040 | 👀 → ✅ | Review validada: DoD completa — estados CMP-007 (skeleton accesible, empty, error+retry, partial) + leyenda OHLC textual; partial cubierto por test (no visible desde App); 194 tests frontend ✅; prueba RF-010 registrada |
