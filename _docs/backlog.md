@@ -346,7 +346,7 @@
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-033 | Layout de 3 paneles de gráfico | frontend | M | TASK-024 | Se abren hasta 3 paneles de forma independiente, cada uno con su timeframe | 📥 |
+| TASK-033 | Layout de 3 paneles de gráfico | frontend | M | TASK-024 | Se abren hasta 3 paneles de forma independiente, cada uno con su timeframe | ✅ |
 | TASK-034 | Sincronización de crosshair/zoom entre paneles | frontend | M | TASK-033 | Mover crosshair o zoom en un panel refleja el cambio en los otros (misma ventana temporal UTC); verificación manual | 📥 |
 | TASK-UI-050 | Tabs WAI-ARIA (tablist/tab/tabpanel), límite 3 panes con deshabilitado + tooltip, leyenda combinada textual | frontend | S | TASK-033, TASK-034 | Teclado operativo en tabs (flechas); al llegar a 3 panes el añadir se deshabilita; leyenda textual por pane | 📥 |
 
