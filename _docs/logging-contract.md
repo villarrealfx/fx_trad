@@ -63,6 +63,6 @@ Nivel por defecto: `INFO`. Se ajusta con la variable de entorno `LOG_LEVEL` (`DE
 ## Cobertura esperada
 
 - Módulo `ingest`: `descarga_iniciada`, `descarga_completada`, `reintento`, `fallo_descarga`.
-- Módulo `pipeline`: `serie_limpia`, `resampling_aplicado`, `imputacion_aplicada`.
+- Módulo `pipeline`: `serie_limpia`, `resampling_aplicado`, `imputacion_aplicada`, `indicadores_calculados`.
 - Módulo `api`: eventos de request con `correlation_id`.
 - Módulo `storage`: `parquet_escrito`, `consulta_duckdb`.
