@@ -18,6 +18,10 @@ export interface TabProps {
   onChange: (id: string) => void;
   /** Añade una pestaña (opcional); si falta, no se muestra el botón. */
   onAdd?: () => void;
+  /** Deshabilita el botón de añadir (p. ej. al alcanzar el tope). */
+  addDisabled?: boolean;
+  /** Tooltip del botón de añadir (p. ej. "Máximo 3 paneles"). */
+  addTitle?: string;
   /** Cierra una pestaña (opcional). */
   onRemove?: (id: string) => void;
   /** Nombre accesible del `tablist`. */
@@ -30,7 +34,16 @@ export interface TabProps {
  * Sigue el patrón WAI-ARIA `tablist`/`tab` con navegación por flechas
  * (Home/End incluidos) y `aria-selected`; admite añadir/cerrar pestañas.
  */
-export default function Tab({ tabs, active, onChange, onAdd, onRemove, label }: TabProps) {
+export default function Tab({
+  tabs,
+  active,
+  onChange,
+  onAdd,
+  addDisabled = false,
+  addTitle,
+  onRemove,
+  label,
+}: TabProps) {
   /** Mueve la selección entre pestañas habilitadas con el teclado. */
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>): void {
     const enabled = tabs.filter((tab) => tab.disabled !== true);
@@ -83,7 +96,14 @@ export default function Tab({ tabs, active, onChange, onAdd, onRemove, label }: 
         );
       })}
       {onAdd !== undefined && (
-        <button type="button" className="tab__add" aria-label="Añadir gráfico" onClick={onAdd}>
+        <button
+          type="button"
+          className="tab__add"
+          aria-label="Añadir gráfico"
+          title={addTitle}
+          disabled={addDisabled}
+          onClick={onAdd}
+        >
           +
         </button>
       )}

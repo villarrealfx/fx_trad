@@ -20,6 +20,21 @@
   font-size: var(--font-small-size);
 }
 
+.multi-chart__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  padding: var(--space-xs) var(--space-sm);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: var(--font-small-size);
+  font-variant-numeric: tabular-nums;
+}
+
+.multi-chart__legend-item {
+  white-space: nowrap;
+}
+
 .multi-chart__grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));

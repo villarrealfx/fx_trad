@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { ChartSyncController } from '../../charting/chart-sync';
-import { TIMEFRAMES, type Timeframe } from '../../contracts/ohlc';
+import { TIMEFRAMES, type Candle, type Timeframe } from '../../contracts/ohlc';
 import ChartPane from '../ChartPane/ChartPane';
-import Button from '../ui/Button';
 import Select from '../ui/Select';
+import Tab from '../ui/Tab';
 import './MultiChart.css';
 
 /** Máximo de paneles simultáneos (RF-014). */
@@ -37,11 +37,12 @@ export interface MultiChartProps {
 }
 
 /**
- * Layout de hasta 3 paneles de gráfico (TASK-033, SCR-005).
+ * Multigráfico de hasta 3 paneles con tabs WAI-ARIA (TASK-033/034/UI-050, SCR-005).
  *
- * Cada panel es independiente y tiene su propio timeframe; se pueden añadir
- * (hasta 3) y quitar paneles. La sincronización de crosshair/zoom (TASK-034) y
- * el pulido de tabs WAI-ARIA (TASK-UI-050) llegan después.
+ * Los paneles se gestionan con `Tab` (CMP-011): `tablist` navegable por flechas,
+ * botón de añadir deshabilitado al llegar a 3 (con tooltip) y cierre por tab.
+ * Cada panel tiene su timeframe y comparte `ChartSyncController` (RF-014); la
+ * leyenda inferior combina el último cierre de cada panel.
  */
 export default function MultiChart({ symbol }: MultiChartProps) {
   const [sync] = useState(() => new ChartSyncController());
@@ -49,18 +50,23 @@ export default function MultiChart({ symbol }: MultiChartProps) {
     { id: nextPaneId(), timeframe: '1h' },
     { id: nextPaneId(), timeframe: '1d' },
   ]);
+  const [activeId, setActiveId] = useState<string>(() => panes[0]?.id ?? '');
+  const [legends, setLegends] = useState<Record<string, Candle | null>>({});
 
-  /** Añade un panel si no se alcanzó el máximo. */
+  /** Añade un panel (hasta 3) y lo activa. */
   function addPane(): void {
     if (panes.length >= MAX_PANES) return;
-    setPanes((current) => [...current, { id: nextPaneId(), timeframe: '5m' }]);
+    const pane: PaneConfig = { id: nextPaneId(), timeframe: '5m' };
+    setPanes((current) => [...current, pane]);
+    setActiveId(pane.id);
   }
 
   /** Quita un panel (conservando al menos uno). */
   function removePane(id: string): void {
-    setPanes((current) =>
-      current.length <= 1 ? current : current.filter((pane) => pane.id !== id),
-    );
+    if (panes.length <= 1) return;
+    const next = panes.filter((pane) => pane.id !== id);
+    setPanes(next);
+    if (activeId === id) setActiveId(next[0]?.id ?? '');
   }
 
   /** Cambia el timeframe de un panel. */
@@ -68,17 +74,20 @@ export default function MultiChart({ symbol }: MultiChartProps) {
     setPanes((current) => current.map((pane) => (pane.id === id ? { ...pane, timeframe } : pane)));
   }
 
+  const tabs = panes.map((pane) => ({ id: pane.id, label: pane.timeframe }));
+
   return (
     <section className="multi-chart" aria-label={`Multigráfico de ${symbol}`}>
-      <header className="multi-chart__toolbar">
-        <span className="multi-chart__symbol">{symbol} · sincronizado</span>
-        <Button
-          label="Añadir panel"
-          variant="ghost"
-          onClick={addPane}
-          disabled={panes.length >= MAX_PANES}
-        />
-      </header>
+      <Tab
+        tabs={tabs}
+        active={activeId}
+        onChange={setActiveId}
+        onAdd={addPane}
+        addDisabled={panes.length >= MAX_PANES}
+        addTitle="Máximo 3 paneles"
+        onRemove={removePane}
+        label="Paneles del multigráfico"
+      />
       <div className="multi-chart__grid" data-panes={panes.length}>
         {panes.map((pane, index) => (
           <article className="multi-chart__pane" key={pane.id} aria-label={`Panel ${index + 1}`}>
@@ -89,20 +98,29 @@ export default function MultiChart({ symbol }: MultiChartProps) {
                 value={pane.timeframe}
                 onChange={(value) => setTimeframe(pane.id, value as Timeframe)}
               />
-              <Button
-                label="Quitar panel"
-                variant="ghost"
-                ariaLabel={`Quitar panel ${index + 1}`}
-                onClick={() => removePane(pane.id)}
-                disabled={panes.length <= 1}
-              />
             </div>
             <div className="multi-chart__graph">
-              <ChartPane symbol={symbol} timeframe={pane.timeframe} sync={sync} syncId={pane.id} />
+              <ChartPane
+                symbol={symbol}
+                timeframe={pane.timeframe}
+                sync={sync}
+                syncId={pane.id}
+                onLegend={(candle) => setLegends((current) => ({ ...current, [pane.id]: candle }))}
+              />
             </div>
           </article>
         ))}
       </div>
+      <footer className="multi-chart__legend" aria-label="Leyenda combinada">
+        {panes.map((pane) => {
+          const candle = legends[pane.id];
+          return (
+            <span className="multi-chart__legend-item" key={pane.id}>
+              {pane.timeframe}: C {candle ? candle.close.toFixed(5) : '—'}
+            </span>
+          );
+        })}
+      </footer>
     </section>
   );
 }

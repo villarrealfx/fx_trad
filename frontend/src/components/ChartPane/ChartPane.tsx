@@ -103,6 +103,8 @@ export interface ChartPaneProps {
   sync?: ChartSyncController;
   /** Id de este panel dentro del controlador de sincronización. */
   syncId?: string;
+  /** Notifica la vela de la leyenda (última o bajo el crosshair) — TASK-UI-050. */
+  onLegend?: (candle: Candle | null) => void;
 }
 
 /** Handle imperativo del panel para el export PNG (TASK-035, RF-015). */
@@ -131,7 +133,17 @@ function formatPrice(value: number | undefined): string {
  * ``+``/``-`` (zoom) y ``1`` (ajuste de vista).
  */
 const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane(
-  { symbol, timeframe, start, end, drawings = EMPTY_DRAWINGS, indicators, sync, syncId = 'pane' },
+  {
+    symbol,
+    timeframe,
+    start,
+    end,
+    drawings = EMPTY_DRAWINGS,
+    indicators,
+    sync,
+    syncId = 'pane',
+    onLegend,
+  },
   ref,
 ) {
   const hostRef = useRef<HTMLDivElement | null>(null);
@@ -157,6 +169,13 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
   const confirmRef = useRef<HTMLButtonElement | null>(null);
   const clickHandlerRef = useRef<(param: MouseEventParams<Time>) => void>(() => {});
   const previewHandlerRef = useRef<(param: MouseEventParams<Time>) => void>(() => {});
+
+  /** Notifica la vela de la leyenda al consumidor sin re-suscribir (TASK-UI-050). */
+  const onLegendRef = useRef(onLegend);
+  onLegendRef.current = onLegend;
+  useEffect(() => {
+    onLegendRef.current?.(legendBar);
+  }, [legendBar]);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -244,24 +263,30 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
       unsubscribeSync = sync.subscribe((message) => {
         if (message.source === syncId) return;
         suppress += 1;
-        if (message.timeRange !== undefined) {
-          chart.timeScale().setVisibleRange({
-            from: message.timeRange.from as Time,
-            to: message.timeRange.to as Time,
+        try {
+          // Un panel puede no tener datos aún: no se aplica el rango (getVisibleRange null).
+          if (message.timeRange !== undefined && chart.timeScale().getVisibleRange() !== null) {
+            chart.timeScale().setVisibleRange({
+              from: message.timeRange.from as Time,
+              to: message.timeRange.to as Time,
+            });
+          }
+          if (message.crosshair === null) {
+            chart.clearCrosshairPosition();
+          } else if (message.crosshair !== undefined) {
+            chart.setCrosshairPosition(
+              message.crosshair.price,
+              message.crosshair.time as Time,
+              series,
+            );
+          }
+        } catch {
+          // El panel destino no está listo (sin datos/serie); se ignora el mensaje.
+        } finally {
+          queueMicrotask(() => {
+            suppress -= 1;
           });
         }
-        if (message.crosshair === null) {
-          chart.clearCrosshairPosition();
-        } else if (message.crosshair !== undefined) {
-          chart.setCrosshairPosition(
-            message.crosshair.price,
-            message.crosshair.time as Time,
-            series,
-          );
-        }
-        queueMicrotask(() => {
-          suppress -= 1;
-        });
       });
     }
     return () => {
@@ -638,34 +663,34 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
             </button>
           </div>
         )}
-      </div>
-      {status === 'loading' && (
-        <div className="chart-pane__overlay" role="status" aria-live="polite">
-          <span className="chart-pane__sr">Cargando serie…</span>
-          <div className="chart-pane__skeleton" aria-hidden="true">
-            {Array.from({ length: 14 }, (_, index) => (
-              <span
-                key={index}
-                className="chart-pane__skeleton-bar"
-                style={{ height: `${30 + ((index * 7) % 55)}%` }}
-              />
-            ))}
+        {status === 'loading' && (
+          <div className="chart-pane__overlay" role="status" aria-live="polite">
+            <span className="chart-pane__sr">Cargando serie…</span>
+            <div className="chart-pane__skeleton" aria-hidden="true">
+              {Array.from({ length: 14 }, (_, index) => (
+                <span
+                  key={index}
+                  className="chart-pane__skeleton-bar"
+                  style={{ height: `${30 + ((index * 7) % 55)}%` }}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      )}
-      {status === 'empty' && (
-        <div className="chart-pane__overlay">
-          <p>Sin datos en este periodo</p>
-        </div>
-      )}
-      {status === 'error' && (
-        <div className="chart-pane__overlay" role="alert">
-          <p>{errorMessage}</p>
-          <button type="button" onClick={() => setRetryToken((value) => value + 1)}>
-            Reintentar
-          </button>
-        </div>
-      )}
+        )}
+        {status === 'empty' && (
+          <div className="chart-pane__overlay">
+            <p>Sin datos en este periodo</p>
+          </div>
+        )}
+        {status === 'error' && (
+          <div className="chart-pane__overlay" role="alert">
+            <p>{errorMessage}</p>
+            <button type="button" onClick={() => setRetryToken((value) => value + 1)}>
+              Reintentar
+            </button>
+          </div>
+        )}
+      </div>
       {status === 'success' && partialCoverage && (
         <StatusBanner
           tone="warning"

@@ -673,6 +673,16 @@ describe('ChartPane', () => {
     });
   });
 
+  it('notifies the latest candle through onLegend (TASK-UI-050)', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    const onLegend = vi.fn();
+    render(<ChartPane symbol="EURUSD" timeframe="1h" onLegend={onLegend} />);
+
+    await waitFor(() =>
+      expect(onLegend).toHaveBeenCalledWith(expect.objectContaining({ close: 1.095 })),
+    );
+  });
+
   it('skips the hidden RSI and ATR series (TASK-UI-042)', async () => {
     fetchMock.mockResolvedValue(createResponse(RESPONSE));
     render(
