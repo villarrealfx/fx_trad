@@ -18,6 +18,7 @@ import {
 } from './app/routes';
 import { navigate, useHashRoute } from './app/useHashRoute';
 import AppShell from './components/AppShell/AppShell';
+import AssetLibraryScreen from './components/AssetLibraryScreen/AssetLibraryScreen';
 import ChartPane from './components/ChartPane/ChartPane';
 import type { ChartPaneHandle } from './components/ChartPane/ChartPane';
 import ChartSelector from './components/ChartSelector/ChartSelector';
@@ -89,11 +90,15 @@ function ScreenPlaceholder({ route }: { route: AppRoute }) {
 }
 
 /** Pantalla SCR-003: selector de activo/rango/timeframe → SCR-004 (TASK-026). */
-function OpenChartScreen() {
+function OpenChartScreen({ symbol }: { symbol?: string }) {
   return (
     <section aria-label="Abrir gráfico">
       <h2>Abrir gráfico</h2>
-      <ChartSelector onOpen={navigate} />
+      <ChartSelector
+        onOpen={navigate}
+        defaultSymbol={symbol}
+        onDownload={() => navigate('/downloads')}
+      />
     </section>
   );
 }
@@ -110,8 +115,11 @@ export default function App() {
     if (route.screen === 'SCR-005') {
       return <MultiChart symbol={parseChartQuery(params).symbol} />;
     }
-    if (route.screen === 'SCR-003') return <OpenChartScreen />;
+    if (route.screen === 'SCR-003') {
+      return <OpenChartScreen symbol={params.get('symbol') ?? undefined} />;
+    }
     if (route.screen === 'SCR-002') return <DownloadScreen />;
+    if (route.screen === 'SCR-001') return <AssetLibraryScreen onNavigate={navigate} />;
     return <ScreenPlaceholder route={route} />;
   }
 

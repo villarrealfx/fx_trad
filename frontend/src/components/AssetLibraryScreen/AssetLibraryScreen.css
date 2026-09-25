@@ -1,0 +1,17 @@
+.asset-library {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+}
+
+.asset-library__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.asset-library__last {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-small-size);
+}

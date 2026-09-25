@@ -33,6 +33,26 @@ vi.mock('../export', () => ({
   downloadBlob: exportMocks.downloadBlob,
 }));
 
+vi.mock('../services/assets', () => ({
+  fetchAssets: vi.fn().mockResolvedValue([
+    {
+      symbol: 'EURUSD',
+      type: 'forex',
+      coverage_start: Math.floor(Date.parse('2024-09-06T00:00:00Z') / 1000),
+      coverage_end: Math.floor(Date.parse('2026-08-31T23:59:59Z') / 1000),
+      status: 'completo',
+    },
+  ]),
+  AssetsError: class extends Error {},
+}));
+
+vi.mock('../services/downloads', () => ({
+  requestDownload: vi.fn(),
+  fetchDownloadStatus: vi.fn(),
+  fetchDownloadHistory: vi.fn().mockResolvedValue([]),
+  DownloadError: class extends Error {},
+}));
+
 describe('App', () => {
   afterEach(() => {
     cleanup();
@@ -49,7 +69,7 @@ describe('App', () => {
     render(<App />);
 
     fireEvent.click(screen.getByRole('link', { name: 'Biblioteca' }));
-    expect(await screen.findByRole('heading', { name: 'Biblioteca' })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: 'Activos guardados' })).toBeTruthy();
 
     fireEvent.click(screen.getByRole('link', { name: 'Descarga' }));
     expect(await screen.findByRole('button', { name: 'Iniciar descarga' })).toBeTruthy();

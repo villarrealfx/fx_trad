@@ -39,6 +39,19 @@ vi.mock('../services/downloads', () => ({
   DownloadError: class extends Error {},
 }));
 
+vi.mock('../services/assets', () => ({
+  fetchAssets: vi.fn().mockResolvedValue([
+    {
+      symbol: 'EURUSD',
+      type: 'forex',
+      coverage_start: 1725580800,
+      coverage_end: 1788134399,
+      status: 'completo',
+    },
+  ]),
+  AssetsError: class extends Error {},
+}));
+
 describe('accesibilidad (axe-core)', () => {
   afterEach(() => {
     cleanup();
@@ -57,6 +70,28 @@ describe('accesibilidad (axe-core)', () => {
 
   it('la pantalla de descarga no tiene violaciones detectables', async () => {
     window.location.hash = '#/downloads';
+    const { container } = render(<App />);
+
+    const results = await axe.run(container, {
+      rules: { 'color-contrast': { enabled: false } },
+    });
+
+    expect(results.violations).toEqual([]);
+  });
+
+  it('la biblioteca de activos no tiene violaciones detectables', async () => {
+    window.location.hash = '#/assets';
+    const { container } = render(<App />);
+
+    const results = await axe.run(container, {
+      rules: { 'color-contrast': { enabled: false } },
+    });
+
+    expect(results.violations).toEqual([]);
+  });
+
+  it('el selector de gráfico no tiene violaciones detectables', async () => {
+    window.location.hash = '#/open';
     const { container } = render(<App />);
 
     const results = await axe.run(container, {
