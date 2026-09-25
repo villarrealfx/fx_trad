@@ -75,5 +75,25 @@ class SeriesQuery:
         """Indica si el activo tiene serie almacenada (reusa el catálogo)."""
         return self._series_store.has_series(symbol)
 
+    def version(self, symbol: str, timeframe: Timeframe = "1s") -> str | None:
+        """Devuelve el token de versión del Parquet del activo (TASK-045).
+
+        La caché in-memory lo usa para invalidar la ventana del activo cuando una
+        descarga incremental actualiza su base (ADR-007).
+
+        Args:
+            symbol: Símbolo del activo (identificador del catálogo).
+            timeframe: Granularidad canónica (RF-009).
+
+        Returns:
+            Token de versión del Parquet, o ``None`` si no hay serie almacenada
+            para ese timeframe.
+
+        Raises:
+            ValueError: si el símbolo no es un identificador seguro.
+            InvalidTimeframeError: si ``timeframe`` no es canónico.
+        """
+        return self._series_store.version(symbol, timeframe)
+
 
 __all__ = ["InvalidRangeError", "InvalidTimeframeError", "SeriesQuery"]

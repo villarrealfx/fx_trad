@@ -122,6 +122,37 @@ class ParquetSeriesStore:
             return None
         return (int(row[0]), int(row[1]))
 
+    def version(self, symbol: str, timeframe: str = "1s") -> str | None:
+        """Devuelve un token de la versión almacenada del activo, o ``None``.
+
+        El token combina ``st_mtime_ns`` y ``st_size`` del Parquet, así que
+        cambia con cada ``write``/``merge`` (ambos renombran con ``os.replace``)
+        y permite detectar que la serie de disco cambió sin abrir DuckDB
+        (~1-2 µs). Lo consume la caché in-memory para invalidar la ventana del
+        activo cuando una descarga incremental actualiza su base (TASK-045,
+        ADR-007); al vivir el escritor en otro proceso (ADR-009), esta es la
+        única forma de que la API detecte el cambio sin IPC.
+
+        Args:
+            symbol: Identificador del activo (nombre de archivo).
+            timeframe: Granularidad canónica (RF-009); cada timeframe tiene su
+                propio Parquet y por tanto su propio token.
+
+        Returns:
+            Token ``"{mtime_ns}:{size}"`` del Parquet, o ``None`` si el activo no
+            tiene serie almacenada para ese timeframe.
+
+        Raises:
+            ValueError: si el símbolo no es un identificador seguro.
+            InvalidTimeframeError: si ``timeframe`` no es canónico.
+        """
+        path = self.path_for(symbol, timeframe)
+        try:
+            stats = path.stat()
+        except FileNotFoundError:
+            return None
+        return f"{stats.st_mtime_ns}:{stats.st_size}"
+
     def write(self, symbol: str, candles: Sequence[Candle], timeframe: str = "1s") -> int:
         """Escribe la serie del activo en su Parquet de forma atómica.
 

@@ -1,9 +1,13 @@
-"""Tests de la caché in-memory por ventana (TASK-044, ADR-007, RNF-001/RNF-002).
+"""Tests de la caché in-memory por ventana (TASK-044, TASK-045, ADR-007).
 
-DoD: la segunda carga del mismo rango se sirve desde memoria (sin volver a
-consultar el almacén) y con latencia por debajo de 2 s (KPI-3). Los tests
-comprueban además el aislamiento de la clave, el límite por ventana y la
-evicción LRU que protege la RAM (ADR-007).
+TASK-044: la segunda carga del mismo rango se sirve desde memoria (sin volver a
+consultar el almacén) y con latencia por debajo de 2 s (KPI-3); se comprueban
+además el aislamiento de la clave, el límite por ventana y la evicción LRU que
+protege la RAM (ADR-007).
+
+TASK-045: tras una descarga incremental (un ``merge`` que reescribe el Parquet
+del activo) la ventana del activo se invalida y la siguiente lectura recarga con
+las velas nuevas, sin servir nunca datos obsoletos.
 """
 
 from __future__ import annotations
@@ -30,11 +34,20 @@ _KPI_3_BUDGET_SECONDS = 2.0
 
 
 class _CountingReader:
-    """Lector con cuenta de llamadas para observar si se consulta el almacén."""
+    """Lector con cuenta de llamadas y versión mutable, para observar la caché.
 
-    def __init__(self, candles: list[Candle]) -> None:
-        self._candles = candles
+    ``version`` representa el token del Parquet del activo: cambiarlo simula
+    que una descarga incremental reescribió la serie (TASK-045).
+    """
+
+    def __init__(self, candles: list[Candle], version: str = "v1") -> None:
+        self.candles = candles
+        self.version_token = version
         self.calls: list[tuple[str, str, int | None, int | None]] = []
+
+    def version(self, symbol: str, timeframe: Timeframe = "1s") -> str | None:
+        """Devuelve el token de versión vigente de la serie."""
+        return self.version_token
 
     def read(
         self,
@@ -45,7 +58,7 @@ class _CountingReader:
     ) -> list[Candle]:
         """Registra la llamada y devuelve la serie precargada."""
         self.calls.append((symbol, timeframe, start, end))
-        return self._candles
+        return self.candles
 
 
 def _candles(count: int, *, start: int = _BASE_TIME, step: int = _MINUTE) -> list[Candle]:
@@ -201,17 +214,17 @@ class TestCachedSeriesLatency:
         assert second == first
         assert elapsed < _KPI_3_BUDGET_SECONDS, f"segunda carga: {elapsed:.3f}s"
 
-    def test_second_read_avoids_opening_the_parquet(self, tmp_path: Path) -> None:
+    def test_second_read_serves_the_same_version_from_memory(self, tmp_path: Path) -> None:
+        """Sin cambios en disco, la segunda lectura no vuelve a consultar DuckDB."""
         store = ParquetSeriesStore(tmp_path)
-        path = store.path_for("EURUSD", "1m")
-        _write_window_parquet(path, 2_000)
+        _write_window_parquet(store.path_for("EURUSD", "1m"), 2_000)
         query = CachedSeriesQuery(SeriesQuery(store))
 
-        query.read("EURUSD", timeframe="1m")
-        path.unlink()  # el Parquet ya no aporta datos: solo puede salir de memoria
-        cached = query.read("EURUSD", timeframe="1m")
+        first = query.read("EURUSD", timeframe="1m")
+        second = query.read("EURUSD", timeframe="1m")
 
-        assert len(cached) == 2_000
+        assert second == first
+        assert query.stats.hits == 1
 
 
 def _write_window_parquet(path: Path, count: int) -> None:
@@ -234,3 +247,140 @@ def _write_window_parquet(path: Path, count: int) -> None:
         connection.execute(f"COPY series TO '{path}' (FORMAT PARQUET)")
     finally:
         connection.close()
+
+
+class TestCacheInvalidation:
+    """TASK-045: la descarga incremental invalida la ventana del activo."""
+
+    def test_changed_version_invalidates_and_reloads(self) -> None:
+        """Cambia el token de versión y la lectura recarga desde el lector."""
+        reader = _CountingReader(_candles(5))
+        query = CachedSeriesQuery(reader)
+        first = query.read("EURUSD", start=_BASE_TIME, end=_BASE_TIME + 300)
+
+        reader.candles = _candles(8)  # el merge añadió velas
+        reader.version_token = "v2"  # el Parquet del activo se reescribió
+        second = query.read("EURUSD", start=_BASE_TIME, end=_BASE_TIME + 300)
+
+        assert len(first) == 5
+        assert len(second) == 8
+        assert len(reader.calls) == 2
+        assert query.stats.invalidations == 1
+
+    def test_unchanged_version_still_hits(self) -> None:
+        reader = _CountingReader(_candles(5))
+        query = CachedSeriesQuery(reader)
+
+        query.read("EURUSD", start=_BASE_TIME, end=_BASE_TIME + 300)
+        second = query.read("EURUSD", start=_BASE_TIME, end=_BASE_TIME + 300)
+
+        assert len(second) == 5
+        assert query.stats.hits == 1
+        assert query.stats.invalidations == 0
+
+    def test_reloaded_window_is_cached_again(self) -> None:
+        """Tras la recarga, la tercera lectura vuelve a servirse de memoria."""
+        reader = _CountingReader(_candles(5))
+        query = CachedSeriesQuery(reader)
+        query.read("EURUSD", start=_BASE_TIME, end=_BASE_TIME + 300)
+        reader.version_token = "v2"
+        query.read("EURUSD", start=_BASE_TIME, end=_BASE_TIME + 300)
+
+        third = query.read("EURUSD", start=_BASE_TIME, end=_BASE_TIME + 300)
+
+        assert len(reader.calls) == 2
+        assert query.stats.hits == 1
+        assert len(third) == 5
+
+    def test_missing_version_invalidates_the_window(self) -> None:
+        """Si el Parquet desaparece, la ventana cacheada deja de servirse."""
+        reader = _CountingReader(_candles(5))
+        query = CachedSeriesQuery(reader)
+        query.read("EURUSD", start=_BASE_TIME, end=_BASE_TIME + 300)
+
+        reader.version_token = ""  # el almacén ya no tiene la serie
+        second = query.read("EURUSD", start=_BASE_TIME, end=_BASE_TIME + 300)
+
+        assert len(second) == 5
+        assert len(reader.calls) == 2
+
+    def test_invalidate_drops_only_the_given_symbol(self) -> None:
+        reader = _CountingReader(_candles(5))
+        query = CachedSeriesQuery(reader)
+        query.read("EURUSD", start=_BASE_TIME, end=_BASE_TIME + 300)
+        query.read("XAUUSD", start=_BASE_TIME, end=_BASE_TIME + 300)
+
+        discarded = query.invalidate("EURUSD")
+
+        assert discarded == 1
+        assert query.stats.invalidations == 1
+        query.read("EURUSD", start=_BASE_TIME, end=_BASE_TIME + 300)
+        query.read("XAUUSD", start=_BASE_TIME, end=_BASE_TIME + 300)
+        assert [call[0] for call in reader.calls] == ["EURUSD", "XAUUSD", "EURUSD"]
+        assert query.stats.hits == 1
+
+    def test_invalidate_drops_every_window_of_the_symbol(self) -> None:
+        """Un activo puede tener varias ventanas (rango y timeframe distintos)."""
+        reader = _CountingReader(_candles(5))
+        query = CachedSeriesQuery(reader)
+        query.read("EURUSD", timeframe="1s", start=_BASE_TIME, end=_BASE_TIME + 300)
+        query.read("EURUSD", timeframe="1m", start=_BASE_TIME, end=_BASE_TIME + 300)
+
+        discarded = query.invalidate("EURUSD")
+
+        assert discarded == 2
+
+    def test_invalidate_unknown_symbol_is_a_noop(self) -> None:
+        query = CachedSeriesQuery(_CountingReader(_candles(5)))
+        query.read("EURUSD", start=_BASE_TIME, end=_BASE_TIME + 300)
+
+        assert query.invalidate("XAUUSD") == 0
+        assert query.stats.invalidations == 0
+
+
+class TestIncrementalDownloadInvalidation:
+    """DoD TASK-045 con Parquet + DuckDB reales: merge y recarga."""
+
+    def test_merge_inside_the_window_reloads_with_the_new_candles(self, tmp_path: Path) -> None:
+        store = ParquetSeriesStore(tmp_path)
+        store.write("EURUSD", _candles(300, step=1), timeframe="1m")
+        query = CachedSeriesQuery(SeriesQuery(store))
+        params = {"timeframe": "1m", "start": _BASE_TIME, "end": _BASE_TIME + 600}
+
+        first = query.read("EURUSD", **params)  # type: ignore[arg-type]
+        store.merge("EURUSD", _candles(3, start=_BASE_TIME + 300, step=1), timeframe="1m")
+        second = query.read("EURUSD", **params)  # type: ignore[arg-type]
+
+        assert len(first) == 300
+        assert len(second) == 303
+        assert query.stats.invalidations == 1
+        assert query.stats.misses == 2
+
+    def test_merge_of_a_new_period_adds_the_candles(self, tmp_path: Path) -> None:
+        """La ventana sin cota inferior refleja el periodo descargado tras el merge."""
+        store = ParquetSeriesStore(tmp_path)
+        store.write("EURUSD", _candles(300, step=1), timeframe="1m")
+        query = CachedSeriesQuery(SeriesQuery(store))
+        first = query.read("EURUSD", timeframe="1m")
+
+        store.merge("EURUSD", _candles(60, start=_BASE_TIME + 300, step=1), timeframe="1m")
+        second = query.read("EURUSD", timeframe="1m")
+
+        assert len(first) == 300
+        assert len(second) == 360
+        assert second[-1].time == _BASE_TIME + 359
+        assert (query.stats.hits, query.stats.misses) == (0, 2)
+
+    def test_merge_of_another_symbol_keeps_the_window(self, tmp_path: Path) -> None:
+        store = ParquetSeriesStore(tmp_path)
+        store.write("EURUSD", _candles(300, step=1), timeframe="1m")
+        store.write("XAUUSD", _candles(300, step=1), timeframe="1m")
+        query = CachedSeriesQuery(SeriesQuery(store))
+        first = query.read("EURUSD", timeframe="1m")
+
+        store.merge("XAUUSD", _candles(60, start=_BASE_TIME + 300, step=1), timeframe="1m")
+        second = query.read("EURUSD", timeframe="1m")
+
+        assert second == first
+        assert query.stats.hits == 1
+        assert query.stats.invalidations == 0

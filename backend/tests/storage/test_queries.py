@@ -145,3 +145,18 @@ class TestHasSeries:
 
         assert query.has_series("EURUSD") is True
         assert query.has_series("XAUUSD") is False
+
+
+class TestVersion:
+    """``version`` delega en el almacén para detectar una base actualizada."""
+
+    def test_version_is_none_without_series(self, tmp_path: Path) -> None:
+        assert SeriesQuery(ParquetSeriesStore(tmp_path)).version("EURUSD") is None
+
+    def test_version_follows_the_stored_series(self, tmp_path: Path) -> None:
+        store = _build_store(tmp_path)
+        before = SeriesQuery(store).version("EURUSD")
+
+        store.merge("EURUSD", [_candle(1_000_000, 9.9)])
+
+        assert SeriesQuery(store).version("EURUSD") != before

@@ -12,7 +12,7 @@ import duckdb
 import pytest
 
 from fxtrad.contracts.ohlc import Candle
-from fxtrad.storage import DuplicateTimeError, ParquetSeriesStore
+from fxtrad.storage import DuplicateTimeError, InvalidTimeframeError, ParquetSeriesStore
 
 _BASE_TIME = 1786442400  # 2026-08-11T10:00:00Z
 
@@ -163,3 +163,46 @@ class TestCoverage:
 
         with pytest.raises(ValueError, match="inválido"):
             store.coverage("../evil")
+
+
+class TestVersion:
+    """El token de versión cambia cuando el Parquet se reescribe (TASK-045)."""
+
+    def test_version_is_none_without_series(self, tmp_path: Path) -> None:
+        assert ParquetSeriesStore(tmp_path).version("EURUSD") is None
+
+    def test_version_is_stable_without_changes(self, tmp_path: Path) -> None:
+        store = ParquetSeriesStore(tmp_path)
+        store.write("EURUSD", _series([1.1, 1.2]))
+
+        first = store.version("EURUSD")
+        second = store.version("EURUSD")
+
+        assert first is not None
+        assert first == second
+
+    def test_version_changes_after_merge(self, tmp_path: Path) -> None:
+        store = ParquetSeriesStore(tmp_path)
+        store.write("EURUSD", _series([1.1, 1.2]))
+        before = store.version("EURUSD")
+
+        store.merge("EURUSD", [_candle(_BASE_TIME + 7200, 1.3)])
+
+        assert store.version("EURUSD") != before
+
+    def test_version_is_per_timeframe(self, tmp_path: Path) -> None:
+        store = ParquetSeriesStore(tmp_path)
+        store.write("EURUSD", _series([1.1, 1.2]))
+        base = store.version("EURUSD")
+
+        store.write("EURUSD", _series([1.1, 1.2]), timeframe="1h")
+
+        assert store.version("EURUSD", "1h") not in (None, base)
+
+    def test_version_rejects_unsafe_symbol(self, tmp_path: Path) -> None:
+        with pytest.raises(ValueError, match="inválido"):
+            ParquetSeriesStore(tmp_path).version("../evil")
+
+    def test_version_rejects_non_canonical_timeframe(self, tmp_path: Path) -> None:
+        with pytest.raises(InvalidTimeframeError, match="canónico"):
+            ParquetSeriesStore(tmp_path).version("EURUSD", "3m")  # type: ignore[arg-type]

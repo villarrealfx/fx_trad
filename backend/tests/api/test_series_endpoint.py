@@ -229,6 +229,27 @@ class TestDefaultSeriesWiring:
         assert second == first
         assert (query.stats.hits, query.stats.misses) == (1, 1)
 
+    def test_incremental_download_is_reflected_in_the_next_response(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """TASK-045: un merge externo invalida la ventana y la respuesta se recarga.
+
+        Las dos peticiones usan la misma ventana (rango sin cota) para que la
+        segunda tenga que invalidar la ventana cacheada en lugar de abrir otra.
+        """
+        client = self._client(tmp_path, monkeypatch)
+        query: CachedSeriesQuery = client.app.state.series_query
+        first = _dump(client, symbol="EURUSD", timeframe="1s")
+
+        ParquetSeriesStore(tmp_path).merge(
+            "EURUSD", _second_candles(self._START + self._COUNT, 1), timeframe="1s"
+        )
+        second = _dump(client, symbol="EURUSD", timeframe="1s")
+
+        assert len(first["candles"]) == self._COUNT
+        assert len(second["candles"]) == self._COUNT + 1
+        assert query.stats.invalidations == 1
+
     def test_window_over_configured_limit_is_served_but_not_cached(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
