@@ -1,6 +1,6 @@
 # Estado del Proyecto: Plataforma de Análisis Técnico (estilo TradingView)
 
-> Última actualización: 2026-09-24 15:31
+> Última actualización: 2026-09-25 08:53
 > Fuente: `_docs/backlog.md` (v2), `_docs/traceability.md` (v2)
 
 ## 1. Resumen ejecutivo
@@ -8,26 +8,22 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 62 | +1 (TASK-048) |
-| 📥 Backlog | 14 | -22 |
+| 📥 Backlog | 11 | -1 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | -1 |
-| ✅ Done | 48 | +4 |
+| ✅ Done | 51 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 77.4% (48/62) | +4.8 |
+| % Completado | 82.3% (51/62) | +1.7 |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (14)
+### 📥 Backlog (11)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
-| TASK-011 | Normalización UTC y esquema | EP-002 | S | TASK-010 |
-| TASK-022 | YAML de configuración de activos | EP-002 | S | TASK-016 |
-| TASK-022 | Contrato respuesta TS (lightweight-charts) | EP-004 | S | TASK-009 |
-| TASK-047 | Endpoint GET /downloads (historial RI-002) | EP-004 | S | TASK-018 |
 | TASK-UI-010 | SCR-001 Biblioteca (AssetList CMP-006) | EP-UI-001 | L | TASK-020, TASK-UI-001, TASK-UI-003 |
 | TASK-UI-021 | SCR-002 Progreso + historial + estados | EP-UI-002 | L | TASK-006, TASK-047, TASK-UI-020 |
 | TASK-UI-030 | SCR-003 Estados y validación cobertura | EP-UI-003 | M | TASK-020, TASK-026 |
@@ -48,10 +44,13 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (48)
+### ✅ Done (51)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
+| TASK-047 | Endpoint GET /downloads (historial RI-002) | EP-004 | 2026-09-25 | `backend/tests/api/test_download_history.py` (8 tests: contrato `[{date, active, range, status, rows}]`, orden descendente por fecha, estados exito/parcial/fallo, lista vacía, integración DuckDB de TASK-018) + `test_download_status.py::TestRouting` (`/downloads/` 307 → `/downloads`); suite 336 ✅ + 2 skip, ruff/black/mypy OK — RI-002 |
+| TASK-022 | Contrato respuesta TS (lightweight-charts) | EP-002 | 2026-09-24 | `frontend/src/contracts/__tests__/ohlc.test.ts` (puente DTO → `CandlestickData`: cast sin transformación de datos, aserción compile-time `Candle ⊆ CandlestickData`, `@ts-expect-error` por `UTCTimestamp` nominal; validado por `tsc --noEmit`) — RNF-008/RX-002 |
+| TASK-011 | Normalización UTC y esquema | EP-002 | 2026-09-24 | `backend/tests/pipeline/test_normalize.py` (31 tests: `time` int/float-entero/str/datetime aware y naive → epoch UTC, fracción 1s rechazada, clave ausente, diagnóstico con índice) + `backend/tests/pipeline/test_schema.py` (7 tests: test de esquema con `time` INT64/BIGINT y OHLC DOUBLE en DuckDB, roundtrip sin cambios, RI-001) — RNF-004/RF-002 |
 | TASK-020 | Endpoint GET /assets | EP-004 | 2026-09-24 | `backend/tests/api/test_assets_endpoint.py` (10 tests: contrato CMP-006, activos con datos almacenados, cobertura min/max del Parquet 1s, status del último registro de descarga, integración real Parquet+DuckDB) + `backend/tests/storage/test_series.py::TestCoverage` (4 tests) — RF-007 |
 | TASK-019 | Upsert incremental (merge time) | EP-003 | 2026-09-24 | `backend/tests/storage/test_upsert.py` (12 tests: merge por `time` sin duplicar ni borrar — KPI-4 COUNT=COUNT(DISTINCT), colisión gana la nueva, primer periodo ≡ write, pre-resampling `1m`) — RF-006/RI-001 |
 | TASK-018 | MetadatosDescarga | EP-003 | 2026-09-24 | `backend/tests/storage/test_metadata.py` (17 tests: tabla DuckDB `download_metadata` PK activo/inicio/fin, INSERT OR REPLACE idempotente, historial por `fecha_descarga` DESC/ASC + LIMIT, get/count, validación rango) — RF-006/RI-002 |
@@ -148,6 +147,7 @@ Ninguno.
 
 ### 🟢 Informativas
 
+- TASK-047 👀 → ✅ Done (2026-09-25): DoD completa — `GET /downloads` con contrato `[{date, active, range, status, rows}]` sobre `DownloadMetadataStore` (TASK-018), orden descendente por fecha y estados exito/parcial/fallo; `test_download_history.py` 8 ✅ (suite 336 ✅ + 2 skip, ruff/black/mypy OK); **RI-002 backend cerrado (2/3)** — queda TASK-UI-021; desbloquea TASK-UI-021 (deps TASK-006 ✅ + TASK-UI-020 ✅ + TASK-047 ✅).
 - TASK-036 👀 → ✅ Done tras review (2026-09-24): DoD completa — `export/png.ts` (`canvasToBlob`/`exportChartPng`/`downloadBlob`/`buildExportFilename`, PNG 2x default + WebP, sin persistencia RI-003); `png.test.ts` + `app.test.tsx` → suite 104/104, lint/typecheck OK; prueba RF-015/RI-003 registrada; descarga manual atestada por usuario ('confirme el png manual ok'); **ruta crítica 11/12 (92%)**; habilita TASK-UI-060 (último nodo).
 - TASK-035 👀 → ✅ Done tras review (2026-09-24): DoD completa — verificación visual del lienzo compuesto atestada por usuario ('confirme visual'); `compose.test.ts` (6) + integración `ChartPane.test.tsx` (21) ✅, lint/typecheck OK; prueba RF-015 registrada; **ruta crítica 10/12 (83%)**; habilita TASK-036 (ruta crítica) y TASK-UI-060.
 - TASK-035 📥 → 👀 Review (2026-09-24): salto confirmado por usuario (precedente TASK-027/030). `frontend/src/export/` (`compose.ts` + `index.ts`); `compose.test.ts` 6/6 ✅ (fondo + capas chart/overlay + anotación ticker·TF, escala 1x/2x/4x, empty=`null`, partial) + `ChartPane.test.tsx` 21/21 ✅ (handle `compose` expuesto, capas escaladas + anotación, parcial si el chart no está listo); traceability RF-015 ya registra `compose.test.ts → TASK-035`. DoD parcial: **verificación visual pendiente en review**. Habilita TASK-036/UI-060 (ruta crítica, último eslabón).
@@ -190,8 +190,9 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. **Iniciar TASK-038/039/040/041/042** (deps TASK-037 ✅) — CI/Docker/logging/contratos; o **TASK-UI-021** (requiere `TASK-047`).
-2. Paralela: **TASK-UI-010/UI-030** (requieren `GET /assets` = TASK-020).
+1. **Iniciar TASK-UI-021** (SCR-002 Progreso + historial + estados, EP-UI-002, L) — desbloqueada: deps TASK-006 ✅ + TASK-UI-020 ✅ + TASK-047 ✅; cierra RI-002 (2/3 → 3/3).
+2. **Iniciar TASK-038/039/040/041/042** (deps TASK-037 ✅) — CI/Docker/logging/contratos.
+3. Paralela: **TASK-UI-010/UI-030** (requieren `GET /assets` = TASK-020).
 
 > EP-UI-005 (SCR-005) completa: TASK-033 + TASK-034 + TASK-UI-050 ✅.
 
@@ -301,3 +302,9 @@ Ninguno.
 | 2026-09-24 | TASK-019 | 👀 → ✅ | Review validada: DoD completa (periodo nuevo sobre base existente sin duplicar `time` ni borrar filas; KPI-4 = 0 duplicados verificado con COUNT = COUNT(DISTINCT time)); `test_upsert.py` 12 ✅, suite 276 ✅ + 2 skip, ruff/black/mypy OK; prueba RF-006/RI-001 registrada; **RF-006 backend completo** — resta TASK-UI-021; habilita TASK-045 |
 | 2026-09-24 | TASK-020 | 📥 → 👀 | Salto confirmado por usuario (precedente TASK-018/019/027/030/035). `GET /assets` (RF-007/CMP-006): `ParquetSeriesStore.coverage()` (min/max time base 1s) + `CatalogQuery` (activos con datos almacenados, status del último registro: exito→completo, parcial/fallo→parcial) + endpoint con inyección `catalog_query`; `test_assets_endpoint.py` 10 ✅ (contrato, stubs, integración real) + `TestCoverage` 4 ✅ → suite 290 ✅ + 2 skip; ruff/black/mypy OK; prueba RF-007 registrada; habilita TASK-UI-010 y TASK-UI-030 |
 | 2026-09-24 | TASK-020 | 👀 → ✅ | Review validada: DoD completa (catálogo de activos con datos almacenados en contrato CMP-006; cobertura min/max del Parquet 1s; status del último registro de descarga; excluye sin datos; vista vacía = []); `test_assets_endpoint.py` 10 ✅ + `TestCoverage` 4 ✅, suite 290 ✅ + 2 skip, ruff/black/mypy OK; prueba RF-007 registrada; **RF-007 backend completo** — habilita TASK-UI-010 y TASK-UI-030 |
+| 2026-09-24 | TASK-022 | 📥 → 👀 | Salto confirmado por usuario (precedente TASK-018/019/020/027/030/035). Contrato TS alineado a lightweight-charts (RNF-008/RX-002): puente DTO→chart con cast sin transformación de datos, aserción compile-time de claves (Candle ⊆ CandlestickData) y `@ts-expect-error` por `UTCTimestamp` nominal; tsc --noEmit/eslint/prettier OK, 240 tests frontend ✅ (+3); prueba RNF-008/RX-002 registrada — cerrado contrato TS |
+| 2026-09-24 | TASK-011 | 📥 → 👀 | Salto confirmado por usuario (precedente TASK-018/019/020/022/027/030/035). Normalización UTC y esquema (RNF-004/RF-002/ADR-004): `normalize_schema`/`normalize_time`/`normalize_price` garantizan time BIGINT entero UTC (int/float-entero/str/datetime aware y naive; fracción 1s rechazada) y precios float; `SchemaViolationError` con índice/campo; test de esquema (`test_schema.py`): time INT64/OHLC DOUBLE en DuckDB, roundtrip sin cambios y RI-001; ruff/black/mypy OK, 328 tests backend ✅ (+38) + 2 skip; prueba RNF-004/RF-002 registrada — normalización pipeline cerrada |
+| 2026-09-24 | TASK-011 | 👀 → ✅ | Review validada: DoD completa (normalización estricta time BIGINT UTC + tipos numéricos, test de esquema en DuckDB); implementación con evidencia, lint/typecheck verdes; prueba registrada en traceability (RNF-004 y RF-002). **RNF-004 completo** (TASK-007 ingest + TASK-011 pipeline) |
+| 2026-09-24 | TASK-022 | 👀 → ✅ | Review validada: DoD completa (tipos TS comparten esquema con TASK-009 y compilan sin transformaciones; verificado con cast runtime + aserción compile-time de claves + `@ts-expect-error` por `UTCTimestamp` nominal); tsc --noEmit/eslint/prettier OK, 240 tests frontend ✅ (+3); prueba RNF-008/RX-002 registrada — **contrato TS cerrado: espejo canónico completo** |
+| 2026-09-25 | TASK-047 | 📥 → 👀 | Salto confirmado por usuario (precedente TASK-018/019/020/022/027/030/035). `GET /downloads` con contrato `[{date, active, range, status, rows}]` sobre `DownloadMetadataStore` (TASK-018), orden descendente por fecha y estados `exito`/`parcial`/`fallo`; `test_download_history.py` 8 ✅ → suite 336 ✅ + 2 skip; ruff/black/mypy OK; cobertura `downloads.py` 85,2% (medida con `trace`; sin `pytest-cov`); prueba RI-002 registrada; DoD de Review completa, pendiente aprobación |
+| 2026-09-25 | TASK-047 | 👀 → ✅ | Review validada: DoD completa (`GET /downloads` devuelve historial con fecha, activo, rango, estado y filas ordenado por fecha descendente; test unitario + integración DuckDB); `test_download_history.py` 8 ✅ + `test_download_status.py::TestRouting` (`/downloads/` → 307), suite 336 ✅ + 2 skip, ruff/black/mypy OK; prueba RI-002 registrada; **RI-002 backend cerrado (2/3)** — resta TASK-UI-021; desbloquea TASK-UI-021 |

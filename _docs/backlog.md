@@ -110,7 +110,7 @@
 |----|-------|------|------|------|-----|--------|
 | TASK-009 | Contrato OHLC compartido (time/open/high/low/close) | backend | M | — | Tipos TS y modelo Pydantic alineados; contrato documentado; sin transformación ad-hoc en el frontend (RNF-008) | ✅ |
 | TASK-010 | Pipeline de limpieza e imputación (gaps/NaN) | backend | L | TASK-009 | Un dataset crudo con NaN/gaps produce filas OHLC válidas; política PA-3 (eliminación NaN + FF acotado 60 s) testeada | ✅ |
-| TASK-011 | Normalización UTC y validación de esquema | backend | S | TASK-010 | Todas las filas cumplen time BIGINT UTC y tipos numéricos; test de esquema | 📥 |
+| TASK-011 | Normalización UTC y validación de esquema | backend | S | TASK-010 | Todas las filas cumplen time BIGINT UTC y tipos numéricos; test de esquema | ✅ |
 
 #### HU-005: Exclusión de fines de semana y feriados
 - **Requisito origen:** RF-004
@@ -210,7 +210,7 @@
 |----|-------|------|------|------|-----|--------|
 | TASK-020 | Endpoint GET /assets (catálogo con cobertura y estado) | backend | S | TASK-016 | Devuelve el catálogo de activos con datos almacenados (contrato CMP-006); test unitario | ✅ |
 | TASK-021 | Endpoint GET /series (activo, rango, timeframe) | backend | M | TASK-016, TASK-017 | Devuelve la serie OHLC del rango/timeframe y coincide con la consulta directa a DuckDB; test | ✅ |
-| TASK-022 | Contrato de respuesta en TS types alineado a lightweight-charts | frontend | S | TASK-009 | Los tipos comparten esquema con TASK-009 y compilan sin transformaciones en el frontend | 📥 |
+| TASK-022 | Contrato de respuesta en TS types alineado a lightweight-charts | frontend | S | TASK-009 | Los tipos comparten esquema con TASK-009 y compilan sin transformaciones en el frontend | ✅ |
 
 #### HU-017: Historial de descargas
 - **Requisito origen:** RI-002
@@ -223,7 +223,7 @@
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-047 | Endpoint GET /downloads (historial RI-002) | backend | S | TASK-018 | Devuelve historial (fecha, activo, rango, estado, filas) ordenado por fecha; test unitario | 📥 |
+| TASK-047 | Endpoint GET /downloads (historial RI-002) | backend | S | TASK-018 | Devuelve historial (fecha, activo, rango, estado, filas) ordenado por fecha; test unitario | ✅ |
 
 ## 4. Épicas de UI
 
