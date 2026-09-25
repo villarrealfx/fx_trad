@@ -66,6 +66,10 @@ graph TD
 | `charting` (frontend) | Velas, zoom/pan, overlay dibujos, indicadores, 3 gráficos sincronizados | RF-010…RF-014, RNF-001 |
 | `extensibility` (transversal) | Interfaces de módulos/indicadores reutilizables | RF-016 |
 
+La **interfaz pública y las dependencias permitidas por módulo** están
+documentadas en `_docs/module-interfaces.md` (TASK-042) y verificadas por
+`backend/tests/test_module_interfaces.py`.
+
 ## 5. Vista de datos
 
 ### Modelo entidad-relación
