@@ -1,6 +1,6 @@
 # Estado del Proyecto: Plataforma de Análisis Técnico (estilo TradingView)
 
-> Última actualización: 2026-09-25 11:28
+> Última actualización: 2026-09-25 12:44
 > Fuente: `_docs/backlog.md` (v2), `_docs/traceability.md` (v2)
 
 ## 1. Resumen ejecutivo
@@ -8,27 +8,24 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 66 | +4 (TASK-049/050/051, TECH-001) |
-| 📥 Backlog | 11 | -1 (TASK-049 → Review) |
+| 📥 Backlog | 8 | -1 (TASK-039 → Review) |
 | 🔨 Doing | 0 | — |
-| 👀 Review | 0 | -1 (TASK-049 → Done) |
-| ✅ Done | 55 | +1 (TASK-049) |
+| 👀 Review | 0 | -1 (TASK-039 → Done) |
+| ✅ Done | 58 | +1 (TASK-039) |
 | 🔴 Blocked | 0 | — |
-| % Completado | 83.3% (55/66) | +1.5 |
+| % Completado | 87.9% (58/66) | +1.5 |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (11)
+### 📥 Backlog (8)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
 | TASK-UI-010 | SCR-001 Biblioteca (AssetList CMP-006) | EP-UI-001 | L | TASK-020, TASK-UI-001, TASK-UI-003 |
-| TASK-UI-021 | SCR-002 Progreso + historial + estados | EP-UI-002 | L | TASK-006, TASK-047, TASK-UI-020 |
 | TASK-UI-030 | SCR-003 Estados y validación cobertura | EP-UI-003 | M | TASK-020, TASK-026 |
-| TASK-038 | Docker Compose (4 servicios) | TEC-001 | M | TASK-037 |
-| TASK-039 | GHA lint + tests | TEC-001 | S | TASK-037 |
 | TASK-040 | Auditoría licencias OSS ($0) | TEC-001 | S | TASK-037 |
 | TASK-041 | Logging structlog + correlación Celery | TEC-002 | S | TASK-037 |
 | TASK-042 | Interfaces/contratos de módulos | TEC-003 | S | TASK-037 |
@@ -44,10 +41,13 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (55)
+### ✅ Done (58)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
+| TASK-039 | GHA lint + tests | TEC-001 | 2026-09-25 | `.github/workflows/ci.yml` (jobs backend con `uv` y frontend con Node 20, reutilizando `make`; `actionlint` exit 0; comandos en verde: 432 backend ✅ + 2 skip y 262 frontend ✅) + `Makefile` con `uv run --extra dev`. **Salvedad:** sin `git remote` no hubo run real de GitHub Actions — RNF-007 |
+| TASK-038 | Docker Compose (4 servicios) | TEC-001 | 2026-09-25 | `docker-compose.yml` + `backend/Dockerfile` + `frontend/Dockerfile` (`docker compose up` levanta 4/4 servicios con el volumen `./data:/app/data`) + `backend/tests/api/test_app.py` (factory de producción `create_default_app`); 432 tests backend ✅ + 2 skip, lint limpio — RNF-006/RNF-007 |
+| TASK-UI-021 | SCR-002 Progreso + historial + estados | EP-UI-002 | 2026-09-25 | `frontend/src/components/DownloadScreen/__tests__/DownloadScreen.test.tsx` (5) + `DownloadProgress.test.tsx` (5) + `DownloadHistory.test.tsx` (4) + `DownloadForm.test.tsx` (8) + `services/__tests__/downloads.test.ts` (7): progreso determinista por polling sin timeout visual, historial con estado/filas, `parcial` sugiere el rango a completar, banners `success` auto-dismiss 5 s; 262 tests frontend ✅, lint/typecheck/prettier/axe OK — RF-001/RF-002/RF-006/RI-002 |
 | TASK-049 | Regenerar los Parquets pre-resampling afectados tras un merge | EP-003 | 2026-09-25 | `backend/tests/pipeline/test_refresh.py` (22 tests: solo buckets intersectados, bucket parcial rehecho desde la base 1s, sin Parquet derivado sin datos, idempotencia, `parse_timeframes`) + `backend/tests/api/test_series_endpoint.py::TestDerivedSeriesAfterMerge` (3 tests: `GET /series?timeframe=1h` == `resample_ohlc` de la base 1s, bucket incremental servido, invalidación de caché) + `backend/tests/ingest/test_tasks.py::TestDownloadPersistence` (la tarea Celery deja los derivados al día); 430 ✅ + 2 skip, cobertura 100% `refresh.py` — RF-009 |
 | TASK-050 | Persistir la descarga: `merge()` + metadatos desde la tarea de descarga | EP-001 | 2026-09-25 | `backend/tests/pipeline/test_persist.py` (14 tests: la primera descarga crea el Parquet del activo y su metadato; el rango repetido completa la base sin duplicar `time`, KPI-4; la descarga vacía no crea Parquet pero sí registra `filas=0`; `build_persister` respeta `FXTRAD_DATA_DIR`; símbolo inseguro rechazado) + `backend/tests/ingest/test_tasks.py::TestDownloadPersistence` (5 tests E2E: la tarea Celery deja 9 velas + metadato `exito`; dos descargas sucesivas completan el rango; el fallo de escritura degrada el estado a `fallo` sin relanzar; sin persistidor no se escribe nada); suite 398 ✅ + 2 skip, `make lint-backend` limpio, cobertura 100% en `persist.py`/`tasks.py` — RF-006/RI-002 |
 | TASK-045 | Invalidación de caché por actualización incremental | TEC-004 | 2026-09-25 | `backend/tests/storage/test_cache.py` (10 tests: 3 de integración con `store.merge` real → ventana 300→360 velas; `invalidate(symbol)`; token de versión) + `backend/tests/api/test_series_endpoint.py::TestDefaultSeriesWiring::test_incremental_download_is_reflected_in_the_next_response` |
@@ -143,8 +143,7 @@ Ninguno.
 
 ### 🟡 Advertencias
 
-- **Cobertura de requisitos con brecha real** (§7): RF-016 0% (TASK-042/043 📥) y RNF-007 0% (TASK-038/039/041 📥) — sin verificación ni tareas cerradas; RNF-006 33% (TASK-038/040 📥).
-- **TASK-UI-021** cierra 4 brechas a la vez (RF-001 86→100%, RF-002 75→100%, RF-006 75→100%, RI-002 75→100%). Ya no es la única desbloqueada: TASK-049 y TASK-051 también lo están desde el ✅ de TASK-050.
+- **Cobertura de requisitos con brecha real** (§7): RF-016 0% (TASK-042/043 📥); RNF-007 67% (TASK-041 📥) y RNF-006 67% (TASK-040 📥).
 - PA-1 y PA-2 siguen sin resolver, pero sus tareas afectadas (TASK-005/008 y TASK-036/TASK-UI-060) ya están ✅ → pasa de riesgo de bloqueo a deuda de decisión abierta.
 - **AR-1 (observado 2026-09-18):** Dukascopy devolvía 503/timeout desde esta IP (4/4 intentos en el E2E de TASK-004); mitigado por retry/backoff 20 s de TASK-005 (✅) y ADR-006. Sin reverificación en vivo posterior → el tramo de datos reales sigue sin confirmarse.
 - DP-8: 184 pts > capacidad nominal de 2 semanas → priorizar; 51/62 tareas cerradas (82,3%).
@@ -152,6 +151,9 @@ Ninguno.
 
 ### 🟢 Informativas
 
+- TASK-039 📥 → 🔨 → 👀 → ✅ Done (2026-09-25): salto de Doing confirmado y review validada con salvedad. `.github/workflows/ci.yml` con 2 jobs paralelos (backend `make lint-backend`/`test-backend` vía `astral-sh/setup-uv`; frontend `actions/setup-node@v4` (Node 20, cache npm) + `npm ci` + `make lint-frontend`/`test-frontend`), reutilizando el Makefile; `Makefile` pasa a `uv run --extra dev` para CI limpio. `actionlint` exit 0 y comandos en verde (432 backend ✅ + 2 skip, 262 frontend ✅). **Salvedad documentada:** sin `git remote` no hubo run real de GitHub Actions. **RNF-007 33→67%.**
+- TASK-038 📥 → 🔨 → 👀 → ✅ Done (2026-09-25): salto de Doing confirmado por el usuario (precedente TASK-035/044/045/047/049/UI-021) y review validada (re-ejecutada: 4/4 servicios Up, `/assets` 200, volumen `data/` OK). `docker-compose.yml` levanta frontend :5173, backend :8000, worker Celery y broker RabbitMQ sobre una imagen multi-stage (`backend/Dockerfile` targets `api`/`worker`) con el volumen `./data:/app/data`; el frontend proxya `/series`, `/downloads` y `/assets` al backend (mismo origen). Añadido `create_default_app()` como factory de producción. 432 tests backend ✅ + 2 skip, lint limpio; **RNF-006 33→67%, RNF-007 0→33%**.
+- TASK-UI-021 📥 → 🔨 → 👀 → ✅ Done (2026-09-25): salto de Doing confirmado por el usuario (precedente TASK-035/044/045/047/049) y review validada. SCR-002 compone formulario + progreso + historial: `DownloadProgress` consulta `GET /downloads/{task_id}` y muestra una `ProgressBar` determinista (sin timeout visual), `DownloadHistory` pinta fecha/rango/estado/filas de `GET /downloads` (TASK-047) y sugiere completar el rango de una descarga `parcial` (incremental RF-006), y `DownloadScreen` orquesta los 5 estados con banners y auto-dismiss de éxito a 5 s. `262 tests frontend ✅` (de 240), lint/typecheck/prettier/axe OK, cobertura nueva ≥80% (`DownloadHistory` 100%, `DownloadProgress` 88% ramas, `DownloadForm` 85% ramas); prueba en RF-001/RF-002/RF-006/RI-002; **cierra RI-002 (4/4) y RF-001/RF-002/RF-006 al 100%**.
 - TASK-049 📥 → 🔨 → 👀 → ✅ Done (2026-09-25): salto de Doing confirmado por usuario (precedente TASK-035/044/045/047) y review validada. `pipeline/refresh.py` (`DerivedSeriesRefresher`, `parse_timeframes`/`timeframes_from_env` con `FXTRAD_DERIVED_TIMEFRAMES`, 6 derivados por defecto) regenera solo los buckets que intersectan el periodo leyendo la base 1s una vez; `persist.py` refresca tras el merge 1s y antes de los metadatos, y un fallo registra `refresh_derivadas_fallido` y propaga para degradar a `fallo` (TASK-050). Un bug real se corrigió en la ventana de lectura (cortaba en el inicio del último bucket y agregaba una fracción): la detectó el test de la DoD. 430 tests ✅ + 2 skip (de 398), `make lint-backend` limpio, cobertura 100% `refresh.py`/98% `persist.py`; prueba RF-009 registrada; **cierra RF-009 al 100% (5/5)**.
 - TASK-050 👀 → ✅ Done (2026-09-25): DoD 3/3 re-ejecutada en review — `pipeline/persist.py` (`DownloadPersister.persist`: merge 1s + `download_metadata` con las filas obtenidas; sin velas no crea Parquet) inyectado como puerto en la tarea Celery vía `fxtrad_persister_factory`, sin que `ingest` importe `storage`; el fallo de escritura degrada el estado a `fallo` sin relanzar. `test_persist.py` 14 ✅ + `TestDownloadPersistence` 5 ✅ (suite 398 ✅ + 2 skip, `make lint-backend` limpio, cobertura 100% en `persist.py`/`tasks.py`); **cierra el hueco de RF-006 en backend (3/4)** — queda TASK-UI-021; **desbloquea TASK-049** (RF-009 al 100%).
 - TASK-047 👀 → ✅ Done (2026-09-25): DoD completa — `GET /downloads` con contrato `[{date, active, range, status, rows}]` sobre `DownloadMetadataStore` (TASK-018), orden descendente por fecha y estados exito/parcial/fallo; `test_download_history.py` 8 ✅ (suite 336 ✅ + 2 skip, ruff/black/mypy OK); **RI-002 backend cerrado (2/3)** — queda TASK-UI-021; desbloquea TASK-UI-021 (deps TASK-006 ✅ + TASK-UI-020 ✅ + TASK-047 ✅).
@@ -190,12 +192,12 @@ Calculado desde la columna `Tarea` de `traceability.md` (29 requisitos IN) cruza
 
 | Requisito | Tareas | Done | Cobertura | Pendientes |
 |-----------|--------|------|-----------|------------|
-| RF-001 | 7 | 6 | 86% | TASK-UI-021 |
-| RF-002 | 4 | 3 | 75% | TASK-UI-021 |
+| RF-001 | 7 | 7 | 100% | — |
+| RF-002 | 4 | 4 | 100% | — |
 | RF-003 | 2 | 2 | 100% | — |
 | RF-004 | 2 | 2 | 100% | — |
 | RF-005 | 3 | 3 | 100% | — |
-| RF-006 | 4 | 3 | 75% | TASK-UI-021 |
+| RF-006 | 4 | 4 | 100% | — |
 | RF-007 | 3 | 2 | 67% | TASK-UI-010 |
 | RF-008 | 3 | 2 | 67% | TASK-UI-030 |
 | RF-009 | 5 | 5 | 100% | — |
@@ -211,18 +213,18 @@ Calculado desde la columna `Tarea` de `traceability.md` (29 requisitos IN) cruza
 | RNF-003 | 2 | 2 | 100% | — |
 | RNF-004 | 2 | 2 | 100% | — |
 | RNF-005 | 4 | 4 | 100% | — |
-| RNF-006 | 3 | 1 | 33% | TASK-038, TASK-040 |
-| RNF-007 | 3 | 0 | 0% | TASK-038, TASK-039, TASK-041 |
+| RNF-006 | 3 | 2 | 67% | TASK-040 |
+| RNF-007 | 3 | 2 | 67% | TASK-041 |
 | RNF-008 | 3 | 3 | 100% | — |
 | RI-001 | 4 | 4 | 100% | — |
-| RI-002 | 4 | 3 | 75% | TASK-UI-021 |
+| RI-002 | 4 | 4 | 100% | — |
 | RI-003 | 2 | 2 | 100% | — |
 | RX-001 | 4 | 4 | 100% | — |
 | RX-002 | 2 | 2 | 100% | — |
 
-**Requisitos sin tareas:** ninguno ✓ (29/29 con ≥1 tarea mapeada) · **Requisitos 100% Done:** 19/29 (66%) · **Cobertura global:** 81/95 mapeos de tarea Done (85%).
+**Requisitos sin tareas:** ninguno ✓ (29/29 con ≥1 tarea mapeada) · **Requisitos 100% Done:** 23/29 (79%) · **Cobertura global:** 88/95 mapeos de tarea Done (93%).
 
-**Brechas reales:** RF-016 (0%) → TASK-042 + TASK-043 siguen 📥 · RNF-007 (0%) → TASK-038/039/041 siguen 📥 · RNF-006 (33%) → TASK-038 + TASK-040.
+**Brechas reales:** RF-016 (0%) → TASK-042 + TASK-043 siguen 📥 · RNF-007 (67%) → TASK-041 · RNF-006 (67%) → TASK-040.
 
 **Tareas Done fuera de la columna `Tarea`:** TASK-UI-001, TASK-UI-002 (transversal EP-UI-000, sin RF directo) y TASK-045 (TEC-004, sin RF directo) — sin requisito IN asociado en la matriz.
 
@@ -230,9 +232,8 @@ Calculado desde la columna `Tarea` de `traceability.md` (29 requisitos IN) cruza
 
 ## 8. Próximas acciones sugeridas
 
-1. **Iniciar TASK-UI-021** (SCR-002 Progreso + historial + estados, EP-UI-002, L) — desbloqueada: deps TASK-006 ✅ + TASK-UI-020 ✅ + TASK-047 ✅; cierra RI-002 (2/3 → 3/3).
-2. **Iniciar TASK-038/039/040/041/042** (deps TASK-037 ✅) — CI/Docker/logging/contratos.
-3. Paralela: **TASK-UI-010/UI-030** (requieren `GET /assets` = TASK-020).
+1. **Iniciar TASK-040/041/042** (deps TASK-037 ✅) — licencias/logging/contratos.
+2. Paralela: **TASK-UI-010/UI-030** (requieren `GET /assets` = TASK-020).
 
 > EP-UI-005 (SCR-005) completa: TASK-033 + TASK-034 + TASK-UI-050 ✅.
 >
@@ -360,3 +361,9 @@ Calculado desde la columna `Tarea` de `traceability.md` (29 requisitos IN) cruza
 | 2026-09-25 | TASK-050 | 👀 → ✅ Done | Review validada: DoD 3/3 re-ejecutada (398 tests ✅ + 2 skip, `make lint-backend` limpio, cobertura 100% en `persist.py`/`tasks.py`); `merge()` 1s + metadatos con filas reales desde la tarea Celery, descarga vacía sin Parquet y fallo de escritura sin relanzar. RF-006/RI-002 avanzan a 3/4 (queda TASK-UI-021); desbloquea TASK-049 |
 | 2026-09-25 | TASK-049 | 📥 → 🔨 → 👀 Review | Salto confirmado por el usuario (precedente TASK-035/044/045/047). `pipeline/refresh.py` (`DerivedSeriesRefresher`) regenera solo buckets intersectados leyendo la base 1s una vez; `persist.py` refresca tras el merge 1s y antes de metadatos, con `refresh_derivadas_fallido` que propaga para degradar a `fallo`. Bug de la ventana de lectura (cortaba en el inicio del último bucket) detectado por el test de la DoD y corregido. 430 tests ✅ + 2 skip (de 398), `make lint-backend` limpio, cobertura 100% `refresh.py`/98% `persist.py`; prueba RF-009 registrada. Pendiente aprobación |
 | 2026-09-25 | TASK-049 | 👀 → ✅ Done | Review validada: DoD completa — test de integración `GET /series?timeframe=1h` == `resample_ohlc` de la base 1s (sin servir el Parquet previo al merge); `TestDerivedSeriesAfterMerge` (3) + `test_refresh.py` (22) + E2E Celery; 430 ✅ + 2 skip, cobertura 100% `refresh.py`; prueba RF-009 registrada. **Cierra RF-009 al 100% (5/5 🟢)** |
+| 2026-09-25 | TASK-UI-021 | 📥 → 🔨 → 👀 Review | Salto de Doing confirmado por el usuario (precedente TASK-035/044/045/047/049). SCR-002: `DownloadProgress` (polling de `GET /downloads/{task_id}` + `ProgressBar` determinista sin timeout visual), `DownloadHistory` (fecha/rango/estado/filas de `GET /downloads`, `parcial` sugiere el rango a completar) y `DownloadScreen` (orquesta los 5 estados, banners con auto-dismiss 5 s). 262 tests frontend ✅ (de 240), lint/typecheck/prettier/axe OK; prueba registrada en RF-001/RF-002/RF-006/RI-002. Pendiente aprobación |
+| 2026-09-25 | TASK-UI-021 | 👀 → ✅ Done | Review validada: DoD 4/4 re-ejecutada (`262 tests frontend ✅`, lint/typecheck/prettier/axe OK) — progreso determinista, historial con estado/filas, `parcial` sugiere rango (RF-006) y banners `success` auto-dismiss 5 s. **Cierra RI-002 (4/4) y RF-001/RF-002/RF-006 al 100%** |
+| 2026-09-25 | TASK-038 | 📥 → 🔨 → 👀 Review | Salto de Doing confirmado por el usuario. `docker-compose.yml` (4 servicios + volumen `./data`), imágenes multi-stage backend/api+worker y frontend/Vite, proxy de Vite a `/series`, `/downloads`, `/assets` y factory de producción `create_default_app()`. Verificado con `docker compose up --build` (4/4 Up, `/assets` 200, worker conectado); 432 tests backend ✅ + 2 skip; prueba RNF-006/RNF-007. Pendiente aprobación |
+| 2026-09-25 | TASK-038 | 👀 → ✅ Done | Review validada: DoD re-ejecutada (`docker compose up` → 4/4 Up, `GET /assets` 200, volumen `./data` montado en backend y worker); 432 tests backend ✅ + 2 skip, `create_default_app()` como factory de producción. RNF-006 33→67%, RNF-007 0→33% |
+| 2026-09-25 | TASK-039 | 📥 → 🔨 → 👀 Review | Salto de Doing confirmado. `.github/workflows/ci.yml` (2 jobs: backend uv y frontend Node 20) + `Makefile` con `uv run --extra dev`; `actionlint` exit 0 y comandos del workflow en verde (432 backend ✅ + 2 skip, 262 frontend ✅). Sin `git remote` no hubo run real de Actions. Prueba RNF-007. Pendiente aprobación |
+| 2026-09-25 | TASK-039 | 👀 → ✅ Done | Review validada con salvedad: `actionlint` exit 0 y comandos del workflow en verde (432 backend ✅ + 2 skip, 262 frontend ✅), reutilizando `make`; sin `git remote` no hubo run real de Actions. RNF-007 33→67% |

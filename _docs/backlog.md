@@ -287,7 +287,7 @@
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
 | TASK-UI-020 | Form de descarga (activo, tipo, fecha inicio/fin; nota 1s UTC fija; validación inline; preserva valores en error) | frontend | M | TASK-003, TASK-UI-001 | Validación inline por campo (inicio≤fin, rango dentro de ventana 2 años RNF-003); valores preservados tras error; a11y labels; POST /downloads responde 202 + feedback | ✅ |
-| TASK-UI-021 | Progreso asíncrono + historial + estados (éxito/fallo/parcial) + sugerencia de rango faltante (incremental RF-006) | frontend | L | TASK-006, TASK-047, TASK-UI-020 | ProgressBar determinista sin timeout visual; fila historial con estado/filas (GET /downloads); partial sugiere rango faltante; banners auto-dismiss success 5s | 📥 |
+| TASK-UI-021 | Progreso asíncrono + historial + estados (éxito/fallo/parcial) + sugerencia de rango faltante (incremental RF-006) | frontend | L | TASK-006, TASK-047, TASK-UI-020 | ProgressBar determinista sin timeout visual; fila historial con estado/filas (GET /downloads); partial sugiere rango faltante; banners auto-dismiss success 5s | ✅ |
 
 ### EP-UI-003: Pantalla SCR-003 (Abrir gráfico)
 - **Tipo:** UI
@@ -389,8 +389,8 @@
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
 | TASK-037 | Monorepo (backend/frontend/worker) + lint/formato | infra | S | — | Estructura de carpetas creada; lint y formato configurados y ejecutables | ✅ |
-| TASK-038 | Docker Compose (frontend, backend, worker, broker, volumen data/) | infra | M | TASK-037 | `docker compose up` levanta los 4 servicios con volumen `data/` (ADR-009) | 📥 |
-| TASK-039 | GitHub Actions lint + tests | infra | S | TASK-037 | El workflow corre en push y pasa en verde | 📥 |
+| TASK-038 | Docker Compose (frontend, backend, worker, broker, volumen data/) | infra | M | TASK-037 | `docker compose up` levanta los 4 servicios con volumen `data/` (ADR-009) | ✅ |
+| TASK-039 | GitHub Actions lint + tests | infra | S | TASK-037 | El workflow corre en push y pasa en verde | ✅ |
 | TASK-040 | Auditoría de licencias OSS ($0) | infra | S | TASK-037 | Inventario sin componentes comerciales (RNF-006); documento de auditoría | 📥 |
 | TASK-046 | Smoke test en navegadores de escritorio modernos | infra | S | TASK-026 | La app funciona en navegadores de escritorio modernos sin plugins (RNF-005) | ✅ |
 
