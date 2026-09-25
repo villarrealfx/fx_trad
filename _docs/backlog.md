@@ -14,16 +14,19 @@
 | Épicas de UI | 7 (EP-UI-000…EP-UI-006) |
 | Épicas técnicas | 4 (TEC-001…TEC-004) |
 | Historias | 23 (15 dominio + 8 UI) |
-| Tareas backend | 23 |
+| Tareas backend | 24 |
 | Tareas frontend | 29 |
-| Tareas BD | 5 |
+| Tareas BD | 7 |
 | Tareas infra | 5 |
-| Esfuerzo total | 186 puntos |
+| Deuda técnica | 1 (TECH-001) |
+| Esfuerzo total | 197 puntos |
 | Ruta crítica | TASK-009 → TASK-010 → TASK-012 → TASK-014 → TASK-017 → TASK-021 → TASK-024 → TASK-027 → TASK-030 → TASK-035 → TASK-036 → TASK-UI-060 (~41 pts) |
 
 > Nota de incrementalidad: se conservan los IDs de las 46 tareas v1 (compatibilidad con `_docs/status.md` y `/sdd-track`). Se añaden 15 tareas nuevas (TASK-047 + 14 `TASK-UI-XXX`).
 >
 > Deuda detectada en verificación (2026-09-24): `TASK-048` corrige que los marcadores compra/venta (RF-012, TASK-030) no se plasman en el navegador pese a pasar los tests unitarios.
+>
+> Deuda técnica convertida en tareas (2026-09-25, `/sdd-backlog`): `TASK-050` + `TASK-049` + `TASK-051` cierran tres requisitos que el sistema no cumplía de extremo a extremo (la descarga no persistía, los timeframes derivados no se regeneraban y la escritura no daba volumen de RNF-002) y `TECH-001` recoge el hueco de trazabilidad de TASK-045. Total: 65 tareas + 1 deuda.
 
 ## 2. Leyenda
 
@@ -66,6 +69,7 @@
 - **Criterios de aceptación:**
   - Dada una descarga en curso, cuando consulto su estado, entonces obtengo progreso/estado sin bloquear la UI.
   - Dado un fallo de red de Dukascopy, cuando ocurre, entonces la tarea reintenta con backoff de hasta 20 s y registra el resultado.
+  - Dado un rango nuevo, cuando la descarga termina con éxito, entonces el Parquet 1s del activo contiene las velas y `download_metadata` registra las filas obtenidas (RF-006, RI-002 — cierra TASK-050, hueco detectado al verificar TASK-045).
 - **Tareas:**
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
@@ -73,6 +77,7 @@
 | TASK-004 | Celery + RabbitMQ y tarea download_asset | backend | M | TASK-001 | El compose levanta el worker; la tarea se registra y ejecuta de extremo a extremo en dev | ✅ |
 | TASK-005 | Retry/backoff 20 s y manejo de fallos parciales | backend | M | TASK-002, TASK-004 | Un fallo HTTP simulado se reintenta con backoff de 20 s; el estado queda parcial/fallo en metadatos | ✅ |
 | TASK-006 | Endpoint GET /downloads/{task_id} de estado | backend | S | TASK-003 | Devuelve estado (encolada/éxito/parcial/fallo) y filas obtenidas; test unitario | ✅ |
+| TASK-050 | Persistir la descarga: `merge()` + metadatos desde la tarea de descarga | backend | M | TASK-004, TASK-018, TASK-019 | La tarea llama a `ParquetSeriesStore.merge()` con las velas normalizadas y registra `rows` reales; test E2E desde un directorio vacío acaba con filas en disco y estado exito; KPI-4 = 0 duplicados | 📥 |
 
 #### HU-003: Ingesta en 1 segundo UTC
 - **Requisito origen:** RF-002, RNF-003
@@ -154,7 +159,7 @@
 
 ### EP-003: Almacenamiento Parquet + DuckDB
 - **Tipo:** Dominio
-- **Requisitos cubiertos:** RF-005, RF-006, RI-001, RI-002, RNF-002
+- **Requisitos cubiertos:** RF-005, RF-006, RF-009, RI-001, RI-002, RNF-002
 - **Prioridad:** Must
 - **Descripción:** Persistencia de series OHLC en Parquet consultadas por DuckDB, con `time` único por activo, tabla de metadatos de descarga y soporte de descargas incrementales sin duplicar ni borrar.
 - **Criterio de aceptación de la épica:** Dado un activo almacenado, cuando se consulta un rango, entonces los datos se recuperan desde Parquet vía DuckDB y una descarga incremental agrega periodos sin duplicar ni borrar filas.
@@ -174,6 +179,7 @@
 | TASK-015 | Esquema SerieOHLC en Parquet por activo (time único) | bd | M | TASK-009 | Se crea un Parquet por activo con time BIGINT único; consulta DuckDB devuelve el rango | ✅ |
 | TASK-016 | Capa de consulta DuckDB por activo/rango/timeframe | bd | M | TASK-015 | Una query parametrizada devuelve OHLC del rango; test con dataset de fixture | ✅ |
 | TASK-017 | Parquet pre-resampling por timeframe | bd | M | TASK-014, TASK-015 | Los archivos por timeframe quedan persistidos y se consultan sin recomputar; test | ✅ |
+| TASK-051 | Escritura por lotes en Parquet + benchmark a volumen RNF-002 | bd | M | TASK-015, TASK-019 | `write`/`merge` escriben por lotes (tabla pyarrow o `INSERT … SELECT`) en vez de fila a fila; benchmark en el repo con la línea base de 600 µs/vela al volumen de RNF-002 (~18M filas de 1s); KPI-4 se mantiene en 0 duplicados | 📥 |
 
 #### HU-008: Descargas incrementales sin duplicados
 - **Requisito origen:** RF-006, RI-002
@@ -182,12 +188,14 @@
 - **Como** andrés **quiero** que las descargas incrementales completen lo existente sin duplicar ni borrar **para** mantener la base consistente a lo largo del tiempo.
 - **Criterios de aceptación:**
   - Dado un activo con datos de ene–may 2026, cuando se descarga jun–jul 2026, entonces la base contiene enero a julio sin filas duplicadas.
+  - Dado un activo con Parquets pre-resampling de 1m/1h, cuando se fusiona un periodo nuevo en 1s, entonces el timeframe derivado incluye ese periodo (RF-009 — cierra TASK-049).
 - **Tareas:**
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
 | TASK-018 | Tabla MetadatosDescarga (activo, rango, estado, fecha, filas) | bd | S | TASK-015 | Tabla DuckDB creada; inserta y lee registros de descarga; test unitario | ✅ |
 | TASK-019 | Upsert incremental por merge sobre `time` | bd | M | TASK-016, TASK-018 | Descargar un periodo nuevo sobre una base existente no duplica time ni borra filas; KPI-4 = 0 duplicados | ✅ |
+| TASK-049 | Regenerar los Parquets pre-resampling afectados tras un merge | bd | M | TASK-050, TASK-017, TASK-019 | Dado un activo con 1m/1h pre-resampling y un merge 1s nuevo, los timeframes cuyo rango intersecta el periodo quedan regenerados (o invalidados y recomputados al leer) y `GET /series?timeframe=1h` coincide con la agregación directa de la base 1s; test de integración | 📥 |
 
 ### EP-004: API REST de datos
 - **Tipo:** Dominio
@@ -499,6 +507,14 @@ graph TD
   T034 --> UI050
   T036 --> UI060[TASK-UI-060]
   UI002 --> UI060
+  T019 --> T050[TASK-050]
+  T004 --> T050
+  T018 --> T050
+  T050 --> T049[TASK-049]
+  T017 --> T049
+  T019 --> T049
+  T015 --> T051[TASK-051]
+  T019 --> T051
 ```
 
 ## 7. Ruta crítica
@@ -509,7 +525,13 @@ Esfuerzo: ~41 pts. Cualquier retraso en esta secuencia desplaza la entrega del M
 
 ## 8. Deuda técnica y tareas sin requisito
 
-No hay tareas huérfanas: todas las tareas rastrean a un requisito (`RF/RNF/RI/RX`) o a una épica técnica/UI con origen explícito. No se registra deuda técnica `TECH-XXX` en este backlog.
+No hay tareas huérfanas en el Kanban: las 65 tareas rastrean a un requisito (`RF/RNF/RI/RX`) o a una épica técnica/UI con origen explícito. La única entrada de deuda es documental:
+
+| ID | Descripción | Capa | Est. | Justificación | Deps | Estado |
+|----|-------------|------|------|---------------|------|--------|
+| TECH-001 | Mapear TASK-045 a un requisito IN en la matriz de trazabilidad | docs | XS | Al cerrar TASK-045 (2026-09-25) se detectó que no tiene requisito IN propio: su prueba vive en las notas de RNF-001 y RNF-002, pero la columna `Tarea` no la nombra y la cobertura de requisitos no la refleja | TASK-045 ✅ | 📥 |
+
+**Deuda convertida en tareas (2026-09-25):** los tres defectos funcionales que会话-verificación de TASK-044/045 destapó ya son tareas normales con requisito y DoD: `TASK-050` (RF-006), `TASK-049` (RF-006, RF-009) y `TASK-051` (RNF-002).
 
 ## 9. Cobertura UX
 
@@ -536,6 +558,7 @@ No hay tareas huérfanas: todas las tareas rastrean a un requisito (`RF/RNF/RI/R
 - **DP-5:** Cada pantalla de UI hereda los estados de `interaction-specs.md` y los criterios de `accessibility.md` (WCAG AA) en su DoD; no se acepta una pantalla sin teclado/contraste/ARIA.
 - **DP-6:** La cobertura/validación de SCR-003 (TASK-UI-030) depende de `GET /assets` (cobertura_start/end) y de poder navegar al chart (TASK-024).
 - **DP-7:** El historial `GET /downloads` (TASK-047) se añade como tarea backend porque `components.md` lo declara contrato obligatorio para SCR-002 (RI-002).
+- **DP-9:** Las tres tareas nacidas de la deuda técnica (TASK-050, TASK-049, TASK-051) heredan `Must` de sus requisitos (RF-006, RF-009, RNF-002) por la regla de prioridad heredada. TASK-051 se讨论ó como `Should` y el usuario la subió a `Must` (2026-09-25): sin escritura por lotes, una descarga de 2 años a 1s tarda horas y RNF-002 es inviable aunque el resto del sistema funcione. TASK-050 precede a TASK-049 porque sin persistencia no existe el evento que dispara la regeneración.
 - **DP-8:** El esfuerzo total (~184 pts) supera la capacidad nominal de 2 semanas (RNF-007). Se prioriza por ruta crítica; si el plazo aprieta, se difiere EP-UI-005 (SCR-005) y el pulido a11y fino (TASK-UI-004/050), siempre manteniendo los criterios WCAG mínimos de las pantallas entregadas.
 
 ## 11. Preguntas abiertas
