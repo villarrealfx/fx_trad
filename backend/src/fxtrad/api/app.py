@@ -5,19 +5,31 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+import structlog
 from fastapi import FastAPI
 
 from fxtrad.api.catalog import CatalogQuery
 from fxtrad.api.downloads import DownloadHistoryQuery
 from fxtrad.api.routes import router
 from fxtrad.ingest import CeleryDownloadStatus, DownloadQueue, DownloadStatusQuery
-from fxtrad.storage import DownloadMetadataStore, ParquetSeriesStore, SeriesQuery
+from fxtrad.storage import (
+    DEFAULT_MAX_CANDLES,
+    DEFAULT_MAX_WINDOWS,
+    CachedSeriesQuery,
+    DownloadMetadataStore,
+    ParquetSeriesStore,
+    SeriesQuery,
+    SeriesReader,
+    SeriesWindowCache,
+)
+
+logger = structlog.get_logger()
 
 
 def create_app(
     download_queue: DownloadQueue,
     download_status_query: DownloadStatusQuery | None = None,
-    series_query: SeriesQuery | None = None,
+    series_query: SeriesReader | None = None,
     catalog_query: CatalogQuery | None = None,
     download_history_query: DownloadHistoryQuery | None = None,
 ) -> FastAPI:
@@ -29,8 +41,8 @@ def create_app(
         download_status_query: Consulta de estado de descargas (TASK-006); por
             defecto usa la de Celery sobre la misma cola.
         series_query: Consulta de series OHLC por activo/rango/timeframe
-            (TASK-021); por defecto se construye sobre el directorio de datos
-            (ADR-004/ADR-007).
+            (TASK-021), cacheada en memoria por ventana (TASK-044, ADR-007); por
+            defecto se construye sobre el directorio de datos (ADR-004/ADR-007).
         catalog_query: Consulta del catálogo de activos con cobertura y estado
             (TASK-020, RF-007/CMP-006); por defecto se construye sobre el
             directorio de datos (ADR-004).
@@ -51,15 +63,47 @@ def create_app(
     return app
 
 
-def _default_series_query() -> SeriesQuery:
-    """Construye la consulta de series por defecto sobre el directorio de datos.
+def _default_series_query() -> SeriesReader:
+    """Construye la consulta de series por defecto, con caché in-memory.
 
     Localiza los Parquet por activo en la variable ``FXTRAD_DATA_DIR`` (por
     defecto ``data``), coherente con el volumen ``data/`` del despliegue local
-    (ADR-004, ADR-007, AR-2).
+    (ADR-004, ADR-007, AR-2). Envuelve la lectura en la caché de ventanas de
+    TASK-044: la segunda carga del mismo rango se sirve desde memoria (KPI-3).
+    Los límites son configurables con ``FXTRAD_CACHE_MAX_WINDOWS`` y
+    ``FXTRAD_CACHE_MAX_CANDLES``.
     """
     data_dir = Path(os.getenv("FXTRAD_DATA_DIR", "data"))
-    return SeriesQuery(ParquetSeriesStore(data_dir))
+    cache = SeriesWindowCache(
+        max_windows=_env_int("FXTRAD_CACHE_MAX_WINDOWS", DEFAULT_MAX_WINDOWS),
+        max_candles=_env_int("FXTRAD_CACHE_MAX_CANDLES", DEFAULT_MAX_CANDLES),
+    )
+    return CachedSeriesQuery(SeriesQuery(ParquetSeriesStore(data_dir)), cache)
+
+
+def _env_int(name: str, default: int) -> int:
+    """Lee un entero del entorno y cae al valor por defecto si no es válido.
+
+    Args:
+        name: Nombre de la variable de entorno.
+        default: Valor usado si la variable falta, está vacía o no es entera.
+
+    Returns:
+        El entero configurado o ``default``.
+    """
+    raw = os.getenv(name)
+    if raw is None or not raw.strip():
+        return default
+    try:
+        return int(raw)
+    except ValueError:
+        logger.warning(
+            "configuracion_cache_invalida",
+            variable=name,
+            valor=raw,
+            por_defecto=default,
+        )
+        return default
 
 
 def _default_catalog_query() -> CatalogQuery:

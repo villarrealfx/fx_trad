@@ -1,9 +1,10 @@
-"""Tests del endpoint GET /series (TASK-021, RF-008/RX-002/RNF-008).
+"""Tests del endpoint GET /series (TASK-021, TASK-044, RF-008/RX-002/RNF-008).
 
 DoD: devuelve la serie OHLC del rango/timeframe y coincide con la consulta
 directa a DuckDB. Se cubre el contrato del endpoint con un stub de
-``SeriesQuery`` y la coincidencia con una integración real contra
-Parquet + DuckDB (fixture marzo 2026), incluyendo pre-resampling (TASK-017).
+``SeriesQuery``, la coincidencia con una integración real contra
+Parquet + DuckDB (fixture marzo 2026), incluyendo pre-resampling (TASK-017), y
+el wiring por defecto con la caché in-memory de TASK-044.
 """
 
 from __future__ import annotations
@@ -17,6 +18,7 @@ from fxtrad.api import create_app
 from fxtrad.contracts.ohlc import Candle, Timeframe
 from fxtrad.pipeline.resample import resample_ohlc
 from fxtrad.storage import (
+    CachedSeriesQuery,
     InvalidRangeError,
     InvalidTimeframeError,
     ParquetSeriesStore,
@@ -195,3 +197,58 @@ class TestSeriesMatchesDirectDuckDB:
 
         assert body["candles"] == [c.model_dump(mode="json") for c in expected]
         assert len(body["candles"]) == 2
+
+
+class TestDefaultSeriesWiring:
+    """TASK-044: el wiring por defecto sirve la segunda carga desde memoria."""
+
+    _COUNT = 300
+    _START = _BASE_TIME
+    _END = _BASE_TIME + 299
+
+    def _client(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, **env: str) -> TestClient:
+        monkeypatch.setenv("FXTRAD_DATA_DIR", str(tmp_path))
+        for name, value in env.items():
+            monkeypatch.setenv(name, value)
+        store = ParquetSeriesStore(tmp_path)
+        store.write("EURUSD", _second_candles(self._START, self._COUNT))
+        return TestClient(create_app(_FakeQueue()))
+
+    def _dump_window(self, client: TestClient) -> object:
+        return _dump(client, symbol="EURUSD", timeframe="1s", start=self._START, end=self._END)
+
+    def test_second_call_is_served_from_memory(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        client = self._client(tmp_path, monkeypatch)
+        query: CachedSeriesQuery = client.app.state.series_query
+
+        first = self._dump_window(client)
+        second = self._dump_window(client)
+
+        assert second == first
+        assert (query.stats.hits, query.stats.misses) == (1, 1)
+
+    def test_window_over_configured_limit_is_served_but_not_cached(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        client = self._client(tmp_path, monkeypatch, FXTRAD_CACHE_MAX_CANDLES="10")
+        query: CachedSeriesQuery = client.app.state.series_query
+
+        first = self._dump_window(client)
+        second = self._dump_window(client)
+
+        assert second == first
+        assert (query.stats.hits, query.stats.misses) == (0, 2)
+
+    @pytest.mark.parametrize("value", ["", "  ", "no-es-un-entero"])
+    def test_invalid_cache_limit_falls_back_to_default(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, value: str
+    ) -> None:
+        client = self._client(tmp_path, monkeypatch, FXTRAD_CACHE_MAX_CANDLES=value)
+        query: CachedSeriesQuery = client.app.state.series_query
+
+        self._dump_window(client)
+        self._dump_window(client)
+
+        assert query.stats.hits == 1

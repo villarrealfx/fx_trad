@@ -34,7 +34,7 @@ from fxtrad.ingest import DownloadInfo, DownloadQueue, DownloadRequest, Download
 from fxtrad.storage import (
     InvalidRangeError,
     InvalidTimeframeError,
-    SeriesQuery,
+    SeriesReader,
 )
 
 logger = structlog.get_logger()
@@ -81,13 +81,17 @@ DownloadHistoryQueryDependency = Annotated[
 ]
 
 
-def _get_series_query(request: Request) -> SeriesQuery:
-    """Devuelve la consulta de series inyectada al crear la aplicación (TASK-021)."""
-    query: SeriesQuery = request.app.state.series_query
+def _get_series_query(request: Request) -> SeriesReader:
+    """Devuelve la consulta de series inyectada al crear la aplicación (TASK-021).
+
+    Acepta tanto la lectura directa de TASK-016 como la decorada con la caché de
+    ventanas en memoria de TASK-044 (ADR-007), que es el wiring por defecto.
+    """
+    query: SeriesReader = request.app.state.series_query
     return query
 
 
-SeriesQueryDependency = Annotated[SeriesQuery, Depends(_get_series_query)]
+SeriesQueryDependency = Annotated[SeriesReader, Depends(_get_series_query)]
 
 
 def _get_catalog_query(request: Request) -> CatalogQuery:
