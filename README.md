@@ -80,4 +80,5 @@ Usa los mismos comandos que `make`, sin configuración duplicada.
 - `_docs/plan.md`, `_docs/requirements.md`, `_docs/architecture.md`
 - ADRs en `_docs/adr/`
 - UX en `_docs/ux/` · Backlog y estado en `_docs/backlog.md`, `_docs/status.md`
+- Auditoría de licencias OSS ($0, RNF-006): `_docs/license-audit.md`
 - Smoke de escritorio: `frontend/smoke-test.md`
