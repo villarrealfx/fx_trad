@@ -1,26 +1,26 @@
 # Estado del Proyecto: Plataforma de Análisis Técnico (estilo TradingView)
 
-> Última actualización: 2026-09-25 10:15
+> Última actualización: 2026-09-25 11:04
 > Fuente: `_docs/backlog.md` (v2), `_docs/traceability.md` (v2)
 
 ## 1. Resumen ejecutivo
 
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
-| Tareas totales | 62 | +1 (TASK-048) |
-| 📥 Backlog | 9 | — |
+| Tareas totales | 66 | +4 (TASK-049/050/051, TECH-001) |
+| 📥 Backlog | 12 | +3 |
 | 🔨 Doing | 0 | — |
-| 👀 Review | 0 | -1 |
-| ✅ Done | 53 | +1 |
+| 👀 Review | 0 | -1 (TASK-050 → Done) |
+| ✅ Done | 54 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 85.5% (53/62) | +1.6 |
+| % Completado | 81.8% (54/66) | +1.5 |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (9)
+### 📥 Backlog (12)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
@@ -33,6 +33,9 @@
 | TASK-041 | Logging structlog + correlación Celery | TEC-002 | S | TASK-037 |
 | TASK-042 | Interfaces/contratos de módulos | TEC-003 | S | TASK-037 |
 | TASK-043 | Registro extensible de indicadores | TEC-003 | M | TASK-031, TASK-042 |
+| TASK-049 | Regenerar los Parquets pre-resampling afectados tras un merge | EP-003 | M | TASK-050, TASK-017, TASK-019 |
+| TASK-051 | Escritura por lotes en Parquet + benchmark a volumen RNF-002 | EP-003 | M | TASK-015, TASK-019 |
+| TECH-001 | Mapear TASK-045 a un requisito IN en la matriz de trazabilidad | (deuda) | XS | — |
 
 ### 🔨 Doing (0)
 
@@ -42,10 +45,11 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (53)
+### ✅ Done (54)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
+| TASK-050 | Persistir la descarga: `merge()` + metadatos desde la tarea de descarga | EP-001 | 2026-09-25 | `backend/tests/pipeline/test_persist.py` (14 tests: la primera descarga crea el Parquet del activo y su metadato; el rango repetido completa la base sin duplicar `time`, KPI-4; la descarga vacía no crea Parquet pero sí registra `filas=0`; `build_persister` respeta `FXTRAD_DATA_DIR`; símbolo inseguro rechazado) + `backend/tests/ingest/test_tasks.py::TestDownloadPersistence` (5 tests E2E: la tarea Celery deja 9 velas + metadato `exito`; dos descargas sucesivas completan el rango; el fallo de escritura degrada el estado a `fallo` sin relanzar; sin persistidor no se escribe nada); suite 398 ✅ + 2 skip, `make lint-backend` limpio, cobertura 100% en `persist.py`/`tasks.py` — RF-006/RI-002 |
 | TASK-045 | Invalidación de caché por actualización incremental | TEC-004 | 2026-09-25 | `backend/tests/storage/test_cache.py` (10 tests: 3 de integración con `store.merge` real → ventana 300→360 velas; `invalidate(symbol)`; token de versión) + `backend/tests/api/test_series_endpoint.py::TestDefaultSeriesWiring::test_incremental_download_is_reflected_in_the_next_response` |
 | TASK-044 | Caché in-memory por ventana (Karst) | TEC-004 | 2026-09-25 | `backend/tests/storage/test_cache.py` (18 tests: la 2ª lectura no llama al almacén — se borra el Parquet y sigue sirviendo; aislamiento de clave por símbolo/timeframe/rango; copia defensiva; LRU y límite por ventanas/velas; ventana de 200k velas servida en 0,04 s < 2 s de KPI-3) + `backend/tests/api/test_series_endpoint.py::TestDefaultSeriesWiring` (payload idéntico y 1 acierto/1 fallo por `GET /series`, límite por env y fallback ante valor inválido); suite 359 ✅ + 2 skip, cobertura 100% de `cache.py`/`app.py`/`routes.py`, ruff/black/mypy OK — RNF-001/RNF-002 |
 | TASK-047 | Endpoint GET /downloads (historial RI-002) | EP-004 | 2026-09-25 | `backend/tests/api/test_download_history.py` (8 tests: contrato `[{date, active, range, status, rows}]`, orden descendente por fecha, estados exito/parcial/fallo, lista vacía, integración DuckDB de TASK-018) + `test_download_status.py::TestRouting` (`/downloads/` 307 → `/downloads`); suite 336 ✅ + 2 skip, ruff/black/mypy OK — RI-002 |
@@ -140,7 +144,7 @@ Ninguno.
 ### 🟡 Advertencias
 
 - **Cobertura de requisitos con brecha real** (§7): RF-016 0% (TASK-042/043 📥) y RNF-007 0% (TASK-038/039/041 📥) — sin verificación ni tareas cerradas; RNF-006 33% (TASK-038/040 📥).
-- **TASK-UI-021** es la única tarea desbloqueada y cierra 3 brechas a la vez (RF-001 86→100%, RF-002 75→100%, RF-006 67→100%, RI-002 67→100%).
+- **TASK-UI-021** cierra 4 brechas a la vez (RF-001 86→100%, RF-002 75→100%, RF-006 75→100%, RI-002 75→100%). Ya no es la única desbloqueada: TASK-049 y TASK-051 también lo están desde el ✅ de TASK-050.
 - PA-1 y PA-2 siguen sin resolver, pero sus tareas afectadas (TASK-005/008 y TASK-036/TASK-UI-060) ya están ✅ → pasa de riesgo de bloqueo a deuda de decisión abierta.
 - **AR-1 (observado 2026-09-18):** Dukascopy devolvía 503/timeout desde esta IP (4/4 intentos en el E2E de TASK-004); mitigado por retry/backoff 20 s de TASK-005 (✅) y ADR-006. Sin reverificación en vivo posterior → el tramo de datos reales sigue sin confirmarse.
 - DP-8: 184 pts > capacidad nominal de 2 semanas → priorizar; 51/62 tareas cerradas (82,3%).
@@ -148,6 +152,7 @@ Ninguno.
 
 ### 🟢 Informativas
 
+- TASK-050 👀 → ✅ Done (2026-09-25): DoD 3/3 re-ejecutada en review — `pipeline/persist.py` (`DownloadPersister.persist`: merge 1s + `download_metadata` con las filas obtenidas; sin velas no crea Parquet) inyectado como puerto en la tarea Celery vía `fxtrad_persister_factory`, sin que `ingest` importe `storage`; el fallo de escritura degrada el estado a `fallo` sin relanzar. `test_persist.py` 14 ✅ + `TestDownloadPersistence` 5 ✅ (suite 398 ✅ + 2 skip, `make lint-backend` limpio, cobertura 100% en `persist.py`/`tasks.py`); **cierra el hueco de RF-006 en backend (3/4)** — queda TASK-UI-021; **desbloquea TASK-049** (RF-009 al 100%).
 - TASK-047 👀 → ✅ Done (2026-09-25): DoD completa — `GET /downloads` con contrato `[{date, active, range, status, rows}]` sobre `DownloadMetadataStore` (TASK-018), orden descendente por fecha y estados exito/parcial/fallo; `test_download_history.py` 8 ✅ (suite 336 ✅ + 2 skip, ruff/black/mypy OK); **RI-002 backend cerrado (2/3)** — queda TASK-UI-021; desbloquea TASK-UI-021 (deps TASK-006 ✅ + TASK-UI-020 ✅ + TASK-047 ✅).
 - TASK-036 👀 → ✅ Done tras review (2026-09-24): DoD completa — `export/png.ts` (`canvasToBlob`/`exportChartPng`/`downloadBlob`/`buildExportFilename`, PNG 2x default + WebP, sin persistencia RI-003); `png.test.ts` + `app.test.tsx` → suite 104/104, lint/typecheck OK; prueba RF-015/RI-003 registrada; descarga manual atestada por usuario ('confirme el png manual ok'); **ruta crítica 11/12 (92%)**; habilita TASK-UI-060 (último nodo).
 - TASK-035 👀 → ✅ Done tras review (2026-09-24): DoD completa — verificación visual del lienzo compuesto atestada por usuario ('confirme visual'); `compose.test.ts` (6) + integración `ChartPane.test.tsx` (21) ✅, lint/typecheck OK; prueba RF-015 registrada; **ruta crítica 10/12 (83%)**; habilita TASK-036 (ruta crítica) y TASK-UI-060.
@@ -180,7 +185,7 @@ Ninguno.
 
 ## 7. Trazabilidad — salud
 
-Calculado desde la columna `Tarea` de `traceability.md` (29 requisitos IN) cruzado con el estado real en `backlog.md` (52 ✅ / 10 📥). Cobertura = tareas Done del requisito / tareas mapeadas.
+Calculado desde la columna `Tarea` de `traceability.md` (29 requisitos IN) cruzado con el estado real en `backlog.md` (54 ✅ / 12 📥). Cobertura = tareas Done del requisito / tareas mapeadas.
 
 | Requisito | Tareas | Done | Cobertura | Pendientes |
 |-----------|--------|------|-----------|------------|
@@ -189,10 +194,10 @@ Calculado desde la columna `Tarea` de `traceability.md` (29 requisitos IN) cruza
 | RF-003 | 2 | 2 | 100% | — |
 | RF-004 | 2 | 2 | 100% | — |
 | RF-005 | 3 | 3 | 100% | — |
-| RF-006 | 3 | 2 | 67% | TASK-UI-021 |
+| RF-006 | 4 | 3 | 75% | TASK-UI-021 |
 | RF-007 | 3 | 2 | 67% | TASK-UI-010 |
 | RF-008 | 3 | 2 | 67% | TASK-UI-030 |
-| RF-009 | 4 | 4 | 100% | — |
+| RF-009 | 5 | 4 | 80% | TASK-049 |
 | RF-010 | 3 | 3 | 100% | — |
 | RF-011 | 4 | 4 | 100% | — |
 | RF-012 | 3 | 3 | 100% | — |
@@ -201,7 +206,7 @@ Calculado desde la columna `Tarea` de `traceability.md` (29 requisitos IN) cruza
 | RF-015 | 3 | 3 | 100% | — |
 | RF-016 | 2 | 0 | 0% | TASK-042, TASK-043 |
 | RNF-001 | 3 | 3 | 100% | — |
-| RNF-002 | 4 | 4 | 100% | — |
+| RNF-002 | 5 | 4 | 80% | TASK-051 |
 | RNF-003 | 2 | 2 | 100% | — |
 | RNF-004 | 2 | 2 | 100% | — |
 | RNF-005 | 4 | 4 | 100% | — |
@@ -209,12 +214,12 @@ Calculado desde la columna `Tarea` de `traceability.md` (29 requisitos IN) cruza
 | RNF-007 | 3 | 0 | 0% | TASK-038, TASK-039, TASK-041 |
 | RNF-008 | 3 | 3 | 100% | — |
 | RI-001 | 4 | 4 | 100% | — |
-| RI-002 | 3 | 2 | 67% | TASK-UI-021 |
+| RI-002 | 4 | 3 | 75% | TASK-UI-021 |
 | RI-003 | 2 | 2 | 100% | — |
 | RX-001 | 4 | 4 | 100% | — |
 | RX-002 | 2 | 2 | 100% | — |
 
-**Requisitos sin tareas:** ninguno ✓ (29/29 con ≥1 tarea mapeada) · **Requisitos 100% Done:** 20/29 (69%) · **Cobertura global:** 78/91 mapeos de tarea Done (86%).
+**Requisitos sin tareas:** ninguno ✓ (29/29 con ≥1 tarea mapeada) · **Requisitos 100% Done:** 18/29 (62%) · **Cobertura global:** 80/95 mapeos de tarea Done (84%).
 
 **Brechas reales:** RF-016 (0%) → TASK-042 + TASK-043 siguen 📥 · RNF-007 (0%) → TASK-038/039/041 siguen 📥 · RNF-006 (33%) → TASK-038 + TASK-040.
 
@@ -229,6 +234,9 @@ Calculado desde la columna `Tarea` de `traceability.md` (29 requisitos IN) cruza
 3. Paralela: **TASK-UI-010/UI-030** (requieren `GET /assets` = TASK-020).
 
 > EP-UI-005 (SCR-005) completa: TASK-033 + TASK-034 + TASK-UI-050 ✅.
+>
+> **TASK-049 desbloqueada** (regeneración pre-resampling, RF-009): sus 3 deps —TASK-050, TASK-017, TASK-019— están en ✅. Es la siguiente candidata natural y cierra RF-009 al 100 %.
+> TASK-051 (escritura por lotes, RNF-002) también está startable (deps TASK-015 + TASK-019 ✅) y es la que desbloquea RNF-002 a volumen real: sin ella, 1 mes a 1s (~2.6M velas) es inviable por el writer fila a fila.
 
 ## 9. Historial de cambios (append-only)
 
@@ -346,3 +354,6 @@ Calculado desde la columna `Tarea` de `traceability.md` (29 requisitos IN) cruza
 | 2026-09-25 | TASK-044 | 👀 → ✅ | Review validada: DoD completa — la 2ª carga del mismo rango se sirve desde memoria (200k velas en 0,04 s < 2 s de KPI-3) sin volver a consultar DuckDB; `test_cache.py` (18 tests) + `test_series_endpoint.py::TestDefaultSeriesWiring` (5); suite 359 ✅ + 2 skip, cobertura 100% de `cache.py`/`app.py`/`routes.py`, ruff/black/mypy OK; prueba registrada (RNF-001 3/3 🟢, RNF-002 4/4 🟢); desbloquea TASK-045 |
 | 2026-09-25 | TASK-045 | 📥 → 🔨 → 👀 Review | Salto autorizado por el usuario (implementación ejecutada en sesión): token de versión del Parquet (`st_mtime_ns:st_size`) por ventana + `invalidate(symbol)` (ADR-007); ventana 300→360 velas tras `store.merge` y por API; 378 tests backend ✅ + 2 skip, cobertura 100% `cache/series/queries`, ruff/black/mypy limpios |
 | 2026-09-25 | TASK-045 | 👀 → ✅ | Review validada: DoD completa — ventana 300→360 velas tras `store.merge` real y por API; `invalidate(symbol)` + token de versión del Parquet por ventana (ADR-007/ADR-009); 378 tests backend ✅ + 2 skip, cobertura 100% `cache/series/queries`, ruff/black/mypy limpios |
+| 2026-09-25 | TASK-049, TASK-050, TASK-051, TECH-001 | Resync status.md | 4 tareas del backlog v2 (deuda técnica 2026-09-25) nunca registradas en el tablero; se incorporan como 📥, saldando el desync 62 vs 66 |
+| 2026-09-25 | TASK-050 | 📥 → 🔨 → 👀 Review | Implementada y verificada en una sesión: `pipeline/persist.py` (merge 1s + metadatos) como puerto inyectado en la tarea Celery; descarga vacía no crea Parquet y el fallo de escritura degrada el estado sin relanzar. DoD completa (E2E desde directorio vacío con estado exito + KPI-4 = 0 duplicados), 398 tests ✅ + 2 skip, `make lint-backend` limpio, cobertura 100% en `persist.py`/`tasks.py`. Salto de Doing no registrado en su día; documentado aquí en una sola entrada |
+| 2026-09-25 | TASK-050 | 👀 → ✅ Done | Review validada: DoD 3/3 re-ejecutada (398 tests ✅ + 2 skip, `make lint-backend` limpio, cobertura 100% en `persist.py`/`tasks.py`); `merge()` 1s + metadatos con filas reales desde la tarea Celery, descarga vacía sin Parquet y fallo de escritura sin relanzar. RF-006/RI-002 avanzan a 3/4 (queda TASK-UI-021); desbloquea TASK-049 |
