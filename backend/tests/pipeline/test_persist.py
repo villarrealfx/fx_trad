@@ -187,6 +187,52 @@ class TestEmptyDownload:
         assert _stored_times(ParquetSeriesStore(tmp_path)) == [_START, _START + 1]
 
 
+class TestRefreshIntegration:
+    """TASK-049: la persistencia refresca los derivados y no traga sus fallos."""
+
+    def test_persisting_regenerates_the_derived_series(self, tmp_path: Path) -> None:
+        persister = _persister(tmp_path)
+        persister.persist(
+            "EURUSD", _candles(_START, 3), start=_START, end=_START + 2, status="exito"
+        )
+
+        store = ParquetSeriesStore(tmp_path)
+        assert store.has_series("EURUSD", "1h")
+        assert store.read_range("EURUSD", 0, 2**31 - 1, "1h") == [
+            Candle(time=_START, open=1.1, high=1.1, low=1.1, close=1.1)
+        ]
+
+    def test_refresh_failure_propagates_and_skips_metadata(
+        self, tmp_path: Path, monkeypatch: object
+    ) -> None:
+        """Servir velas derivadas viejas es peor que reportar el fallo (RF-009)."""
+        persister = _persister(tmp_path)
+        persister.persist("EURUSD", _candles(_START, 1), start=_START, end=_START, status="exito")
+        metadata = DownloadMetadataStore(tmp_path)
+        before = metadata.count()
+
+        def _boom(*_args: object, **_kwargs: object) -> None:
+            raise RuntimeError("parquet derivado corrupto")
+
+        monkeypatch.setattr(  # type: ignore[attr-defined]
+            persister._refresher, "refresh", _boom  # noqa: SLF001
+        )
+        later = _START + _HOUR
+        with pytest.raises(RuntimeError, match="corrupto"):
+            persister.persist("EURUSD", _candles(later, 1), start=later, end=later, status="exito")
+
+        assert metadata.count() == before
+
+    def test_no_refresher_leaves_derived_series_untouched(self, tmp_path: Path) -> None:
+        store = ParquetSeriesStore(tmp_path)
+        persister = DownloadPersister(store, DownloadMetadataStore(tmp_path))
+
+        persister.persist("EURUSD", _candles(_START, 1), start=_START, end=_START, status="exito")
+
+        assert _stored_times(store) == [_START]
+        assert not store.has_series("EURUSD", "1h")
+
+
 class TestBuildPersister:
     """La factoría resuelve el directorio de datos como el resto del backend."""
 

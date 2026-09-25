@@ -16,6 +16,7 @@ from fastapi.testclient import TestClient
 
 from fxtrad.api import create_app
 from fxtrad.contracts.ohlc import Candle, Timeframe
+from fxtrad.pipeline.persist import build_persister
 from fxtrad.pipeline.resample import resample_ohlc
 from fxtrad.storage import (
     CachedSeriesQuery,
@@ -273,3 +274,103 @@ class TestDefaultSeriesWiring:
         self._dump_window(client)
 
         assert query.stats.hits == 1
+
+
+class TestDerivedSeriesAfterMerge:
+    """TASK-049: tras un merge 1s el timeframe derivado se sirve al día.
+
+    Es la aserción literal de la DoD: lo que devuelve
+    ``GET /series?timeframe=1h`` tiene que coincidir con la agregación directa
+    de la base 1s, y no con el Parquet que hubiera antes del merge.
+    """
+
+    _START = _BASE_TIME
+    _COUNT = 300
+    _HOUR = 3600
+
+    def _client(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> TestClient:
+        monkeypatch.setenv("FXTRAD_DATA_DIR", str(tmp_path))
+        return TestClient(create_app(_FakeQueue()))
+
+    def _base(self) -> list[Candle]:
+        return _second_candles(self._START, self._COUNT)
+
+    def test_derived_matches_direct_aggregation_after_a_merge(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        persister = build_persister(tmp_path)
+        persister.persist(
+            "EURUSD",
+            self._base(),
+            start=self._START,
+            end=self._START + self._COUNT - 1,
+            status="exito",
+        )
+        client = self._client(tmp_path, monkeypatch)
+
+        response = client.get(
+            "/series", params={"symbol": "EURUSD", "timeframe": "1h", "start": self._START}
+        )
+
+        base = ParquetSeriesStore(tmp_path).read_range("EURUSD", 0, 2**31 - 1, "1s")
+        expected = resample_ohlc(base, "1h").candles
+        assert response.status_code == 200
+        served = response.json()["candles"]
+        assert [(c["time"], c["open"], c["high"], c["low"], c["close"]) for c in served] == [
+            (c.time, c.open, c.high, c.low, c.close) for c in expected
+        ]
+
+    def test_incremental_merge_is_visible_in_the_next_1h_response(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        persister = build_persister(tmp_path)
+        persister.persist(
+            "EURUSD",
+            self._base(),
+            start=self._START,
+            end=self._START + self._COUNT - 1,
+            status="exito",
+        )
+        client = self._client(tmp_path, monkeypatch)
+        params = {"symbol": "EURUSD", "timeframe": "1h", "start": self._START}
+        first = client.get("/series", params=params)
+
+        # Segunda descarga en otra hora: el bucket nuevo debe servirse ya.
+        later = self._START + self._HOUR
+        persister.persist(
+            "EURUSD", _second_candles(later, 10), start=later, end=later + 9, status="exito"
+        )
+        second = client.get("/series", params=params)
+
+        assert [c["time"] for c in second.json()["candles"]] == [
+            self._START,
+            later,
+        ]
+        assert len(second.json()["candles"]) == len(first.json()["candles"]) + 1
+
+    def test_cached_1h_window_is_invalidated_by_the_merge(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """TASK-045 + TASK-049: la versión del derivado cambia al regenerarse."""
+        persister = build_persister(tmp_path)
+        persister.persist(
+            "EURUSD",
+            self._base(),
+            start=self._START,
+            end=self._START + self._COUNT - 1,
+            status="exito",
+        )
+        client = self._client(tmp_path, monkeypatch)
+        query: CachedSeriesQuery = client.app.state.series_query
+        params = {"symbol": "EURUSD", "timeframe": "1h", "start": self._START}
+        cached = client.get("/series", params=params)
+
+        later = self._START + self._HOUR
+        persister.persist(
+            "EURUSD", _second_candles(later, 10), start=later, end=later + 9, status="exito"
+        )
+        refreshed = client.get("/series", params=params)
+
+        assert len(refreshed.json()["candles"]) == len(cached.json()["candles"]) + 1
+        assert query.stats.invalidations == 1
+        assert query.stats.hits == 0

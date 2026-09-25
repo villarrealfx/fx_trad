@@ -335,6 +335,20 @@ class TestDownloadPersistence:
         assert summary["estado"] == "fallo"
         assert summary["velas"] == 1  # la descarga sí se hizo
 
+    def test_task_also_refreshes_the_derived_timeframes(
+        self, eager_app: object, tmp_path: Path
+    ) -> None:
+        """TASK-049: la tarea deja los Parquets derivados al día (RF-009)."""
+        CeleryDownloadQueue(eager_app).enqueue(
+            DownloadRequest(asset="EURUSD", start=_START, end=_END)
+        )
+        store = ParquetSeriesStore(tmp_path)
+
+        hourly = store.read_range("EURUSD", 0, 2**31 - 1, "1h")
+
+        assert len(hourly) == 3  # una vela por hora descargada
+        assert [candle.time for candle in hourly] == [_START, _START + 3600, _START + 7200]
+
     def test_without_persister_nothing_is_written(self, tmp_path: Path) -> None:
         """Sin persistidor la función solo descarga (contrato de TASK-004)."""
         summary = run_download_range(

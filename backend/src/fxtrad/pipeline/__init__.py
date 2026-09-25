@@ -3,7 +3,8 @@
 Transforma datos crudos en OHLC válido (RF-003, política PA-3), excluye
 periodos sin mercado (RF-004), resamplea a timeframes de visualización
 (RF-009), normaliza a UTC (RNF-004), persiste la descarga en la base local
-(RF-006/RI-002, TASK-050) y calcula indicadores MA/RSI/ATR sobre la serie limpia
+(RF-006/RI-002, TASK-050), regenera los Parquets pre-resampling tras un merge
+(RF-009, TASK-049) y calcula indicadores MA/RSI/ATR sobre la serie limpia
 (RF-013, TASK-031).
 """
 
@@ -27,6 +28,13 @@ from fxtrad.pipeline.normalize import (
     normalize_time,
 )
 from fxtrad.pipeline.persist import DownloadPersister, build_persister
+from fxtrad.pipeline.refresh import (
+    DERIVED_TIMEFRAMES,
+    ENV_TIMEFRAMES,
+    DerivedSeriesRefresher,
+    parse_timeframes,
+    timeframes_from_env,
+)
 from fxtrad.pipeline.resample import (
     InvalidSourceTimeframeError,
     InvalidTimeframeError,
@@ -37,7 +45,10 @@ from fxtrad.pipeline.resample import (
 __all__ = [
     "ATR_PERIOD_DEFAULT",
     "CleaningResult",
+    "DERIVED_TIMEFRAMES",
     "DownloadPersister",
+    "DerivedSeriesRefresher",
+    "ENV_TIMEFRAMES",
     "IndicatorsResult",
     "InvalidSourceTimeframeError",
     "InvalidTimeframeError",
@@ -54,7 +65,9 @@ __all__ = [
     "normalize_price",
     "normalize_row",
     "normalize_schema",
+    "parse_timeframes",
     "build_persister",
     "normalize_time",
     "resample_ohlc",
+    "timeframes_from_env",
 ]
