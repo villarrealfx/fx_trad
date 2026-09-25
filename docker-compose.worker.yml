@@ -1,7 +1,7 @@
 # Compose para el E2E de TASK-004: RabbitMQ + worker Celery.
-# El compose general de 4 servicios (frontend, backend, worker, broker) es
-# TASK-038 (ADR-009); aquí solo se define el par worker/broker para validar
-# el ciclo de descarga asíncrona de extremo a extremo en dev.
+# El compose general de 4 servicios es `docker-compose.yml` (TASK-038, ADR-009);
+# este archivo conserva solo el par worker/broker para validar el ciclo de
+# descarga asíncrona en dev sin levantar frontend ni API.
 services:
   rabbitmq:
     image: rabbitmq:3-management
@@ -11,9 +11,12 @@ services:
 
   worker:
     build:
-      context: .
-      dockerfile: backend/Dockerfile.worker
+      context: ./backend
+      target: worker
     environment:
       - FXTRAD_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+      - FXTRAD_DATA_DIR=/app/data
+    volumes:
+      - ./data:/app/data
     depends_on:
       - rabbitmq

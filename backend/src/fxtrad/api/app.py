@@ -11,7 +11,12 @@ from fastapi import FastAPI
 from fxtrad.api.catalog import CatalogQuery
 from fxtrad.api.downloads import DownloadHistoryQuery
 from fxtrad.api.routes import router
-from fxtrad.ingest import CeleryDownloadStatus, DownloadQueue, DownloadStatusQuery
+from fxtrad.ingest import (
+    CeleryDownloadQueue,
+    CeleryDownloadStatus,
+    DownloadQueue,
+    DownloadStatusQuery,
+)
 from fxtrad.storage import (
     DEFAULT_MAX_CANDLES,
     DEFAULT_MAX_WINDOWS,
@@ -123,4 +128,18 @@ def _default_download_history_query() -> DownloadHistoryQuery:
     return DownloadHistoryQuery(DownloadMetadataStore(data_dir))
 
 
-__all__ = ["create_app"]
+def create_default_app() -> FastAPI:
+    """Crea la aplicación con las dependencias de producción (TASK-038).
+
+    Punto de entrada sin argumentos para Uvicorn en el compose (``--factory``):
+    compone la cola real de Celery (ADR-006, ``FXTRAD_BROKER_URL``) y deja que
+    ``create_app`` construya el resto de consultas sobre ``FXTRAD_DATA_DIR``.
+    Las pruebas inyectan dobles con ``create_app`` y no pasan por aquí.
+
+    Returns:
+        Aplicación FastAPI lista para servir con las dependencias reales.
+    """
+    return create_app(CeleryDownloadQueue())
+
+
+__all__ = ["create_app", "create_default_app"]
