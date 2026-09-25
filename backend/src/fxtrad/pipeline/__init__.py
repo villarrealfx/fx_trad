@@ -13,9 +13,15 @@ from __future__ import annotations
 from fxtrad.pipeline.calendar import MarketCalendar
 from fxtrad.pipeline.clean import CleaningResult, RawCandle, clean_candles
 from fxtrad.pipeline.filter import filter_open_candles, filter_open_timestamps
+from fxtrad.pipeline.indicator_registry import (
+    IndicatorRegistry,
+    IndicatorSpec,
+)
 from fxtrad.pipeline.indicators import (
     ATR_PERIOD_DEFAULT,
+    INDICATOR_PLUGINS_PACKAGE,
     MA_PERIODS_DEFAULT,
+    REGISTRY,
     RSI_PERIOD_DEFAULT,
     IndicatorsResult,
     compute_indicators,
@@ -50,11 +56,15 @@ __all__ = [
     "DerivedSeriesRefresher",
     "ENV_TIMEFRAMES",
     "IndicatorsResult",
+    "IndicatorRegistry",
+    "IndicatorSpec",
+    "INDICATOR_PLUGINS_PACKAGE",
     "InvalidSourceTimeframeError",
     "InvalidTimeframeError",
     "MA_PERIODS_DEFAULT",
     "MarketCalendar",
     "RawCandle",
+    "REGISTRY",
     "RSI_PERIOD_DEFAULT",
     "ResamplingResult",
     "SchemaViolationError",

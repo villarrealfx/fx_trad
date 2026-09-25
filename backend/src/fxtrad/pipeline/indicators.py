@@ -20,6 +20,10 @@ ATR 14. Las salidas son tuplas alineadas por índice con el tiempo de la vela
 correspondiente (``times``); los valores ``None`` marcan el warm-up del
 indicador. La convención Wilder queda validada contra un fixture de referencia
 golden (``tests/pipeline/fixtures/indicators_reference.json``).
+
+TASK-043 añade el registro extensible (`indicator_registry`): MA/RSI/ATR quedan
+registrados como built-ins reutilizando estas mismas funciones, y los indicadores
+nuevos se añaden como plugins sin tocar este módulo (RF-016).
 """
 
 from __future__ import annotations
@@ -30,6 +34,7 @@ from dataclasses import dataclass
 import structlog
 
 from fxtrad.contracts.ohlc import Candle
+from fxtrad.pipeline.indicator_registry import IndicatorRegistry, IndicatorSpec
 
 logger = structlog.get_logger()
 
@@ -218,10 +223,60 @@ def compute_indicators(
     return IndicatorsResult(times=times, ma=ma, rsi=rsi, atr=atr)
 
 
+def _calculate_ma(candles: Sequence[Candle], period: int) -> tuple[float | None, ...]:
+    """Media móvil simple de ``period`` sobre los cierres (spec del registro)."""
+    return _sma([candle.close for candle in candles], period)
+
+
+def _calculate_rsi(candles: Sequence[Candle], period: int) -> tuple[float | None, ...]:
+    """RSI de Wilder de ``period`` sobre los cierres (spec del registro)."""
+    return _rsi_wilder([candle.close for candle in candles], period)
+
+
+def _calculate_atr(candles: Sequence[Candle], period: int) -> tuple[float | None, ...]:
+    """ATR de Wilder de ``period`` sobre las velas (spec del registro)."""
+    return _atr_wilder(candles, period)
+
+
+INDICATOR_PLUGINS_PACKAGE = "fxtrad.pipeline.indicator_plugins"
+"""Paquete de plugins de indicadores descubierto al importar el módulo."""
+
+REGISTRY = IndicatorRegistry()
+"""Registro por defecto con los indicadores built-in y los plugins descubiertos."""
+
+REGISTRY.register(
+    IndicatorSpec(
+        name="MA",
+        category="overlay",
+        default_period=MA_PERIODS_DEFAULT[0],
+        calculate=_calculate_ma,
+    )
+)
+REGISTRY.register(
+    IndicatorSpec(
+        name="RSI",
+        category="panel",
+        default_period=RSI_PERIOD_DEFAULT,
+        calculate=_calculate_rsi,
+    )
+)
+REGISTRY.register(
+    IndicatorSpec(
+        name="ATR",
+        category="overlay",
+        default_period=ATR_PERIOD_DEFAULT,
+        calculate=_calculate_atr,
+    )
+)
+REGISTRY.discover(INDICATOR_PLUGINS_PACKAGE)
+
+
 __all__ = [
     "ATR_PERIOD_DEFAULT",
+    "INDICATOR_PLUGINS_PACKAGE",
     "IndicatorsResult",
     "MA_PERIODS_DEFAULT",
+    "REGISTRY",
     "RSI_PERIOD_DEFAULT",
     "compute_indicators",
 ]
