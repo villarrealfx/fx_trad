@@ -6,6 +6,7 @@ DuckDB devuelve el rango. Se usa ``tmp_path`` para aislar cada test.
 
 from __future__ import annotations
 
+import time
 from pathlib import Path
 
 import duckdb
@@ -13,6 +14,7 @@ import pytest
 
 from fxtrad.contracts.ohlc import Candle
 from fxtrad.storage import DuplicateTimeError, InvalidTimeframeError, ParquetSeriesStore
+from fxtrad.storage.series import _INSERT_BATCH_SIZE
 
 _BASE_TIME = 1786442400  # 2026-08-11T10:00:00Z
 
@@ -206,3 +208,56 @@ class TestVersion:
     def test_version_rejects_non_canonical_timeframe(self, tmp_path: Path) -> None:
         with pytest.raises(InvalidTimeframeError, match="canónico"):
             ParquetSeriesStore(tmp_path).version("EURUSD", "3m")  # type: ignore[arg-type]
+
+
+class TestBatchWrite:
+    """La escritura por lotes no pierde filas ni duplica (TASK-051, RNF-002)."""
+
+    _BATCH = _INSERT_BATCH_SIZE
+
+    @staticmethod
+    def _batch_candles(count: int) -> list[Candle]:
+        """Serie de ``count`` velas consecutivas de 1 s desde la base."""
+        return [_candle(_BASE_TIME + index) for index in range(count)]
+
+    def test_write_handles_an_exact_batch(self, tmp_path: Path) -> None:
+        store = ParquetSeriesStore(tmp_path)
+
+        written = store.write("EURUSD", self._batch_candles(self._BATCH))
+
+        rows = store.read_range("EURUSD", 0, 2**31 - 1)
+        assert written == self._BATCH
+        assert len(rows) == self._BATCH
+        assert [candle.time for candle in rows] == sorted(candle.time for candle in rows)
+
+    def test_write_handles_a_batch_plus_one(self, tmp_path: Path) -> None:
+        store = ParquetSeriesStore(tmp_path)
+        count = self._BATCH + 1
+
+        store.write("EURUSD", self._batch_candles(count))
+
+        assert len(store.read_range("EURUSD", 0, 2**31 - 1)) == count
+
+    def test_merge_keeps_zero_duplicates_across_batches(self, tmp_path: Path) -> None:
+        store = ParquetSeriesStore(tmp_path)
+        base = self._batch_candles(self._BATCH)
+        store.write("EURUSD", base)
+        # Solape total + lote nuevo: el upsert debe dejar 0 duplicados (KPI-4).
+        overlap = self._batch_candles(self._BATCH) + [_candle(_BASE_TIME + self._BATCH, 9.9)]
+
+        total = store.merge("EURUSD", overlap)
+
+        rows = store.read_range("EURUSD", 0, 2**31 - 1)
+        assert total == self._BATCH + 1
+        assert len(rows) == len({candle.time for candle in rows}) == self._BATCH + 1
+
+    def test_write_is_not_row_by_row(self, tmp_path: Path) -> None:
+        """20k velas por lotes tardan ~1 s; fila a fila tardarían ~12 s (TASK-051)."""
+        store = ParquetSeriesStore(tmp_path)
+        candles = self._batch_candles(20_000)
+
+        started = time.perf_counter()
+        store.write("EURUSD", candles)
+        elapsed = time.perf_counter() - started
+
+        assert elapsed < 10.0

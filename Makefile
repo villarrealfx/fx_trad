@@ -12,7 +12,7 @@ BACKEND := backend
 FRONTEND := frontend
 UV := uv run --extra dev
 
-.PHONY: help lint lint-backend lint-frontend format format-backend format-frontend test test-backend test-frontend build compose-up compose-down
+.PHONY: help lint lint-backend lint-frontend format format-backend format-frontend test test-backend test-frontend build compose-up compose-down benchmark-parquet
 
 help:
 	@echo "Targets disponibles:"
@@ -22,6 +22,7 @@ help:
 	@echo "  make build   # build de producción del frontend"
 	@echo "  make compose-up    # docker compose up --build (4 servicios + volumen data/)"
 	@echo "  make compose-down  # docker compose down"
+	@echo "  make benchmark-parquet  # benchmark de escritura Parquet (RNF-002, TASK-051)"
 
 lint: lint-backend lint-frontend
 
@@ -55,3 +56,6 @@ compose-up:
 
 compose-down:
 	docker compose down
+
+benchmark-parquet:
+	cd $(BACKEND) && PYTHONPATH=src $(UV) python scripts/benchmark_parquet.py

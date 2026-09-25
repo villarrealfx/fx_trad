@@ -45,6 +45,7 @@ make test     # pytest (backend) | vitest (frontend)
 make build    # build de producción del frontend
 make compose-up    # docker compose up --build (4 servicios + volumen data/)
 make compose-down  # docker compose down
+make benchmark-parquet  # benchmark de escritura Parquet (RNF-002, TASK-051)
 ```
 
 ## Desarrollo

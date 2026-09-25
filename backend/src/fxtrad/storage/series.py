@@ -38,6 +38,12 @@ _CREATE_TABLE = (
 #: ADR-007) en ``{simbolo}.{tf}.parquet``.
 CANONICAL_TIMEFRAMES: frozenset[str] = frozenset({"1s", "1m", "5m", "15m", "1h", "4h", "1d"})
 
+#: Tamaño de lote de inserción en DuckDB (TASK-051). La inserción por lotes es
+#: ~11× más rápida que fila a fila a volumen RNF-002 (~53 µs/vela frente a
+#: ~589 µs/vela medidos en `scripts/benchmark_parquet.py`); lotes mayores no
+#: mejoran (la sentencia `VALUES` crece demasiado).
+_INSERT_BATCH_SIZE = 10_000
+
 
 class DuplicateTimeError(ValueError):
     """La serie contiene ``time`` repetidos: viola la unicidad de RI-001."""
@@ -279,24 +285,36 @@ class ParquetSeriesStore:
 
     @staticmethod
     def _write_parquet(path: Path, rows: Sequence[tuple[int, float, float, float, float]]) -> None:
-        """Escribe ``rows`` ordenadas por ``time`` en el Parquet de forma atómica.
+        """Escribe ``rows`` (ya ordenadas por ``time``) de forma atómica.
 
-        Crea la tabla ``series`` en una conexión efímera, inserta las filas y
-        copia a un archivo temporal que se renombra con ``os.replace`` para que
-        la escritura sea atómica (patrón de ``write``/``merge``).
+        Las filas se insertan **por lotes** con ``INSERT … SELECT`` (TASK-051):
+        la inserción fila a fila de DuckDB degrada a ~600 µs/vela y no es viable
+        a volumen RNF-002 (~18M filas). ``write``/``merge`` entregan las filas
+        ordenadas por ``time``; la atomicidad la da el renombrado con
+        ``os.replace`` del archivo temporal.
         """
-        rows = sorted(rows)
         path.parent.mkdir(parents=True, exist_ok=True)
         tmp_path = path.with_suffix(".parquet.tmp")
         connection = duckdb.connect()
         try:
             connection.execute(_CREATE_TABLE)
-            if rows:
-                connection.executemany("INSERT INTO series VALUES (?, ?, ?, ?, ?)", rows)
+            ParquetSeriesStore._insert_rows(connection, rows)
             connection.execute(f"COPY series TO '{tmp_path}' (FORMAT PARQUET)")
         finally:
             connection.close()
         os.replace(tmp_path, path)
+
+    @staticmethod
+    def _insert_rows(
+        connection: duckdb.DuckDBPyConnection,
+        rows: Sequence[tuple[int, float, float, float, float]],
+    ) -> None:
+        """Inserta las filas en lotes de ``_INSERT_BATCH_SIZE`` (TASK-051)."""
+        for start in range(0, len(rows), _INSERT_BATCH_SIZE):
+            chunk = rows[start : start + _INSERT_BATCH_SIZE]
+            placeholders = ", ".join(["(?, ?, ?, ?, ?)"] * len(chunk))
+            params = [value for row in chunk for value in row]
+            connection.execute(f"INSERT INTO series SELECT * FROM (VALUES {placeholders})", params)
 
     @staticmethod
     def _read_rows(path: Path) -> list[tuple[int, float, float, float, float]]:
