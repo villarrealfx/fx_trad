@@ -8,6 +8,7 @@ from pathlib import Path
 from fastapi import FastAPI
 
 from fxtrad.api.catalog import CatalogQuery
+from fxtrad.api.downloads import DownloadHistoryQuery
 from fxtrad.api.routes import router
 from fxtrad.ingest import CeleryDownloadStatus, DownloadQueue, DownloadStatusQuery
 from fxtrad.storage import DownloadMetadataStore, ParquetSeriesStore, SeriesQuery
@@ -18,6 +19,7 @@ def create_app(
     download_status_query: DownloadStatusQuery | None = None,
     series_query: SeriesQuery | None = None,
     catalog_query: CatalogQuery | None = None,
+    download_history_query: DownloadHistoryQuery | None = None,
 ) -> FastAPI:
     """Crea la aplicación FastAPI con dependencias inyectadas.
 
@@ -32,6 +34,8 @@ def create_app(
         catalog_query: Consulta del catálogo de activos con cobertura y estado
             (TASK-020, RF-007/CMP-006); por defecto se construye sobre el
             directorio de datos (ADR-004).
+        download_history_query: Consulta del historial de descargas (TASK-047);
+            por defecto se construye sobre el directorio de datos (ADR-004).
 
     Returns:
         Aplicación FastAPI lista para servir las rutas de descargas, series y
@@ -42,6 +46,7 @@ def create_app(
     app.state.download_status_query = download_status_query or CeleryDownloadStatus()
     app.state.series_query = series_query or _default_series_query()
     app.state.catalog_query = catalog_query or _default_catalog_query()
+    app.state.download_history_query = download_history_query or _default_download_history_query()
     app.include_router(router)
     return app
 
@@ -66,6 +71,12 @@ def _default_catalog_query() -> CatalogQuery:
     """
     data_dir = Path(os.getenv("FXTRAD_DATA_DIR", "data"))
     return CatalogQuery(ParquetSeriesStore(data_dir), DownloadMetadataStore(data_dir))
+
+
+def _default_download_history_query() -> DownloadHistoryQuery:
+    """Construye la consulta de historial sobre el directorio de datos."""
+    data_dir = Path(os.getenv("FXTRAD_DATA_DIR", "data"))
+    return DownloadHistoryQuery(DownloadMetadataStore(data_dir))
 
 
 __all__ = ["create_app"]

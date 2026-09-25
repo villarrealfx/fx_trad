@@ -4,6 +4,10 @@
 asíncrona (ADR-006). Responde 202 Accepted con el identificador de la tarea;
 un body inválido se rechaza con 422 sin encolar nada (criterio HU-001).
 
+``GET /downloads`` devuelve el historial de descargas persistido (TASK-047) en el
+contrato ``[{date, active, range, status, rows}]`` de SCR-002, en orden
+descendente por fecha de descarga.
+
 ``GET /series`` devuelve la serie OHLC de un activo por rango y timeframe
 (TASK-021), delegando en la capa de consulta de `storage` (RF-009/ADR-007);
 responde en el contrato ``OhlcResponse`` del frontend (RX-002, RNF-008).
@@ -24,6 +28,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, Field
 
 from fxtrad.api.catalog import AssetRow, CatalogQuery
+from fxtrad.api.downloads import DownloadHistoryQuery, DownloadHistoryRow
 from fxtrad.contracts.ohlc import OhlcResponse, Timeframe
 from fxtrad.ingest import DownloadInfo, DownloadQueue, DownloadRequest, DownloadStatusQuery
 from fxtrad.storage import (
@@ -63,6 +68,17 @@ def _get_download_status_query(request: Request) -> DownloadStatusQuery:
 
 
 DownloadStatusDependency = Annotated[DownloadStatusQuery, Depends(_get_download_status_query)]
+
+
+def _get_download_history_query(request: Request) -> DownloadHistoryQuery:
+    """Devuelve la consulta de historial inyectada al crear la aplicación."""
+    query: DownloadHistoryQuery = request.app.state.download_history_query
+    return query
+
+
+DownloadHistoryQueryDependency = Annotated[
+    DownloadHistoryQuery, Depends(_get_download_history_query)
+]
 
 
 def _get_series_query(request: Request) -> SeriesQuery:
@@ -145,6 +161,33 @@ def enqueue_download(
 
 
 @router.get(
+    "/downloads",
+    response_model=list[DownloadHistoryRow],
+    summary="Devuelve el historial de descargas",
+)
+def get_download_history(
+    request: Request,
+    history_query: DownloadHistoryQueryDependency,
+) -> list[DownloadHistoryRow]:
+    """Devuelve el historial de descargas en orden por fecha descendente.
+
+    Args:
+        request: Request HTTP (para correlación).
+        history_query: Consulta de metadatos inyectada (TASK-018/TASK-047).
+
+    Returns:
+        Historial con fecha, activo, rango, estado y filas de cada descarga.
+    """
+    rows = history_query.list()
+    logger.info(
+        "historial_descargas_consultado",
+        correlation_id=request.headers.get("x-correlation-id"),
+        records=len(rows),
+    )
+    return rows
+
+
+@router.get(
     "/downloads/{task_id}",
     response_model=DownloadInfo,
     summary="Consulta el estado de una descarga encolada",
@@ -223,4 +266,4 @@ def get_series(
     return OhlcResponse(symbol=symbol, timeframe=timeframe, candles=candles)
 
 
-__all__ = ["DownloadAccepted", "router"]
+__all__ = ["DownloadAccepted", "DownloadHistoryRow", "router"]

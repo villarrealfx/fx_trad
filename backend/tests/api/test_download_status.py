@@ -87,9 +87,10 @@ class TestGetDownloadStatus:
 class TestRouting:
     """El recurso solo responde al path y método definidos."""
 
-    def test_missing_task_id_is_not_matched(self, client: TestClient) -> None:
-        response = client.get("/downloads/")
-        assert response.status_code == 405  # trailing slash normaliza a /downloads (POST)
+    def test_trailing_slash_redirects_to_history(self, client: TestClient) -> None:
+        response = client.get("/downloads/", follow_redirects=False)
+        assert response.status_code == 307
+        assert response.headers["location"].endswith("/downloads")
 
     def test_post_status_path_is_not_allowed(self, client: TestClient) -> None:
         response = client.post(f"/downloads/{_TASK_ID}")
