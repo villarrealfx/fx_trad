@@ -195,7 +195,7 @@
 |----|-------|------|------|------|-----|--------|
 | TASK-018 | Tabla MetadatosDescarga (activo, rango, estado, fecha, filas) | bd | S | TASK-015 | Tabla DuckDB creada; inserta y lee registros de descarga; test unitario | ✅ |
 | TASK-019 | Upsert incremental por merge sobre `time` | bd | M | TASK-016, TASK-018 | Descargar un periodo nuevo sobre una base existente no duplica time ni borra filas; KPI-4 = 0 duplicados | ✅ |
-| TASK-049 | Regenerar los Parquets pre-resampling afectados tras un merge | bd | M | TASK-050, TASK-017, TASK-019 | Dado un activo con 1m/1h pre-resampling y un merge 1s nuevo, los timeframes cuyo rango intersecta el periodo quedan regenerados (o invalidados y recomputados al leer) y `GET /series?timeframe=1h` coincide con la agregación directa de la base 1s; test de integración | 📥 |
+| TASK-049 | Regenerar los Parquets pre-resampling afectados tras un merge | bd | M | TASK-050, TASK-017, TASK-019 | Dado un activo con 1m/1h pre-resampling y un merge 1s nuevo, los timeframes cuyo rango intersecta el periodo quedan regenerados (o invalidados y recomputados al leer) y `GET /series?timeframe=1h` coincide con la agregación directa de la base 1s; test de integración | ✅ |
 
 ### EP-004: API REST de datos
 - **Tipo:** Dominio

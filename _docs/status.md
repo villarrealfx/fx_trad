@@ -1,6 +1,6 @@
 # Estado del Proyecto: Plataforma de Análisis Técnico (estilo TradingView)
 
-> Última actualización: 2026-09-25 11:04
+> Última actualización: 2026-09-25 11:28
 > Fuente: `_docs/backlog.md` (v2), `_docs/traceability.md` (v2)
 
 ## 1. Resumen ejecutivo
@@ -8,19 +8,19 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 66 | +4 (TASK-049/050/051, TECH-001) |
-| 📥 Backlog | 12 | +3 |
+| 📥 Backlog | 11 | -1 (TASK-049 → Review) |
 | 🔨 Doing | 0 | — |
-| 👀 Review | 0 | -1 (TASK-050 → Done) |
-| ✅ Done | 54 | +1 |
+| 👀 Review | 0 | -1 (TASK-049 → Done) |
+| ✅ Done | 55 | +1 (TASK-049) |
 | 🔴 Blocked | 0 | — |
-| % Completado | 81.8% (54/66) | +1.5 |
+| % Completado | 83.3% (55/66) | +1.5 |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (12)
+### 📥 Backlog (11)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
@@ -33,7 +33,6 @@
 | TASK-041 | Logging structlog + correlación Celery | TEC-002 | S | TASK-037 |
 | TASK-042 | Interfaces/contratos de módulos | TEC-003 | S | TASK-037 |
 | TASK-043 | Registro extensible de indicadores | TEC-003 | M | TASK-031, TASK-042 |
-| TASK-049 | Regenerar los Parquets pre-resampling afectados tras un merge | EP-003 | M | TASK-050, TASK-017, TASK-019 |
 | TASK-051 | Escritura por lotes en Parquet + benchmark a volumen RNF-002 | EP-003 | M | TASK-015, TASK-019 |
 | TECH-001 | Mapear TASK-045 a un requisito IN en la matriz de trazabilidad | (deuda) | XS | — |
 
@@ -45,10 +44,11 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (54)
+### ✅ Done (55)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
+| TASK-049 | Regenerar los Parquets pre-resampling afectados tras un merge | EP-003 | 2026-09-25 | `backend/tests/pipeline/test_refresh.py` (22 tests: solo buckets intersectados, bucket parcial rehecho desde la base 1s, sin Parquet derivado sin datos, idempotencia, `parse_timeframes`) + `backend/tests/api/test_series_endpoint.py::TestDerivedSeriesAfterMerge` (3 tests: `GET /series?timeframe=1h` == `resample_ohlc` de la base 1s, bucket incremental servido, invalidación de caché) + `backend/tests/ingest/test_tasks.py::TestDownloadPersistence` (la tarea Celery deja los derivados al día); 430 ✅ + 2 skip, cobertura 100% `refresh.py` — RF-009 |
 | TASK-050 | Persistir la descarga: `merge()` + metadatos desde la tarea de descarga | EP-001 | 2026-09-25 | `backend/tests/pipeline/test_persist.py` (14 tests: la primera descarga crea el Parquet del activo y su metadato; el rango repetido completa la base sin duplicar `time`, KPI-4; la descarga vacía no crea Parquet pero sí registra `filas=0`; `build_persister` respeta `FXTRAD_DATA_DIR`; símbolo inseguro rechazado) + `backend/tests/ingest/test_tasks.py::TestDownloadPersistence` (5 tests E2E: la tarea Celery deja 9 velas + metadato `exito`; dos descargas sucesivas completan el rango; el fallo de escritura degrada el estado a `fallo` sin relanzar; sin persistidor no se escribe nada); suite 398 ✅ + 2 skip, `make lint-backend` limpio, cobertura 100% en `persist.py`/`tasks.py` — RF-006/RI-002 |
 | TASK-045 | Invalidación de caché por actualización incremental | TEC-004 | 2026-09-25 | `backend/tests/storage/test_cache.py` (10 tests: 3 de integración con `store.merge` real → ventana 300→360 velas; `invalidate(symbol)`; token de versión) + `backend/tests/api/test_series_endpoint.py::TestDefaultSeriesWiring::test_incremental_download_is_reflected_in_the_next_response` |
 | TASK-044 | Caché in-memory por ventana (Karst) | TEC-004 | 2026-09-25 | `backend/tests/storage/test_cache.py` (18 tests: la 2ª lectura no llama al almacén — se borra el Parquet y sigue sirviendo; aislamiento de clave por símbolo/timeframe/rango; copia defensiva; LRU y límite por ventanas/velas; ventana de 200k velas servida en 0,04 s < 2 s de KPI-3) + `backend/tests/api/test_series_endpoint.py::TestDefaultSeriesWiring` (payload idéntico y 1 acierto/1 fallo por `GET /series`, límite por env y fallback ante valor inválido); suite 359 ✅ + 2 skip, cobertura 100% de `cache.py`/`app.py`/`routes.py`, ruff/black/mypy OK — RNF-001/RNF-002 |
@@ -152,6 +152,7 @@ Ninguno.
 
 ### 🟢 Informativas
 
+- TASK-049 📥 → 🔨 → 👀 → ✅ Done (2026-09-25): salto de Doing confirmado por usuario (precedente TASK-035/044/045/047) y review validada. `pipeline/refresh.py` (`DerivedSeriesRefresher`, `parse_timeframes`/`timeframes_from_env` con `FXTRAD_DERIVED_TIMEFRAMES`, 6 derivados por defecto) regenera solo los buckets que intersectan el periodo leyendo la base 1s una vez; `persist.py` refresca tras el merge 1s y antes de los metadatos, y un fallo registra `refresh_derivadas_fallido` y propaga para degradar a `fallo` (TASK-050). Un bug real se corrigió en la ventana de lectura (cortaba en el inicio del último bucket y agregaba una fracción): la detectó el test de la DoD. 430 tests ✅ + 2 skip (de 398), `make lint-backend` limpio, cobertura 100% `refresh.py`/98% `persist.py`; prueba RF-009 registrada; **cierra RF-009 al 100% (5/5)**.
 - TASK-050 👀 → ✅ Done (2026-09-25): DoD 3/3 re-ejecutada en review — `pipeline/persist.py` (`DownloadPersister.persist`: merge 1s + `download_metadata` con las filas obtenidas; sin velas no crea Parquet) inyectado como puerto en la tarea Celery vía `fxtrad_persister_factory`, sin que `ingest` importe `storage`; el fallo de escritura degrada el estado a `fallo` sin relanzar. `test_persist.py` 14 ✅ + `TestDownloadPersistence` 5 ✅ (suite 398 ✅ + 2 skip, `make lint-backend` limpio, cobertura 100% en `persist.py`/`tasks.py`); **cierra el hueco de RF-006 en backend (3/4)** — queda TASK-UI-021; **desbloquea TASK-049** (RF-009 al 100%).
 - TASK-047 👀 → ✅ Done (2026-09-25): DoD completa — `GET /downloads` con contrato `[{date, active, range, status, rows}]` sobre `DownloadMetadataStore` (TASK-018), orden descendente por fecha y estados exito/parcial/fallo; `test_download_history.py` 8 ✅ (suite 336 ✅ + 2 skip, ruff/black/mypy OK); **RI-002 backend cerrado (2/3)** — queda TASK-UI-021; desbloquea TASK-UI-021 (deps TASK-006 ✅ + TASK-UI-020 ✅ + TASK-047 ✅).
 - TASK-036 👀 → ✅ Done tras review (2026-09-24): DoD completa — `export/png.ts` (`canvasToBlob`/`exportChartPng`/`downloadBlob`/`buildExportFilename`, PNG 2x default + WebP, sin persistencia RI-003); `png.test.ts` + `app.test.tsx` → suite 104/104, lint/typecheck OK; prueba RF-015/RI-003 registrada; descarga manual atestada por usuario ('confirme el png manual ok'); **ruta crítica 11/12 (92%)**; habilita TASK-UI-060 (último nodo).
@@ -197,7 +198,7 @@ Calculado desde la columna `Tarea` de `traceability.md` (29 requisitos IN) cruza
 | RF-006 | 4 | 3 | 75% | TASK-UI-021 |
 | RF-007 | 3 | 2 | 67% | TASK-UI-010 |
 | RF-008 | 3 | 2 | 67% | TASK-UI-030 |
-| RF-009 | 5 | 4 | 80% | TASK-049 |
+| RF-009 | 5 | 5 | 100% | — |
 | RF-010 | 3 | 3 | 100% | — |
 | RF-011 | 4 | 4 | 100% | — |
 | RF-012 | 3 | 3 | 100% | — |
@@ -219,7 +220,7 @@ Calculado desde la columna `Tarea` de `traceability.md` (29 requisitos IN) cruza
 | RX-001 | 4 | 4 | 100% | — |
 | RX-002 | 2 | 2 | 100% | — |
 
-**Requisitos sin tareas:** ninguno ✓ (29/29 con ≥1 tarea mapeada) · **Requisitos 100% Done:** 18/29 (62%) · **Cobertura global:** 80/95 mapeos de tarea Done (84%).
+**Requisitos sin tareas:** ninguno ✓ (29/29 con ≥1 tarea mapeada) · **Requisitos 100% Done:** 19/29 (66%) · **Cobertura global:** 81/95 mapeos de tarea Done (85%).
 
 **Brechas reales:** RF-016 (0%) → TASK-042 + TASK-043 siguen 📥 · RNF-007 (0%) → TASK-038/039/041 siguen 📥 · RNF-006 (33%) → TASK-038 + TASK-040.
 
@@ -235,8 +236,8 @@ Calculado desde la columna `Tarea` de `traceability.md` (29 requisitos IN) cruza
 
 > EP-UI-005 (SCR-005) completa: TASK-033 + TASK-034 + TASK-UI-050 ✅.
 >
-> **TASK-049 desbloqueada** (regeneración pre-resampling, RF-009): sus 3 deps —TASK-050, TASK-017, TASK-019— están en ✅. Es la siguiente candidata natural y cierra RF-009 al 100 %.
-> TASK-051 (escritura por lotes, RNF-002) también está startable (deps TASK-015 + TASK-019 ✅) y es la que desbloquea RNF-002 a volumen real: sin ella, 1 mes a 1s (~2.6M velas) es inviable por el writer fila a fila.
+> **RF-009 cerrado al 100%** (TASK-049 ✅ Done): los derivados pre-resampling se regeneran tras cada merge.
+> TASK-051 (escritura por lotes, RNF-002) está startable (deps TASK-015 + TASK-019 ✅) y es la que desbloquea RNF-002 a volumen real: sin ella, 1 mes a 1s (~2.6M velas) es inviable por el writer fila a fila.
 
 ## 9. Historial de cambios (append-only)
 
@@ -357,3 +358,5 @@ Calculado desde la columna `Tarea` de `traceability.md` (29 requisitos IN) cruza
 | 2026-09-25 | TASK-049, TASK-050, TASK-051, TECH-001 | Resync status.md | 4 tareas del backlog v2 (deuda técnica 2026-09-25) nunca registradas en el tablero; se incorporan como 📥, saldando el desync 62 vs 66 |
 | 2026-09-25 | TASK-050 | 📥 → 🔨 → 👀 Review | Implementada y verificada en una sesión: `pipeline/persist.py` (merge 1s + metadatos) como puerto inyectado en la tarea Celery; descarga vacía no crea Parquet y el fallo de escritura degrada el estado sin relanzar. DoD completa (E2E desde directorio vacío con estado exito + KPI-4 = 0 duplicados), 398 tests ✅ + 2 skip, `make lint-backend` limpio, cobertura 100% en `persist.py`/`tasks.py`. Salto de Doing no registrado en su día; documentado aquí en una sola entrada |
 | 2026-09-25 | TASK-050 | 👀 → ✅ Done | Review validada: DoD 3/3 re-ejecutada (398 tests ✅ + 2 skip, `make lint-backend` limpio, cobertura 100% en `persist.py`/`tasks.py`); `merge()` 1s + metadatos con filas reales desde la tarea Celery, descarga vacía sin Parquet y fallo de escritura sin relanzar. RF-006/RI-002 avanzan a 3/4 (queda TASK-UI-021); desbloquea TASK-049 |
+| 2026-09-25 | TASK-049 | 📥 → 🔨 → 👀 Review | Salto confirmado por el usuario (precedente TASK-035/044/045/047). `pipeline/refresh.py` (`DerivedSeriesRefresher`) regenera solo buckets intersectados leyendo la base 1s una vez; `persist.py` refresca tras el merge 1s y antes de metadatos, con `refresh_derivadas_fallido` que propaga para degradar a `fallo`. Bug de la ventana de lectura (cortaba en el inicio del último bucket) detectado por el test de la DoD y corregido. 430 tests ✅ + 2 skip (de 398), `make lint-backend` limpio, cobertura 100% `refresh.py`/98% `persist.py`; prueba RF-009 registrada. Pendiente aprobación |
+| 2026-09-25 | TASK-049 | 👀 → ✅ Done | Review validada: DoD completa — test de integración `GET /series?timeframe=1h` == `resample_ohlc` de la base 1s (sin servir el Parquet previo al merge); `TestDerivedSeriesAfterMerge` (3) + `test_refresh.py` (22) + E2E Celery; 430 ✅ + 2 skip, cobertura 100% `refresh.py`; prueba RF-009 registrada. **Cierra RF-009 al 100% (5/5 🟢)** |
