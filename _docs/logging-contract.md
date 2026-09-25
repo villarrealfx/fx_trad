@@ -21,6 +21,7 @@ TRACE < DEBUG < INFO < WARN < ERROR < FATAL
 | `timestamp` | ISO 8601 UTC | `2025-01-15T10:23:45.123Z` |
 | `level` | Nivel del evento | `INFO` |
 | `service` | Nombre del servicio | `fxtrad-backend` |
+| `module` | Módulo del punto de emisión | `fxtrad.ingest.tasks` |
 | `correlation_id` | ID de traza (request o tarea Celery) | `abc-123` |
 | `message` | Mensaje en español | `"Descarga completada"` |
 | `context` | Objeto con datos extra del evento | `{"activo": "EURUSD"}` |
@@ -37,13 +38,15 @@ TRACE < DEBUG < INFO < WARN < ERROR < FATAL
 
 ## Implementación por lenguaje
 
-### Python (structlog + stdlib logging)
+### Python (structlog)
 
-Configuración única al arrancar (módulo `fxtrad.logging_config` en una fase posterior; hasta entonces
-se usa la configuración por defecto de `structlog`):
+Configuración única al arrancar en `fxtrad.logging_config` (TASK-041): la API la
+aplica en `create_default_app()` y el worker al importar `fxtrad.ingest.tasks`.
+`configure_logging()` fija ``renderer`` (JSON en prod, texto en dev), nivel,
+``service`` y añade ``timestamp``/``module``; `connect_celery_signals()` bindea
+el ``task_id`` en cada tarea. Variables: `LOG_JSON`, `LOG_LEVEL`, `SERVICE_NAME`.
 
 ```python
-import os
 import structlog
 
 logger = structlog.get_logger()
@@ -59,6 +62,7 @@ logger.error(
 ```
 
 Nivel por defecto: `INFO`. Se ajusta con la variable de entorno `LOG_LEVEL` (`DEBUG`, `INFO`, `WARN`, `ERROR`).
+La salida JSON se activa con `LOG_JSON=true` (por defecto, texto legible en dev).
 
 ## Cobertura esperada
 

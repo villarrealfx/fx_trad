@@ -11,6 +11,7 @@ from pathlib import Path
 
 import pytest
 from fastapi import FastAPI
+from fastapi.testclient import TestClient
 
 from fxtrad.api.app import create_default_app
 
@@ -37,3 +38,15 @@ class TestDefaultAppFactory:
         create_default_app()
 
         assert (tmp_path / "downloads.duckdb").is_file()
+
+    def test_propagates_the_correlation_id_header(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setenv("FXTRAD_DATA_DIR", str(tmp_path))
+        client = TestClient(create_default_app())
+
+        echoed = client.get("/assets", headers={"x-correlation-id": "cid-1"})
+        generated = client.get("/assets")
+
+        assert echoed.headers["x-correlation-id"] == "cid-1"
+        assert generated.headers["x-correlation-id"]

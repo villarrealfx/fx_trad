@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from typing import Any
+from uuid import uuid4
 
 import structlog
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 
 from fxtrad.api.catalog import CatalogQuery
 from fxtrad.api.downloads import DownloadHistoryQuery
@@ -17,6 +19,7 @@ from fxtrad.ingest import (
     DownloadQueue,
     DownloadStatusQuery,
 )
+from fxtrad.logging_config import configure_logging
 from fxtrad.storage import (
     DEFAULT_MAX_CANDLES,
     DEFAULT_MAX_WINDOWS,
@@ -59,6 +62,19 @@ def create_app(
         catálogo.
     """
     app = FastAPI(title="fxtrad-backend", version="0.1.0")
+
+    @app.middleware("http")
+    async def _bind_correlation_id(request: Request, call_next: Any) -> Any:
+        """Propaga ``x-correlation-id`` (o genera uno) en cada request (TASK-041)."""
+        correlation_id = request.headers.get("x-correlation-id") or str(uuid4())
+        structlog.contextvars.bind_contextvars(correlation_id=correlation_id)
+        try:
+            response = await call_next(request)
+        finally:
+            structlog.contextvars.unbind_contextvars("correlation_id")
+        response.headers["x-correlation-id"] = correlation_id
+        return response
+
     app.state.download_queue = download_queue
     app.state.download_status_query = download_status_query or CeleryDownloadStatus()
     app.state.series_query = series_query or _default_series_query()
@@ -139,6 +155,7 @@ def create_default_app() -> FastAPI:
     Returns:
         Aplicación FastAPI lista para servir con las dependencias reales.
     """
+    configure_logging()
     return create_app(CeleryDownloadQueue())
 
 

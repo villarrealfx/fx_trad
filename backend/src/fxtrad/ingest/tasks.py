@@ -37,6 +37,7 @@ from fxtrad.ingest.retry import (
     retry_download_hour,
 )
 from fxtrad.ingest.status import DownloadInfo
+from fxtrad.logging_config import configure_logging, connect_celery_signals
 from fxtrad.pipeline.persist import DownloadPersister, build_persister
 
 logger = structlog.get_logger()
@@ -105,6 +106,12 @@ def create_celery_app() -> Celery:
 
 celery_app = create_celery_app()
 """Instancia única de la aplicación Celery del módulo ingest."""
+
+configure_logging()
+"""Configura el logging estructurado al importar el worker (TASK-041)."""
+
+connect_celery_signals()
+"""Correlaciona los logs de cada tarea con su ``task_id`` (TASK-041)."""
 
 
 def iter_hours(start_epoch_s: int, end_epoch_s: int) -> list[tuple[int, int, int, int]]:
