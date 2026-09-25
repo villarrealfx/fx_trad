@@ -4,12 +4,19 @@ DoD: la tarea se registra, se encola vía ``CeleryDownloadQueue`` y se ejecuta
 de extremo a extremo. En CI se ejecuta en modo eager con broker ``memory``
 (síncrono, sin RabbitMQ); la integración con un broker amqp real y descarga
 contra Dukascopy es optativa (``RUN_CELERY_INTEGRATION=1``).
+
+TASK-050 añade que la tarea ejecutada deje la descarga en la base local: el
+persistidor se inyecta por la configuración y todos los tests escriben en
+``tmp_path``, nunca en ``backend/data``.
 """
 
 from __future__ import annotations
 
 import os
+from collections.abc import Sequence
 from datetime import datetime
+from pathlib import Path
+from typing import cast
 
 import pandas as pd
 import pytest
@@ -27,6 +34,8 @@ from fxtrad.ingest.tasks import (
     iter_hours,
     run_download_range,
 )
+from fxtrad.pipeline.persist import DownloadPersister, build_persister
+from fxtrad.storage import DownloadMetadataStore, ParquetSeriesStore
 
 _START = 1772409600  # 2026-03-02T00:00:00Z (lunes)
 _END = _START + 2 * 3600  # 2026-03-02T02:00:00Z → 3 horas inclusive
@@ -49,6 +58,11 @@ def _tick_hour_df(start_ms: int) -> pd.DataFrame:
     return df.set_index("timestamp")
 
 
+def _all_candles(store: ParquetSeriesStore, symbol: str) -> list[Candle]:
+    """Lee la serie completa del activo (independiente de la aritmética del rango)."""
+    return store.read_range(symbol, 0, 2**31 - 1)
+
+
 def _fetcher_for():
     """Devuelve un fetcher que genera 3 ticks en la hora que recibe."""
 
@@ -66,14 +80,21 @@ def _fetcher_for():
 
 
 @pytest.fixture()
-def eager_app():
-    """Celery en modo eager con broker memory: no requiere RabbitMQ."""
+def eager_app(tmp_path: Path):
+    """Celery en modo eager con broker memory: no requiere RabbitMQ.
+
+    Se sustituyen las dos factorías de la app (TASK-050): el cliente por el
+    fetcher stub de arriba y el persistidor por uno real sobre ``tmp_path``. Sin
+    esto la tarea escribiría en ``backend/data`` y los tests ensuciarían el
+    repositorio.
+    """
     celery_app.conf.update(
         task_always_eager=True,
         broker_url="memory://",
         result_backend="cache+memory://",
         task_default_queue="test",
         fxtrad_client_factory=lambda: FreeservClient(fetcher=_fetcher_for()),
+        fxtrad_persister_factory=lambda: build_persister(tmp_path),
     )
     yield celery_app
 
@@ -105,6 +126,10 @@ class TestConfiguration:
 
     def test_build_client_returns_real_client(self) -> None:
         assert isinstance(build_client(), FreeservClient)
+
+    def test_persister_factory_is_wired(self) -> None:
+        """La app lleva la factoría real; no se invoca para no crear data/."""
+        assert create_celery_app().conf.fxtrad_persister_factory is build_persister
 
 
 class TestRegistration:
@@ -234,6 +259,95 @@ class TestPartialFailures:
         assert summary["horas_fallidas"] == 0
 
 
+class _FailingPersister:
+    """Doble que simula un fallo de disco al guardar la descarga."""
+
+    def persist(
+        self,
+        symbol: str,
+        candles: Sequence[Candle],
+        *,
+        start: int,
+        end: int,
+        status: str,
+        now: datetime | None = None,
+    ) -> int:
+        raise OSError("disco lleno (simulado)")
+
+
+class TestDownloadPersistence:
+    """TASK-050: la tarea deja la descarga en la base local (RF-006, RI-002)."""
+
+    def test_task_stores_candles_and_metadata(self, eager_app: object, tmp_path: Path) -> None:
+        task_id = CeleryDownloadQueue(eager_app).enqueue(
+            DownloadRequest(asset="EURUSD", start=_START, end=_END)
+        )
+        info = CeleryDownloadStatus(eager_app).get(task_id)
+
+        store = ParquetSeriesStore(tmp_path)
+        stored = _all_candles(store, "EURUSD")
+        assert len(stored) == 9  # 3 horas × 3 velas del fetcher stub
+        assert info.estado == "exito"
+        record = DownloadMetadataStore(tmp_path).history()[0]
+        assert (record.activo, record.filas, record.estado) == ("EURUSD", 9, "exito")
+        assert (record.inicio, record.fin) == (_START, _END)
+
+    def test_repeated_download_completes_the_base(self, eager_app: object, tmp_path: Path) -> None:
+        store = ParquetSeriesStore(tmp_path)
+        queue = CeleryDownloadQueue(eager_app)
+        queue.enqueue(DownloadRequest(asset="EURUSD", start=_START, end=_START + 3599))
+        first = len(_all_candles(store, "EURUSD"))
+
+        queue.enqueue(DownloadRequest(asset="EURUSD", start=_START + 3600, end=_END))
+        total = len(_all_candles(store, "EURUSD"))
+
+        assert (first, total) == (3, 9)  # KPI-4: 0 filas duplicadas
+        assert len(DownloadMetadataStore(tmp_path).history()) == 2
+
+    def test_failed_download_records_metadata_without_creating_asset(self, tmp_path: Path) -> None:
+        """Descarga vacía: no inventamos el activo, pero el intento queda."""
+        client = _SelectiveFailClient(failing_hours={0, 1, 2})
+        persister = build_persister(tmp_path)
+        policy = RetryPolicy(max_attempts=2, backoff_seconds=0.0, sleep=lambda _s: None)
+
+        summary = run_download_range(
+            client,
+            DownloadRequest(asset="EURUSD", start=_START, end=_END),
+            task_id="t-vacia",
+            policy=policy,
+            persister=persister,
+        )
+
+        assert summary["estado"] == "fallo"
+        assert not ParquetSeriesStore(tmp_path).has_series("EURUSD")
+        record = DownloadMetadataStore(tmp_path).history()[0]
+        assert (record.estado, record.filas) == ("fallo", 0)
+
+    def test_storage_failure_degrades_the_summary_without_raising(self) -> None:
+        """Un fallo de escritura se reporta en el resumen, no rompe la tarea."""
+        summary = run_download_range(
+            _SelectiveFailClient(failing_hours=set()),
+            DownloadRequest(asset="EURUSD", start=_START, end=_START + 3599),
+            task_id="t-error-disco",
+            persister=cast(DownloadPersister, _FailingPersister()),
+        )
+
+        assert summary["estado"] == "fallo"
+        assert summary["velas"] == 1  # la descarga sí se hizo
+
+    def test_without_persister_nothing_is_written(self, tmp_path: Path) -> None:
+        """Sin persistidor la función solo descarga (contrato de TASK-004)."""
+        summary = run_download_range(
+            _SelectiveFailClient(failing_hours=set()),
+            DownloadRequest(asset="EURUSD", start=_START, end=_START + 3599),
+        )
+
+        assert summary["estado"] == "exito"
+        assert summary["velas"] == 1
+        assert not ParquetSeriesStore(tmp_path).has_series("EURUSD")
+        assert DownloadMetadataStore(tmp_path).history() == []
+
+
 class TestCeleryDownloadQueue:
     """El adapter cumple el protocolo DownloadQueue del endpoint POST /downloads."""
 
@@ -306,7 +420,7 @@ class TestCeleryDownloadStatus:
     os.getenv("RUN_CELERY_INTEGRATION") != "1",
     reason="Requerido: broker amqp en localhost:5672 + RUN_CELERY_INTEGRATION=1",
 )
-def test_live_broker_roundtrip() -> None:
+def test_live_broker_roundtrip(tmp_path: Path) -> None:
     """Integración optativa: RabbitMQ real + descarga de una hora de Dukascopy.
 
     Reproduce el modo E2E de dev: se encola una hora conocida (EURUSD 2026-08-11
@@ -317,6 +431,7 @@ def test_live_broker_roundtrip() -> None:
     celery_app.conf.update(
         task_always_eager=True,
         broker_url="amqp://guest:guest@localhost:5672//",
+        fxtrad_persister_factory=lambda: build_persister(tmp_path),
     )
     queue = CeleryDownloadQueue(celery_app)
     start = 1786006800  # 2026-08-11T10:00:00Z
