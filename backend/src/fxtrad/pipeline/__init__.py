@@ -18,6 +18,13 @@ from fxtrad.pipeline.indicators import (
     IndicatorsResult,
     compute_indicators,
 )
+from fxtrad.pipeline.normalize import (
+    SchemaViolationError,
+    normalize_price,
+    normalize_row,
+    normalize_schema,
+    normalize_time,
+)
 from fxtrad.pipeline.resample import (
     InvalidSourceTimeframeError,
     InvalidTimeframeError,
@@ -36,9 +43,14 @@ __all__ = [
     "RawCandle",
     "RSI_PERIOD_DEFAULT",
     "ResamplingResult",
+    "SchemaViolationError",
     "clean_candles",
     "compute_indicators",
     "filter_open_candles",
     "filter_open_timestamps",
+    "normalize_price",
+    "normalize_row",
+    "normalize_schema",
+    "normalize_time",
     "resample_ohlc",
 ]
