@@ -139,11 +139,12 @@ Ninguno.
 
 ### 🟡 Advertencias
 
-- PA-2 sin resolver → impacta TASK-036 y TASK-UI-060 (ambos en ruta crítica).
-- PA-1 sin resolver → impacta TASK-005, TASK-008.
-- **AR-1 activo (observado 2026-09-18):** Dukascopy devuelve 503/timeout desde esta IP (4/4 intentos en el E2E de TASK-004; fechas pasadas) → el tramo de datos reales está temporalmente degradado; TASK-005 (retry/backoff 20 s, en 👀 Review) + ADR-006 lo mitigan.
-- RNF sin verificación programada (solo RF-003 y RNF-008 tienen prueba vía TASK-009; el resto 0).
-- DP-8: 184 pts > capacidad nominal de 2 semanas → priorizar ruta crítica; difiere SCR-005/a11y fino si el plazo aprieta.
+- **Cobertura de requisitos con brecha real** (§7): RF-016 0% (TASK-042/043 📥) y RNF-007 0% (TASK-038/039/041 📥) — sin verificación ni tareas cerradas; RNF-006 33% (TASK-038/040 📥).
+- **TASK-UI-021** es la única tarea desbloqueada y cierra 3 brechas a la vez (RF-001 86→100%, RF-002 75→100%, RF-006 67→100%, RI-002 67→100%).
+- PA-1 y PA-2 siguen sin resolver, pero sus tareas afectadas (TASK-005/008 y TASK-036/TASK-UI-060) ya están ✅ → pasa de riesgo de bloqueo a deuda de decisión abierta.
+- **AR-1 (observado 2026-09-18):** Dukascopy devolvía 503/timeout desde esta IP (4/4 intentos en el E2E de TASK-004); mitigado por retry/backoff 20 s de TASK-005 (✅) y ADR-006. Sin reverificación en vivo posterior → el tramo de datos reales sigue sin confirmarse.
+- DP-8: 184 pts > capacidad nominal de 2 semanas → priorizar; 51/62 tareas cerradas (82,3%).
+- `traceability.md` normalizado (2026-09-25): columna `Estado` recalculada desde el backlog → 🟢 18 requisitos al 100%, 🔵 9 parciales, 🟡 2 sin avanzar (RF-016, RNF-007). Pendiente de decisión: TASK-045 sigue sin requisito IN asociado en la matriz.
 
 ### 🟢 Informativas
 
@@ -179,14 +180,45 @@ Ninguno.
 
 ## 7. Trazabilidad — salud
 
-| Requisito | Tareas | Done | Cobertura |
-|-----------|--------|------|-----------|
-| RF-001…RF-016 | (mapeadas en traceability.md) | 1 | 6% |
-| RNF-001…RNF-008 | (mapeadas) | 1 | 13% |
-| RI-001…RI-003 | (mapeadas) | 0 | 0% |
-| RX-001…RX-002 | (mapeadas) | 0 | 0% |
+Calculado desde la columna `Tarea` de `traceability.md` (29 requisitos IN) cruzado con el estado real en `backlog.md` (51 ✅ / 11 📥). Cobertura = tareas Done del requisito / tareas mapeadas.
 
-**Requisitos sin tareas:** ninguno ✓ · **Requisitos 100% Done:** 0/29
+| Requisito | Tareas | Done | Cobertura | Pendientes |
+|-----------|--------|------|-----------|------------|
+| RF-001 | 7 | 6 | 86% | TASK-UI-021 |
+| RF-002 | 4 | 3 | 75% | TASK-UI-021 |
+| RF-003 | 2 | 2 | 100% | — |
+| RF-004 | 2 | 2 | 100% | — |
+| RF-005 | 3 | 3 | 100% | — |
+| RF-006 | 3 | 2 | 67% | TASK-UI-021 |
+| RF-007 | 3 | 2 | 67% | TASK-UI-010 |
+| RF-008 | 3 | 2 | 67% | TASK-UI-030 |
+| RF-009 | 4 | 4 | 100% | — |
+| RF-010 | 3 | 3 | 100% | — |
+| RF-011 | 4 | 4 | 100% | — |
+| RF-012 | 3 | 3 | 100% | — |
+| RF-013 | 3 | 3 | 100% | — |
+| RF-014 | 3 | 3 | 100% | — |
+| RF-015 | 3 | 3 | 100% | — |
+| RF-016 | 2 | 0 | 0% | TASK-042, TASK-043 |
+| RNF-001 | 3 | 2 | 67% | TASK-044 |
+| RNF-002 | 4 | 3 | 75% | TASK-044 |
+| RNF-003 | 2 | 2 | 100% | — |
+| RNF-004 | 2 | 2 | 100% | — |
+| RNF-005 | 4 | 4 | 100% | — |
+| RNF-006 | 3 | 1 | 33% | TASK-038, TASK-040 |
+| RNF-007 | 3 | 0 | 0% | TASK-038, TASK-039, TASK-041 |
+| RNF-008 | 3 | 3 | 100% | — |
+| RI-001 | 4 | 4 | 100% | — |
+| RI-002 | 3 | 2 | 67% | TASK-UI-021 |
+| RI-003 | 2 | 2 | 100% | — |
+| RX-001 | 4 | 4 | 100% | — |
+| RX-002 | 2 | 2 | 100% | — |
+
+**Requisitos sin tareas:** ninguno ✓ (29/29 con ≥1 tarea mapeada) · **Requisitos 100% Done:** 18/29 (62%) · **Cobertura global:** 76/91 mapeos de tarea Done (84%).
+
+**Brechas reales:** RF-016 (0%) → TASK-042 + TASK-043 siguen 📥 · RNF-007 (0%) → TASK-038/039/041 siguen 📥 · RNF-006 (33%) → TASK-038 + TASK-040.
+
+**Tareas Done fuera de la columna `Tarea`:** TASK-UI-001, TASK-UI-002 (transversal EP-UI-000, sin RF directo) y TASK-045 (Invalidación de caché, solo citada en nota de RNF-001/002) — sin requisito IN asociado en la matriz.
 
 ## 8. Próximas acciones sugeridas
 
