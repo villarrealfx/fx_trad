@@ -32,6 +32,13 @@ vi.mock('../export', () => ({
   downloadBlob: vi.fn(),
 }));
 
+vi.mock('../services/downloads', () => ({
+  requestDownload: vi.fn(),
+  fetchDownloadStatus: vi.fn(),
+  fetchDownloadHistory: vi.fn().mockResolvedValue([]),
+  DownloadError: class extends Error {},
+}));
+
 describe('accesibilidad (axe-core)', () => {
   afterEach(() => {
     cleanup();
@@ -39,6 +46,17 @@ describe('accesibilidad (axe-core)', () => {
   });
 
   it('la shell y la pantalla del gráfico no tienen violaciones detectables', async () => {
+    const { container } = render(<App />);
+
+    const results = await axe.run(container, {
+      rules: { 'color-contrast': { enabled: false } },
+    });
+
+    expect(results.violations).toEqual([]);
+  });
+
+  it('la pantalla de descarga no tiene violaciones detectables', async () => {
+    window.location.hash = '#/downloads';
     const { container } = render(<App />);
 
     const results = await axe.run(container, {

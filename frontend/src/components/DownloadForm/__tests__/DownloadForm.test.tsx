@@ -54,19 +54,43 @@ describe('DownloadForm (SCR-002)', () => {
     expect(button.disabled).toBe(false);
   });
 
-  it('enqueues the download with the range in UTC seconds and shows the task id', async () => {
-    render(<DownloadForm referenceDate={REFERENCE} />);
+  it('enqueues the download in UTC seconds and notifies the queued task', async () => {
+    const onQueued = vi.fn();
+    render(<DownloadForm referenceDate={REFERENCE} onQueued={onQueued} />);
     fillRange('2026-01-01', '2026-01-02');
 
     fireEvent.click(screen.getByRole('button', { name: 'Iniciar descarga' }));
 
-    await waitFor(() => expect(downloadMocks.requestDownload).toHaveBeenCalledTimes(1));
-    expect(downloadMocks.requestDownload).toHaveBeenCalledWith({
-      asset: 'EURUSD',
-      start: Math.floor(Date.parse('2026-01-01T00:00:00Z') / 1000),
-      end: Math.floor(Date.parse('2026-01-02T23:59:59Z') / 1000),
-    });
-    expect(await screen.findByText(/task_id: task-9/)).toBeTruthy();
+    const start = Math.floor(Date.parse('2026-01-01T00:00:00Z') / 1000);
+    const end = Math.floor(Date.parse('2026-01-02T23:59:59Z') / 1000);
+    await waitFor(() => expect(onQueued).toHaveBeenCalledTimes(1));
+    expect(downloadMocks.requestDownload).toHaveBeenCalledWith({ asset: 'EURUSD', start, end });
+    expect(onQueued).toHaveBeenCalledWith({ taskId: 'task-9', asset: 'EURUSD', start, end });
+  });
+
+  it('applies the prefill of a partial download range (RF-006)', () => {
+    render(
+      <DownloadForm
+        referenceDate={REFERENCE}
+        prefill={{ asset: 'XAUUSD', start: '2026-02-01', end: '2026-03-01' }}
+      />,
+    );
+
+    expect((screen.getByLabelText('Tipo') as HTMLSelectElement).value).toBe('metal');
+    expect((screen.getByLabelText('Activo') as HTMLSelectElement).value).toBe('XAUUSD');
+    expect((screen.getByLabelText('Fecha de inicio') as HTMLInputElement).value).toBe('2026-02-01');
+    expect((screen.getByLabelText('Fecha de fin') as HTMLInputElement).value).toBe('2026-03-01');
+  });
+
+  it('disables the fields and the submit while a download is in progress', () => {
+    const { container } = render(<DownloadForm referenceDate={REFERENCE} disabled />);
+
+    expect(container.querySelector('.download-form__fieldset')?.hasAttribute('disabled')).toBe(
+      true,
+    );
+    expect(
+      (screen.getByRole('button', { name: 'Iniciar descarga' }) as HTMLButtonElement).disabled,
+    ).toBe(true);
   });
 
   it('shows an error banner and preserves the values when the request fails', async () => {

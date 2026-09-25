@@ -1,5 +1,5 @@
 /*
- * Formulario de descarga (TASK-UI-020, SCR-002). Solo tokens.
+ * Formulario de descarga (TASK-UI-020/021, SCR-002). Solo tokens.
  */
 .download-form {
   display: flex;
@@ -7,6 +7,16 @@
   gap: var(--space-md);
   max-width: 720px;
   padding: var(--space-lg);
+}
+
+.download-form__fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.download-form__fieldset:disabled {
+  opacity: 0.6;
 }
 
 .download-form__grid {

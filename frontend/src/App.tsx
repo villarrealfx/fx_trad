@@ -21,7 +21,7 @@ import AppShell from './components/AppShell/AppShell';
 import ChartPane from './components/ChartPane/ChartPane';
 import type { ChartPaneHandle } from './components/ChartPane/ChartPane';
 import ChartSelector from './components/ChartSelector/ChartSelector';
-import DownloadForm from './components/DownloadForm/DownloadForm';
+import DownloadScreen from './components/DownloadScreen/DownloadScreen';
 import ExportModal from './components/ExportModal/ExportModal';
 import IndicatorPanel from './components/IndicatorPanel/IndicatorPanel';
 import MultiChart from './components/MultiChart/MultiChart';
@@ -84,16 +84,6 @@ function ScreenPlaceholder({ route }: { route: AppRoute }) {
     <section className="screen-placeholder" aria-label={route.label}>
       <h2>{route.label}</h2>
       <p>Pantalla {route.screen} pendiente de implementación.</p>
-    </section>
-  );
-}
-
-/** Pantalla SCR-002: formulario de descarga de datos históricos. */
-function DownloadScreen() {
-  return (
-    <section aria-label="Descarga de datos históricos">
-      <h2>Descargar datos históricos</h2>
-      <DownloadForm />
     </section>
   );
 }
