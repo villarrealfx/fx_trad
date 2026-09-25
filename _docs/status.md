@@ -1,6 +1,6 @@
 # Estado del Proyecto: Plataforma de Análisis Técnico (estilo TradingView)
 
-> Última actualización: 2026-09-25 12:44
+> Última actualización: 2026-09-25 13:39
 > Fuente: `_docs/backlog.md` (v2), `_docs/traceability.md` (v2)
 
 ## 1. Resumen ejecutivo
@@ -8,29 +8,24 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 66 | +4 (TASK-049/050/051, TECH-001) |
-| 📥 Backlog | 8 | -1 (TASK-039 → Review) |
+| 📥 Backlog | 3 | -1 (TASK-051 → Review) |
 | 🔨 Doing | 0 | — |
-| 👀 Review | 0 | -1 (TASK-039 → Done) |
-| ✅ Done | 58 | +1 (TASK-039) |
+| 👀 Review | 0 | -1 (TASK-051 → Done) |
+| ✅ Done | 63 | +1 (TASK-051) |
 | 🔴 Blocked | 0 | — |
-| % Completado | 87.9% (58/66) | +1.5 |
+| % Completado | 95.5% (63/66) | +1.6 |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (8)
+### 📥 Backlog (3)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
 | TASK-UI-010 | SCR-001 Biblioteca (AssetList CMP-006) | EP-UI-001 | L | TASK-020, TASK-UI-001, TASK-UI-003 |
 | TASK-UI-030 | SCR-003 Estados y validación cobertura | EP-UI-003 | M | TASK-020, TASK-026 |
-| TASK-040 | Auditoría licencias OSS ($0) | TEC-001 | S | TASK-037 |
-| TASK-041 | Logging structlog + correlación Celery | TEC-002 | S | TASK-037 |
-| TASK-042 | Interfaces/contratos de módulos | TEC-003 | S | TASK-037 |
-| TASK-043 | Registro extensible de indicadores | TEC-003 | M | TASK-031, TASK-042 |
-| TASK-051 | Escritura por lotes en Parquet + benchmark a volumen RNF-002 | EP-003 | M | TASK-015, TASK-019 |
 | TECH-001 | Mapear TASK-045 a un requisito IN en la matriz de trazabilidad | (deuda) | XS | — |
 
 ### 🔨 Doing (0)
@@ -41,10 +36,15 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (58)
+### ✅ Done (63)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
+| TASK-051 | Escritura por lotes en Parquet + benchmark a volumen RNF-002 | EP-003 | 2026-09-25 | `backend/tests/storage/test_series.py::TestBatchWrite` (fronteras de lote N/N+1, 0 duplicados, guarda de no-fila-a-fila) + `backend/scripts/benchmark_parquet.py` (write 52.6 µs/vela vs 600 de línea base = ×11.4; 18M ≈ 15.8 min; KPI-4 = 0) — RNF-002 |
+| TASK-043 | Registro extensible de indicadores | TEC-003 | 2026-09-25 | `backend/tests/pipeline/test_indicator_registry.py` (7: built-ins coherentes con `compute_indicators`, default/periodo inválido, duplicados/desconocidos, plugin nuevo descubierto sin tocar código) + `indicator_registry.py`; 457 ✅ + 2 skip, cobertura 96% — RF-016 |
+| TASK-042 | Interfaces/contratos de módulos | TEC-003 | 2026-09-25 | `backend/tests/test_module_interfaces.py` (11: import de `__all__`, fronteras por AST, Protocols satisfechos) + `_docs/module-interfaces.md`; 450 ✅ + 2 skip — RF-016 |
+| TASK-041 | Logging structlog + correlación Celery | TEC-002 | 2026-09-25 | `backend/tests/test_logging_config.py` (6: JSON con `timestamp`/`level`/`service`/`module`/`message`, filtrado por nivel, config por env, correlación `task_id` por señales Celery) + `backend/tests/api/test_app.py` (middleware `x-correlation-id`); 439 ✅ + 2 skip, cobertura 98% `logging_config.py` — RNF-007 |
+| TASK-040 | Auditoría licencias OSS ($0) | TEC-001 | 2026-09-25 | `_docs/license-audit.md` (inventario real: 50 backend + 310 frontend únicos + infra; denylist de copyleft fuerte/propietaria = 0; componentes comerciales descartados) — RNF-006 |
 | TASK-039 | GHA lint + tests | TEC-001 | 2026-09-25 | `.github/workflows/ci.yml` (jobs backend con `uv` y frontend con Node 20, reutilizando `make`; `actionlint` exit 0; comandos en verde: 432 backend ✅ + 2 skip y 262 frontend ✅) + `Makefile` con `uv run --extra dev`. **Salvedad:** sin `git remote` no hubo run real de GitHub Actions — RNF-007 |
 | TASK-038 | Docker Compose (4 servicios) | TEC-001 | 2026-09-25 | `docker-compose.yml` + `backend/Dockerfile` + `frontend/Dockerfile` (`docker compose up` levanta 4/4 servicios con el volumen `./data:/app/data`) + `backend/tests/api/test_app.py` (factory de producción `create_default_app`); 432 tests backend ✅ + 2 skip, lint limpio — RNF-006/RNF-007 |
 | TASK-UI-021 | SCR-002 Progreso + historial + estados | EP-UI-002 | 2026-09-25 | `frontend/src/components/DownloadScreen/__tests__/DownloadScreen.test.tsx` (5) + `DownloadProgress.test.tsx` (5) + `DownloadHistory.test.tsx` (4) + `DownloadForm.test.tsx` (8) + `services/__tests__/downloads.test.ts` (7): progreso determinista por polling sin timeout visual, historial con estado/filas, `parcial` sugiere el rango a completar, banners `success` auto-dismiss 5 s; 262 tests frontend ✅, lint/typecheck/prettier/axe OK — RF-001/RF-002/RF-006/RI-002 |
@@ -143,7 +143,7 @@ Ninguno.
 
 ### 🟡 Advertencias
 
-- **Cobertura de requisitos con brecha real** (§7): RF-016 0% (TASK-042/043 📥); RNF-007 67% (TASK-041 📥) y RNF-006 67% (TASK-040 📥).
+- **Cobertura de requisitos:** sin brechas reales; pendientes con tarea asignada: RF-007 (67%, TASK-UI-010) y RF-008 (67%, TASK-UI-030).
 - PA-1 y PA-2 siguen sin resolver, pero sus tareas afectadas (TASK-005/008 y TASK-036/TASK-UI-060) ya están ✅ → pasa de riesgo de bloqueo a deuda de decisión abierta.
 - **AR-1 (observado 2026-09-18):** Dukascopy devolvía 503/timeout desde esta IP (4/4 intentos en el E2E de TASK-004); mitigado por retry/backoff 20 s de TASK-005 (✅) y ADR-006. Sin reverificación en vivo posterior → el tramo de datos reales sigue sin confirmarse.
 - DP-8: 184 pts > capacidad nominal de 2 semanas → priorizar; 51/62 tareas cerradas (82,3%).
@@ -151,6 +151,11 @@ Ninguno.
 
 ### 🟢 Informativas
 
+- TASK-051 📥 → 🔨 → 👀 → ✅ Done (2026-09-25): salto de Doing confirmado y review validada (26 tests re-ejecutados). Escritura Parquet por lotes (`INSERT … SELECT`): **52,6 µs/vela (×11,4)** frente a la línea base fila a fila de 600 µs/vela, proyección a 18M ≈ 15,8 min y **KPI-4 = 0 duplicados**. **RNF-002 al 100% (5/5).**
+- TASK-043 📥 → 🔨 → 👀 → ✅ Done (2026-09-25): salto de Doing confirmado y review validada (7 tests re-ejecutados). Registro extensible de indicadores (`IndicatorRegistry`/`IndicatorSpec` + `indicator_plugins/`): un plugin nuevo se descubre sin tocar código existente y los built-ins MA/RSI/ATR coinciden con `compute_indicators`. **RF-016 al 100% (2/2): ninguna brecha real de requisito.**
+- TASK-042 📥 → 🔨 → 👀 → ✅ Done (2026-09-25): salto de Doing confirmado y review validada (11 tests re-ejecutados). `_docs/module-interfaces.md` documenta interfaz pública y fronteras de los 5 módulos; `test_module_interfaces.py` verifica import, fronteras por AST y Protocols. **RF-016 al 50% (1/2) y TASK-043 desbloqueada.**
+- TASK-041 📥 → 🔨 → 👀 → ✅ Done (2026-09-25): salto de Doing confirmado y review validada (test de emisión re-ejecutado, 9 passed). `logging_config.py` (JSON/texto, nivel, `service`, `module`, `message`; correlación Celery de `task_id`/`correlation_id`) + middleware `x-correlation-id`. **RNF-007 cerrado al 100% (3/3).**
+- TASK-040 📥 → 🔨 → 👀 → ✅ Done (2026-09-25): salto de Doing confirmado y review validada (denylist re-verificado = 0 sobre 360 paquetes). `_docs/license-audit.md` con inventario real (50 backend + 310 frontend únicos + infra), distribución de licencias, componentes comerciales descartados por diseño y conclusión RNF-006 ($0). **RNF-006 cerrado al 100% (3/3).**
 - TASK-039 📥 → 🔨 → 👀 → ✅ Done (2026-09-25): salto de Doing confirmado y review validada con salvedad. `.github/workflows/ci.yml` con 2 jobs paralelos (backend `make lint-backend`/`test-backend` vía `astral-sh/setup-uv`; frontend `actions/setup-node@v4` (Node 20, cache npm) + `npm ci` + `make lint-frontend`/`test-frontend`), reutilizando el Makefile; `Makefile` pasa a `uv run --extra dev` para CI limpio. `actionlint` exit 0 y comandos en verde (432 backend ✅ + 2 skip, 262 frontend ✅). **Salvedad documentada:** sin `git remote` no hubo run real de GitHub Actions. **RNF-007 33→67%.**
 - TASK-038 📥 → 🔨 → 👀 → ✅ Done (2026-09-25): salto de Doing confirmado por el usuario (precedente TASK-035/044/045/047/049/UI-021) y review validada (re-ejecutada: 4/4 servicios Up, `/assets` 200, volumen `data/` OK). `docker-compose.yml` levanta frontend :5173, backend :8000, worker Celery y broker RabbitMQ sobre una imagen multi-stage (`backend/Dockerfile` targets `api`/`worker`) con el volumen `./data:/app/data`; el frontend proxya `/series`, `/downloads` y `/assets` al backend (mismo origen). Añadido `create_default_app()` como factory de producción. 432 tests backend ✅ + 2 skip, lint limpio; **RNF-006 33→67%, RNF-007 0→33%**.
 - TASK-UI-021 📥 → 🔨 → 👀 → ✅ Done (2026-09-25): salto de Doing confirmado por el usuario (precedente TASK-035/044/045/047/049) y review validada. SCR-002 compone formulario + progreso + historial: `DownloadProgress` consulta `GET /downloads/{task_id}` y muestra una `ProgressBar` determinista (sin timeout visual), `DownloadHistory` pinta fecha/rango/estado/filas de `GET /downloads` (TASK-047) y sugiere completar el rango de una descarga `parcial` (incremental RF-006), y `DownloadScreen` orquesta los 5 estados con banners y auto-dismiss de éxito a 5 s. `262 tests frontend ✅` (de 240), lint/typecheck/prettier/axe OK, cobertura nueva ≥80% (`DownloadHistory` 100%, `DownloadProgress` 88% ramas, `DownloadForm` 85% ramas); prueba en RF-001/RF-002/RF-006/RI-002; **cierra RI-002 (4/4) y RF-001/RF-002/RF-006 al 100%**.
@@ -207,14 +212,14 @@ Calculado desde la columna `Tarea` de `traceability.md` (29 requisitos IN) cruza
 | RF-013 | 3 | 3 | 100% | — |
 | RF-014 | 3 | 3 | 100% | — |
 | RF-015 | 3 | 3 | 100% | — |
-| RF-016 | 2 | 0 | 0% | TASK-042, TASK-043 |
+| RF-016 | 2 | 2 | 100% | — |
 | RNF-001 | 3 | 3 | 100% | — |
-| RNF-002 | 5 | 4 | 80% | TASK-051 |
+| RNF-002 | 5 | 5 | 100% | — |
 | RNF-003 | 2 | 2 | 100% | — |
 | RNF-004 | 2 | 2 | 100% | — |
 | RNF-005 | 4 | 4 | 100% | — |
-| RNF-006 | 3 | 2 | 67% | TASK-040 |
-| RNF-007 | 3 | 2 | 67% | TASK-041 |
+| RNF-006 | 3 | 3 | 100% | — |
+| RNF-007 | 3 | 3 | 100% | — |
 | RNF-008 | 3 | 3 | 100% | — |
 | RI-001 | 4 | 4 | 100% | — |
 | RI-002 | 4 | 4 | 100% | — |
@@ -222,9 +227,9 @@ Calculado desde la columna `Tarea` de `traceability.md` (29 requisitos IN) cruza
 | RX-001 | 4 | 4 | 100% | — |
 | RX-002 | 2 | 2 | 100% | — |
 
-**Requisitos sin tareas:** ninguno ✓ (29/29 con ≥1 tarea mapeada) · **Requisitos 100% Done:** 23/29 (79%) · **Cobertura global:** 88/95 mapeos de tarea Done (93%).
+**Requisitos sin tareas:** ninguno ✓ (29/29 con ≥1 tarea mapeada) · **Requisitos 100% Done:** 27/29 (93%) · **Cobertura global:** 93/95 mapeos de tarea Done (98%).
 
-**Brechas reales:** RF-016 (0%) → TASK-042 + TASK-043 siguen 📥 · RNF-007 (67%) → TASK-041 · RNF-006 (67%) → TASK-040.
+**Brechas reales:** ninguna. Requisitos parciales con tarea asignada: RF-007 (67%, TASK-UI-010) y RF-008 (67%, TASK-UI-030).
 
 **Tareas Done fuera de la columna `Tarea`:** TASK-UI-001, TASK-UI-002 (transversal EP-UI-000, sin RF directo) y TASK-045 (TEC-004, sin RF directo) — sin requisito IN asociado en la matriz.
 
@@ -232,8 +237,8 @@ Calculado desde la columna `Tarea` de `traceability.md` (29 requisitos IN) cruza
 
 ## 8. Próximas acciones sugeridas
 
-1. **Iniciar TASK-040/041/042** (deps TASK-037 ✅) — licencias/logging/contratos.
-2. Paralela: **TASK-UI-010/UI-030** (requieren `GET /assets` = TASK-020).
+1. UI: **TASK-UI-010/UI-030** (requieren `GET /assets` = TASK-020 ✅).
+2. Deuda: **TECH-001** (mapear TASK-045 a un requisito IN en la matriz).
 
 > EP-UI-005 (SCR-005) completa: TASK-033 + TASK-034 + TASK-UI-050 ✅.
 >
@@ -367,3 +372,13 @@ Calculado desde la columna `Tarea` de `traceability.md` (29 requisitos IN) cruza
 | 2026-09-25 | TASK-038 | 👀 → ✅ Done | Review validada: DoD re-ejecutada (`docker compose up` → 4/4 Up, `GET /assets` 200, volumen `./data` montado en backend y worker); 432 tests backend ✅ + 2 skip, `create_default_app()` como factory de producción. RNF-006 33→67%, RNF-007 0→33% |
 | 2026-09-25 | TASK-039 | 📥 → 🔨 → 👀 Review | Salto de Doing confirmado. `.github/workflows/ci.yml` (2 jobs: backend uv y frontend Node 20) + `Makefile` con `uv run --extra dev`; `actionlint` exit 0 y comandos del workflow en verde (432 backend ✅ + 2 skip, 262 frontend ✅). Sin `git remote` no hubo run real de Actions. Prueba RNF-007. Pendiente aprobación |
 | 2026-09-25 | TASK-039 | 👀 → ✅ Done | Review validada con salvedad: `actionlint` exit 0 y comandos del workflow en verde (432 backend ✅ + 2 skip, 262 frontend ✅), reutilizando `make`; sin `git remote` no hubo run real de Actions. RNF-007 33→67% |
+| 2026-09-25 | TASK-040 | 📥 → 🔨 → 👀 Review | Salto de Doing confirmado. `_docs/license-audit.md`: inventario de 50 paquetes backend + 310 frontend únicos + infra; denylist de copyleft fuerte/propietaria = 0; RNF-006 cumplido ($0). Prueba RNF-006. Pendiente aprobación |
+| 2026-09-25 | TASK-040 | 👀 → ✅ Done | Review validada: `_docs/license-audit.md` con inventario y denylist re-verificado (0 copyleft fuerte/propietaria sobre 360 paquetes). **RNF-006 al 100% (3/3 🟢)** |
+| 2026-09-25 | TASK-041 | 📥 → 🔨 → 👀 Review | Salto de Doing confirmado. Logging structlog (`logging_config.py`: JSON, nivel, service, module, message) + correlación Celery por señales (`task_id`/`correlation_id`) + middleware `x-correlation-id`; 439 tests ✅ + 2 skip, cobertura 98%. Prueba RNF-007. Pendiente aprobación |
+| 2026-09-25 | TASK-041 | 👀 → ✅ Done | Review validada: test de emisión re-ejecutado (9 passed). Logging JSON con `module` y `task_id` de Celery + middleware `correlation_id`. **RNF-007 al 100% (3/3 🟢)** |
+| 2026-09-25 | TASK-042 | 📥 → 🔨 → 👀 Review | Salto de Doing confirmado. `module-interfaces.md` + `test_module_interfaces.py` (11: import de `__all__`, fronteras por AST, Protocols); 450 tests ✅ + 2 skip. Prueba RF-016. Pendiente aprobación |
+| 2026-09-25 | TASK-042 | 👀 → ✅ Done | Review validada: 11 tests de interfaz/fronteras re-ejecutados. RF-016 0→50%; desbloquea TASK-043 |
+| 2026-09-25 | TASK-043 | 📥 → 🔨 → 👀 Review | Salto de Doing confirmado. Registro extensible de indicadores (`IndicatorRegistry`/`IndicatorSpec` + `indicator_plugins/`); built-ins coherentes con `compute_indicators` y plugin nuevo descubierto en test. 457 tests ✅ + 2 skip. Prueba RF-016. Pendiente aprobación |
+| 2026-09-25 | TASK-043 | 👀 → ✅ Done | Review validada: 7 tests re-ejecutados. Registro extensible de indicadores con plugin descubierto sin tocar código existente. **RF-016 al 100% (2/2 🟢)** |
+| 2026-09-25 | TASK-051 | 📥 → 🔨 → 👀 Review | Salto de Doing confirmado. Escritura Parquet por lotes (`INSERT … SELECT`): 52,6 µs/vela (×11,4 sobre 600) y 18M ≈ 15,8 min proyectados; KPI-4 = 0 duplicados. 461 tests ✅ + 2 skip. Prueba RNF-002. Pendiente aprobación |
+| 2026-09-25 | TASK-051 | 👀 → ✅ Done | Review validada: 26 tests re-ejecutados. Escritura parquet por lotes ×11,4 (52,6 µs/vela), 18M ≈ 15,8 min, KPI-4 = 0 duplicados. **RNF-002 al 100% (5/5 🟢)** |

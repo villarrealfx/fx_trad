@@ -179,7 +179,7 @@
 | TASK-015 | Esquema SerieOHLC en Parquet por activo (time único) | bd | M | TASK-009 | Se crea un Parquet por activo con time BIGINT único; consulta DuckDB devuelve el rango | ✅ |
 | TASK-016 | Capa de consulta DuckDB por activo/rango/timeframe | bd | M | TASK-015 | Una query parametrizada devuelve OHLC del rango; test con dataset de fixture | ✅ |
 | TASK-017 | Parquet pre-resampling por timeframe | bd | M | TASK-014, TASK-015 | Los archivos por timeframe quedan persistidos y se consultan sin recomputar; test | ✅ |
-| TASK-051 | Escritura por lotes en Parquet + benchmark a volumen RNF-002 | bd | M | TASK-015, TASK-019 | `write`/`merge` escriben por lotes (tabla pyarrow o `INSERT … SELECT`) en vez de fila a fila; benchmark en el repo con la línea base de 600 µs/vela al volumen de RNF-002 (~18M filas de 1s); KPI-4 se mantiene en 0 duplicados | 📥 |
+| TASK-051 | Escritura por lotes en Parquet + benchmark a volumen RNF-002 | bd | M | TASK-015, TASK-019 | `write`/`merge` escriben por lotes (tabla pyarrow o `INSERT … SELECT`) en vez de fila a fila; benchmark en el repo con la línea base de 600 µs/vela al volumen de RNF-002 (~18M filas de 1s); KPI-4 se mantiene en 0 duplicados | ✅ |
 
 #### HU-008: Descargas incrementales sin duplicados
 - **Requisito origen:** RF-006, RI-002
@@ -391,7 +391,7 @@
 | TASK-037 | Monorepo (backend/frontend/worker) + lint/formato | infra | S | — | Estructura de carpetas creada; lint y formato configurados y ejecutables | ✅ |
 | TASK-038 | Docker Compose (frontend, backend, worker, broker, volumen data/) | infra | M | TASK-037 | `docker compose up` levanta los 4 servicios con volumen `data/` (ADR-009) | ✅ |
 | TASK-039 | GitHub Actions lint + tests | infra | S | TASK-037 | El workflow corre en push y pasa en verde | ✅ |
-| TASK-040 | Auditoría de licencias OSS ($0) | infra | S | TASK-037 | Inventario sin componentes comerciales (RNF-006); documento de auditoría | 📥 |
+| TASK-040 | Auditoría de licencias OSS ($0) | infra | S | TASK-037 | Inventario sin componentes comerciales (RNF-006); documento de auditoría | ✅ |
 | TASK-046 | Smoke test en navegadores de escritorio modernos | infra | S | TASK-026 | La app funciona en navegadores de escritorio modernos sin plugins (RNF-005) | ✅ |
 
 ### TEC-002: Observabilidad
@@ -401,7 +401,7 @@
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-041 | Logging estructurado structlog por módulo + correlación Celery | backend | S | TASK-037 | Logs JSON con módulo y task_id de Celery; test de emisión | 📥 |
+| TASK-041 | Logging estructurado structlog por módulo + correlación Celery | backend | S | TASK-037 | Logs JSON con módulo y task_id de Celery; test de emisión | ✅ |
 
 ### TEC-003: Extensibilidad e interfaces
 - **Origen:** RF-016 (ADR-001)
@@ -410,8 +410,8 @@
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-042 | Interfaces/contratos de módulos (ingest, pipeline, storage, api) | backend | S | TASK-037 | Cada módulo expone una interfaz documentada; test de import/contrato | 📥 |
-| TASK-043 | Registro extensible de indicadores | backend | M | TASK-031, TASK-042 | Agregar un indicador nuevo no modifica código existente; test de registro | 📥 |
+| TASK-042 | Interfaces/contratos de módulos (ingest, pipeline, storage, api) | backend | S | TASK-037 | Cada módulo expone una interfaz documentada; test de import/contrato | ✅ |
+| TASK-043 | Registro extensible de indicadores | backend | M | TASK-031, TASK-042 | Agregar un indicador nuevo no modifica código existente; test de registro | ✅ |
 
 ### TEC-004: Caché de series (Karst)
 - **Origen:** RNF-001, RNF-002, RNF-008 (ADR-007)
