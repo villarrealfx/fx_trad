@@ -413,7 +413,7 @@
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
 | TASK-044 | Caché in-memory por ventana (activo + timeframe) | backend | L | TASK-016, TASK-017 | La segunda carga del mismo rango se sirve desde memoria; latencia < 2 s (KPI-3) | ✅ |
-| TASK-045 | Invalidación de caché por actualización incremental | backend | M | TASK-019, TASK-044 | Tras una descarga incremental, la caché del activo se invalida y recarga | 📥 |
+| TASK-045 | Invalidación de caché por actualización incremental | backend | M | TASK-019, TASK-044 | Tras una descarga incremental, la caché del activo se invalida y recarga | ✅ |
 
 ## 6. Grafo de dependencias
 

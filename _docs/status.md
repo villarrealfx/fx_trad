@@ -1,6 +1,6 @@
 # Estado del Proyecto: Plataforma de Análisis Técnico (estilo TradingView)
 
-> Última actualización: 2026-09-25 10:03
+> Última actualización: 2026-09-25 10:15
 > Fuente: `_docs/backlog.md` (v2), `_docs/traceability.md` (v2)
 
 ## 1. Resumen ejecutivo
@@ -8,19 +8,19 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 62 | +1 (TASK-048) |
-| 📥 Backlog | 10 | -1 |
+| 📥 Backlog | 9 | — |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | -1 |
-| ✅ Done | 52 | +1 |
+| ✅ Done | 53 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 83.9% (52/62) | +1.6 |
+| % Completado | 85.5% (53/62) | +1.6 |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (10)
+### 📥 Backlog (9)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
@@ -33,7 +33,6 @@
 | TASK-041 | Logging structlog + correlación Celery | TEC-002 | S | TASK-037 |
 | TASK-042 | Interfaces/contratos de módulos | TEC-003 | S | TASK-037 |
 | TASK-043 | Registro extensible de indicadores | TEC-003 | M | TASK-031, TASK-042 |
-| TASK-045 | Invalidación de caché | TEC-004 | M | TASK-019, TASK-044 |
 
 ### 🔨 Doing (0)
 
@@ -43,10 +42,11 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (51)
+### ✅ Done (53)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
+| TASK-045 | Invalidación de caché por actualización incremental | TEC-004 | 2026-09-25 | `backend/tests/storage/test_cache.py` (10 tests: 3 de integración con `store.merge` real → ventana 300→360 velas; `invalidate(symbol)`; token de versión) + `backend/tests/api/test_series_endpoint.py::TestDefaultSeriesWiring::test_incremental_download_is_reflected_in_the_next_response` |
 | TASK-044 | Caché in-memory por ventana (Karst) | TEC-004 | 2026-09-25 | `backend/tests/storage/test_cache.py` (18 tests: la 2ª lectura no llama al almacén — se borra el Parquet y sigue sirviendo; aislamiento de clave por símbolo/timeframe/rango; copia defensiva; LRU y límite por ventanas/velas; ventana de 200k velas servida en 0,04 s < 2 s de KPI-3) + `backend/tests/api/test_series_endpoint.py::TestDefaultSeriesWiring` (payload idéntico y 1 acierto/1 fallo por `GET /series`, límite por env y fallback ante valor inválido); suite 359 ✅ + 2 skip, cobertura 100% de `cache.py`/`app.py`/`routes.py`, ruff/black/mypy OK — RNF-001/RNF-002 |
 | TASK-047 | Endpoint GET /downloads (historial RI-002) | EP-004 | 2026-09-25 | `backend/tests/api/test_download_history.py` (8 tests: contrato `[{date, active, range, status, rows}]`, orden descendente por fecha, estados exito/parcial/fallo, lista vacía, integración DuckDB de TASK-018) + `test_download_status.py::TestRouting` (`/downloads/` 307 → `/downloads`); suite 336 ✅ + 2 skip, ruff/black/mypy OK — RI-002 |
 | TASK-022 | Contrato respuesta TS (lightweight-charts) | EP-002 | 2026-09-24 | `frontend/src/contracts/__tests__/ohlc.test.ts` (puente DTO → `CandlestickData`: cast sin transformación de datos, aserción compile-time `Candle ⊆ CandlestickData`, `@ts-expect-error` por `UTCTimestamp` nominal; validado por `tsc --noEmit`) — RNF-008/RX-002 |
@@ -218,14 +218,15 @@ Calculado desde la columna `Tarea` de `traceability.md` (29 requisitos IN) cruza
 
 **Brechas reales:** RF-016 (0%) → TASK-042 + TASK-043 siguen 📥 · RNF-007 (0%) → TASK-038/039/041 siguen 📥 · RNF-006 (33%) → TASK-038 + TASK-040.
 
-**Tareas Done fuera de la columna `Tarea`:** TASK-UI-001, TASK-UI-002 (transversal EP-UI-000, sin RF directo) y TASK-045 (Invalidación de caché, solo citada en nota de RNF-001/002) — sin requisito IN asociado en la matriz.
+**Tareas Done fuera de la columna `Tarea`:** TASK-UI-001, TASK-UI-002 (transversal EP-UI-000, sin RF directo) y TASK-045 (TEC-004, sin RF directo) — sin requisito IN asociado en la matriz.
+
+**Brecha de mapeo pendiente:** TASK-045 (invalidación de caché, TEC-004, ✅ Done) no tiene requisito IN propio en la columna `Tarea`; su prueba se registra bajo RNF-001/RNF-002, que es lo que sirve. Pendiente de `/sdd-backlog`.
 
 ## 8. Próximas acciones sugeridas
 
-1. **Iniciar TASK-045** (invalidación de caché, TEC-004, M) — desbloqueada: deps TASK-019 ✅ + TASK-044 ✅; cierra el riesgo de ventana servida obsoleta tras una descarga incremental (ADR-007).
-2. **Iniciar TASK-UI-021** (SCR-002 Progreso + historial + estados, EP-UI-002, L) — desbloqueada: deps TASK-006 ✅ + TASK-UI-020 ✅ + TASK-047 ✅; cierra RI-002 (2/3 → 3/3).
-3. **Iniciar TASK-038/039/040/041/042** (deps TASK-037 ✅) — CI/Docker/logging/contratos.
-4. Paralela: **TASK-UI-010/UI-030** (requieren `GET /assets` = TASK-020).
+1. **Iniciar TASK-UI-021** (SCR-002 Progreso + historial + estados, EP-UI-002, L) — desbloqueada: deps TASK-006 ✅ + TASK-UI-020 ✅ + TASK-047 ✅; cierra RI-002 (2/3 → 3/3).
+2. **Iniciar TASK-038/039/040/041/042** (deps TASK-037 ✅) — CI/Docker/logging/contratos.
+3. Paralela: **TASK-UI-010/UI-030** (requieren `GET /assets` = TASK-020).
 
 > EP-UI-005 (SCR-005) completa: TASK-033 + TASK-034 + TASK-UI-050 ✅.
 
@@ -343,3 +344,5 @@ Calculado desde la columna `Tarea` de `traceability.md` (29 requisitos IN) cruza
 | 2026-09-25 | TASK-047 | 👀 → ✅ | Review validada: DoD completa (`GET /downloads` devuelve historial con fecha, activo, rango, estado y filas ordenado por fecha descendente; test unitario + integración DuckDB); `test_download_history.py` 8 ✅ + `test_download_status.py::TestRouting` (`/downloads/` → 307), suite 336 ✅ + 2 skip, ruff/black/mypy OK; prueba RI-002 registrada; **RI-002 backend cerrado (2/3)** — resta TASK-UI-021; desbloquea TASK-UI-021 |
 | 2026-09-25 | TASK-044 | 📥 → 🔨 → 👀 Review | Salto autorizado por el usuario (implementación ejecutada en sesión): caché in-memory por ventana de activo+timeframe (ADR-007 nivel 1, KPI-3) — `SeriesWindowCache` LRU 8 ventanas × 200k velas + `CachedSeriesQuery`; la 2ª carga del mismo rango se sirve desde memoria (200k velas ≈ 0,05 s < 2 s); 35 tests nuevos, suite backend 359 ✅ + 2 skip, cobertura 100% de `cache.py`/`app.py`/`routes.py`, ruff/black/mypy limpios; prueba registrada (RNF-001/RNF-002); desbloquea TASK-045 al cerrar review |
 | 2026-09-25 | TASK-044 | 👀 → ✅ | Review validada: DoD completa — la 2ª carga del mismo rango se sirve desde memoria (200k velas en 0,04 s < 2 s de KPI-3) sin volver a consultar DuckDB; `test_cache.py` (18 tests) + `test_series_endpoint.py::TestDefaultSeriesWiring` (5); suite 359 ✅ + 2 skip, cobertura 100% de `cache.py`/`app.py`/`routes.py`, ruff/black/mypy OK; prueba registrada (RNF-001 3/3 🟢, RNF-002 4/4 🟢); desbloquea TASK-045 |
+| 2026-09-25 | TASK-045 | 📥 → 🔨 → 👀 Review | Salto autorizado por el usuario (implementación ejecutada en sesión): token de versión del Parquet (`st_mtime_ns:st_size`) por ventana + `invalidate(symbol)` (ADR-007); ventana 300→360 velas tras `store.merge` y por API; 378 tests backend ✅ + 2 skip, cobertura 100% `cache/series/queries`, ruff/black/mypy limpios |
+| 2026-09-25 | TASK-045 | 👀 → ✅ | Review validada: DoD completa — ventana 300→360 velas tras `store.merge` real y por API; `invalidate(symbol)` + token de versión del Parquet por ventana (ADR-007/ADR-009); 378 tests backend ✅ + 2 skip, cobertura 100% `cache/series/queries`, ruff/black/mypy limpios |
