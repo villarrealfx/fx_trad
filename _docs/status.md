@@ -1,6 +1,6 @@
 # Estado del Proyecto: Plataforma de Análisis Técnico (estilo TradingView)
 
-> Última actualización: 2026-09-25 13:39
+> Última actualización: 2026-09-25 14:12
 > Fuente: `_docs/backlog.md` (v2), `_docs/traceability.md` (v2)
 
 ## 1. Resumen ejecutivo
@@ -8,25 +8,21 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 66 | +4 (TASK-049/050/051, TECH-001) |
-| 📥 Backlog | 3 | -1 (TASK-051 → Review) |
+| 📥 Backlog | 0 | -1 (TECH-001 → Review) |
 | 🔨 Doing | 0 | — |
-| 👀 Review | 0 | -1 (TASK-051 → Done) |
-| ✅ Done | 63 | +1 (TASK-051) |
+| 👀 Review | 0 | -1 (TECH-001 → Done) |
+| ✅ Done | 66 | +1 (TECH-001) |
 | 🔴 Blocked | 0 | — |
-| % Completado | 95.5% (63/66) | +1.6 |
+| % Completado | 100% (66/66) | +1.5 |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (3)
+### 📥 Backlog (0)
 
-| ID | Tarea | Épica | Est. | Deps |
-|----|-------|-------|------|------|
-| TASK-UI-010 | SCR-001 Biblioteca (AssetList CMP-006) | EP-UI-001 | L | TASK-020, TASK-UI-001, TASK-UI-003 |
-| TASK-UI-030 | SCR-003 Estados y validación cobertura | EP-UI-003 | M | TASK-020, TASK-026 |
-| TECH-001 | Mapear TASK-045 a un requisito IN en la matriz de trazabilidad | (deuda) | XS | — |
+Sin tareas.
 
 ### 🔨 Doing (0)
 
@@ -36,10 +32,13 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (63)
+### ✅ Done (66)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
+| TECH-001 | Mapear TASK-045 a un requisito IN en la matriz de trazabilidad | (deuda) | 2026-09-25 | `_docs/traceability.md` (TASK-045 añadida a la columna `Tarea` de RNF-001/RNF-002, donde ya vivía su prueba; 97/97 mapeos) |
+| TASK-UI-030 | SCR-003 Estados y validación cobertura | EP-UI-003 | 2026-09-25 | `frontend/src/components/ChartSelector/__tests__/ChartSelector.test.tsx` (10: cobertura del activo, skeleton, empty bloquea + CTA, error+reintento, validación fuera de cobertura con foco, aviso de rango útil parcial) + axe SCR-003; 284 tests frontend ✅ — RF-008 |
+| TASK-UI-010 | SCR-001 Biblioteca (AssetList CMP-006) | EP-UI-001 | 2026-09-25 | `frontend/src/components/AssetLibraryScreen/__tests__/AssetLibraryScreen.test.tsx` (6: tabla+última descarga, empty→SCR-002, error+reintento, partial, Graficar→SCR-003, Actualizar→SCR-002) + `AssetList.test.tsx` (5) + `services/__tests__/assets.test.ts` (3); 277 tests frontend ✅, axe SCR-001 OK — RF-007 |
 | TASK-051 | Escritura por lotes en Parquet + benchmark a volumen RNF-002 | EP-003 | 2026-09-25 | `backend/tests/storage/test_series.py::TestBatchWrite` (fronteras de lote N/N+1, 0 duplicados, guarda de no-fila-a-fila) + `backend/scripts/benchmark_parquet.py` (write 52.6 µs/vela vs 600 de línea base = ×11.4; 18M ≈ 15.8 min; KPI-4 = 0) — RNF-002 |
 | TASK-043 | Registro extensible de indicadores | TEC-003 | 2026-09-25 | `backend/tests/pipeline/test_indicator_registry.py` (7: built-ins coherentes con `compute_indicators`, default/periodo inválido, duplicados/desconocidos, plugin nuevo descubierto sin tocar código) + `indicator_registry.py`; 457 ✅ + 2 skip, cobertura 96% — RF-016 |
 | TASK-042 | Interfaces/contratos de módulos | TEC-003 | 2026-09-25 | `backend/tests/test_module_interfaces.py` (11: import de `__all__`, fronteras por AST, Protocols satisfechos) + `_docs/module-interfaces.md`; 450 ✅ + 2 skip — RF-016 |
@@ -143,14 +142,17 @@ Ninguno.
 
 ### 🟡 Advertencias
 
-- **Cobertura de requisitos:** sin brechas reales; pendientes con tarea asignada: RF-007 (67%, TASK-UI-010) y RF-008 (67%, TASK-UI-030).
+- **Cobertura de requisitos:** sin brechas; los 29 requisitos están al 100% y todas las tareas con requisito IN están mapeadas.
 - PA-1 y PA-2 siguen sin resolver, pero sus tareas afectadas (TASK-005/008 y TASK-036/TASK-UI-060) ya están ✅ → pasa de riesgo de bloqueo a deuda de decisión abierta.
 - **AR-1 (observado 2026-09-18):** Dukascopy devolvía 503/timeout desde esta IP (4/4 intentos en el E2E de TASK-004); mitigado por retry/backoff 20 s de TASK-005 (✅) y ADR-006. Sin reverificación en vivo posterior → el tramo de datos reales sigue sin confirmarse.
 - DP-8: 184 pts > capacidad nominal de 2 semanas → priorizar; 51/62 tareas cerradas (82,3%).
-- `traceability.md` normalizado (2026-09-25): columna `Estado` recalculada desde el backlog → 🟢 18 requisitos al 100%, 🔵 9 parciales, 🟡 2 sin avanzar (RF-016, RNF-007). Pendiente de decisión: TASK-045 sigue sin requisito IN asociado en la matriz.
+- `traceability.md` (2026-09-25): los 29 requisitos IN están al 100% y TASK-045 quedó mapeada a RNF-001/RNF-002 (TECH-001).
 
 ### 🟢 Informativas
 
+- TECH-001 📥 → 🔨 → 👀 → ✅ Done (2026-09-25): salto de Doing confirmado y review validada. TASK-045 queda mapeada a RNF-001/RNF-002 en la columna `Tarea`. **Cierra el backlog: 66/66 tareas (100%)**, 29/29 requisitos al 100% y 97/97 mapeos.
+- TASK-UI-030 📥 → 🔨 → 👀 → ✅ Done (2026-09-25): salto de Doing confirmado y review validada (284 tests y axe SCR-003 OK). SCR-003 con cobertura desde `GET /assets`, 5 estados, validación inline con foco y aviso de rango útil parcial. **RF-008 al 100%: los 29 requisitos quedan al 100%.**
+- TASK-UI-010 📥 → 🔨 → 👀 → ✅ Done (2026-09-25): salto de Doing confirmado y review validada (277 tests re-ejecutados; axe SCR-001 OK). Biblioteca de activos SCR-001 completa: `AssetList` (CMP-006) + `AssetLibraryScreen` (5 estados, última descarga, Graficar→SCR-003 y Actualizar→SCR-002). **RF-007 al 100% (3/3).**
 - TASK-051 📥 → 🔨 → 👀 → ✅ Done (2026-09-25): salto de Doing confirmado y review validada (26 tests re-ejecutados). Escritura Parquet por lotes (`INSERT … SELECT`): **52,6 µs/vela (×11,4)** frente a la línea base fila a fila de 600 µs/vela, proyección a 18M ≈ 15,8 min y **KPI-4 = 0 duplicados**. **RNF-002 al 100% (5/5).**
 - TASK-043 📥 → 🔨 → 👀 → ✅ Done (2026-09-25): salto de Doing confirmado y review validada (7 tests re-ejecutados). Registro extensible de indicadores (`IndicatorRegistry`/`IndicatorSpec` + `indicator_plugins/`): un plugin nuevo se descubre sin tocar código existente y los built-ins MA/RSI/ATR coinciden con `compute_indicators`. **RF-016 al 100% (2/2): ninguna brecha real de requisito.**
 - TASK-042 📥 → 🔨 → 👀 → ✅ Done (2026-09-25): salto de Doing confirmado y review validada (11 tests re-ejecutados). `_docs/module-interfaces.md` documenta interfaz pública y fronteras de los 5 módulos; `test_module_interfaces.py` verifica import, fronteras por AST y Protocols. **RF-016 al 50% (1/2) y TASK-043 desbloqueada.**
@@ -203,8 +205,8 @@ Calculado desde la columna `Tarea` de `traceability.md` (29 requisitos IN) cruza
 | RF-004 | 2 | 2 | 100% | — |
 | RF-005 | 3 | 3 | 100% | — |
 | RF-006 | 4 | 4 | 100% | — |
-| RF-007 | 3 | 2 | 67% | TASK-UI-010 |
-| RF-008 | 3 | 2 | 67% | TASK-UI-030 |
+| RF-007 | 3 | 3 | 100% | — |
+| RF-008 | 3 | 3 | 100% | — |
 | RF-009 | 5 | 5 | 100% | — |
 | RF-010 | 3 | 3 | 100% | — |
 | RF-011 | 4 | 4 | 100% | — |
@@ -213,8 +215,8 @@ Calculado desde la columna `Tarea` de `traceability.md` (29 requisitos IN) cruza
 | RF-014 | 3 | 3 | 100% | — |
 | RF-015 | 3 | 3 | 100% | — |
 | RF-016 | 2 | 2 | 100% | — |
-| RNF-001 | 3 | 3 | 100% | — |
-| RNF-002 | 5 | 5 | 100% | — |
+| RNF-001 | 4 | 4 | 100% | — |
+| RNF-002 | 6 | 6 | 100% | — |
 | RNF-003 | 2 | 2 | 100% | — |
 | RNF-004 | 2 | 2 | 100% | — |
 | RNF-005 | 4 | 4 | 100% | — |
@@ -227,18 +229,15 @@ Calculado desde la columna `Tarea` de `traceability.md` (29 requisitos IN) cruza
 | RX-001 | 4 | 4 | 100% | — |
 | RX-002 | 2 | 2 | 100% | — |
 
-**Requisitos sin tareas:** ninguno ✓ (29/29 con ≥1 tarea mapeada) · **Requisitos 100% Done:** 27/29 (93%) · **Cobertura global:** 93/95 mapeos de tarea Done (98%).
+**Requisitos sin tareas:** ninguno ✓ (29/29 con ≥1 tarea mapeada) · **Requisitos 100% Done:** 29/29 (100%) · **Cobertura global:** 97/97 mapeos de tarea Done (100%).
 
-**Brechas reales:** ninguna. Requisitos parciales con tarea asignada: RF-007 (67%, TASK-UI-010) y RF-008 (67%, TASK-UI-030).
+**Brechas reales:** ninguna; los 29 requisitos están al 100%.
 
-**Tareas Done fuera de la columna `Tarea`:** TASK-UI-001, TASK-UI-002 (transversal EP-UI-000, sin RF directo) y TASK-045 (TEC-004, sin RF directo) — sin requisito IN asociado en la matriz.
-
-**Brecha de mapeo pendiente:** TASK-045 (invalidación de caché, TEC-004, ✅ Done) no tiene requisito IN propio en la columna `Tarea`; su prueba se registra bajo RNF-001/RNF-002, que es lo que sirve. Pendiente de `/sdd-backlog`.
+**Tareas Done fuera de la columna `Tarea`:** TASK-UI-001, TASK-UI-002 (transversal EP-UI-000, sin RF directo).
 
 ## 8. Próximas acciones sugeridas
 
-1. UI: **TASK-UI-010/UI-030** (requieren `GET /assets` = TASK-020 ✅).
-2. Deuda: **TECH-001** (mapear TASK-045 a un requisito IN en la matriz).
+1. Backlog vacío: **MVP 66/66 (100%)**; sin tareas pendientes.
 
 > EP-UI-005 (SCR-005) completa: TASK-033 + TASK-034 + TASK-UI-050 ✅.
 >
@@ -382,3 +381,9 @@ Calculado desde la columna `Tarea` de `traceability.md` (29 requisitos IN) cruza
 | 2026-09-25 | TASK-043 | 👀 → ✅ Done | Review validada: 7 tests re-ejecutados. Registro extensible de indicadores con plugin descubierto sin tocar código existente. **RF-016 al 100% (2/2 🟢)** |
 | 2026-09-25 | TASK-051 | 📥 → 🔨 → 👀 Review | Salto de Doing confirmado. Escritura Parquet por lotes (`INSERT … SELECT`): 52,6 µs/vela (×11,4 sobre 600) y 18M ≈ 15,8 min proyectados; KPI-4 = 0 duplicados. 461 tests ✅ + 2 skip. Prueba RNF-002. Pendiente aprobación |
 | 2026-09-25 | TASK-051 | 👀 → ✅ Done | Review validada: 26 tests re-ejecutados. Escritura parquet por lotes ×11,4 (52,6 µs/vela), 18M ≈ 15,8 min, KPI-4 = 0 duplicados. **RNF-002 al 100% (5/5 🟢)** |
+| 2026-09-25 | TASK-UI-010 | 📥 → 🔨 → 👀 Review | Salto de Doing confirmado. Biblioteca SCR-001 (AssetList CMP-006 + AssetLibraryScreen): 5 estados, última descarga y navegación a SCR-002/003; 277 tests frontend ✅ (de 262), axe SCR-001 OK. Prueba RF-007. Pendiente aprobación |
+| 2026-09-25 | TASK-UI-010 | 👀 → ✅ Done | Review validada: 277 tests y axe SCR-001 OK. Biblioteca SCR-001 completa (5 estados + navegación SCR-002/003). **RF-007 al 100% (3/3 🟢)** |
+| 2026-09-25 | TASK-UI-030 | 📥 → 🔨 → 👀 Review | Salto de Doing confirmado. SCR-003: cobertura desde GET /assets, 5 estados, validación inline con foco y aviso de rango útil parcial. 284 tests frontend ✅ (de 277), axe SCR-003 OK. Prueba RF-008. Pendiente aprobación |
+| 2026-09-25 | TASK-UI-030 | 👀 → ✅ Done | Review validada: 284 tests y axe SCR-003 OK. Validación de cobertura de SCR-003 con foco inline. **RF-008 al 100%; los 29 requisitos cubiertos.** |
+| 2026-09-25 | TECH-001 | 📥 → 🔨 → 👀 Review | Salto de Doing confirmado. TASK-045 mapeada a RNF-001/RNF-002; 29/29 requisitos al 100% y 97/97 mapeos. Notas de mapeo pendiente retiradas. Pendiente aprobación |
+| 2026-09-25 | TECH-001 | 👀 → ✅ Done | Review validada: TASK-045 mapeada a RNF-001/RNF-002. **Backlog cerrado: 66/66 (100%).** |

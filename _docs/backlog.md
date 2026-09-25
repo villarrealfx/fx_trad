@@ -268,7 +268,7 @@
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-UI-010 | Implementar SCR-001 (AssetList CMP-006: tabla cobertura/estado, acciones Graficar→SCR-003 y Actualizar→SCR-002, última descarga) | frontend | L | TASK-020, TASK-UI-001, TASK-UI-003 | 5 estados (loading/empty/error/success/partial) implementados; a11y tabla + teclado; CTA empty→SCR-002; contraste verificado | 📥 |
+| TASK-UI-010 | Implementar SCR-001 (AssetList CMP-006: tabla cobertura/estado, acciones Graficar→SCR-003 y Actualizar→SCR-002, última descarga) | frontend | L | TASK-020, TASK-UI-001, TASK-UI-003 | 5 estados (loading/empty/error/success/partial) implementados; a11y tabla + teclado; CTA empty→SCR-002; contraste verificado | ✅ |
 
 ### EP-UI-002: Pantalla SCR-002 (Descargar datos)
 - **Tipo:** UI
@@ -306,7 +306,7 @@
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
 | TASK-026 | Selector de activo/rango/timeframe en la UI (navegación a SCR-004) | frontend | M | TASK-021, TASK-024 | Al cambiar la selección se carga el gráfico con los datos del rango (RF-007/008) | ✅ |
-| TASK-UI-030 | Estados y validación de SCR-003 (cobertura desde GET /assets, rangos fuera de cobertura, empty→CTA SCR-002) | frontend | M | TASK-020, TASK-026 | Empty bloquea "Abrir gráfico" con CTA a SCR-002; rango fuera de cobertura rechazado inline con foco al campo; partial avisa rango útil exacto; a11y fieldsets | 📥 |
+| TASK-UI-030 | Estados y validación de SCR-003 (cobertura desde GET /assets, rangos fuera de cobertura, empty→CTA SCR-002) | frontend | M | TASK-020, TASK-026 | Empty bloquea "Abrir gráfico" con CTA a SCR-002; rango fuera de cobertura rechazado inline con foco al campo; partial avisa rango útil exacto; a11y fieldsets | ✅ |
 
 ### EP-UI-004: Pantalla SCR-004 (Gráfico principal)
 - **Tipo:** UI
@@ -529,7 +529,7 @@ No hay tareas huérfanas en el Kanban: las 65 tareas rastrean a un requisito (`R
 
 | ID | Descripción | Capa | Est. | Justificación | Deps | Estado |
 |----|-------------|------|------|---------------|------|--------|
-| TECH-001 | Mapear TASK-045 a un requisito IN en la matriz de trazabilidad | docs | XS | Al cerrar TASK-045 (2026-09-25) se detectó que no tiene requisito IN propio: su prueba vive en las notas de RNF-001 y RNF-002, pero la columna `Tarea` no la nombra y la cobertura de requisitos no la refleja | TASK-045 ✅ | 📥 |
+| TECH-001 | Mapear TASK-045 a un requisito IN en la matriz de trazabilidad | docs | XS | Al cerrar TASK-045 (2026-09-25) se detectó que no tiene requisito IN propio: su prueba vive en las notas de RNF-001 y RNF-002, pero la columna `Tarea` no la nombra y la cobertura de requisitos no la refleja | TASK-045 ✅ | ✅ |
 
 **Deuda convertida en tareas (2026-09-25):** los tres defectos funcionales que会话-verificación de TASK-044/045 destapó ya son tareas normales con requisito y DoD: `TASK-050` (RF-006), `TASK-049` (RF-006, RF-009) y `TASK-051` (RNF-002).
 
