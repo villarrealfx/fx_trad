@@ -7,22 +7,21 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 24 (+1 TECH-002) | — |
-| 📥 Backlog | 2 (+1) | −1 |
+| 📥 Backlog | 1 (+1) | −1 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | — |
-| ✅ Done | 22 | +1 |
+| ✅ Done | 23 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 92% (22/24) | +4% |
+| % Completado | 96% (23/24) | +4% |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso · **ruta crítica 5/5 (100%)**
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (3)
+### 📥 Backlog (2)
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
-| TASK-067 | Docs RNF-002 | TEC-005 | XS | — |
 | TASK-072 | Auditoría licencias | TEC-005 | XS | — |
 | TECH-002 | Cierre iteración 02 | — | M | — |
 
@@ -36,7 +35,7 @@
 |----|-------|-------|------|-----------------|
 | — | — | — | — | — |
 
-### ✅ Done (22)
+### ✅ Done (23)
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
 | TASK-052 | Planificador bloques ≤30k | EP-005 | 2026-09-28 | `tests/ingest/test_planner.py::TestPlanBlocks::test_one_year_blocks_within_limit_and_sum_matches` |
@@ -61,6 +60,7 @@
 | TASK-069 | Verificar weekend/feriados | EP-008 | 2026-09-28 | `tests/test_market_filter_integrity.py::TestMarketFilter::test_no_kept_candle_falls_on_a_closed_day` |
 | TASK-UI-061 | Nota 1m SCR-002 | EP-UI-007 | 2026-09-28 | `frontend/src/components/DownloadForm/__tests__/DownloadForm.test.tsx` (nota "1 minuto (UTC)") |
 | TASK-073 | Smoke app | EP-UI-007 | 2026-09-28 | `frontend/src/__tests__/smoke-base-1m.test.tsx` (rutas + gráfico 1 m) |
+| TASK-067 | Docs RNF-002 | TEC-005 | 2026-09-28 | grep de iteración 02 sin referencias obsoletas vigentes (RNF-002→RNF-102) |
 
 ### 🔴 Blocked (0)
 | ID | Tarea | Motivo | Bloqueada desde | Desbloqueador |
@@ -98,13 +98,13 @@ Ninguno.
 Ninguna.
 
 ### 🟡 Advertencias
-- Deuda de artefactos obsoletos: `TASK-067` (RNF-002 en docs).
+- Única tarea de deuda abierta: `TASK-072` (auditoría de licencias).
 - `contracts.ohlc.Timeframe` conserva `"1s"` (rechazado por storage); cambio de contrato aparte.
 
 ### 🟢 Informativas
 - `TASK-065` cerrada: reanudación por rango restante con merge sin duplicados (KPI-4).
 - **Ruta crítica 5/5 (100%)** y **RF-104 al 100%**.
-- Desbloqueadas activas: TASK-067/072.
+- Desbloqueadas activas: TASK-072.
 
 ## 7. Trazabilidad — salud
 | Requisito | Tareas | Done | Cobertura |
@@ -132,8 +132,7 @@ Ninguna.
 **Requisitos sin tareas:** ninguno ✓ · **Requisitos 100% Done:** 17/19 (RF-101, RF-102, RF-103, RF-104, RF-105, RF-106, RNF-003, RNF-004, RNF-005, RNF-008, RNF-101, RNF-102, RI-101, RI-102, RI-002, RX-101, RX-001)
 
 ## 8. Próximas acciones sugeridas
-1. Deuda docs (**TASK-067** RNF-002, **TASK-072** licencias).
-2. Cierre **TECH-002**.
+1. **TASK-072** (auditoría de licencias) y cierre **TECH-002**.
 
 ## 9. Historial de cambios (append-only)
 | Fecha | Tarea | Transición | Motivo |
@@ -160,3 +159,4 @@ Ninguna.
 | 2026-09-28 | TASK-069 | 📥 → 👀 → ✅ Done | "Autorizado a pasar a done si aplica y realiza commit"; exclusión de weekend/feriados verificada con datos 1 m (suite 536 + 2 skip). **RF-106 al 100%**. Commit `test(TASK-069)` + `docs(...)` |
 | 2026-09-28 | TASK-UI-061 | 📥 → 👀 → ✅ Done | "Autorizado a pasar a done si aplica y realiza commit"; nota de SCR-002 pasa a 1 minuto UTC (frontend 284 tests, lint/typecheck OK). RNF-005 1/2. Commit `feat(TASK-UI-061)` + `docs(...)` |
 | 2026-09-28 | TASK-073 | 📥 → 👀 → ✅ Done | "Autorizado a pasar a done si aplica y realiza commit"; smoke de rutas + gráfico 1 m (frontend 286 tests, lint/typecheck OK). **RNF-005 al 100%**. Commit `test(TASK-073)` + `docs(...)` |
+| 2026-09-28 | TASK-067 | 📥 → 👀 → ✅ Done | "Autorizado a pasar a done si aplica y realiza commit"; docs de iteración 02 actualizadas a RNF-102 y pendientes del handoff resueltos. Commit `docs(TASK-067)` |
