@@ -10,6 +10,11 @@ modelo de request de descarga, el cliente de Dukascopy vía API chart freeserv
 from __future__ import annotations
 
 from fxtrad.ingest.batches import MAX_BATCH_SECONDS, DownloadBatch, plan_batches
+from fxtrad.ingest.benchmark import (
+    DOWNLOAD_TARGET_SECONDS,
+    BenchmarkResult,
+    benchmark_download,
+)
 from fxtrad.ingest.catalog import ASSET_CATALOG, Asset, AssetType, assets_by_type, get_asset
 from fxtrad.ingest.freeserv import FreeservClient, candles_from_ohlc
 from fxtrad.ingest.pacing import DEFAULT_PAUSE_SECONDS, download_blocks
@@ -41,6 +46,8 @@ __all__ = [
     "CeleryDownloadStatus",
     "DEFAULT_MAX_BLOCK_CANDLES",
     "DEFAULT_PAUSE_SECONDS",
+    "DOWNLOAD_TARGET_SECONDS",
+    "BenchmarkResult",
     "DownloadBatch",
     "DownloadBlock",
     "DownloadInfo",
@@ -50,6 +57,7 @@ __all__ = [
     "DownloadStatusQuery",
     "FreeservClient",
     "assets_by_type",
+    "benchmark_download",
     "candles_from_ohlc",
     "celery_app",
     "coalesce_ranges",
