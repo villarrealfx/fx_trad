@@ -7,24 +7,23 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 24 (+1 TECH-002) | — |
-| 📥 Backlog | 14 (+1) | −3 |
+| 📥 Backlog | 13 (+1) | −1 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | — |
-| ✅ Done | 10 | +3 |
+| ✅ Done | 11 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 42% (10/24) | +13% |
+| % Completado | 46% (11/24) | +4% |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (15)
+### 📥 Backlog (14)
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
 | TASK-058 | Test integridad paginación | EP-005 | M | TASK-056 ✅ |
 | TASK-074 | Benchmark descarga 1 año | EP-005 | M | TASK-056 ✅, TASK-058 |
-| TASK-063 | Regresión pipeline/storage | EP-006 | M | TASK-059 ✅, TASK-060 ✅, TASK-061 ✅, TASK-062 ✅ |
 | TASK-066 | Benchmark parquet 726k | EP-006 | S | TASK-060 ✅ |
 | TASK-070 | Verificar UTC/contrato | EP-006 | S | TASK-059 ✅ |
 | TASK-064 | Tandas 6–12m | EP-007 | M | TASK-056 ✅ |
@@ -48,7 +47,7 @@
 |----|-------|-------|------|-----------------|
 | — | — | — | — | — |
 
-### ✅ Done (10)
+### ✅ Done (11)
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
 | TASK-052 | Planificador bloques ≤30k | EP-005 | 2026-09-28 | `tests/ingest/test_planner.py::TestPlanBlocks::test_one_year_blocks_within_limit_and_sum_matches` |
@@ -61,6 +60,7 @@
 | TASK-060 | Storage naming 1m | EP-006 | 2026-09-28 | `tests/storage/test_timeframes.py::TestPrecomputePersistence::test_base_uses_1m_filename` |
 | TASK-061 | Persist/refresh derivadas | EP-006 | 2026-09-28 | `tests/pipeline/test_refresh.py::TestIncrementalRefresh::test_default_timeframes_cover_rf_009` |
 | TASK-062 | Queries/API base 1m | EP-006 | 2026-09-28 | `tests/api/test_series_endpoint.py::TestSeriesMatchesDirectDuckDB::test_resampled_timeframe_matches_direct_query` |
+| TASK-063 | Regresión pipeline/storage | EP-006 | 2026-09-28 | `tests/test_base_timeframe_regression.py` (7 casos) |
 
 ### 🔴 Blocked (0)
 | ID | Tarea | Motivo | Bloqueada desde | Desbloqueador |
@@ -81,7 +81,7 @@ graph LR
 ## 4. Métricas
 
 ### 4.1 Velocidad
-Sin datos suficientes (10 tareas completadas el mismo día).
+Sin datos suficientes (11 tareas completadas el mismo día).
 
 ### 4.2 Burn-down
 Sin datos.
@@ -100,19 +100,19 @@ Ninguna.
 ### 🟡 Advertencias
 - `TASK-074` es la única evidencia de RNF-101 (≤900 s); sin ella el requisito no se cierra.
 - Deuda de artefactos obsoletos: `TASK-066` (benchmark), `TASK-067` (RNF-002), `TASK-UI-061` (nota "1s UTC").
-- `contracts.ohlc.Timeframe` conserva `"1s"` (pendiente fuera de 060/061/062); el storage ya lo rechaza.
+- `contracts.ohlc.Timeframe` conserva `"1s"` (rechazado por storage); cambio de contrato aparte.
 
 ### 🟢 Informativas
-- **Base 1 m de punta a punta** (TASK-060/061/062 implementadas juntas, opción A): storage, refresh/persist y queries/API.
-- **RI-101 y RI-102 al 100%**; RF-103 al 75% (falta la regresión TASK-063).
-- Desbloqueadas: TASK-063, TASK-066, TASK-068, TASK-073.
+- `TASK-063` cerrada: guard de regresión de la base 1 m; **suite 488 passed + 2 skip**.
+- **RF-103 al 100%**; EP-006 (base 1 m y derivadas) completa salvo benchmarks (066) y verificación UTC (070).
+- Desbloqueadas activas: TASK-064, TASK-066, TASK-068, TASK-069, TASK-070, TASK-073.
 
 ## 7. Trazabilidad — salud
 | Requisito | Tareas | Done | Cobertura |
 |-----------|--------|------|-----------|
 | RF-101 | 2 | 2 | 100% |
 | RF-102 | 3 | 2 | 67% |
-| RF-103 | 4 | 3 | 75% |
+| RF-103 | 4 | 4 | 100% |
 | RF-104 | 3 | 1 | 33% |
 | RF-105 | 1 | 0 | 0% |
 | RF-106 | 1 | 0 | 0% |
@@ -130,12 +130,12 @@ Ninguna.
 | RX-101 | 2 | 2 | 100% |
 | RX-001 | 1 | 1 | 100% |
 
-**Requisitos sin tareas:** ninguno ✓ · **Requisitos 100% Done:** 5/19 (RF-101, RI-101, RI-102, RX-101, RX-001)
+**Requisitos sin tareas:** ninguno ✓ · **Requisitos 100% Done:** 6/19 (RF-101, RF-103, RI-101, RI-102, RX-101, RX-001)
 
 ## 8. Próximas acciones sugeridas
-1. Iniciar **TASK-063** (regresión pipeline/storage) — cierra RF-103.
-2. En paralelo, **TASK-064** (tandas, ruta crítica) o **TASK-058/074** (EP-005).
-3. Reservar **TASK-066** (benchmark 726k) y **TASK-074** (descarga 1 año).
+1. Iniciar **TASK-064** (tandas 6–12 m) — ruta crítica, desbloqueada.
+2. En paralelo, **TASK-058/074** (EP-005) o **TASK-066** (benchmark 726k).
+3. Reservar **TASK-074** para el cierre de RNF-101.
 
 ## 9. Historial de cambios (append-only)
 | Fecha | Tarea | Transición | Motivo |
@@ -149,4 +149,5 @@ Ninguna.
 | 2026-09-28 | TASK-056 | 📥 → 👀 → ✅ Done | "ok" sobre el paso sugerido; DoD verificada (suite 498 + 2 skip) y prueba registrada (RF-104). Naming "1 m" diferido a TASK-060 (opción A) |
 | 2026-09-28 | TASK-057 | 📥 → 👀 → ✅ Done | "ok" sobre el paso sugerido; DoD verificada (suite 480 + 2 skip sin tests de ticks) y limpieza de interfaces. **RF-101 al 100%** |
 | 2026-09-28 | TASK-059 | 📥 → 👀 → ✅ Done | "Autorizado a pasar a done si aplica y realiza commit"; DoD verificada (suite 481 + 2 skip) y prueba registrada (RF-103) |
-| 2026-09-28 | TASK-060, TASK-061, TASK-062 | 📥 → 👀 → ✅ Done | "ok de acuerdo con paso siguiente"; implementadas juntas como cambio coherente de base 1 m (opción A). DoD verificadas (suite 481 + 2 skip) y pruebas registradas (RF-103, RI-101, RI-102). Commit `feat(TASK-060,061,062)` + `docs(...)` |
+| 2026-09-28 | TASK-060, TASK-061, TASK-062 | 📥 → 👀 → ✅ Done | "ok de acuerdo con paso siguiente"; implementadas juntas como cambio coherente de base 1 m (opción A). DoD verificadas (suite 481 + 2 skip) y pruebas registradas (RF-103, RI-101, RI-102) |
+| 2026-09-28 | TASK-063 | 📥 → 👀 → ✅ Done | "Autorizado a pasar a done si aplica y realiza commit"; guard de regresión de la base 1 m (suite 488 + 2 skip). **RF-103 al 100%**. Commit `test(TASK-063)` + `docs(...)` |
