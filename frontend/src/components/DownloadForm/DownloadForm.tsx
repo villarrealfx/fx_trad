@@ -37,7 +37,7 @@ export interface DownloadFormProps {
 /**
  * Formulario de descarga de datos históricos (TASK-UI-020/021, SCR-002).
  *
- * Tipo + activo + rango de fechas, periodicidad base fija (1s UTC) y validación
+ * Tipo + activo + rango de fechas, periodicidad base fija (1m UTC) y validación
  * inline (inicio ≤ fin y ventana ≤ 2 años, RNF-003). Al encolar (`POST
  * /downloads`, 202) notifica la tarea por `onQueued`; los valores se conservan
  * tras un error. Acepta `prefill` para completar el rango de una descarga
@@ -130,7 +130,7 @@ export default function DownloadForm({
           />
         </div>
       </fieldset>
-      <p className="download-form__note">Periodicidad base: 1 segundo (UTC) — fija, no editable.</p>
+      <p className="download-form__note">Periodicidad base: 1 minuto (UTC) — fija, no editable.</p>
       {status === 'error' && (
         <StatusBanner
           tone="error"

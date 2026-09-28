@@ -33,7 +33,7 @@ describe('DownloadForm (SCR-002)', () => {
     expect(screen.getByLabelText('Activo')).toBeTruthy();
     expect(screen.getByLabelText('Fecha de inicio')).toBeTruthy();
     expect(screen.getByLabelText('Fecha de fin')).toBeTruthy();
-    expect(screen.getByText(/1 segundo \(UTC\)/)).toBeTruthy();
+    expect(screen.getByText(/1 minuto \(UTC\)/)).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Iniciar descarga' })).toBeTruthy();
   });
 
