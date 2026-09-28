@@ -21,12 +21,14 @@ from fxtrad.ingest.planner import (
 )
 from fxtrad.ingest.queue import DownloadQueue
 from fxtrad.ingest.requests import DownloadRequest
+from fxtrad.ingest.resume import coalesce_ranges, failed_ranges, pending_ranges
 from fxtrad.ingest.status import DownloadInfo, DownloadStatus, DownloadStatusQuery
 from fxtrad.ingest.tasks import (
     CeleryDownloadQueue,
     CeleryDownloadStatus,
     celery_app,
     download_asset,
+    resume_download,
 )
 from fxtrad.ingest.times import to_epoch_seconds
 from fxtrad.ingest.window import MAX_WINDOW_SECONDS, validate_request_window
@@ -50,14 +52,18 @@ __all__ = [
     "assets_by_type",
     "candles_from_ohlc",
     "celery_app",
+    "coalesce_ranges",
     "download_asset",
     "download_blocks",
+    "failed_ranges",
     "get_asset",
     "MAX_BATCH_SECONDS",
     "MAX_WINDOW_SECONDS",
+    "pending_ranges",
     "plan_batches",
     "plan_blocks",
     "planned_candles",
+    "resume_download",
     "to_epoch_seconds",
     "validate_request_window",
 ]

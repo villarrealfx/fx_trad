@@ -18,7 +18,8 @@ acoplamiento que el cliente de descarga: ``ingest`` no importa ``storage``
 from __future__ import annotations
 
 import os
-from typing import Any
+from collections.abc import Mapping
+from typing import Any, cast
 
 import structlog
 from celery import Celery  # type: ignore[import-untyped]
@@ -31,6 +32,7 @@ from fxtrad.ingest.freeserv import FreeservClient
 from fxtrad.ingest.pacing import DEFAULT_PAUSE_SECONDS, download_blocks
 from fxtrad.ingest.planner import DownloadBlock
 from fxtrad.ingest.requests import DownloadRequest
+from fxtrad.ingest.resume import pending_ranges
 from fxtrad.ingest.retry import (
     BlockDownloadError,
     DownloadStatus,
@@ -268,6 +270,93 @@ def run_download_range(
         "estado": status,
         "bloques_fallidos": len(all_failures),
         "fallos_detalle": failures_detail,
+    }
+
+
+def resume_download(
+    client: FreeservClient,
+    request: DownloadRequest,
+    previous_summary: Mapping[str, object],
+    policy: RetryPolicy | None = None,
+    persister: DownloadPersister | None = None,
+) -> dict[str, object]:
+    """Descarga los rangos pendientes de una descarga parcial y los fusiona.
+
+    Los pendientes salen de ``fallos_detalle`` del resumen previo (TASK-056),
+    recortados al rango solicitado y coalescidos (TASK-065). Cada rango se
+    descarga con ``run_download_range`` (tandas/bloques/pacing/retry) y se fusiona
+    con el persistidor (upsert por ``time``, KPI-4), por lo que reanudar no
+    duplica filas ya almacenadas. Si no hay pendientes, no se descarga ni escribe.
+
+    Args:
+        client: Cliente Dukascopy (en producción llega de la factoría).
+        request: Solicitud original de la descarga.
+        previous_summary: Resumen de la descarga previa (con ``fallos_detalle``).
+        policy: Política de reintentos y pacing; por defecto ``RetryPolicy()``.
+        persister: Puerto de persistencia; ``None`` no guarda nada.
+
+    Returns:
+        Resumen agregado con ``reanudado`` (si hubo pendientes), ``pendientes``,
+        ``tandas``, ``bloques``, ``velas``, ``estado`` y ``fallos_detalle``.
+    """
+    pending = pending_ranges(previous_summary, request.start, request.end)
+    if not pending:
+        logger.info(
+            "reanudacion_sin_pendientes",
+            activo=request.asset,
+            inicio=request.start,
+            fin=request.end,
+        )
+        return {
+            "activo": request.asset,
+            "reanudado": False,
+            "pendientes": [],
+            "tandas": [],
+            "bloques": 0,
+            "velas": 0,
+            "inicio": request.start,
+            "fin": request.end,
+            "estado": "exito",
+            "bloques_fallidos": 0,
+            "fallos_detalle": [],
+        }
+    total_blocks = 0
+    total_failures = 0
+    total_candles = 0
+    tandas: list[dict[str, int | str]] = []
+    fallos_detalle: list[dict[str, int]] = []
+    for start, end in pending:
+        summary = run_download_range(
+            client,
+            DownloadRequest(asset=request.asset, start=start, end=end),
+            policy=policy,
+            persister=persister,
+        )
+        total_blocks += cast(int, summary["bloques"])
+        total_failures += cast(int, summary["bloques_fallidos"])
+        total_candles += cast(int, summary["velas"])
+        tandas.extend(cast(list[dict[str, int | str]], summary["tandas"]))
+        fallos_detalle.extend(cast(list[dict[str, int]], summary["fallos_detalle"]))
+    status = download_status(total_blocks, total_failures)
+    logger.info(
+        "reanudacion_completada",
+        activo=request.asset,
+        pendientes=len(pending),
+        velas=total_candles,
+        estado=status,
+    )
+    return {
+        "activo": request.asset,
+        "reanudado": True,
+        "pendientes": [{"inicio": start, "fin": end} for start, end in pending],
+        "tandas": tandas,
+        "bloques": total_blocks,
+        "velas": total_candles,
+        "inicio": request.start,
+        "fin": request.end,
+        "estado": status,
+        "bloques_fallidos": total_failures,
+        "fallos_detalle": fallos_detalle,
     }
 
 
