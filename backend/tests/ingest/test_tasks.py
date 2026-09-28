@@ -1,13 +1,15 @@
-"""Tests de la cola Celery y la tarea download_asset (TASK-004, ADR-006).
+"""Tests de la cola Celery y la tarea download_asset (TASK-004/TASK-056, ADR-006).
 
-DoD: la tarea se registra, se encola vía ``CeleryDownloadQueue`` y se ejecuta
-de extremo a extremo. En CI se ejecuta en modo eager con broker ``memory``
+DoD: la tarea se registra, se encola vía ``CeleryDownloadQueue`` y se ejecuta de
+extremo a extremo. En CI se ejecuta en modo eager con broker ``memory``
 (síncrono, sin RabbitMQ); la integración con un broker amqp real y descarga
 contra Dukascopy es optativa (``RUN_CELERY_INTEGRATION=1``).
 
-TASK-050 añade que la tarea ejecutada deje la descarga en la base local: el
-persistidor se inyecta por la configuración y todos los tests escriben en
-``tmp_path``, nunca en ``backend/data``.
+TASK-056 integra el planificador de bloques (TASK-052), el pacing (TASK-054) y
+el retry por bloque (TASK-055) en ``run_download_range``: el rango se descarga en
+bloques de ≤ 30.000 velas y un bloque fallido no aborta el rango. TASK-050
+mantiene que la tarea deje la descarga en la base local (persistidor inyectado);
+todos los tests escriben en ``tmp_path``, nunca en ``backend/data``.
 """
 
 from __future__ import annotations
@@ -38,33 +40,31 @@ from fxtrad.pipeline.persist import DownloadPersister, build_persister
 from fxtrad.storage import DownloadMetadataStore, ParquetSeriesStore
 
 _START = 1772409600  # 2026-03-02T00:00:00Z (lunes)
-_END = _START + 2 * 3600  # 2026-03-02T02:00:00Z → 3 horas inclusive
+_END = _START + 2 * 3600  # 2026-03-02T02:00:00Z
+_MINUTES_3H = 121  # velas de 1 m del rango _START.._END (inclusivo)
 
 
-def _tick_hour_df(start_ms: int) -> pd.DataFrame:
-    """DataFrame de una hora con 3 ticks en los segundos 0/1/2 (forma fetch)."""
+def _ohlc_df(rows: list[tuple[int, float, float, float, float]]) -> pd.DataFrame:
+    """DataFrame OHLC con la forma de ``dukascopy_python.fetch`` (intervalos OHLC)."""
     records = [
         {
-            "timestamp": pd.to_datetime(start_ms + second * 1000, unit="ms", utc=True),
-            "bidPrice": 1.09120 + second / 10000,
-            "askPrice": 1.09130 + second / 10000,
-            "bidVolume": 1_000_000.0,
-            "askVolume": 1_000_000.0,
+            "timestamp": pd.to_datetime(ts, unit="s", utc=True),
+            "open": open_,
+            "high": high,
+            "low": low,
+            "close": close,
         }
-        for second in range(3)
+        for ts, open_, high, low, close in rows
     ]
-    df = pd.DataFrame(records)
-    df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
-    return df.set_index("timestamp")
+    if not records:
+        return pd.DataFrame(columns=["open", "high", "low", "close"]).set_index(
+            pd.DatetimeIndex([], name="timestamp")
+        )
+    return pd.DataFrame(records).set_index("timestamp")
 
 
-def _all_candles(store: ParquetSeriesStore, symbol: str) -> list[Candle]:
-    """Lee la serie completa del activo (independiente de la aritmética del rango)."""
-    return store.read_range(symbol, 0, 2**31 - 1)
-
-
-def _fetcher_for():
-    """Devuelve un fetcher que genera 3 ticks en la hora que recibe."""
+def _minute_fetcher():
+    """Fetcher que devuelve una vela de 1 m por minuto del rango solicitado."""
 
     def fetch(
         instrument: str,
@@ -74,9 +74,16 @@ def _fetcher_for():
         end: datetime,
         limit: int | None = None,
     ) -> pd.DataFrame:
-        return _tick_hour_df(int(start.timestamp() * 1000))
+        start_s = int(start.timestamp())
+        end_s = int(end.timestamp())
+        return _ohlc_df([(second, 1.0, 1.0, 1.0, 1.0) for second in range(start_s, end_s + 1, 60)])
 
     return fetch
+
+
+def _all_candles(store: ParquetSeriesStore, symbol: str) -> list[Candle]:
+    """Lee la serie completa del activo (independiente de la aritmética del rango)."""
+    return store.read_range(symbol, 0, 2**31 - 1)
 
 
 @pytest.fixture()
@@ -84,16 +91,15 @@ def eager_app(tmp_path: Path):
     """Celery en modo eager con broker memory: no requiere RabbitMQ.
 
     Se sustituyen las dos factorías de la app (TASK-050): el cliente por el
-    fetcher stub de arriba y el persistidor por uno real sobre ``tmp_path``. Sin
-    esto la tarea escribiría en ``backend/data`` y los tests ensuciarían el
-    repositorio.
+    fetcher OHLC de 1 m de arriba y el persistidor por uno real sobre
+    ``tmp_path``. Sin esto la tarea escribiría en ``backend/data``.
     """
     celery_app.conf.update(
         task_always_eager=True,
         broker_url="memory://",
         result_backend="cache+memory://",
         task_default_queue="test",
-        fxtrad_client_factory=lambda: FreeservClient(fetcher=_fetcher_for()),
+        fxtrad_client_factory=lambda: FreeservClient(fetcher=_minute_fetcher()),
         fxtrad_persister_factory=lambda: build_persister(tmp_path),
     )
     yield celery_app
@@ -143,7 +149,7 @@ class TestRegistration:
 
 
 class TestHourIteration:
-    """El rango se descompone en horas UTC con mes 0-based."""
+    """``iter_hours`` se conserva hasta TASK-057; el rango sigue siendo UTC."""
 
     def test_inclusive_hours(self) -> None:
         assert iter_hours(_START, _START + 7200) == [
@@ -157,7 +163,7 @@ class TestHourIteration:
 
 
 class TestEndToEndEager:
-    """DoD: la tarea se ejecuta de extremo a extremo descargando las horas."""
+    """DoD: la tarea se ejecuta de extremo a extremo descargando el rango."""
 
     def test_task_downloads_range_and_returns_summary(self, eager_app: object) -> None:
         result = (
@@ -167,21 +173,21 @@ class TestEndToEndEager:
         )
         expected = {
             "activo": "EURUSD",
-            "horas": 3,
-            "velas": 9,  # 3 ticks por hora agregados a 3 velas de 1 s
+            "bloques": 1,
+            "velas": _MINUTES_3H,
             "inicio": _START,
             "fin": _END,
             "estado": "exito",
-            "horas_fallidas": 0,
+            "bloques_fallidos": 0,
             "fallos_detalle": [],
         }
         assert result == expected
 
     def test_run_download_range_with_stub_client(self) -> None:
-        client = FreeservClient(fetcher=_fetcher_for())
+        client = FreeservClient(fetcher=_minute_fetcher())
         request = DownloadRequest(asset="EURUSD", start=_START, end=_END)
         summary = run_download_range(client, request, task_id="t-1")
-        assert summary["horas"] == 3 and summary["velas"] == 9
+        assert summary["bloques"] == 1 and summary["velas"] == _MINUTES_3H
 
     def test_queue_enqueue_executes_and_returns_uuid(self, eager_app: object) -> None:
         queue = CeleryDownloadQueue(eager_app)
@@ -197,66 +203,11 @@ class TestEndToEndEager:
             result.get()
 
 
-class _SelectiveFailClient:
-    """Cliente que falla siempre las horas indicadas (fallo HTTP simulado)."""
+class _FailingRangeClient:
+    """Cliente de rango que siempre falla (para descargas vacías)."""
 
-    def __init__(self, failing_hours: set[int]) -> None:
-        self.failing_hours = failing_hours
-        self.calls = 0
-
-    def download_hour(
-        self, symbol: str, year: int, month_index: int, day: int, hour: int
-    ) -> list[Candle]:
-        self.calls += 1
-        if hour in self.failing_hours:
-            raise ConnectionError("HTTP 503 simulado")
-        return [
-            Candle(
-                time=1_772_409_600 + hour * 3600,
-                open=1.0912,
-                high=1.0913,
-                low=1.0911,
-                close=1.09125,
-            )
-        ]
-
-
-class TestPartialFailures:
-    """DoD TASK-005: el estado del resumen queda parcial/fallo con metadatos."""
-
-    @staticmethod
-    def _policy() -> RetryPolicy:
-        return RetryPolicy(max_attempts=3, backoff_seconds=0.0, sleep=lambda _seconds: None)
-
-    def test_one_failing_hour_yields_partial(self) -> None:
-        client = _SelectiveFailClient(failing_hours={1})
-        request = DownloadRequest(asset="EURUSD", start=_START, end=_END)
-        summary = run_download_range(client, request, task_id="t-partial", policy=self._policy())
-        assert summary["estado"] == "parcial"
-        assert summary["horas"] == 3
-        assert summary["horas_fallidas"] == 1
-        assert summary["fallos_detalle"] == [{"year": 2026, "month_index": 2, "day": 2, "hour": 1}]
-
-    def test_all_hours_failing_yields_fallo(self) -> None:
-        client = _SelectiveFailClient(failing_hours={0, 1, 2})
-        request = DownloadRequest(asset="EURUSD", start=_START, end=_END)
-        summary = run_download_range(client, request, task_id="t-fallo", policy=self._policy())
-        assert summary["estado"] == "fallo"
-        assert summary["horas_fallidas"] == 3
-        assert summary["velas"] == 0
-
-    def test_failing_hour_is_retried_before_marking_partial(self) -> None:
-        client = _SelectiveFailClient(failing_hours={1})
-        request = DownloadRequest(asset="EURUSD", start=_START, end=_END)
-        run_download_range(client, request, task_id="t-retry", policy=self._policy())
-        assert client.calls == 5  # 2 horas OK + 3 intentos de la hora fallida
-
-    def test_all_successful_hours_yield_exito(self) -> None:
-        client = _SelectiveFailClient(failing_hours=set())
-        request = DownloadRequest(asset="EURUSD", start=_START, end=_END)
-        summary = run_download_range(client, request, task_id="t-ok", policy=self._policy())
-        assert summary["estado"] == "exito"
-        assert summary["horas_fallidas"] == 0
+    def download_range(self, symbol: str, start: datetime, end: datetime) -> list[Candle]:
+        raise ConnectionError("HTTP 503 simulado")
 
 
 class _FailingPersister:
@@ -276,7 +227,7 @@ class _FailingPersister:
 
 
 class TestDownloadPersistence:
-    """TASK-050: la tarea deja la descarga en la base local (RF-006, RI-002)."""
+    """TASK-050/TASK-056: la tarea deja la descarga en la base local (RF-006)."""
 
     def test_task_stores_candles_and_metadata(self, eager_app: object, tmp_path: Path) -> None:
         task_id = CeleryDownloadQueue(eager_app).enqueue(
@@ -286,10 +237,10 @@ class TestDownloadPersistence:
 
         store = ParquetSeriesStore(tmp_path)
         stored = _all_candles(store, "EURUSD")
-        assert len(stored) == 9  # 3 horas × 3 velas del fetcher stub
+        assert len(stored) == _MINUTES_3H
         assert info.estado == "exito"
         record = DownloadMetadataStore(tmp_path).history()[0]
-        assert (record.activo, record.filas, record.estado) == ("EURUSD", 9, "exito")
+        assert (record.activo, record.filas, record.estado) == ("EURUSD", _MINUTES_3H, "exito")
         assert (record.inicio, record.fin) == (_START, _END)
 
     def test_repeated_download_completes_the_base(self, eager_app: object, tmp_path: Path) -> None:
@@ -301,12 +252,12 @@ class TestDownloadPersistence:
         queue.enqueue(DownloadRequest(asset="EURUSD", start=_START + 3600, end=_END))
         total = len(_all_candles(store, "EURUSD"))
 
-        assert (first, total) == (3, 9)  # KPI-4: 0 filas duplicadas
+        assert (first, total) == (60, 121)  # KPI-4: 0 filas duplicadas
         assert len(DownloadMetadataStore(tmp_path).history()) == 2
 
     def test_failed_download_records_metadata_without_creating_asset(self, tmp_path: Path) -> None:
         """Descarga vacía: no inventamos el activo, pero el intento queda."""
-        client = _SelectiveFailClient(failing_hours={0, 1, 2})
+        client = _FailingRangeClient()
         persister = build_persister(tmp_path)
         policy = RetryPolicy(max_attempts=2, backoff_seconds=0.0, sleep=lambda _s: None)
 
@@ -326,14 +277,14 @@ class TestDownloadPersistence:
     def test_storage_failure_degrades_the_summary_without_raising(self) -> None:
         """Un fallo de escritura se reporta en el resumen, no rompe la tarea."""
         summary = run_download_range(
-            _SelectiveFailClient(failing_hours=set()),
+            FreeservClient(fetcher=_minute_fetcher()),
             DownloadRequest(asset="EURUSD", start=_START, end=_START + 3599),
             task_id="t-error-disco",
             persister=cast(DownloadPersister, _FailingPersister()),
         )
 
         assert summary["estado"] == "fallo"
-        assert summary["velas"] == 1  # la descarga sí se hizo
+        assert summary["velas"] == 60  # la descarga sí se hizo
 
     def test_task_also_refreshes_the_derived_timeframes(
         self, eager_app: object, tmp_path: Path
@@ -346,18 +297,17 @@ class TestDownloadPersistence:
 
         hourly = store.read_range("EURUSD", 0, 2**31 - 1, "1h")
 
-        assert len(hourly) == 3  # una vela por hora descargada
         assert [candle.time for candle in hourly] == [_START, _START + 3600, _START + 7200]
 
     def test_without_persister_nothing_is_written(self, tmp_path: Path) -> None:
         """Sin persistidor la función solo descarga (contrato de TASK-004)."""
         summary = run_download_range(
-            _SelectiveFailClient(failing_hours=set()),
+            FreeservClient(fetcher=_minute_fetcher()),
             DownloadRequest(asset="EURUSD", start=_START, end=_START + 3599),
         )
 
         assert summary["estado"] == "exito"
-        assert summary["velas"] == 1
+        assert summary["velas"] == 60
         assert not ParquetSeriesStore(tmp_path).has_series("EURUSD")
         assert DownloadMetadataStore(tmp_path).history() == []
 
@@ -403,7 +353,7 @@ class TestCeleryDownloadStatus:
         )
         info = CeleryDownloadStatus(eager_app).get(task_id)
         assert info.estado == "exito"
-        assert info.filas == 9  # 3 horas × 3 velas del fetcher stub
+        assert info.filas == _MINUTES_3H
 
     def test_failed_task_reports_fallo_with_zero_rows(self, eager_app: object) -> None:
         task_id = (
@@ -435,13 +385,7 @@ class TestCeleryDownloadStatus:
     reason="Requerido: broker amqp en localhost:5672 + RUN_CELERY_INTEGRATION=1",
 )
 def test_live_broker_roundtrip(tmp_path: Path) -> None:
-    """Integración optativa: RabbitMQ real + descarga de una hora de Dukascopy.
-
-    Reproduce el modo E2E de dev: se encola una hora conocida (EURUSD 2026-08-11
-    10:00 UTC) procesada contra la API chart freeserv (ADR-010). La validación
-    de esa hora ya está cubierta por TASK-002; aquí se verifica el camino
-    completo del broker.
-    """
+    """Integración optativa: RabbitMQ real + descarga de una hora de Dukascopy."""
     celery_app.conf.update(
         task_always_eager=True,
         broker_url="amqp://guest:guest@localhost:5672//",

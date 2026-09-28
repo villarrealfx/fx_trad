@@ -28,12 +28,16 @@ from structlog.typing import FilteringBoundLogger
 
 from fxtrad.contracts.ohlc import Candle
 from fxtrad.ingest.freeserv import FreeservClient
+from fxtrad.ingest.pacing import DEFAULT_PAUSE_SECONDS, download_blocks
+from fxtrad.ingest.planner import DownloadBlock, plan_blocks
 from fxtrad.ingest.requests import DownloadRequest
 from fxtrad.ingest.retry import (
+    BlockDownloadError,
     DownloadError,
     DownloadStatus,
     RetryPolicy,
     download_status,
+    retry_download_block,
     retry_download_hour,
 )
 from fxtrad.ingest.status import DownloadInfo
@@ -179,8 +183,8 @@ def _persist_download(
     Args:
         persister: Puerto de persistencia inyectado en la tarea.
         request: Solicitud de la descarga, para el rango del metadato.
-        candles: Velas 1s obtenidas por la descarga.
-        status: Estado de la descarga según las horas descargadas.
+        candles: Velas de 1 m obtenidas por la descarga.
+        status: Estado de la descarga según los bloques descargados.
         scoped: Logger enlazado al ``task_id`` para correlación.
 
     Returns:
@@ -213,31 +217,28 @@ def run_download_range(
     policy: RetryPolicy | None = None,
     persister: DownloadPersister | None = None,
 ) -> dict[str, object]:
-    """Descarga todas las horas del rango, las persiste y devuelve el resumen.
+    """Descarga el rango por bloques, lo persiste y devuelve el resumen.
 
-    Cada hora se reintenta con backoff de 20 s (R-001). Una hora que falla tras
-    agotar los intentos no aborta el rango: se registra en ``fallos_detalle`` y
-    el resumen final queda en estado ``parcial`` o ``fallo`` (TASK-005).
+    El rango se planifica en bloques de ≤ 30.000 velas (TASK-052), cada bloque se
+    descarga con reintentos y backoff (TASK-055) y entre bloques se aplica el
+    pacing de 20 s (TASK-054). Un bloque que agota los reintentos no aborta el
+    rango: se registra en ``fallos_detalle`` y el resumen queda en ``parcial`` o
+    ``fallo`` (ADR-013).
 
     Con ``persister`` (lo inyecta la tarea Celery) el resultado se guarda en la
-    base local al concluir: fusión incremental de la serie 1s más el registro de
-    metadatos, que es lo que exige RF-006. Sin persistidor la función se limita
-    a descargar, que es lo que necesitan las pruebas de la cola (TASK-004).
-
-    Las velas del rango se acumulan en memoria y se funden en una sola
-    operación: fusionar hora a hora reescribiría el Parquet una vez por hora.
-    El límite de volumen que eso impone se acepta en TASK-050 y está
-    documentado en ``pipeline.persist``.
+    base local al concluir: fusión incremental de la serie más el registro de
+    metadatos, que es lo que exige RF-006. Sin persistidor la función solo
+    descarga, que es lo que necesitan las pruebas de la cola (TASK-004).
 
     Args:
         client: Cliente Dukascopy (en producción llega de la factoría).
         request: Solicitud validada de la descarga.
         task_id: Id de la tarea Celery, para correlación en los logs.
-        policy: Política de reintentos; por defecto ``RetryPolicy()`` (20 s).
+        policy: Política de reintentos y pacing; por defecto ``RetryPolicy()``.
         persister: Puerto de persistencia; ``None`` no guarda nada.
 
     Returns:
-        Resumen con activo, horas, velas, rango, estado y horas fallidas.
+        Resumen con activo, bloques, velas, rango, estado y bloques fallidos.
     """
     retry_policy = policy if policy is not None else RetryPolicy()
     scoped = logger.bind(task_id=task_id) if task_id else logger
@@ -247,35 +248,51 @@ def run_download_range(
         inicio=request.start,
         fin=request.end,
     )
-    hours = iter_hours(request.start, request.end)
-    candles, failures = _collect_hours_candles(client, request, hours, retry_policy)
-    status = download_status(len(hours), len(failures))
+    blocks = plan_blocks(request.start, request.end)
+    failures: list[DownloadBlock] = []
+
+    def download_block(block: DownloadBlock) -> list[Candle]:
+        """Descarga un bloque con reintentos; registra el fallo sin abortar."""
+        try:
+            return retry_download_block(client, request.asset, block, retry_policy)
+        except BlockDownloadError:
+            failures.append(block)
+            return []
+
+    candles = download_blocks(
+        blocks,
+        download_block,
+        pause_seconds=DEFAULT_PAUSE_SECONDS,
+        sleep=retry_policy.sleep,
+    )
+    status = download_status(len(blocks), len(failures))
+    failures_detail = [{"inicio": block.start, "fin": block.end} for block in failures]
     scoped.info(
         "descarga_rango_completada",
         activo=request.asset,
-        horas=len(hours),
+        bloques=len(blocks),
         velas=len(candles),
         estado=status,
-        horas_fallidas=len(failures),
+        bloques_fallidos=len(failures),
     )
     if failures:
         scoped.warning(
             "descarga_rango_parcial",
             activo=request.asset,
-            horas_fallidas=len(failures),
-            detalle=failures,
+            bloques_fallidos=len(failures),
+            detalle=failures_detail,
         )
     if persister is not None:
         status = _persist_download(persister, request, candles, status, scoped)
     return {
         "activo": request.asset,
-        "horas": len(hours),
+        "bloques": len(blocks),
         "velas": len(candles),
         "inicio": request.start,
         "fin": request.end,
         "estado": status,
-        "horas_fallidas": len(failures),
-        "fallos_detalle": failures,
+        "bloques_fallidos": len(failures),
+        "fallos_detalle": failures_detail,
     }
 
 
