@@ -160,7 +160,7 @@ volumen `./data`.
 |----|--------|---------|------------|
 | R-001 | 503/timeout de freeserv | Alto | Pacing 20 s + backoff por bloque + tandas |
 | R-002 | Huecos por paginación | Alto | Validado (S-2); test de integridad por tanda |
-| R-003 | Ruptura por cambio 1 s→1 m | Medio | ADR-012 + actualizar naming, RNF-002, benchmark, UI |
+| R-003 | Ruptura por cambio 1 s→1 m | Medio | ADR-012 + actualizar naming, RNF-102, benchmark, UI |
 | R-004 | BID vs `mid` | Bajo | ADR-014, documentado |
 | R-005 | Corte a mitad de tanda | Medio | Tandas + estado parcial + reanudación (ADR-015) |
 

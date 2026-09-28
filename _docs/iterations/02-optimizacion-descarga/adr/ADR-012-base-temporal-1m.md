@@ -45,9 +45,10 @@ se obtienen por **resampling de la base 1 m**. RNF-002 (18M filas) queda
 
 ### Negativas / Trade-offs
 - Se pierde la resolución sub-minuto (aceptado, OUT).
-- Ruptura controlada: `pipeline.resample` (origen canónico), `storage` (naming
-  `{symbol}.1m.parquet`), validación de timeframe base, `benchmark_parquet.py`,
-  RNF-002 y la nota "1 s UTC" de SCR-002 (ver handoff P-2/P-3).
+- Ruptura controlada y **resuelta** en esta iteración: `pipeline.resample` (origen
+  canónico, TASK-059), `storage` (naming `{symbol}.1m.parquet`, TASK-060),
+  validación de timeframe base, `benchmark_parquet.py` (TASK-066), referencias a
+  RNF-002 (TASK-067) y la nota "1 s UTC" de SCR-002 (TASK-UI-061).
 
 ### Neutras
 - El contrato `Candle` no cambia (RI-101); solo cambia el intervalo.

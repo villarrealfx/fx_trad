@@ -34,12 +34,10 @@ mercado.
 
 ## Preguntas abiertas / pendientes
 
-- **P-1 (S-2) [stack]:** validar empíricamente que la paginación interna + pacing
-  cubren 6–12 meses sin huecos. Necesario antes de cerrar la iteración.
-- **P-2 [backlog]:** definir alcance exacto del refactor por el cambio de nombre
-  `{symbol}.1s.parquet` → `{symbol}.1m.parquet` (storage, resample, tests).
-- **P-3 [backlog]:** actualizar artefactos obsoletos: RNF-002, `benchmark_parquet.py`
-  y la nota "1 s UTC" de SCR-002 en el frontend.
+- **P-1 (S-2) [stack]:** ✅ resuelto — validación empírica confirmada por el usuario.
+- **P-2 [backlog]:** ✅ resuelto — naming migrado a `{symbol}.1m.parquet` (TASK-060/063).
+- **P-3 [backlog]:** ✅ resuelto — RNF-002 reemplazado por RNF-102 en docs (TASK-067),
+  `benchmark_parquet.py` reescrito (TASK-066) y nota "1 s UTC" → "1 m" (TASK-UI-061).
 
 ## Checklist de completitud
 

@@ -34,8 +34,9 @@
   resolución base y el transporte de descarga.
 - **Cobertura:** 19/19 requisitos de la iteración con ≥1 tarea. Tareas sin requisito:
   `TECH-002` (cierre de iteración, justificada en `backlog.md` §8).
-- **Deuda a resolver:** `benchmark_parquet.py`, RNF-002 y la nota "1 s UTC" de
-  SCR-002 → cubiertas por TASK-066, TASK-067 y TASK-UI-061.
+- **Artefactos obsoletos actualizados:** `benchmark_parquet.py` (TASK-066, RNF-102),
+  referencias a RNF-002 en docs (TASK-067) y la nota "1 s UTC" de SCR-002
+  (TASK-UI-061).
 - **TASK-057:** retiró `iter_hours`/`_collect_hours_candles`/`aggregate_to_ohlc`/
   `download_hour`/`retry_download_hour` y sus tests de ticks; la suite queda verde
   sin código de ticks (RF-101, ADR-012/013).

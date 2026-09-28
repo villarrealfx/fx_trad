@@ -48,7 +48,7 @@ puntos por petición.
   dos tandas en **≤ 1800 s**), con base 1 m, al cierre de la iteración.
 - **OE-2:** Sustituir la base canónica de 1 s por 1 m en el pipeline y el
   almacenamiento, con derivadas 5 m/15 m/30 m/1 h/4 h/1 d por resampling,
-  actualizando RNF-002, el benchmark y las referencias de UI.
+  actualizando RNF-102, el benchmark y las referencias de UI.
 - **OE-3:** Paginar por bloques de **≤ 30.000 velas** con un **precálculo** del
   número de velas del rango y una **espera de 20 s** entre bloques, reanudable por
   tanda.
@@ -83,7 +83,7 @@ puntos por petición.
 5. Fusión/upsert incremental y metadatos de descarga (reutiliza RF-006/RI-002 de
    01-mvp).
 6. Exclusión de fines de semana y feriados (reutiliza RF-004 de 01-mvp).
-7. Actualización de las referencias obsoletas de 1 s: RNF-002, `benchmark_parquet.py`,
+7. Actualización de las referencias obsoletas de 1 s: RNF-102, `benchmark_parquet.py`,
    naming de Parquet y notas de UI.
 
 ### 3.2 Fuera del alcance (OUT)
@@ -135,7 +135,7 @@ puntos por petición.
 |----|-------------|-------|---------|------------|------------|
 | R-001 | freeserv responde 503/timeout en tandas largas (ex AR-1 de 01-mvp) | A | A | A×A | Reintentos con backoff + tandas de 6–12 m + pacing de 20 s |
 | R-002 | La paginación interna no cubre 6–12 m o deja huecos silenciosos | M | A | M×A | Test de integridad: velas esperadas (calendario) vs. descargadas (S-2, KPI-5) |
-| R-003 | Cambio de base 1 s→1 m rompe `resample`, naming, UI ("nota 1s UTC"), RNF-002 y tests | A | M | A×M | ADR nuevo + actualizar trazabilidad y artefactos obsoletos |
+| R-003 | Cambio de base 1 s→1 m rompe `resample`, naming, UI ("nota 1s UTC"), RNF-102 y tests | A | M | A×M | ADR nuevo + actualizar trazabilidad y artefactos obsoletos |
 | R-004 | Semántica BID vs `mid`: series no comparables con lo previo | A | B | A×B | Aceptado (S-1) y documentado en glosario |
 | R-005 | Corte por timeout (>30 min) a mitad de tanda | M | M | M×M | Descarga/progreso por tanda y reanudación |
 
