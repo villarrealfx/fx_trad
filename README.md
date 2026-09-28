@@ -5,22 +5,39 @@ históricos de Dukascopy, almacenarlos como Parquet + DuckDB, resamplearlos a
 timeframes de visualización y graficarlos como velas con indicadores, dibujos y
 exportación a imagen.
 
-- **Costo $0**: 100% software de código abierto (ver `_docs/license-audit.md`).
+- **Costo $0**: 100% software de código abierto (ver `_docs/iterations/02-optimizacion-descarga/license-audit.md`).
 - **Sin nube ni cuenta**: un único entorno local con Docker Compose.
 - **Especificación primero (SDD)**: plan, requisitos, arquitectura, ADRs, UX,
-  backlog y estado viven en `_docs/`; el código los materializa.
+  backlog y estado viven en `_docs/iterations/`; el código los materializa.
 
 ## Estado actual
 
-| Métrica | Valor |
-|---------|-------|
-| Tareas | **66 / 66 Done (100%)** |
-| Requisitos IN | **29 / 29 al 100%** |
-| Trazabilidad | 97 / 97 mapeos de tarea con prueba |
-| Backend | 461 tests ✅ + 2 skip · ruff · black · mypy |
-| Frontend | 284 tests ✅ · eslint · tsc · prettier · axe-core |
+| Iteración | Tareas | Requisitos IN | Estado |
+|-----------|--------|---------------|--------|
+| 01 — MVP (plataforma + visualización) | 66 / 66 | 29 / 29 | ✅ Cerrada |
+| 02 — Optimización de descarga y base 1 m | 24 / 24 | 19 / 19 | ✅ Cerrada |
 
-Fuente de verdad: `_docs/status.md`, `_docs/backlog.md`, `_docs/traceability.md`.
+| Calidad | Valor |
+|---------|-------|
+| Backend | 536 tests ✅ + 2 skip · ruff · black · mypy |
+| Frontend | 286 tests ✅ · eslint · tsc · prettier · axe-core |
+| Rendimiento | descarga 1 año 1 m = **309,9 s** (≤900 s) · escritura Parquet 726k = **52,1 µs/vela** |
+
+Fuentes de verdad: `_docs/iterations/01-mvp/status.md`,
+`_docs/iterations/02-optimizacion-descarga/status.md` (y sus `backlog.md`/`traceability.md`).
+
+### Qué cambió en la iteración 02
+
+La iteración 01 no completaba ninguna descarga: el ingest pedía **ticks** y
+fragmentaba el rango **hora a hora**. La iteración 02 reescribió el transporte:
+
+- **Base canónica 1 m** (antes 1 s): `{symbol}.1m.parquet` + derivadas por
+  resampling (`ADR-012`). La volumetría baja de ~18M a ~726k velas/activo.
+- **Descarga por bloques ≤ 30.000 velas** con precálculo y **pacing de 20 s**
+  sobre la API 1 m BID (`ADR-013`, `ADR-014`).
+- **Tandas de 6–12 meses** con progreso y **reanudación** por rango restante
+  (`ADR-015`).
+- Celery/RabbitMQ se conservan (`ADR-016`).
 
 ## Stack
 
@@ -28,8 +45,9 @@ Fuente de verdad: `_docs/status.md`, `_docs/backlog.md`, `_docs/traceability.md`
 |------|------------|-----|
 | Frontend | React 18 + Vite 5 + TypeScript 5 + `lightweight-charts` v4 (MIT) | ADR-003, ADR-005 |
 | Backend | Python 3.12 + FastAPI + Uvicorn | ADR-002 |
-| ETL | pandas + DuckDB + Parquet por activo | ADR-004 |
-| Cola | Celery + RabbitMQ | ADR-006 |
+| Descarga | `dukascopy-python` vía freeserv (`INTERVAL_MIN_1`, BID) | ADR-010, ADR-013, ADR-014 |
+| ETL | pandas + DuckDB + Parquet por activo/timeframe | ADR-004, ADR-012 |
+| Cola | Celery + RabbitMQ | ADR-006, ADR-016 |
 | Caché | in-memory por ventana + Parquet columnar | ADR-007 |
 | Observabilidad | `logging` + `structlog` (JSON en prod) | ADR-008 |
 | Despliegue | Docker Compose (4 servicios + volumen `data/`) | ADR-009 |
@@ -39,7 +57,7 @@ Fuente de verdad: `_docs/status.md`, `_docs/backlog.md`, `_docs/traceability.md`
 
 Monolito modular. Los módulos del backend exponen una interfaz pública
 documentada y respetan direcciones de dependencia (ver
-`_docs/module-interfaces.md`):
+`_docs/iterations/01-mvp/module-interfaces.md`):
 
 ```
 contracts ──► storage ──► pipeline ──► ingest ──► api
@@ -52,9 +70,9 @@ contracts ──► storage ──► pipeline ──► ingest ──► api
 | Módulo | Responsabilidad |
 |--------|-----------------|
 | `contracts` | Contrato OHLC canónico (tiempo en segundos UTC) |
-| `storage` | Persistencia Parquet + DuckDB, incremental sin duplicados, metadatos, caché |
-| `pipeline` | Limpieza, exclusión de mercado cerrado, resampling, UTC, persistencia, indicadores |
-| `ingest` | Catálogo de activos, descarga Dukascopy, retry/backoff, tarea Celery |
+| `storage` | Persistencia Parquet `{symbol}.1m.parquet` + DuckDB, derivadas, incremental sin duplicados, metadatos, caché |
+| `pipeline` | Limpieza, exclusión de mercado cerrado, resampling (desde 1 m), UTC, persistencia, indicadores |
+| `ingest` | Catálogo, descarga 1 m por bloques ≤30k con pacing, tandas 6–12 m, reanudación, retry/backoff, tarea Celery |
 | `api` | Endpoints REST (`/assets`, `/downloads`, `/downloads/{task_id}`, `/series`) |
 
 El **worker** no es un directorio propio: es la imagen del backend
@@ -66,20 +84,20 @@ El **worker** no es un directorio propio: es la imagen del backend
 fxtrad/
 ├── backend/                  # FastAPI + Celery + pipeline + storage (Python 3.12)
 │   ├── src/fxtrad/           #   api · ingest · pipeline · storage · contracts · logging_config
-│   ├── tests/                #   pytest (461 tests)
-│   ├── scripts/              #   benchmark_parquet.py (RNF-002)
+│   ├── tests/                #   pytest (536 tests + 2 skip)
+│   ├── scripts/              #   benchmark_parquet.py (RNF-102) · benchmark_download.py (RNF-101)
 │   ├── Dockerfile            #   imagen multi-stage: api | worker
 │   └── pyproject.toml        #   ruff · black · mypy · pytest (uv)
 ├── frontend/                 # SPA React 18 + Vite 5 + TS 5 + lightweight-charts
 │   ├── src/                  #   components · charting · export · indicators · services
 │   ├── Dockerfile            #   Vite dev con proxy a la API
-│   ├── package.json          #   eslint · prettier · tsc · vitest
+│   ├── package.json          #   eslint · prettier · tsc · vitest (286 tests)
 │   └── smoke-test.md         #   checklist de smoke de escritorio (RNF-005)
 ├── contracts/                # contrato OHLC canónico (JSON schema + md)
 ├── data/                     # Parquet + DuckDB locales (gitignored; volumen de compose)
 ├── docker-compose.yml        # 4 servicios: frontend, backend, worker, broker
 ├── docker-compose.worker.yml # RabbitMQ + worker (E2E de descarga)
-├── _docs/                    # plan, requirements, architecture, adr/, ux/, backlog, status, traceability
+├── _docs/                    # SDD: iterations/01-mvp · iterations/02-optimizacion-descarga · adr/ · glossary · logging-contract · license-audit
 ├── Makefile                  # lint · format · test · build · compose · benchmark
 └── .editorconfig
 ```
@@ -97,9 +115,6 @@ fxtrad/
 
 ### Opción A — Stack completo con Docker Compose (recomendado)
 
-Levanta los 4 servicios (frontend, backend, worker, broker) sin instalar Python
-ni Node:
-
 ```bash
 docker compose up --build
 ```
@@ -114,8 +129,7 @@ docker compose up --build
 - El volumen `./data` se monta en `/app/data` de `backend` y `worker` (Parquet +
   DuckDB compartidos).
 - El frontend proxya `/series`, `/downloads` y `/assets` al servicio `backend`
-  (`VITE_PROXY_TARGET`), de modo que el navegador usa un **único origen** (sin
-  CORS).
+  (`VITE_PROXY_TARGET`), de modo que el navegador usa un **único origen** (sin CORS).
 
 Para detenerlo:
 
@@ -151,21 +165,19 @@ npm run dev
 ```
 
 El servidor de Vite proxya la API a `http://localhost:8000` por defecto. Para
-apuntar a otro backend, define `VITE_PROXY_TARGET` (p. ej.
-`VITE_PROXY_TARGET=http://localhost:9000 npm run dev`).
+apuntar a otro backend, define `VITE_PROXY_TARGET`.
 
 ### Verificación rápida
 
 1. `curl http://localhost:8000/assets` → `[]` (catálogo vacío).
-2. Abre http://localhost:5173 y navega a **Biblioteca** → estado *empty* con el
-   CTA "Descargar mi primer activo".
-3. Descarga un activo (SCR-002) y, al terminar, aparecerá en la biblioteca; desde
-   ahí, **Graficar** abre SCR-003/SCR-004.
+2. Abre http://localhost:5173 y navega a **Biblioteca** → estado *empty*.
+3. Descarga un activo (SCR-002, periodicidad base **1 minuto UTC**) y, al terminar,
+   aparecerá en la biblioteca; desde ahí, **Graficar** abre SCR-003/SCR-004.
 
 > **Limitación conocida (AR-1):** la API pública de Dukascopy puede responder
-> `503`/timeout desde algunas IPs; el retry/backoff de 20 s lo mitiga, pero el
-> tramo de datos reales puede degradarse. El pipeline y los tests usan dobles,
-> por lo que la suite no depende de la red.
+> `503`/timeout desde algunas IPs; el pacing de 20 s y el retry/backoff por bloque
+> lo mitigan, pero el tramo de datos reales puede degradarse. El pipeline y los
+> tests usan dobles, por lo que la suite no depende de la red.
 
 ---
 
@@ -179,12 +191,13 @@ apuntar a otro backend, define `VITE_PROXY_TARGET` (p. ej.
 | `FXTRAD_BROKER_URL` | `amqp://guest:guest@localhost:5672//` | Broker Celery (RabbitMQ) |
 | `FXTRAD_RESULT_BACKEND` | `rpc://` con AMQP | Dónde se guardan los resultados de las tareas |
 | `FXTRAD_TASK_ALWAYS_EAGER` | `false` | Ejecuta tareas síncronas (tests/CI sin broker) |
-| `FXTRAD_DERIVED_TIMEFRAMES` | `1m,5m,15m,1h,4h,1d` | Timeframes a regenerar tras cada merge |
+| `FXTRAD_DERIVED_TIMEFRAMES` | `5m,15m,1h,4h,1d` | Timeframes derivados a regenerar tras cada merge (la base 1 m no es derivado) |
 | `FXTRAD_CACHE_MAX_WINDOWS` | `8` | Ventanas de caché in-memory (LRU) |
 | `FXTRAD_CACHE_MAX_CANDLES` | `200000` | Tope de velas por ventana cacheada |
 | `LOG_JSON` | `false` | `true` emite logs JSON estructurados |
 | `LOG_LEVEL` | `INFO` | Nivel mínimo (`DEBUG`…`ERROR`) |
 | `SERVICE_NAME` | `fxtrad-backend` | Campo `service` del log |
+| `RUN_DUKASCOPY_INTEGRATION` | vacío | `1` habilita el benchmark de descarga real (red a Dukascopy) |
 
 ### Frontend
 
@@ -203,14 +216,16 @@ apuntar a otro backend, define `VITE_PROXY_TARGET` (p. ej.
 | `GET` | `/downloads/{task_id}` | Estado de una descarga (`encolada`/`exito`/`parcial`/`fallo`) y filas |
 | `GET` | `/series` | Serie OHLC: `?symbol&timeframe&start&end` → `{symbol, timeframe, candles:[{time,open,high,low,close}]}` |
 
-`timeframe` ∈ `1s, 1m, 5m, 15m, 1h, 4h, 1d`. Los timestamps son segundos UTC.
+`timeframe` ∈ `1m, 5m, 15m, 1h, 4h, 1d` (la base es **1 m**, por defecto en
+`/series`). Los timestamps son segundos UTC. El contrato `Timeframe` conserva
+`1s`, pero el backend lo **rechaza** (400) al no ser derivable de la base 1 m.
 
 ## Flujo de la interfaz
 
 | Pantalla | Ruta | Función |
 |----------|------|---------|
 | SCR-001 Biblioteca | `#/assets` | Activos guardados con cobertura/estado; Graficar → SCR-003, Actualizar → SCR-002 |
-| SCR-002 Descarga | `#/downloads` | Formulario de descarga + progreso asíncrono + historial |
+| SCR-002 Descarga | `#/downloads` | Formulario de descarga (nota base **1 minuto UTC**) + progreso asíncrono + historial |
 | SCR-003 Abrir gráfico | `#/open` | Activo + periodo (validado contra la cobertura) + timeframe |
 | SCR-004 Gráfico | `#/chart` | Velas, indicadores (MA/RSI/ATR), dibujos, compra/venta, exportar |
 | SCR-005 Multigráfico | `#/multichart` | Hasta 3 paneles sincronizados |
@@ -225,7 +240,7 @@ make test     # pytest (backend) | vitest (frontend)
 make build    # build de producción del frontend
 make compose-up    # docker compose up --build (4 servicios + volumen data/)
 make compose-down  # docker compose down
-make benchmark-parquet  # benchmark de escritura Parquet (RNF-002, TASK-051)
+make benchmark-parquet  # benchmark de escritura Parquet (RNF-102)
 ```
 
 Con venv de `uv` (sin Make):
@@ -236,27 +251,36 @@ uv run --extra dev ruff check . && uv run --extra dev black --check . && uv run 
 uv run --extra dev pytest
 ```
 
-### Benchmark de escritura (RNF-002)
+### Benchmarks
+
+**Escritura Parquet (RNF-102)** — 726.000 velas (2 años @ 1 m):
 
 ```bash
 cd backend && PYTHONPATH=src uv run --extra dev python scripts/benchmark_parquet.py
-# volumen completo de RNF-002 (~18M filas; ≈16 min y ~4 GB):
-cd backend && PYTHONPATH=src uv run --extra dev python scripts/benchmark_parquet.py --rows 18000000
+# o un volumen concreto:
+cd backend && PYTHONPATH=src uv run --extra dev python scripts/benchmark_parquet.py --rows 200000
 ```
 
-Mide `write`/`merge` y proyecta a ~18M filas. Referencia: **52,6 µs/vela**
-(×11,4 sobre la línea base fila a fila de 600 µs/vela) con **KPI-4 = 0 duplicados**.
+Mide `write`/`merge` y proyecta a ~726k filas. Referencia: **52,1 µs/vela**
+(×11,5 sobre la línea base fila a fila de 600 µs/vela) con **KPI-4 = 0 duplicados**.
+
+**Descarga real (RNF-101)** — 1 año @ 1 m contra Dukascopy (opt-in, red real):
+
+```bash
+cd backend && RUN_DUKASCOPY_INTEGRATION=1 PYTHONPATH=src \
+  uv run --extra dev python scripts/benchmark_download.py EURUSD 2025-01-01 2025-12-31
+```
+
+Referencia medida: **309,9 s** para 1 año (objetivo ≤900 s; ver
+`_docs/iterations/02-optimizacion-descarga/benchmark-download.md`).
 
 ## Integración continua
 
 `.github/workflows/ci.yml` corre en cada `push` y `pull_request` con dos jobs en
-paralelo, reutilizando el Makefile (sin configuración duplicada):
+paralelo, reutilizando el Makefile:
 
 - **backend**: `make lint-backend` + `make test-backend` (vía `uv`).
 - **frontend**: `npm ci` + `make lint-frontend` + `make test-frontend` (Node 20).
-
-> Requiere un remoto de GitHub para ejecutarse; en local se valida con
-> `actionlint` y los mismos comandos.
 
 ## Calidad
 
@@ -267,20 +291,22 @@ paralelo, reutilizando el Makefile (sin configuración duplicada):
 - **Tests**: comportamiento, patrón AAA, cobertura ≥80% en código nuevo.
 - **Accesibilidad**: WCAG 2.1 AA, contraste por tokens, foco visible y escaneo
   `axe-core` en las pantallas (ADR-011).
-- **Licencias**: todo OSS, sin componentes comerciales (`_docs/license-audit.md`).
+- **Licencias**: todo OSS, sin componentes comerciales
+  (`_docs/iterations/02-optimizacion-descarga/license-audit.md`).
 
 ## Documentación (SDD)
 
-- Plan y KPIs: `_docs/plan.md` · Requisitos: `_docs/requirements.md`
-- Arquitectura: `_docs/architecture.md` · Interfaces de módulos: `_docs/module-interfaces.md`
-- Decisiones: `_docs/adr/` (ADR-001…ADR-011)
-- UX: `_docs/ux/` (design-system, components, interaction-specs, accessibility, wireframes)
-- Backlog, estado y trazabilidad: `_docs/backlog.md`, `_docs/status.md`, `_docs/traceability.md`
-- Logging: `_docs/logging-contract.md` · Licencias: `_docs/license-audit.md`
-- Smoke de escritorio: `frontend/smoke-test.md`
+- **Iteración 01 (MVP):** `_docs/iterations/01-mvp/` (plan, requirements,
+  architecture, ux/, backlog, status, traceability, module-interfaces, _cierre).
+- **Iteración 02 (Optimización y base 1 m):**
+  `_docs/iterations/02-optimizacion-descarga/` (plan, requirements, architecture,
+  adr/ADR-012…016, backlog, status, traceability, benchmark-download, license-audit, _cierre).
+- **Transversal:** `_docs/adr/` (ADR-001…011) · `_docs/glossary.md` ·
+  `_docs/logging-contract.md` · `_docs/license-audit.md`.
+- **Smoke de escritorio:** `frontend/smoke-test.md`.
 
 ## Licencia
 
 Software de uso personal compuesto íntegramente por dependencias de código
-abierto. El inventario de licencias y la verificación de costo $0 (RNF-006)
-están en `_docs/license-audit.md`.
+abierto. El inventario de licencias y la verificación de costo $0 (RNF-006) están
+en `_docs/iterations/02-optimizacion-descarga/license-audit.md`.
