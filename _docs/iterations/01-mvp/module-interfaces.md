@@ -35,7 +35,7 @@ Fronteras que **no** se permiten (test negativo): `ingest` no importa `storage`
 Modelos del contrato OHLC: `Candle`, `OhlcResponse`, `Timeframe`.
 
 ### `fxtrad.storage`
-- Persistencia: `ParquetSeriesStore`, `DuplicateTimeError`.
+- Persistencia: `ParquetSeriesStore`, `DuplicateTimeError`, `BASE_TIMEFRAME` (base `1m`, ADR-012).
 - Consulta: `SeriesQuery`, `InvalidRangeError`, `InvalidTimeframeError`.
 - Caché (ADR-007): `SeriesWindowCache`, `CachedSeriesQuery`, `CacheStats`,
   `CachedWindow`, `window_key`, `DEFAULT_MAX_WINDOWS`, `DEFAULT_MAX_CANDLES`.
