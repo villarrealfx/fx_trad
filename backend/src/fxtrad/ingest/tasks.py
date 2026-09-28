@@ -1,11 +1,11 @@
-"""Tareas Celery de descarga de datos (RF-001, RF-002, RF-006, RX-001; ADR-006).
+"""Tareas Celery de descarga de datos (RF-001, RF-006, RX-001; ADR-006).
 
 TASK-004 implementa con Celery + RabbitMQ el contrato ``DownloadQueue`` que el
 endpoint ``POST /downloads`` (TASK-003) usa como única vía de acoplamiento:
 se encola ``download_asset`` y se devuelve el ``task_id`` inmediatamente; el
-worker descarga las horas del rango y devuelve un resumen. TASK-005 añade el
-retry/backoff de 20 s (R-001): cada hora se reintenta con ``RetryPolicy`` y el
-resumen queda en estado ``exito``/``parcial``/``fallo``.
+worker descarga el rango por bloques (TASK-052/054/056) y devuelve un resumen.
+TASK-055 aporta el retry/backoff de 20 s por bloque (R-001) y el resumen queda
+en estado ``exito``/``parcial``/``fallo``.
 
 TASK-050 cierra el ciclo: al concluir, las velas descargadas se guardan en la
 base local (fusión incremental) y la descarga queda registrada en los metadatos,
@@ -18,7 +18,6 @@ acoplamiento que el cliente de descarga: ``ingest`` no importa ``storage``
 from __future__ import annotations
 
 import os
-from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import structlog
@@ -33,12 +32,10 @@ from fxtrad.ingest.planner import DownloadBlock, plan_blocks
 from fxtrad.ingest.requests import DownloadRequest
 from fxtrad.ingest.retry import (
     BlockDownloadError,
-    DownloadError,
     DownloadStatus,
     RetryPolicy,
     download_status,
     retry_download_block,
-    retry_download_hour,
 )
 from fxtrad.ingest.status import DownloadInfo
 from fxtrad.logging_config import configure_logging, connect_celery_signals
@@ -116,55 +113,6 @@ configure_logging()
 
 connect_celery_signals()
 """Correlaciona los logs de cada tarea con su ``task_id`` (TASK-041)."""
-
-
-def iter_hours(start_epoch_s: int, end_epoch_s: int) -> list[tuple[int, int, int, int]]:
-    """Enumeración de las horas UTC del rango inclusivo ``[start, end]``.
-
-    Returns:
-        Tuplas ``(year, month_index, day, hour)`` con mes 0-based, como espera
-        ``FreeservClient.download_hour``.
-    """
-    start_dt = datetime.fromtimestamp(start_epoch_s, tz=UTC).replace(
-        minute=0, second=0, microsecond=0
-    )
-    end_dt = datetime.fromtimestamp(end_epoch_s, tz=UTC)
-    hours: list[tuple[int, int, int, int]] = []
-    cursor = start_dt
-    while cursor <= end_dt:
-        hours.append((cursor.year, cursor.month - 1, cursor.day, cursor.hour))
-        cursor += timedelta(hours=1)
-    return hours
-
-
-def _collect_hours_candles(
-    client: FreeservClient,
-    request: DownloadRequest,
-    hours: list[tuple[int, int, int, int]],
-    policy: RetryPolicy,
-) -> tuple[list[Candle], list[dict[str, int]]]:
-    """Descarga las horas del rango acumulando velas y detallando los fallos.
-
-    Args:
-        client: Cliente Dukascopy (en producción llega de la factoría).
-        request: Solicitud validada de la descarga.
-        hours: Horas UTC a descargar, según ``iter_hours``.
-        policy: Política de reintentos aplicada a cada hora.
-
-    Returns:
-        Tupla con las velas obtenidas en orden de descarga y el detalle de las
-        horas que agotaron los reintentos.
-    """
-    collected: list[Candle] = []
-    failures: list[dict[str, int]] = []
-    for year, month_index, day, hour in hours:
-        try:
-            collected.extend(
-                retry_download_hour(client, request.asset, year, month_index, day, hour, policy)
-            )
-        except DownloadError:
-            failures.append({"year": year, "month_index": month_index, "day": day, "hour": hour})
-    return collected, failures
 
 
 def _persist_download(
@@ -379,7 +327,6 @@ class CeleryDownloadStatus:
 __all__ = [
     "CeleryDownloadQueue",
     "CeleryDownloadStatus",
-    "DownloadError",
     "RetryPolicy",
     "TASK_NAME",
     "build_client",
@@ -387,6 +334,5 @@ __all__ = [
     "celery_app",
     "create_celery_app",
     "download_asset",
-    "iter_hours",
     "run_download_range",
 ]

@@ -33,7 +33,6 @@ from fxtrad.ingest.tasks import (
     build_client,
     celery_app,
     create_celery_app,
-    iter_hours,
     run_download_range,
 )
 from fxtrad.pipeline.persist import DownloadPersister, build_persister
@@ -146,20 +145,6 @@ class TestRegistration:
 
     def test_task_accepts_json_serializable_signature(self) -> None:
         assert download_asset.name == TASK_NAME
-
-
-class TestHourIteration:
-    """``iter_hours`` se conserva hasta TASK-057; el rango sigue siendo UTC."""
-
-    def test_inclusive_hours(self) -> None:
-        assert iter_hours(_START, _START + 7200) == [
-            (2026, 2, 2, 0),
-            (2026, 2, 2, 1),
-            (2026, 2, 2, 2),
-        ]
-
-    def test_single_second_range_yields_one_hour(self) -> None:
-        assert iter_hours(_START, _START) == [(2026, 2, 2, 0)]
 
 
 class TestEndToEndEager:
