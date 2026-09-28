@@ -1,14 +1,15 @@
-"""Resampling OHLC a timeframes canónicos (TASK-014, RF-004, RF-009).
+"""Resampling OHLC a timeframes canónicos (TASK-014/TASK-059, RF-009).
 
-Agrega la serie base ``1s`` a los timeframes de visualización
-(1m/5m/15m/1h/4h/1d) respetando el contrato ``Candle``/``Timeframe``
+Agrega la serie base ``1m`` a los timeframes de visualización
+(5m/15m/1h/4h/1d) respetando el contrato ``Candle``/``Timeframe``
 (``contracts/ohlc.py``) y la política PA-3 de ``time`` único (RI-001).
-``target="1s"`` es identidad (passthrough): devuelve la serie sin cambios,
-pues la base 1s es el origen de toda agregación (RF-004).
+``target`` igual al origen es identidad (passthrough): devuelve la serie sin
+cambios, pues la base 1m es el origen de toda agregación (ADR-012).
 
-Los buckets se alinean al epoch UTC (``time // tf_seconds``); con una serie
-base alineada, una vela 1h contiene exactamente 60 velas 1m y la agregación
-1s→1h directa coincide con 1s→1m→1h (DoD TASK-014).
+Los buckets se alinean al epoch UTC (``time // tf_seconds``); con la base 1m
+alineada, una vela 1h contiene exactamente 60 velas 1m y la agregación 1m→1d
+directa coincide con 1m→1h→1d (DoD TASK-059). El timeframe ``1s`` sigue en el
+contrato ``Timeframe`` pero ya no es derivable (quedaría por debajo de la base).
 """
 
 from __future__ import annotations
@@ -74,23 +75,24 @@ def resample_ohlc(
     candles: Iterable[Candle],
     target: Timeframe,
     *,
-    source: Timeframe = "1s",
+    source: Timeframe = "1m",
 ) -> ResamplingResult:
     """Agrega velas OHLC al ``target`` desde ``source``.
 
-    Si ``target == source`` devuelve la serie sin cambios (identidad; usado
-    para la base 1s como timeframe de visualización). En otro caso agrupa por
-    bucket alineado al epoch (``time // tf_seconds``) y computa OHLC con el
-    primer open, alta máxima, baja mínima y último close del grupo.
+    Si ``target == source`` devuelve la serie sin cambios (identidad; usado para
+    la base 1m como timeframe de visualización). En otro caso agrupa por bucket
+    alineado al epoch (``time // tf_seconds``) y computa OHLC con el primer open,
+    alta máxima, baja mínima y último close del grupo.
 
     Args:
         candles: Serie de entrada ordenada por ``time``, sin duplicados (RI-001).
-        target: Timeframe de salida (1s/1m/5m/15m/1h/4h/1d).
-        source: Timeframe de entrada; por defecto la base 1s.
+        target: Timeframe de salida (1m/5m/15m/1h/4h/1d).
+        source: Timeframe de entrada; por defecto la base 1m (ADR-012).
 
     Raises:
         InvalidTimeframeError: Si ``source`` o ``target`` no son canónicos.
-        InvalidSourceTimeframeError: Si ``source`` es más gruesa que ``target``.
+        InvalidSourceTimeframeError: Si ``source`` es más gruesa que ``target``
+            (p. ej. pedir ``1s`` desde la base 1m).
         ValueError: Si la serie no está ordenada o tiene ``time`` duplicado.
 
     Returns:

@@ -107,7 +107,9 @@ class TestQueryWithoutRecompute:
     def test_query_respects_range_bounds_on_timeframe(self, tmp_path: Path) -> None:
         store = ParquetSeriesStore(tmp_path)
         _write_base(store)
-        resampled = resample_ohlc(store.read_range("EURUSD", _BASE_TIME, _BASE_TIME + 3599), "1m")
+        resampled = resample_ohlc(
+            store.read_range("EURUSD", _BASE_TIME, _BASE_TIME + 3599), "1m", source="1s"
+        )
         store.write("EURUSD", resampled.candles, timeframe="1m")
 
         result = SeriesQuery(store).read(

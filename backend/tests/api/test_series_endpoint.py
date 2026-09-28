@@ -158,7 +158,7 @@ class TestSeriesMatchesDirectDuckDB:
         store = ParquetSeriesStore(tmp_path)
         base = _second_candles(_BASE_TIME, 3600)
         store.write("EURUSD", base)
-        resampled = resample_ohlc(base, "1m")
+        resampled = resample_ohlc(base, "1m", source="1s")
         store.write("EURUSD", resampled.candles, timeframe="1m")
         query = SeriesQuery(store)
         return TestClient(create_app(_FakeQueue(), series_query=query))
