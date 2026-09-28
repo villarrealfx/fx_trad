@@ -22,8 +22,8 @@
 | RI-101 | Esquema serie base 1m (ADR-004/012) | TASK-060 | [pendiente] | 🔵 |
 | RI-102 | Naming `{symbol}.1m.parquet` + derivadas (ADR-004/007) | TASK-060 | [pendiente] | 🔵 |
 | RI-002 | `storage.metadata` (ADR-004) | TASK-068 | [pendiente] | 🔵 |
-| RX-101 | `ingest.freeserv` 1m + BID (ADR-013/014) | TASK-053, TASK-055 | `tests/ingest/test_freeserv.py::TestDownloadRange::test_returns_one_minute_candles` | 🔵 |
-| RX-001 | `ingest.retry` backoff por bloque (ADR-010/016) | TASK-055 | [pendiente] | 🔵 |
+| RX-101 | `ingest.freeserv` 1m + BID (ADR-013/014) | TASK-053, TASK-055 | `tests/ingest/test_freeserv.py::TestDownloadRange::test_returns_one_minute_candles`, `tests/ingest/test_retry.py::TestRetryDownloadBlock::test_transient_failure_is_retried_and_succeeds` | 🔵 |
+| RX-001 | `ingest.retry` backoff por bloque (ADR-010/016) | TASK-055 | `tests/ingest/test_retry.py::TestRetryDownloadBlock::test_exhausted_retries_raise_block_error`, `tests/ingest/test_retry.py::TestCollectBlocksCandles::test_failing_block_does_not_abort_range` | 🔵 |
 
 **Leyenda:** 🟡 pendiente · 🔵 en progreso · 🟢 completo · 🔴 bloqueado
 

@@ -7,23 +7,22 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 24 (+1 TECH-002) | — |
-| 📥 Backlog | 21 (+1) | −1 |
+| 📥 Backlog | 20 (+1) | −1 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | — |
-| ✅ Done | 3 | +1 |
+| ✅ Done | 4 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 13% (3/24) | +5% |
+| % Completado | 17% (4/24) | +4% |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (22)
+### 📥 Backlog (21)
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
-| TASK-055 | Retry por bloque | EP-005 | S | TASK-053 ✅ |
-| TASK-056 | Integrar en Celery | EP-005 | M | TASK-053 ✅, TASK-054 ✅, TASK-055 |
+| TASK-056 | Integrar en Celery | EP-005 | M | TASK-053 ✅, TASK-054 ✅, TASK-055 ✅ |
 | TASK-057 | Retirar ticks | EP-005 | S | TASK-056 |
 | TASK-058 | Test integridad paginación | EP-005 | M | TASK-056 |
 | TASK-074 | Benchmark descarga 1 año | EP-005 | M | TASK-056, TASK-058 |
@@ -55,12 +54,13 @@
 |----|-------|-------|------|-----------------|
 | — | — | — | — | — |
 
-### ✅ Done (3)
+### ✅ Done (4)
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
 | TASK-052 | Planificador bloques ≤30k | EP-005 | 2026-09-28 | `tests/ingest/test_planner.py::TestPlanBlocks::test_one_year_blocks_within_limit_and_sum_matches` |
 | TASK-053 | `download_range` 1m BID | EP-005 | 2026-09-28 | `tests/ingest/test_freeserv.py::TestDownloadRange::test_passes_min_1_interval_and_bid` |
 | TASK-054 | Pacing 20 s | EP-005 | 2026-09-28 | `tests/ingest/test_pacing.py::TestDownloadBlocks::test_sleeps_n_minus_one_times_for_n_blocks` |
+| TASK-055 | Retry por bloque | EP-005 | 2026-09-28 | `tests/ingest/test_retry.py::TestCollectBlocksCandles::test_failing_block_does_not_abort_range` |
 
 ### 🔴 Blocked (0)
 | ID | Tarea | Motivo | Bloqueada desde | Desbloqueador |
@@ -81,7 +81,7 @@ graph LR
 ## 4. Métricas
 
 ### 4.1 Velocidad
-Sin datos suficientes (3 tareas completadas el mismo día).
+Sin datos suficientes (4 tareas completadas el mismo día).
 
 ### 4.2 Burn-down
 Sin datos.
@@ -103,7 +103,9 @@ Ninguna.
 - `download_hour`/código de ticks sigue en producción hasta `TASK-057`.
 
 ### 🟢 Informativas
-- `TASK-054` cerrada: DoD verificada (suite 489 + 2 skip) y prueba registrada (RF-102). Desbloquea parcialmente **TASK-056** (falta TASK-055).
+- `TASK-055` cerrada: DoD verificada (suite 497 + 2 skip) y prueba registrada (RX-101, RX-001).
+- **`TASK-056` queda totalmente desbloqueada** (deps 053/054/055 ✅).
+- **RX-101 y RX-001 al 100%** — primeros requisitos cerrados de la iteración.
 
 ## 7. Trazabilidad — salud
 | Requisito | Tareas | Done | Cobertura |
@@ -125,13 +127,13 @@ Ninguna.
 | RI-101 | 1 | 0 | 0% |
 | RI-102 | 1 | 0 | 0% |
 | RI-002 | 1 | 0 | 0% |
-| RX-101 | 2 | 1 | 50% |
-| RX-001 | 1 | 0 | 0% |
+| RX-101 | 2 | 2 | 100% |
+| RX-001 | 1 | 1 | 100% |
 
-**Requisitos sin tareas:** ninguno ✓ · **Requisitos 100% Done:** 0/19
+**Requisitos sin tareas:** ninguno ✓ · **Requisitos 100% Done:** 2/19 (RX-101, RX-001)
 
 ## 8. Próximas acciones sugeridas
-1. Iniciar **TASK-055** (retry por bloque) — desbloquea TASK-056.
+1. Iniciar **TASK-056** (integración en Celery) — desbloqueada, en ruta crítica.
 2. En paralelo, iniciar **TASK-059** (raíz de la rama base, sin deps).
 3. Reservar **TASK-074** para el cierre de EP-005.
 
@@ -141,5 +143,7 @@ Ninguna.
 | 2026-09-28 | — | Inicialización | status.md creado desde backlog.md (24 tareas + TECH-002 en 📥) |
 | 2026-09-28 | TASK-052 | 📥 → 👀 Review | Autorizado por el usuario ("Autorizado a pasar a review"); salto de 🔨 Doing justificado por implementación ya ejecutada y verificada en `/sdd-implement` |
 | 2026-09-28 | TASK-052 | 👀 → ✅ Done | "update TASK-052 done"; DoD verificada (24 tests passing) y prueba registrada en traceability (RF-102) |
-| 2026-09-28 | TASK-053 | 📥 → 👀 → ✅ Done | "update TASK-053 review. Autorizado a pasar a done si aplica"; DoD verificada (suite 482 + 2 skip) y pruebas registradas (RF-101, RX-101). Saltos de 🔨 Doing y 👀 Review autorizados |
+| 2026-09-28 | TASK-053 | 📥 → 👀 → ✅ Done | "update TASK-053 review. Autorizado a pasar a done si aplica"; DoD verificada (suite 482 + 2 skip) y pruebas registradas (RF-101, RX-101). Saltos autorizados |
 | 2026-09-28 | TASK-054 | 📥 → 👀 → ✅ Done | "update TASK-054 review. Autorizado a pasar a done si aplica y realiza commit"; DoD verificada (suite 489 + 2 skip) y prueba registrada (RF-102). Saltos autorizados |
+| 2026-09-28 | TASK-055 | 📥 → 👀 → ✅ Done | "procede" sobre el paso sugerido; DoD verificada (suite 497 + 2 skip) y pruebas registradas (RX-101, RX-001). Saltos de 🔨 Doing y 👀 Review autorizados |
+| 2026-09-28 | TASK-055 | Commit | `feat(TASK-055)` + `docs(...)` tras pasar a Done (convención del proyecto) |
