@@ -1,10 +1,8 @@
-"""Tests del Parquet pre-resampling por timeframe (TASK-017, RF-009/ADR-007).
+"""Tests del Parquet por timeframe y base 1m (TASK-017/TASK-060, RF-009; ADR-007/012).
 
-DoD: los archivos por timeframe quedan persistidos y se consultan sin
-recomputar. Se verifica el naming ``{symbol}.{tf}.parquet``, que la consulta
-devuelve exactamente lo persistido por el resampling (compuesto desde el
-pipeline, sin re-procesar en cada lectura) y que los timeframes no canónicos
-se rechazan.
+DoD: la base 1 m se persiste en ``{symbol}.1m.parquet`` y los derivados en
+``{symbol}.{tf}.parquet``, y se consultan sin recomputar. Los timeframes no
+canónicos —incluido ``1s``— se rechazan.
 """
 
 from __future__ import annotations
@@ -23,26 +21,26 @@ from fxtrad.storage import (
 )
 
 _BASE_TIME = 1772409600  # 2026-03-02T00:00:00Z (lunes, fixture marzo 2026)
-_TIMEFRAMES = ["1m", "5m", "15m", "1h", "4h", "1d"]
+_DERIVED = ["5m", "15m", "1h", "4h", "1d"]
 
 
-def _second_candles(start: int, count: int) -> list[Candle]:
-    """Serie 1s con OHLC determinista: open=i, high=i+1, low=i, close=i."""
+def _minute_candles(start: int, count: int) -> list[Candle]:
+    """Serie 1 m alineada al epoch: open=i, high=i+1, low=i, close=i."""
     return [
-        Candle(time=start + i, open=float(i), high=float(i + 1), low=float(i), close=float(i))
+        Candle(time=start + i * 60, open=float(i), high=float(i + 1), low=float(i), close=float(i))
         for i in range(count)
     ]
 
 
 def _write_base(store: ParquetSeriesStore, symbol: str = "EURUSD") -> None:
-    """Persiste la serie base 1s del activo (TASK-015)."""
-    store.write(symbol, _second_candles(_BASE_TIME, 3600))
+    """Persiste una hora de velas 1 m de la base del activo (ADR-012)."""
+    store.write(symbol, _minute_candles(_BASE_TIME, 60))
 
 
 class TestPrecomputePersistence:
-    """Un Parquet por timeframe se persiste junto a la base 1s (ADR-007)."""
+    """Un Parquet por timeframe se persiste junto a la base 1m (ADR-007)."""
 
-    @pytest.mark.parametrize("timeframe", _TIMEFRAMES)
+    @pytest.mark.parametrize("timeframe", _DERIVED)
     def test_writes_one_parquet_per_timeframe(self, tmp_path: Path, timeframe: str) -> None:
         store = ParquetSeriesStore(tmp_path)
         _write_base(store)
@@ -55,11 +53,11 @@ class TestPrecomputePersistence:
         assert (tmp_path / f"EURUSD.{timeframe}.parquet").is_file()
         assert written == resampled.rows_output
 
-    def test_base_one_second_keeps_legacy_filename(self, tmp_path: Path) -> None:
+    def test_base_uses_1m_filename(self, tmp_path: Path) -> None:
         store = ParquetSeriesStore(tmp_path)
         _write_base(store)
 
-        assert (tmp_path / "EURUSD.parquet").is_file()
+        assert (tmp_path / "EURUSD.1m.parquet").is_file()
 
     def test_has_series_is_timeframe_aware(self, tmp_path: Path) -> None:
         store = ParquetSeriesStore(tmp_path)
@@ -67,9 +65,15 @@ class TestPrecomputePersistence:
         resampled = resample_ohlc(store.read_range("EURUSD", _BASE_TIME, _BASE_TIME + 3599), "1h")
         store.write("EURUSD", resampled.candles, timeframe="1h")
 
-        assert store.has_series("EURUSD", "1s") is True
+        assert store.has_series("EURUSD", "1m") is True
         assert store.has_series("EURUSD", "1h") is True
-        assert store.has_series("EURUSD", "1m") is False
+        assert store.has_series("EURUSD", "5m") is False
+
+    def test_rejects_1s_timeframe(self, tmp_path: Path) -> None:
+        store = ParquetSeriesStore(tmp_path)
+
+        with pytest.raises(InvalidTimeframeError, match="canónico"):
+            store.write("EURUSD", [], timeframe="1s")
 
 
 class TestQueryWithoutRecompute:
@@ -90,7 +94,7 @@ class TestQueryWithoutRecompute:
         _write_base(store)
         base = store.read_range("EURUSD", _BASE_TIME, _BASE_TIME + 3599)
 
-        for timeframe in _TIMEFRAMES:
+        for timeframe in _DERIVED:
             resampled = resample_ohlc(base, timeframe)
             store.write("EURUSD", resampled.candles, timeframe=timeframe)
 
@@ -104,19 +108,16 @@ class TestQueryWithoutRecompute:
             assert query.read("EURUSD", timeframe=timeframe) == resampled.candles
             assert rows == resampled.rows_output
 
-    def test_query_respects_range_bounds_on_timeframe(self, tmp_path: Path) -> None:
+    def test_query_respects_range_bounds_on_base(self, tmp_path: Path) -> None:
         store = ParquetSeriesStore(tmp_path)
         _write_base(store)
-        resampled = resample_ohlc(
-            store.read_range("EURUSD", _BASE_TIME, _BASE_TIME + 3599), "1m", source="1s"
-        )
-        store.write("EURUSD", resampled.candles, timeframe="1m")
 
         result = SeriesQuery(store).read(
             "EURUSD", timeframe="1m", start=_BASE_TIME + 120, end=_BASE_TIME + 239
         )
 
-        assert result == [resampled.candles[2], resampled.candles[3]]
+        assert [candle.time for candle in result] == [_BASE_TIME + 120, _BASE_TIME + 180]
+        assert [candle.open for candle in result] == [2.0, 3.0]
 
 
 class TestTimeframeValidation:
@@ -133,5 +134,5 @@ class TestTimeframeValidation:
         store = ParquetSeriesStore(tmp_path)
         _write_base(store)
 
-        with pytest.raises(FileNotFoundError, match="1m"):
-            SeriesQuery(store).read("EURUSD", timeframe="1m")
+        with pytest.raises(FileNotFoundError, match="1h"):
+            SeriesQuery(store).read("EURUSD", timeframe="1h")

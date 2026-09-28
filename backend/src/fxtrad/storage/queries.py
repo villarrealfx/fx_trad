@@ -2,15 +2,16 @@
 
 Construye sobre ``ParquetSeriesStore`` (TASK-015) una query parametrizada que
 devuelve la serie del activo en el rango. El timeframe sigue el contrato
-RNF-008/TASK-009: la base ``1s`` se lee del Parquet del activo y el resto
-(canónicos 1m/5m/15m/1h/4h/1d) se lee del Parquet pre-resampling persistido
-por TASK-017 (ADR-007), sin recomputar el resampling en cada consulta (RF-009).
+RNF-008/TASK-009: la base ``1m`` se lee de ``{symbol}.1m.parquet`` y los
+canónicos 5m/15m/1h/4h/1d de su Parquet pre-resampling (ADR-007), sin recomputar
+el resampling en cada consulta (RF-009).
 """
 
 from __future__ import annotations
 
 from fxtrad.contracts.ohlc import Candle, Timeframe
 from fxtrad.storage.series import (
+    BASE_TIMEFRAME,
     CANONICAL_TIMEFRAMES,
     InvalidTimeframeError,
     ParquetSeriesStore,
@@ -35,7 +36,7 @@ class SeriesQuery:
     def read(
         self,
         symbol: str,
-        timeframe: Timeframe = "1s",
+        timeframe: Timeframe = BASE_TIMEFRAME,
         start: int | None = None,
         end: int | None = None,
     ) -> list[Candle]:
@@ -43,9 +44,9 @@ class SeriesQuery:
 
         Args:
             symbol: Símbolo del activo (identificador del catálogo).
-            timeframe: Granularidad canónica (RF-009). ``1s`` lee la base;
-                los demás leen el Parquet pre-resampling de TASK-017
-                (ADR-007), sin recomputar.
+            timeframe: Granularidad canónica (RF-009). ``1m`` lee la base;
+                los demás leen el Parquet pre-resampling (ADR-007), sin
+                recomputar.
             start: Inicio del rango en segundos UTC (inclusivo); si es
                 ``None`` no hay cota inferior.
             end: Fin del rango en segundos UTC (inclusivo); si es ``None``
@@ -75,7 +76,7 @@ class SeriesQuery:
         """Indica si el activo tiene serie almacenada (reusa el catálogo)."""
         return self._series_store.has_series(symbol)
 
-    def version(self, symbol: str, timeframe: Timeframe = "1s") -> str | None:
+    def version(self, symbol: str, timeframe: Timeframe = BASE_TIMEFRAME) -> str | None:
         """Devuelve el token de versión del Parquet del activo (TASK-045).
 
         La caché in-memory lo usa para invalidar la ventana del activo cuando una

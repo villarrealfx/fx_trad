@@ -1,8 +1,8 @@
 """Tests de la regeneración de Parquets pre-resampling (TASK-049, RF-009).
 
-DoD: dado un activo con 1m/1h pre-resampling y un merge 1s nuevo, los
+DoD: dado un activo con 1m/1h pre-resampling y un merge 1m nuevo, los
 timeframes cuyo rango intersecta el periodo quedan regenerados y la serie
-servida coincide con la agregación directa de la base 1s.
+servida coincide con la agregación directa de la base 1m.
 
 Se usa Parquet y DuckDB reales sobre ``tmp_path``: el valor del test está en
 que el bucket recalculado sea el correcto en disco, no en que se llame al
@@ -74,7 +74,7 @@ class TestBucketScope:
         assert _times(store, "EURUSD", "1h") == [_START, _START + _HOUR]
 
     def test_bucket_spanning_the_period_edge_is_complete(self, tmp_path: Path) -> None:
-        """Bucket a medio llenar: se rehace entero desde la base 1s."""
+        """Bucket a medio llenar: se rehace entero desde la base 1m."""
         store = _store(tmp_path)
         store.merge("EURUSD", _candles(_START + 1800, 4))  # mitad de la hora 00
         refresher = DerivedSeriesRefresher(store, ("1h",))
@@ -92,15 +92,15 @@ class TestBucketScope:
     def test_refresh_never_duplicates_times(self, tmp_path: Path) -> None:
         store = _store(tmp_path)
         store.merge("EURUSD", _candles(_START, 5))
-        refresher = DerivedSeriesRefresher(store, ("1m",))
+        refresher = DerivedSeriesRefresher(store, ("5m",))
         refresher.refresh("EURUSD", _START, _START + 4)
         refresher.refresh("EURUSD", _START, _START + 4)  # idempotente
 
-        times = _times(store, "EURUSD", "1m")
+        times = _times(store, "EURUSD", "5m")
         assert len(times) == len(set(times))
 
     def test_derived_matches_direct_aggregation_of_the_base(self, tmp_path: Path) -> None:
-        """El derivado es exactamente ``resample_ohlc`` sobre la base 1s (RF-009)."""
+        """El derivado es exactamente ``resample_ohlc`` sobre la base 1m (RF-009)."""
         store = _store(tmp_path)
         base = _candles(_START, 10)
         store.merge("EURUSD", base)
@@ -115,7 +115,7 @@ class TestIncrementalRefresh:
 
     def test_second_download_extends_the_derived_range(self, tmp_path: Path) -> None:
         store = _store(tmp_path)
-        refresher = DerivedSeriesRefresher(store, ("1h", "1m"))
+        refresher = DerivedSeriesRefresher(store, ("1h", "5m"))
         store.merge("EURUSD", _candles(_START, 3))
         refresher.refresh("EURUSD", _START, _START + 2)
         assert _times(store, "EURUSD", "1h") == [_START]
@@ -124,7 +124,7 @@ class TestIncrementalRefresh:
         refresher.refresh("EURUSD", _START + _HOUR, _START + _HOUR + 2)
 
         assert _times(store, "EURUSD", "1h") == [_START, _START + _HOUR]
-        assert _times(store, "EURUSD", "1m") == [_START, _START + _HOUR]
+        assert _times(store, "EURUSD", "5m") == [_START, _START + _HOUR]
 
     def test_day_bucket_spans_the_whole_period(self, tmp_path: Path) -> None:
         store = _store(tmp_path)
@@ -148,7 +148,7 @@ class TestIncrementalRefresh:
 
 
 class TestNoData:
-    """Sin velas 1s no se crean Parquets derivados vacíos (RF-007)."""
+    """Sin velas 1m no se crean Parquets derivados vacíos (RF-007)."""
 
     def test_missing_base_creates_no_derived_series(self, tmp_path: Path) -> None:
         store = _store(tmp_path)
@@ -206,7 +206,7 @@ class TestInvalidInput:
 
     def test_base_timeframe_is_rejected_at_construction(self, tmp_path: Path) -> None:
         with pytest.raises(ValueError, match="no canónico como derivado"):
-            DerivedSeriesRefresher(_store(tmp_path), ("1s",))
+            DerivedSeriesRefresher(_store(tmp_path), ("1m",))
 
 
 class TestParseTimeframes:
@@ -217,13 +217,13 @@ class TestParseTimeframes:
         assert parse_timeframes("  ") == DERIVED_TIMEFRAMES
 
     def test_selects_the_requested_subset_in_order(self) -> None:
-        assert parse_timeframes("1h,1m") == ("1h", "1m")
+        assert parse_timeframes("1h,5m") == ("1h", "5m")
 
     def test_removes_duplicates_keeping_the_first(self) -> None:
-        assert parse_timeframes("1m,1h,1m") == ("1m", "1h")
+        assert parse_timeframes("5m,1h,5m") == ("5m", "1h")
 
     def test_ignores_empty_tokens_between_separators(self) -> None:
-        assert parse_timeframes("1m,,1h") == ("1m", "1h")
+        assert parse_timeframes("5m,,1h") == ("5m", "1h")
 
     def test_value_without_any_valid_timeframe_is_rejected(self) -> None:
         with pytest.raises(ValueError, match="no define ningún timeframe"):
@@ -231,11 +231,11 @@ class TestParseTimeframes:
 
     def test_unknown_timeframe_is_rejected(self) -> None:
         with pytest.raises(ValueError, match="no canónico"):
-            parse_timeframes("1m,7m")
+            parse_timeframes("5m,7m")
 
     def test_base_timeframe_is_rejected(self) -> None:
         with pytest.raises(ValueError, match="es la base"):
-            parse_timeframes("1s")
+            parse_timeframes("1m")
 
     def test_reads_the_environment_variable(self, monkeypatch: object) -> None:
         monkeypatch.setenv("FXTRAD_DERIVED_TIMEFRAMES", "15m,1h")  # type: ignore[attr-defined]

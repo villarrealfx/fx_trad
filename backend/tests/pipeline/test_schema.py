@@ -80,7 +80,7 @@ class TestSchema:
         store = ParquetSeriesStore(tmp_path)
         store.write("EURUSD", normalize_schema(_rows()))
 
-        types = _parquet_types(tmp_path / "EURUSD.parquet")
+        types = _parquet_types(tmp_path / "EURUSD.1m.parquet")
         assert types["time"] == "BIGINT"
         assert all(types[key] == "DOUBLE" for key in _OHLC)
 
@@ -98,4 +98,4 @@ class TestSchema:
 
         with pytest.raises(ValueError, match="fracción de segundo"):
             normalize_schema(rows)
-        assert not (tmp_path / "EURUSD.parquet").exists()
+        assert not (tmp_path / "EURUSD.1m.parquet").exists()

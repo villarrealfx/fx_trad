@@ -228,7 +228,7 @@ def get_series(
     request: Request,
     symbol: str,
     series_query: SeriesQueryDependency,
-    timeframe: Timeframe = "1s",
+    timeframe: Timeframe = "1m",
     start: int | None = None,
     end: int | None = None,
 ) -> OhlcResponse:
@@ -238,7 +238,7 @@ def get_series(
         request: Request HTTP (para correlación y estado de la aplicación).
         symbol: Símbolo del activo (identificador del catálogo).
         series_query: Capa de consulta OHLC por activo/rango/timeframe.
-        timeframe: Granularidad canónica (RF-009); ``1s`` por defecto.
+        timeframe: Granularidad canónica (RF-009); ``1m`` (base) por defecto.
         start: Inicio del rango en segundos UTC (inclusivo); si es ``None``,
             no hay cota inferior.
         end: Fin del rango en segundos UTC (inclusivo); si es ``None``, no

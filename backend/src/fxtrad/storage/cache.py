@@ -31,6 +31,7 @@ from typing import Protocol
 import structlog
 
 from fxtrad.contracts.ohlc import Candle, Timeframe
+from fxtrad.storage.series import BASE_TIMEFRAME
 
 logger = structlog.get_logger()
 
@@ -52,7 +53,7 @@ class SeriesReader(Protocol):
     def read(
         self,
         symbol: str,
-        timeframe: Timeframe = "1s",
+        timeframe: Timeframe = BASE_TIMEFRAME,
         start: int | None = None,
         end: int | None = None,
     ) -> list[Candle]:
@@ -68,7 +69,7 @@ class VersionedSeriesReader(SeriesReader, Protocol):
     obsoletos (ADR-007).
     """
 
-    def version(self, symbol: str, timeframe: Timeframe = "1s") -> str | None:
+    def version(self, symbol: str, timeframe: Timeframe = BASE_TIMEFRAME) -> str | None:
         """Devuelve el token de versión de la serie, o ``None`` si no existe."""
         ...
 
@@ -310,7 +311,7 @@ class CachedSeriesQuery:
     def read(
         self,
         symbol: str,
-        timeframe: Timeframe = "1s",
+        timeframe: Timeframe = BASE_TIMEFRAME,
         start: int | None = None,
         end: int | None = None,
     ) -> list[Candle]:

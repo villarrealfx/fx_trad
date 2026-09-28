@@ -1,8 +1,8 @@
-"""Regeneración de los Parquets pre-resampling tras un merge de la base 1s.
+"""Regeneración de los Parquets pre-resampling tras un merge de la base 1m.
 
 TASK-049 (RF-009, ADR-004/ADR-007). Hoy los Parquets derivados se consultan
 (``queries.py`` lee ``{symbol}.{tf}.parquet``) pero nada los produce: una
-descarga incremental deja la base 1s al día y los timeframes derivados
+descarga incremental deja la base 1m al día y los timeframes derivados
 sirviendo velas obsoletas, o directamente inexistentes (404 en
 ``GET /series?timeframe=1h``).
 
@@ -11,13 +11,13 @@ Vive en ``pipeline`` porque el resampling es responsabilidad de este módulo
 
 **Ámbito por buckets, no recálculo completo.** Del periodo fusionado
 ``[inicio, fin]`` solo se rehacen los buckets de cada timeframe que el periodo
-intersecta, leyendo la base 1s de la ventana ya existente. Recalcular el
+intersecta, leyendo la base 1m de la ventana ya existente. Recalcular el
 derivado entero serían ~18M filas por descarga (RNF-002); el coste de este
 enfoque es proporcional al periodo descargado, no al histórico del activo.
 
 Un bucket recalculado se funde con ``merge()``, que hace upsert por ``time`` y
 no borra nada (TASK-019), así que los buckets fuera de la ventana sobreviven y
-un bucket a medio llenar queda completo (se rehace entero desde la base 1s,
+un bucket a medio llenar queda completo (se rehace entero desde la base 1m,
 que ya incluye las filas de descargas anteriores).
 
 **Consistencia eventual:** los derivados se actualizan uno a uno, así que un
@@ -36,12 +36,12 @@ import structlog
 
 from fxtrad.contracts.ohlc import Candle, Timeframe
 from fxtrad.pipeline.resample import TIMEFRAME_SECONDS, resample_ohlc
-from fxtrad.storage.series import CANONICAL_TIMEFRAMES, ParquetSeriesStore
+from fxtrad.storage.series import BASE_TIMEFRAME, CANONICAL_TIMEFRAMES, ParquetSeriesStore
 
 logger = structlog.get_logger()
 
-DERIVED_TIMEFRAMES: tuple[Timeframe, ...] = ("1m", "5m", "15m", "1h", "4h", "1d")
-"""Timeframes que RF-009 pone a disposición del usuario sobre la base 1s."""
+DERIVED_TIMEFRAMES: tuple[Timeframe, ...] = ("5m", "15m", "1h", "4h", "1d")
+"""Timeframes derivados por resampling sobre la base 1m (RF-009, ADR-012)."""
 
 ENV_TIMEFRAMES = "FXTRAD_DERIVED_TIMEFRAMES"
 """Variable de entorno para recortar el conjunto de derivados a regenerar."""
@@ -74,7 +74,7 @@ def parse_timeframes(raw: str | None) -> tuple[Timeframe, ...]:
         Timeframes derivados a regenerar, en el orden en que se declararon.
 
     Raises:
-        ValueError: si algún valor no es canónico, si se pide el ``1s``, que
+        ValueError: si algún valor no es canónico, si se pide el ``1m``, que
             es la base, o si un valor explícito no deja ningún timeframe válido.
     """
     if raw is None or not raw.strip():
@@ -88,9 +88,10 @@ def parse_timeframes(raw: str | None) -> tuple[Timeframe, ...]:
                 f"Timeframe no canónico en {ENV_TIMEFRAMES}: {token!r}. "
                 f"Válidos: {', '.join(sorted(CANONICAL_TIMEFRAMES))}"
             )
-        if token == "1s":
+        if token == BASE_TIMEFRAME:
             raise ValueError(
-                f"El timeframe '1s' es la base, no un derivado: no puede ir en {ENV_TIMEFRAMES}"
+                f"El timeframe {BASE_TIMEFRAME!r} es la base, no un derivado: "
+                f"no puede ir en {ENV_TIMEFRAMES}"
             )
         selected.append(token)  # type: ignore[arg-type]
     if not selected:
@@ -107,10 +108,10 @@ def timeframes_from_env() -> tuple[Timeframe, ...]:
 
 
 class DerivedSeriesRefresher:
-    """Rehace los Parquets derivados que un merge de la base 1s deja obsoletos.
+    """Rehace los Parquets derivados que un merge de la base 1m deja obsoletos.
 
     Attributes:
-        series_store: Almacén Parquet compartido con la base 1s (ADR-004).
+        series_store: Almacén Parquet compartido con la base 1m (ADR-004).
         timeframes: Derivados a regenerar en cada refresco.
     """
 
@@ -127,15 +128,15 @@ class DerivedSeriesRefresher:
                 que RF-009 requiere.
 
         Raises:
-            ValueError: si algún timeframe no es canónico o es el ``1s``, que
-                es la base y no un derivado. Se valida al construir y no en
+            ValueError: si algún timeframe no es canónico o es la base ``1m``,
+                que no es un derivado. Se valida al construir y no en
                 cada refresco para fallar antes de escribir nada.
         """
         for timeframe in timeframes:
-            if timeframe not in CANONICAL_TIMEFRAMES or timeframe == "1s":
+            if timeframe not in CANONICAL_TIMEFRAMES or timeframe == BASE_TIMEFRAME:
+                valid = ", ".join(tf for tf in sorted(CANONICAL_TIMEFRAMES) if tf != BASE_TIMEFRAME)
                 raise ValueError(
-                    f"Timeframe no canónico como derivado: {timeframe!r}. "
-                    f"Válidos: {', '.join(tf for tf in sorted(CANONICAL_TIMEFRAMES) if tf != '1s')}"
+                    f"Timeframe no canónico como derivado: {timeframe!r}. Válidos: {valid}"
                 )
         self._series_store = series_store
         self._timeframes = tuple(timeframes)
@@ -143,7 +144,7 @@ class DerivedSeriesRefresher:
     def refresh(self, symbol: str, start: int, end: int) -> dict[Timeframe, int]:
         """Regenera los derivados cuyo rango intersecta el periodo indicado.
 
-        Lee la base 1s **una sola vez** en la ventana alineada al timeframe más
+        Lee la base 1m **una sola vez** en la ventana alineada al timeframe más
         grueso configurado y agrega en memoria para cada uno. Escanear DuckDB
         por timeframe multiplicaría la E/S sin ahorrar CPU, que es donde está
         el coste de la agregación.
@@ -164,13 +165,13 @@ class DerivedSeriesRefresher:
             raise ValueError(
                 f"Periodo inválido para regenerar derivados: start={start} > end={end}"
             )
-        if not self._timeframes or not self._series_store.has_series(symbol, "1s"):
-            logger.info("derivadas_sin_datos", activo=symbol, velas=0, timeframe="1s")
+        if not self._timeframes or not self._series_store.has_series(symbol, BASE_TIMEFRAME):
+            logger.info("derivadas_sin_datos", activo=symbol, velas=0, timeframe=BASE_TIMEFRAME)
             return {}
         window_start, window_end = self._source_window(start, end)
-        rows = self._series_store.read_range(symbol, window_start, window_end, "1s")
+        rows = self._series_store.read_range(symbol, window_start, window_end, BASE_TIMEFRAME)
         if not rows:
-            logger.info("derivadas_sin_datos", activo=symbol, velas=0, timeframe="1s")
+            logger.info("derivadas_sin_datos", activo=symbol, velas=0, timeframe=BASE_TIMEFRAME)
             return {}
         return {
             timeframe: self._refresh_one(symbol, rows, start, end, timeframe)
@@ -178,7 +179,7 @@ class DerivedSeriesRefresher:
         }
 
     def _source_window(self, start: int, end: int) -> tuple[int, int]:
-        """Ventana de la base 1s que cubre enteros todos los buckets a rehacer.
+        """Ventana de la base 1m que cubre enteros todos los buckets a rehacer.
 
         Se alinea al timeframe más grueso configurado, que es el de la ventana
         más ancha, y se extiende hasta el **final** de su último bucket. Cortar
@@ -202,7 +203,7 @@ class DerivedSeriesRefresher:
 
         Args:
             symbol: Identificador del activo.
-            rows: Base 1s leída en la ventana común a todos los derivados.
+            rows: Base 1m leída en la ventana común a todos los derivados.
             start: Inicio del periodo fusionado en segundos UTC.
             end: Fin del periodo fusionado en segundos UTC.
             timeframe: Granularidad derivada a regenerar (RF-009).

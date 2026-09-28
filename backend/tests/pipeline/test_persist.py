@@ -27,7 +27,7 @@ def _candle(time: int, price: float = 1.1) -> Candle:
 
 
 def _candles(start: int, count: int) -> list[Candle]:
-    """Serie de velas consecutivas de 1 s desde ``start``."""
+    """Serie de velas consecutivas de 1 m desde ``start``."""
     return [_candle(start + offset) for offset in range(count)]
 
 
@@ -37,7 +37,7 @@ def _persister(tmp_path: Path) -> DownloadPersister:
 
 
 def _stored_times(store: ParquetSeriesStore, symbol: str = "EURUSD") -> list[int]:
-    """Devuelve los ``time`` almacenados en la serie 1s del activo."""
+    """Devuelve los ``time`` almacenados en la serie 1m del activo."""
     return [candle.time for candle in store.read_range(symbol, 0, 2**31 - 1)]
 
 
@@ -239,7 +239,7 @@ class TestBuildPersister:
     def test_uses_the_explicit_directory(self, tmp_path: Path) -> None:
         persister = build_persister(tmp_path)
         persister.persist("EURUSD", _candles(_START, 1), start=_START, end=_START, status="exito")
-        assert (tmp_path / "EURUSD.parquet").exists()
+        assert (tmp_path / "EURUSD.1m.parquet").exists()
 
     def test_falls_back_to_the_data_dir_variable(self, tmp_path: Path, monkeypatch: object) -> None:
         monkeypatch.setenv("FXTRAD_DATA_DIR", str(tmp_path))  # type: ignore[attr-defined]
@@ -247,7 +247,7 @@ class TestBuildPersister:
         persister = build_persister()
         persister.persist("EURUSD", _candles(_START, 1), start=_START, end=_START, status="exito")
 
-        assert (tmp_path / "EURUSD.parquet").exists()
+        assert (tmp_path / "EURUSD.1m.parquet").exists()
 
     def test_default_directory_is_data(self, monkeypatch: object) -> None:
         monkeypatch.delenv("FXTRAD_DATA_DIR", raising=False)  # type: ignore[attr-defined]
@@ -265,4 +265,4 @@ class TestInvalidInput:
             persister.persist(
                 "../evil", _candles(_START, 1), start=_START, end=_START, status="exito"
             )
-        assert not (tmp_path / "EURUSD.parquet").exists()
+        assert not (tmp_path / "EURUSD.1m.parquet").exists()

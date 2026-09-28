@@ -38,8 +38,8 @@ class TestWrite:
         store.write("EURUSD", _series([1.1, 1.2]))
         store.write("XAUUSD", _series([2000.0]))
 
-        assert (tmp_path / "EURUSD.parquet").is_file()
-        assert (tmp_path / "XAUUSD.parquet").is_file()
+        assert (tmp_path / "EURUSD.1m.parquet").is_file()
+        assert (tmp_path / "XAUUSD.1m.parquet").is_file()
 
     def test_write_returns_number_of_rows(self, tmp_path: Path) -> None:
         store = ParquetSeriesStore(tmp_path)
@@ -141,7 +141,7 @@ class TestReadRange:
 
 
 class TestCoverage:
-    """La cobertura refleja el min/max ``time`` de la base 1s (RF-007/CMP-006)."""
+    """La cobertura refleja el min/max ``time`` de la base 1m (RF-007/CMP-006)."""
 
     def test_coverage_returns_min_and_max_time(self, tmp_path: Path) -> None:
         store = ParquetSeriesStore(tmp_path)

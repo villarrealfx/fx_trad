@@ -47,7 +47,7 @@ class _FakeSeriesQuery:
     def read(
         self,
         symbol: str,
-        timeframe: Timeframe = "1s",
+        timeframe: Timeframe = "1m",
         start: int | None = None,
         end: int | None = None,
     ) -> list[Candle]:
@@ -58,9 +58,23 @@ class _FakeSeriesQuery:
 
 
 def _second_candles(start: int, count: int) -> list[Candle]:
-    """Serie 1s con OHLC determinista: open=i, high=i+1, low=i, close=i."""
+    """Serie 1m con OHLC determinista: open=i, high=i+1, low=i, close=i."""
     return [
         Candle(time=start + i, open=float(i), high=float(i + 1), low=float(i), close=float(i))
+        for i in range(count)
+    ]
+
+
+def _minute_candles(start: int, count: int) -> list[Candle]:
+    """Serie 1m alineada al epoch: una vela cada 60 s con OHLC determinista."""
+    return [
+        Candle(
+            time=start + i * 60,
+            open=float(i),
+            high=float(i + 1),
+            low=float(i),
+            close=float(i),
+        )
         for i in range(count)
     ]
 
@@ -85,7 +99,7 @@ class TestSeriesContract:
 
         assert body == {
             "symbol": "EURUSD",
-            "timeframe": "1s",
+            "timeframe": "1m",
             "candles": [
                 {"time": _BASE_TIME, "open": 0.0, "high": 1.0, "low": 0.0, "close": 0.0},
                 {"time": _BASE_TIME + 1, "open": 1.0, "high": 2.0, "low": 1.0, "close": 1.0},
@@ -97,7 +111,7 @@ class TestSeriesContract:
         query: _FakeSeriesQuery = client.app.state.series_query
         client.get("/series", params={"symbol": "EURUSD", "start": 10, "end": 20})
 
-        assert query.requests == [("EURUSD", "1s", 10, 20)]
+        assert query.requests == [("EURUSD", "1m", 10, 20)]
 
     def test_timeframe_query_param_is_passed(self, client: TestClient) -> None:
         query: _FakeSeriesQuery = client.app.state.series_query
@@ -109,7 +123,7 @@ class TestSeriesContract:
         query: _FakeSeriesQuery = client.app.state.series_query
         client.get("/series", params={"symbol": "EURUSD"})
 
-        assert query.requests == [("EURUSD", "1s", None, None)]
+        assert query.requests == [("EURUSD", "1m", None, None)]
 
 
 class TestSeriesErrors:
@@ -156,10 +170,10 @@ class TestSeriesMatchesDirectDuckDB:
 
     def _client(self, tmp_path: Path) -> TestClient:
         store = ParquetSeriesStore(tmp_path)
-        base = _second_candles(_BASE_TIME, 3600)
+        base = _minute_candles(_BASE_TIME, 60)  # 1 hora de velas 1 m (base)
         store.write("EURUSD", base)
-        resampled = resample_ohlc(base, "1m", source="1s")
-        store.write("EURUSD", resampled.candles, timeframe="1m")
+        resampled = resample_ohlc(base, "5m")
+        store.write("EURUSD", resampled.candles, timeframe="5m")
         query = SeriesQuery(store)
         return TestClient(create_app(_FakeQueue(), series_query=query))
 
@@ -167,11 +181,11 @@ class TestSeriesMatchesDirectDuckDB:
         client = self._client(tmp_path)
         store_query: SeriesQuery = client.app.state.series_query
         expected = store_query.read(
-            "EURUSD", timeframe="1s", start=_BASE_TIME, end=_BASE_TIME + 3599
+            "EURUSD", timeframe="1m", start=_BASE_TIME, end=_BASE_TIME + 3599
         )
 
         body = _dump(
-            client, symbol="EURUSD", timeframe="1s", start=_BASE_TIME, end=_BASE_TIME + 3599
+            client, symbol="EURUSD", timeframe="1m", start=_BASE_TIME, end=_BASE_TIME + 3599
         )
 
         assert body["candles"] == [c.model_dump(mode="json") for c in expected]
@@ -179,9 +193,9 @@ class TestSeriesMatchesDirectDuckDB:
     def test_resampled_timeframe_matches_direct_query(self, tmp_path: Path) -> None:
         client = self._client(tmp_path)
         store_query: SeriesQuery = client.app.state.series_query
-        expected = store_query.read("EURUSD", timeframe="1m")
+        expected = store_query.read("EURUSD", timeframe="5m")
 
-        body = _dump(client, symbol="EURUSD", timeframe="1m")
+        body = _dump(client, symbol="EURUSD", timeframe="5m")
 
         assert body["candles"] == [c.model_dump(mode="json") for c in expected]
 
@@ -216,7 +230,7 @@ class TestDefaultSeriesWiring:
         return TestClient(create_app(_FakeQueue()))
 
     def _dump_window(self, client: TestClient) -> object:
-        return _dump(client, symbol="EURUSD", timeframe="1s", start=self._START, end=self._END)
+        return _dump(client, symbol="EURUSD", timeframe="1m", start=self._START, end=self._END)
 
     def test_second_call_is_served_from_memory(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
@@ -240,12 +254,12 @@ class TestDefaultSeriesWiring:
         """
         client = self._client(tmp_path, monkeypatch)
         query: CachedSeriesQuery = client.app.state.series_query
-        first = _dump(client, symbol="EURUSD", timeframe="1s")
+        first = _dump(client, symbol="EURUSD", timeframe="1m")
 
         ParquetSeriesStore(tmp_path).merge(
-            "EURUSD", _second_candles(self._START + self._COUNT, 1), timeframe="1s"
+            "EURUSD", _second_candles(self._START + self._COUNT, 1), timeframe="1m"
         )
-        second = _dump(client, symbol="EURUSD", timeframe="1s")
+        second = _dump(client, symbol="EURUSD", timeframe="1m")
 
         assert len(first["candles"]) == self._COUNT
         assert len(second["candles"]) == self._COUNT + 1
@@ -277,11 +291,11 @@ class TestDefaultSeriesWiring:
 
 
 class TestDerivedSeriesAfterMerge:
-    """TASK-049: tras un merge 1s el timeframe derivado se sirve al día.
+    """TASK-049: tras un merge 1m el timeframe derivado se sirve al día.
 
     Es la aserción literal de la DoD: lo que devuelve
     ``GET /series?timeframe=1h`` tiene que coincidir con la agregación directa
-    de la base 1s, y no con el Parquet que hubiera antes del merge.
+    de la base 1m, y no con el Parquet que hubiera antes del merge.
     """
 
     _START = _BASE_TIME
@@ -312,7 +326,7 @@ class TestDerivedSeriesAfterMerge:
             "/series", params={"symbol": "EURUSD", "timeframe": "1h", "start": self._START}
         )
 
-        base = ParquetSeriesStore(tmp_path).read_range("EURUSD", 0, 2**31 - 1, "1s")
+        base = ParquetSeriesStore(tmp_path).read_range("EURUSD", 0, 2**31 - 1, "1m")
         expected = resample_ohlc(base, "1h").candles
         assert response.status_code == 200
         served = response.json()["candles"]

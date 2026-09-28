@@ -31,9 +31,10 @@ from fxtrad.storage.queries import (
     InvalidTimeframeError,
     SeriesQuery,
 )
-from fxtrad.storage.series import DuplicateTimeError, ParquetSeriesStore
+from fxtrad.storage.series import BASE_TIMEFRAME, DuplicateTimeError, ParquetSeriesStore
 
 __all__ = [
+    "BASE_TIMEFRAME",
     "DEFAULT_MAX_CANDLES",
     "DEFAULT_MAX_WINDOWS",
     "CacheStats",

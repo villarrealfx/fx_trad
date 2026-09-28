@@ -43,8 +43,8 @@ class TestMergeFirstWrite:
 
         assert total == 3
         assert store.has_series("EURUSD") is True
-        assert (tmp_path / "EURUSD.parquet").is_file()
-        assert not (tmp_path / "EURUSD.parquet.tmp").exists()
+        assert (tmp_path / "EURUSD.1m.parquet").is_file()
+        assert not (tmp_path / "EURUSD.1m.parquet.tmp").exists()
 
     def test_merge_returns_incoming_count_on_first_write(self, tmp_path: Path) -> None:
         store = ParquetSeriesStore(tmp_path)
@@ -82,11 +82,11 @@ class TestMergeIncremental:
         with duckdb.connect() as connection:
             (total,) = connection.execute(
                 "SELECT COUNT(*) FROM read_parquet(?)",
-                [str(tmp_path / "EURUSD.parquet")],
+                [str(tmp_path / "EURUSD.1m.parquet")],
             ).fetchone()
             (distinct,) = connection.execute(
                 "SELECT COUNT(DISTINCT time) FROM read_parquet(?)",
-                [str(tmp_path / "EURUSD.parquet")],
+                [str(tmp_path / "EURUSD.1m.parquet")],
             ).fetchone()
 
         assert total == distinct == 8

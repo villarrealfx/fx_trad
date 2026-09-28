@@ -7,10 +7,11 @@ atómica y rechaza ``time`` duplicados (RI-001). El merge incremental entre
 periodos descargados (TASK-019, RF-006) fusiona por ``time`` sin duplicar ni
 borrar filas (KPI-4).
 
-TASK-017 (pre-resampling por timeframe, ADR-007/RNF-008): además de la base
-``1s`` (``{simbolo}.parquet``), se puede persistir una serie agregada por
-timeframe canónico en ``{simbolo}.{tf}.parquet``, de modo que la consulta de
-un timeframe lee su Parquet sin recomputar el resampling (RF-009).
+TASK-017 (pre-resampling por timeframe, ADR-007/RNF-008): la base ``1m``
+(``{simbolo}.1m.parquet``) y cada serie agregada por timeframe canónico
+(``{simbolo}.{tf}.parquet``) permiten que la consulta de un timeframe lea su
+Parquet sin recomputar el resampling (RF-009). La base es 1 m (ADR-012); ``1s``
+ya no es un timeframe válido.
 """
 
 from __future__ import annotations
@@ -23,7 +24,7 @@ from pathlib import Path
 import duckdb
 import structlog
 
-from fxtrad.contracts.ohlc import Candle
+from fxtrad.contracts.ohlc import Candle, Timeframe
 
 logger = structlog.get_logger()
 
@@ -33,10 +34,13 @@ _CREATE_TABLE = (
     "CREATE TABLE series (time BIGINT, open DOUBLE, high DOUBLE, low DOUBLE, close DOUBLE)"
 )
 
-#: Timeframes canónicos de visualización (RF-009, contrato ``Timeframe``).
-#: La base ``1s`` se persiste en ``{simbolo}.parquet``; el resto (pre-resampling
-#: ADR-007) en ``{simbolo}.{tf}.parquet``.
-CANONICAL_TIMEFRAMES: frozenset[str] = frozenset({"1s", "1m", "5m", "15m", "1h", "4h", "1d"})
+#: Timeframe base canónico: la serie de origen de toda agregación (ADR-012).
+BASE_TIMEFRAME: Timeframe = "1m"
+
+#: Timeframes canónicos de visualización (RF-009, contrato ``Timeframe``): la
+#: base ``1m`` y sus derivados por resampling (ADR-007/ADR-012). Cada timeframe
+#: se persiste en ``{simbolo}.{tf}.parquet``; ``1s`` ya no es un valor válido.
+CANONICAL_TIMEFRAMES: frozenset[str] = frozenset({"1m", "5m", "15m", "1h", "4h", "1d"})
 
 #: Tamaño de lote de inserción en DuckDB (TASK-051). La inserción por lotes es
 #: ~11× más rápida que fila a fila a volumen RNF-002 (~53 µs/vela frente a
@@ -56,29 +60,29 @@ class InvalidTimeframeError(ValueError):
 class ParquetSeriesStore:
     """Almacén de series OHLC en un Parquet por activo, consultable con DuckDB.
 
-    Un archivo ``{base_dir}/{SYMBOL}.parquet`` por activo para la base ``1s``
-    (ADR-004) y ``{base_dir}/{SYMBOL}.{tf}.parquet`` para el pre-resampling por
-    timeframe (TASK-017, ADR-007). La clase no conoce el catálogo de activos
-    (frontera de módulos): solo valida que el símbolo sea un identificador
-    seguro para usarlo como nombre de archivo.
+    Un archivo ``{base_dir}/{SYMBOL}.{tf}.parquet`` por activo y timeframe: la
+    base ``1m`` (ADR-012) y los derivados por resampling (TASK-017, ADR-007). La
+    clase no conoce el catálogo de activos (frontera de módulos): solo valida que
+    el símbolo sea un identificador seguro para usarlo como nombre de archivo.
     """
 
     def __init__(self, base_dir: Path) -> None:
         """Crea el almacén con el directorio base donde residen los Parquet."""
         self._base_dir = Path(base_dir)
 
-    def path_for(self, symbol: str, timeframe: str = "1s") -> Path:
+    def path_for(self, symbol: str, timeframe: str = BASE_TIMEFRAME) -> Path:
         """Devuelve la ruta del Parquet del activo para el timeframe dado.
 
         Args:
             symbol: Identificador del activo (base del nombre de archivo).
-            timeframe: Granularidad canónica (RF-009/ADR-007); ``1s`` usa
-                ``{symbol}.parquet`` y el resto ``{symbol}.{tf}.parquet``.
+            timeframe: Granularidad canónica (RF-009/ADR-007); la base ``1m`` y
+                los derivados usan ``{symbol}.{tf}.parquet``.
 
         Raises:
             ValueError: si el símbolo no es un identificador seguro (evita
                 path traversal al construir el nombre de archivo).
-            InvalidTimeframeError: si el timeframe no es canónico.
+            InvalidTimeframeError: si el timeframe no es canónico (incluye
+                ``1s``, que ya no es un valor válido).
         """
         if not _SYMBOL_PATTERN.match(symbol):
             raise ValueError(f"Símbolo inválido para almacenamiento: '{symbol}'")
@@ -87,24 +91,22 @@ class ParquetSeriesStore:
                 f"Timeframe no canónico: {timeframe!r}. "
                 f"Válidos: {', '.join(sorted(CANONICAL_TIMEFRAMES))}"
             )
-        if timeframe == "1s":
-            return self._base_dir / f"{symbol}.parquet"
         return self._base_dir / f"{symbol}.{timeframe}.parquet"
 
-    def has_series(self, symbol: str, timeframe: str = "1s") -> bool:
+    def has_series(self, symbol: str, timeframe: str = BASE_TIMEFRAME) -> bool:
         """Indica si el activo ya tiene una serie Parquet para el timeframe."""
         return self.path_for(symbol, timeframe).is_file()
 
     def coverage(self, symbol: str) -> tuple[int, int] | None:
-        """Devuelve el rango ``[min(time), max(time)]`` de la base 1s del activo.
+        """Devuelve el rango ``[min(time), max(time)]`` de la base 1m del activo.
 
         Determina la cobertura almacenada del activo (RF-007, CMP-006): el rango
-        completo de timestamps UTC persistidos en ``{symbol}.parquet``, sin
+        completo de timestamps UTC persistidos en ``{symbol}.1m.parquet``, sin
         importar si el Parquet pre-resampling por timeframe existe (TASK-017).
         Sirve al catálogo GET /assets (TASK-020).
 
         Args:
-            symbol: Símbolo del activo (nombre de archivo de la base 1s).
+            symbol: Símbolo del activo (nombre de archivo de la base 1m).
 
         Returns:
             Tupla ``(inicio, fin)`` con el mínimo y el máximo ``time`` en
@@ -128,7 +130,7 @@ class ParquetSeriesStore:
             return None
         return (int(row[0]), int(row[1]))
 
-    def version(self, symbol: str, timeframe: str = "1s") -> str | None:
+    def version(self, symbol: str, timeframe: str = BASE_TIMEFRAME) -> str | None:
         """Devuelve un token de la versión almacenada del activo, o ``None``.
 
         El token combina ``st_mtime_ns`` y ``st_size`` del Parquet, así que
@@ -159,7 +161,7 @@ class ParquetSeriesStore:
             return None
         return f"{stats.st_mtime_ns}:{stats.st_size}"
 
-    def write(self, symbol: str, candles: Sequence[Candle], timeframe: str = "1s") -> int:
+    def write(self, symbol: str, candles: Sequence[Candle], timeframe: str = BASE_TIMEFRAME) -> int:
         """Escribe la serie del activo en su Parquet de forma atómica.
 
         Args:
@@ -190,7 +192,7 @@ class ParquetSeriesStore:
         )
         return len(rows)
 
-    def merge(self, symbol: str, candles: Sequence[Candle], timeframe: str = "1s") -> int:
+    def merge(self, symbol: str, candles: Sequence[Candle], timeframe: str = BASE_TIMEFRAME) -> int:
         """Incrementa la serie sin duplicar ``time`` ni borrar filas (RF-006).
 
         Une las velas nuevas con las ya persistidas, priorizando la versión
@@ -239,7 +241,9 @@ class ParquetSeriesStore:
         )
         return len(merged)
 
-    def read_range(self, symbol: str, start: int, end: int, timeframe: str = "1s") -> list[Candle]:
+    def read_range(
+        self, symbol: str, start: int, end: int, timeframe: str = BASE_TIMEFRAME
+    ) -> list[Candle]:
         """Devuelve las velas del rango inclusivo ``[start, end]`` ordenadas.
 
         Args:
@@ -352,6 +356,7 @@ class ParquetSeriesStore:
 
 
 __all__ = [
+    "BASE_TIMEFRAME",
     "CANONICAL_TIMEFRAMES",
     "DuplicateTimeError",
     "InvalidTimeframeError",

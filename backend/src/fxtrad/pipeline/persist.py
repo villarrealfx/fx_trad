@@ -3,7 +3,7 @@
 Cierra el hueco que dejó TASK-019: la tarea de descarga (``ingest``) terminaba
 contando velas pero no guardaba nada, así que RF-006 solo se cumplía a nivel de
 primitiva de almacenamiento. Aquí se une la descarga con la persistencia
-(fusión incremental sobre la base 1s + registro en ``download_metadata``).
+(fusión incremental sobre la base 1m + registro en ``download_metadata``).
 
 Vive en ``pipeline`` y no en ``ingest`` porque es la única frontera que la
 arquitectura permite recorrer sin cruzarla: ``ingest -> pipeline -> storage``
@@ -11,13 +11,10 @@ arquitectura permite recorrer sin cruzarla: ``ingest -> pipeline -> storage``
 ``storage`` no depende de nada de aquí, y así TASK-049 (``pipeline.refresh``)
 repoda los Parquets derivados desde el mismo sitio sin romper las fronteras.
 
-**Límite conocido de volumen (aceptado en TASK-050):** las velas del rango se
-acumulan en memoria y se funden en una sola operación al concluir, porque
-fusionar hora a hora reescribiría el Parquet una vez por hora (O(n²) sobre el
-tamaño de la base). Con el writer actual (fila a fila, TASK-051 pendiente) un
-rango de un mes son ~2.6M velas y es asumible; un rango de 2 años a 1s
-(~63M velas, RNF-002) excede la memoria de forma práctica y necesita un layout
-particionado por periodo, que todavía no tiene tarea.
+**Volumen (base 1m, ADR-012):** las velas del rango se acumulan en memoria y se
+funden en una sola operación al concluir. Con la base 1 m el volumen es manejable
+(2 años ≈ 726k velas, RNF-102), muy por debajo del límite práctico de memoria que
+imponía la base 1 s.
 """
 
 from __future__ import annotations
@@ -48,7 +45,7 @@ class DownloadPersister:
     """Guarda el resultado de una descarga en la base local (RF-006, RI-002).
 
     Encapsula las escrituras que debe hacer el worker de descarga: la fusión
-    incremental de la serie 1s del activo, la regeneración de los Parquets
+    incremental de la serie 1m del activo, la regeneración de los Parquets
     derivados que ese merge deja obsoletos (TASK-049, RF-009) y el registro de
     metadatos con las filas obtenidas, que alimenta el catálogo y el historial
     (TASK-018/047).
@@ -69,7 +66,7 @@ class DownloadPersister:
         """Crea el persistidor sobre los dos almacenes compartidos por la API.
 
         Args:
-            series_store: Almacén de la serie 1s por activo.
+            series_store: Almacén de la serie 1m por activo.
             metadata_store: Almacén de metadatos de descarga.
             refresher: Regenerador de derivados; lo inyecta ``build_persister``.
         """
@@ -106,7 +103,7 @@ class DownloadPersister:
 
         Args:
             symbol: Símbolo del activo descargado.
-            candles: Velas 1s en segundos UTC obtenidas por la descarga.
+            candles: Velas 1m en segundos UTC obtenidas por la descarga.
             start: Inicio del rango solicitado en segundos UTC.
             end: Fin del rango solicitado en segundos UTC.
             status: Estado final de la descarga (exito/parcial/fallo).
@@ -136,7 +133,7 @@ class DownloadPersister:
         logger.info(
             "descarga_persistida",
             activo=symbol,
-            timeframe="1s",
+            timeframe="1m",
             velas=len(candles),
             filas_totales=rows,
             estado=status,
@@ -144,7 +141,7 @@ class DownloadPersister:
         return rows
 
     def _merge(self, symbol: str, candles: Sequence[Candle]) -> int:
-        """Fusiona las velas en la base 1s y devuelve el total de filas.
+        """Fusiona las velas en la base 1m y devuelve el total de filas.
 
         Returns:
             Filas almacenadas tras la fusión; 0 si no había velas.
@@ -158,7 +155,7 @@ class DownloadPersister:
         """Regenera los derivados del periodo y propaga el fallo si lo hay.
 
         El error se registra con ``activo`` y rango para que se pueda
-        distinguir una base 1s correcta de unos derivados obsoletos, y se
+        distinguir una base 1m correcta de unos derivados obsoletos, y se
         relanza para que el resumen de la descarga degrade a ``fallo``: servir
         velas viejas es peor que reportar el fallo.
         """
