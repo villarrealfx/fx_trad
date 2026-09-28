@@ -22,7 +22,7 @@ help:
 	@echo "  make build   # build de producción del frontend"
 	@echo "  make compose-up    # docker compose up --build (4 servicios + volumen data/)"
 	@echo "  make compose-down  # docker compose down"
-	@echo "  make benchmark-parquet  # benchmark de escritura Parquet (RNF-002, TASK-051)"
+	@echo "  make benchmark-parquet  # benchmark de escritura Parquet (RNF-102, TASK-066)"
 
 lint: lint-backend lint-frontend
 
