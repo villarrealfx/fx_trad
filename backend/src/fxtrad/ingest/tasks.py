@@ -26,9 +26,10 @@ from celery.result import AsyncResult  # type: ignore[import-untyped]
 from structlog.typing import FilteringBoundLogger
 
 from fxtrad.contracts.ohlc import Candle
+from fxtrad.ingest.batches import plan_batches
 from fxtrad.ingest.freeserv import FreeservClient
 from fxtrad.ingest.pacing import DEFAULT_PAUSE_SECONDS, download_blocks
-from fxtrad.ingest.planner import DownloadBlock, plan_blocks
+from fxtrad.ingest.planner import DownloadBlock
 from fxtrad.ingest.requests import DownloadRequest
 from fxtrad.ingest.retry import (
     BlockDownloadError,
@@ -167,11 +168,12 @@ def run_download_range(
 ) -> dict[str, object]:
     """Descarga el rango por bloques, lo persiste y devuelve el resumen.
 
-    El rango se planifica en bloques de ≤ 30.000 velas (TASK-052), cada bloque se
-    descarga con reintentos y backoff (TASK-055) y entre bloques se aplica el
-    pacing de 20 s (TASK-054). Un bloque que agota los reintentos no aborta el
-    rango: se registra en ``fallos_detalle`` y el resumen queda en ``parcial`` o
-    ``fallo`` (ADR-013).
+    El rango se planifica en **tandas** de 6–12 meses (TASK-064, ADR-015); cada
+    tanda se parte en bloques de ≤ 30.000 velas (TASK-052) y cada bloque se
+    descarga con reintentos y backoff (TASK-055), con el pacing de 20 s entre
+    bloques (TASK-054). Un bloque que agota los reintentos no aborta el rango: se
+    registra en ``fallos_detalle`` y el resumen queda en ``parcial`` o ``fallo``
+    (ADR-013). El resumen reporta, por tanda, bloques completados/total.
 
     Con ``persister`` (lo inyecta la tarea Celery) el resultado se guarda en la
     base local al concluir: fusión incremental de la serie más el registro de
@@ -186,7 +188,8 @@ def run_download_range(
         persister: Puerto de persistencia; ``None`` no guarda nada.
 
     Returns:
-        Resumen con activo, bloques, velas, rango, estado y bloques fallidos.
+        Resumen con activo, tandas (progreso), bloques, velas, rango, estado y
+        bloques fallidos.
     """
     retry_policy = policy if policy is not None else RetryPolicy()
     scoped = logger.bind(task_id=task_id) if task_id else logger
@@ -196,50 +199,74 @@ def run_download_range(
         inicio=request.start,
         fin=request.end,
     )
-    blocks = plan_blocks(request.start, request.end)
-    failures: list[DownloadBlock] = []
+    batches = plan_batches(request.start, request.end)
+    candles: list[Candle] = []
+    all_failures: list[DownloadBlock] = []
+    reports: list[dict[str, int | str]] = []
+    total_blocks = 0
+    for batch in batches:
+        blocks = list(batch.blocks)
+        failures: list[DownloadBlock] = []
 
-    def download_block(block: DownloadBlock) -> list[Candle]:
-        """Descarga un bloque con reintentos; registra el fallo sin abortar."""
-        try:
-            return retry_download_block(client, request.asset, block, retry_policy)
-        except BlockDownloadError:
-            failures.append(block)
-            return []
+        def download_block(
+            block: DownloadBlock, _failures: list[DownloadBlock] = failures
+        ) -> list[Candle]:
+            """Descarga un bloque con reintentos; registra el fallo sin abortar."""
+            try:
+                return retry_download_block(client, request.asset, block, retry_policy)
+            except BlockDownloadError:
+                _failures.append(block)
+                return []
 
-    candles = download_blocks(
-        blocks,
-        download_block,
-        pause_seconds=DEFAULT_PAUSE_SECONDS,
-        sleep=retry_policy.sleep,
-    )
-    status = download_status(len(blocks), len(failures))
-    failures_detail = [{"inicio": block.start, "fin": block.end} for block in failures]
+        candles.extend(
+            download_blocks(
+                blocks,
+                download_block,
+                pause_seconds=DEFAULT_PAUSE_SECONDS,
+                sleep=retry_policy.sleep,
+            )
+        )
+        all_failures.extend(failures)
+        total_blocks += len(blocks)
+        reports.append(
+            {
+                "inicio": batch.start,
+                "fin": batch.end,
+                "bloques": len(blocks),
+                "bloques_fallidos": len(failures),
+                "estado": download_status(len(blocks), len(failures)),
+            }
+        )
+
+    status = download_status(total_blocks, len(all_failures))
+    failures_detail = [{"inicio": block.start, "fin": block.end} for block in all_failures]
     scoped.info(
         "descarga_rango_completada",
         activo=request.asset,
-        bloques=len(blocks),
+        tandas=len(batches),
+        bloques=total_blocks,
         velas=len(candles),
         estado=status,
-        bloques_fallidos=len(failures),
+        bloques_fallidos=len(all_failures),
     )
-    if failures:
+    if all_failures:
         scoped.warning(
             "descarga_rango_parcial",
             activo=request.asset,
-            bloques_fallidos=len(failures),
+            bloques_fallidos=len(all_failures),
             detalle=failures_detail,
         )
     if persister is not None:
         status = _persist_download(persister, request, candles, status, scoped)
     return {
         "activo": request.asset,
-        "bloques": len(blocks),
+        "tandas": reports,
+        "bloques": total_blocks,
         "velas": len(candles),
         "inicio": request.start,
         "fin": request.end,
         "estado": status,
-        "bloques_fallidos": len(failures),
+        "bloques_fallidos": len(all_failures),
         "fallos_detalle": failures_detail,
     }
 

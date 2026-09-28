@@ -158,6 +158,15 @@ class TestEndToEndEager:
         )
         expected = {
             "activo": "EURUSD",
+            "tandas": [
+                {
+                    "inicio": _START,
+                    "fin": _END,
+                    "bloques": 1,
+                    "bloques_fallidos": 0,
+                    "estado": "exito",
+                }
+            ],
             "bloques": 1,
             "velas": _MINUTES_3H,
             "inicio": _START,
