@@ -57,12 +57,17 @@ Modelos del contrato OHLC: `Candle`, `OhlcResponse`, `Timeframe`.
 
 ### `fxtrad.ingest`
 - Catálogo: `ASSET_CATALOG`, `Asset`, `AssetType`, `assets_by_type`, `get_asset`.
-- Descarga: `FreeservClient`, `aggregate_to_ohlc`, `hour_start_epoch`,
-  `to_epoch_seconds`, `DownloadRequest`, `MAX_WINDOW_SECONDS`,
-  `validate_request_window`.
+- Descarga 1 m: `FreeservClient`, `candles_from_ohlc`, `to_epoch_seconds`,
+  `DownloadRequest`, `MAX_WINDOW_SECONDS`, `validate_request_window`.
+- Planificación/pacing: `plan_blocks`, `planned_candles`, `DownloadBlock`,
+  `DEFAULT_MAX_BLOCK_CANDLES`, `download_blocks`, `DEFAULT_PAUSE_SECONDS`.
 - Cola/estado: `DownloadQueue`, `CeleryDownloadQueue`, `DownloadStatusQuery`,
   `CeleryDownloadStatus`, `DownloadInfo`, `DownloadStatus`, `download_asset`,
   `celery_app`.
+
+> Reintentos por bloque (`retry_download_block`, `collect_blocks_candles`,
+> `BlockDownloadError`, `RetryPolicy`, `download_status`) viven en el submódulo
+> `fxtrad.ingest.retry`, de uso interno del módulo (TASK-055).
 
 ### `fxtrad.api`
 - App: `create_app`, `create_default_app`, `router`.
