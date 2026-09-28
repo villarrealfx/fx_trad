@@ -1,0 +1,29 @@
+graph TD
+  T052[TASK-052 Planificador bloques] --> T053[TASK-053 download_range 1m]
+  T053 --> T054[TASK-054 Pacing 20s]
+  T053 --> T055[TASK-055 Retry por bloque]
+  T053 --> T056[TASK-056 Integrar en Celery]
+  T054 --> T056
+  T055 --> T056
+  T056 --> T057[TASK-057 Retirar ticks]
+  T056 --> T058[TASK-058 Test integridad paginación]
+  T056 --> T064[TASK-064 Tandas 6-12m]
+  T056 --> T074[TASK-074 Benchmark descarga 1 año]
+  T058 --> T074
+  T064 --> T065[TASK-065 Reanudación]
+  T059[TASK-059 Resample base 1m] --> T060[TASK-060 Storage 1m naming]
+  T059 --> T063[TASK-063 Regresión pipeline/storage]
+  T059 --> T069[TASK-069 Verificar weekend/feriados]
+  T059 --> T070[TASK-070 Verificar UTC/contrato]
+  T060 --> T061[TASK-061 Persist/refresh derivadas]
+  T060 --> T062[TASK-062 Queries/API base 1m]
+  T060 --> T063
+  T060 --> T066[TASK-066 Benchmark parquet 726k]
+  T061 --> T063
+  T061 --> T068[TASK-068 Verificar upsert/metadatos]
+  T062 --> T063
+  T062 --> T073[TASK-073 Smoke app]
+  T067[TASK-067 Docs RNF-002]
+  T071[TASK-071 Verificar ventana 2a]
+  T072[TASK-072 Auditoría licencias]
+  TUI061[TASK-UI-061 Nota 1m SCR-002]
