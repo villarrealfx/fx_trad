@@ -13,7 +13,7 @@
 | RF-106 | `pipeline.filter` + `calendar` (01-mvp) | TASK-069 | [pendiente] | 🔵 |
 | RNF-101 | Planificador + pacing (ADR-013) | TASK-054, TASK-074 | `tests/ingest/test_benchmark.py::TestBenchmarkDownload::test_measures_elapsed_and_counts`, `_docs/iterations/02-optimizacion-descarga/benchmark-download.md` (309,9 s/año) | 🟢 |
 | RNF-102 | `storage` Parquet + caché (ADR-004/007/012) | TASK-060, TASK-066 | `scripts/benchmark_parquet.py` (726k velas @1m, 52,1 µs/vela, KPI-4=0), `tests/storage/test_timeframes.py::TestPrecomputePersistence::test_base_uses_1m_filename` | 🟢 |
-| RNF-003 | `ingest.window` | TASK-071 | [pendiente] | 🔵 |
+| RNF-003 | `ingest.window` | TASK-071 | `tests/test_window_integrity.py::TestWindowTwoYears::test_older_than_two_years_is_rejected` | 🟢 |
 | RNF-004 | `pipeline.normalize` + `ingest.times` | TASK-070 | `tests/test_utc_ohlc.py::TestUtcTimestamps::test_stored_time_matches_utc_epoch` | 🟢 |
 | RNF-005 | SPA React (ADR-003) | TASK-073, TASK-UI-061 | [pendiente] | 🔵 |
 | RNF-006 | Stack OSS, sin deps nuevas (ADR-008) | TASK-072 | [pendiente] | 🔵 |
