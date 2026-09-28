@@ -11,6 +11,12 @@ from __future__ import annotations
 
 from fxtrad.ingest.catalog import ASSET_CATALOG, Asset, AssetType, assets_by_type, get_asset
 from fxtrad.ingest.freeserv import FreeservClient, aggregate_to_ohlc, hour_start_epoch
+from fxtrad.ingest.planner import (
+    DEFAULT_MAX_BLOCK_CANDLES,
+    DownloadBlock,
+    plan_blocks,
+    planned_candles,
+)
 from fxtrad.ingest.queue import DownloadQueue
 from fxtrad.ingest.requests import DownloadRequest
 from fxtrad.ingest.status import DownloadInfo, DownloadStatus, DownloadStatusQuery
@@ -29,6 +35,8 @@ __all__ = [
     "AssetType",
     "CeleryDownloadQueue",
     "CeleryDownloadStatus",
+    "DEFAULT_MAX_BLOCK_CANDLES",
+    "DownloadBlock",
     "DownloadInfo",
     "DownloadQueue",
     "DownloadRequest",
@@ -42,6 +50,8 @@ __all__ = [
     "get_asset",
     "hour_start_epoch",
     "MAX_WINDOW_SECONDS",
+    "plan_blocks",
+    "planned_candles",
     "to_epoch_seconds",
     "validate_request_window",
 ]
