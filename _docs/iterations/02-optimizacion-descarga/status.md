@@ -7,22 +7,21 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 24 (+1 TECH-002) | — |
-| 📥 Backlog | 9 (+1) | −1 |
+| 📥 Backlog | 8 (+1) | −1 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | — |
-| ✅ Done | 15 | +1 |
+| ✅ Done | 16 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 63% (15/24) | +5% |
+| % Completado | 67% (16/24) | +4% |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso · **ruta crítica 5/5 (100%)**
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (10)
+### 📥 Backlog (9)
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
-| TASK-066 | Benchmark parquet 726k | EP-006 | S | TASK-060 ✅ |
 | TASK-070 | Verificar UTC/contrato | EP-006 | S | TASK-059 ✅ |
 | TASK-071 | Verificar ventana 2a | EP-007 | XS | — |
 | TASK-068 | Verificar upsert/metadatos | EP-008 | S | TASK-061 ✅ |
@@ -43,7 +42,7 @@
 |----|-------|-------|------|-----------------|
 | — | — | — | — | — |
 
-### ✅ Done (15)
+### ✅ Done (16)
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
 | TASK-052 | Planificador bloques ≤30k | EP-005 | 2026-09-28 | `tests/ingest/test_planner.py::TestPlanBlocks::test_one_year_blocks_within_limit_and_sum_matches` |
@@ -61,6 +60,7 @@
 | TASK-065 | Reanudación | EP-007 | 2026-09-28 | `tests/ingest/test_resume.py::TestResumeDownload::test_resume_downloads_pending_range_without_duplicates` |
 | TASK-058 | Test integridad paginación | EP-005 | 2026-09-28 | `tests/ingest/test_pagination_integrity.py::TestDownloadIntegrity::test_downloaded_candles_match_market_expectation` |
 | TASK-074 | Benchmark descarga 1 año | EP-005 | 2026-09-28 | `_docs/.../benchmark-download.md` (309,9 s/año ≤ 900 s) |
+| TASK-066 | Benchmark parquet 726k | EP-006 | 2026-09-28 | `scripts/benchmark_parquet.py` (726k @1m, 52,1 µs/vela, KPI-4=0) |
 
 ### 🔴 Blocked (0)
 | ID | Tarea | Motivo | Bloqueada desde | Desbloqueador |
@@ -98,13 +98,13 @@ Ninguno.
 Ninguna.
 
 ### 🟡 Advertencias
-- Deuda de artefactos obsoletos: `TASK-066` (benchmark), `TASK-067` (RNF-002), `TASK-UI-061` (nota "1s UTC").
+- Deuda de artefactos obsoletos: `TASK-067` (RNF-002 en docs), `TASK-UI-061` (nota "1s UTC").
 - `contracts.ohlc.Timeframe` conserva `"1s"` (rechazado por storage); cambio de contrato aparte.
 
 ### 🟢 Informativas
 - `TASK-065` cerrada: reanudación por rango restante con merge sin duplicados (KPI-4).
 - **Ruta crítica 5/5 (100%)** y **RF-104 al 100%**.
-- Desbloqueadas activas: TASK-066/070/071 (EP-006/007), TASK-068/069 (EP-008), TASK-073.
+- Desbloqueadas activas: TASK-070/071, TASK-068/069, TASK-073, TASK-067/072, TASK-UI-061.
 
 ## 7. Trazabilidad — salud
 | Requisito | Tareas | Done | Cobertura |
@@ -116,7 +116,7 @@ Ninguna.
 | RF-105 | 1 | 0 | 0% |
 | RF-106 | 1 | 0 | 0% |
 | RNF-101 | 2 | 2 | 100% |
-| RNF-102 | 2 | 1 | 50% |
+| RNF-102 | 2 | 2 | 100% |
 | RNF-003 | 1 | 0 | 0% |
 | RNF-004 | 1 | 0 | 0% |
 | RNF-005 | 2 | 0 | 0% |
@@ -129,12 +129,12 @@ Ninguna.
 | RX-101 | 2 | 2 | 100% |
 | RX-001 | 1 | 1 | 100% |
 
-**Requisitos sin tareas:** ninguno ✓ · **Requisitos 100% Done:** 9/19 (RF-101, RF-102, RF-103, RF-104, RNF-101, RI-101, RI-102, RX-101, RX-001)
+**Requisitos sin tareas:** ninguno ✓ · **Requisitos 100% Done:** 10/19 (RF-101, RF-102, RF-103, RF-104, RNF-101, RNF-102, RI-101, RI-102, RX-101, RX-001)
 
 ## 8. Próximas acciones sugeridas
-1. **TASK-066** (benchmark Parquet 726k, RNF-102) y **TASK-070** (verificar UTC/contrato).
-2. Verificaciones EP-008 (**TASK-068/069**) y EP-007 (**TASK-071**).
-3. UI (**TASK-073**, **TASK-UI-061**); deuda docs (**TASK-067/072**); cierre **TECH-002**.
+1. **TASK-070** (verificar UTC/contrato) y **TASK-071** (verificar ventana 2 años).
+2. Verificaciones EP-008 (**TASK-068/069**) y UI (**TASK-073**, **TASK-UI-061**).
+3. Deuda docs (**TASK-067/072**); cierre **TECH-002**.
 
 ## 9. Historial de cambios (append-only)
 | Fecha | Tarea | Transición | Motivo |
@@ -154,3 +154,4 @@ Ninguna.
 | 2026-09-28 | TASK-065 | 📥 → 👀 → ✅ Done | "Autorizado a pasar a done si aplica y realiza commit"; reanudación por rango restante sin duplicados (suite 511 + 2 skip) y prueba registrada (RF-104). **Ruta crítica 5/5 (100%) y RF-104 al 100%**. Commit `feat(TASK-065)` + `docs(...)` |
 | 2026-09-28 | TASK-058 | 📥 → 👀 → ✅ Done | "Autorizado a pasar a done si aplica y realiza commit"; integridad de paginación KPI-5 (suite 518 + 2 skip) y prueba registrada (RF-102). **RF-102 al 100%**; desbloquea TASK-074. Commit `test(TASK-058)` + `docs(...)` |
 | 2026-09-28 | TASK-074 | 📥 → 👀 → ✅ Done | "Autorizado a pasar a done si aplica y realiza commit"; benchmark real 1 año = 309,9 s ≤ 900 s (RNF-101) y prueba determinista (suite 523 + 2 skip). **RNF-101 al 100%**. Commit `test(TASK-074)` + `docs(...)` |
+| 2026-09-28 | TASK-066 | 📥 → 👀 → ✅ Done | "Autorizado a pasar a done si aplica y realiza commit"; benchmark Parquet reescrito a 726k @1m (52,1 µs/vela, KPI-4=0; suite 523 + 2 skip). **RNF-102 al 100%**. Commit `test(TASK-066)` + `docs(...)` |
