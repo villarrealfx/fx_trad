@@ -15,7 +15,7 @@
 | RNF-102 | `storage` Parquet + caché (ADR-004/007/012) | TASK-060, TASK-066 | `scripts/benchmark_parquet.py` (726k velas @1m, 52,1 µs/vela, KPI-4=0), `tests/storage/test_timeframes.py::TestPrecomputePersistence::test_base_uses_1m_filename` | 🟢 |
 | RNF-003 | `ingest.window` | TASK-071 | `tests/test_window_integrity.py::TestWindowTwoYears::test_older_than_two_years_is_rejected` | 🟢 |
 | RNF-004 | `pipeline.normalize` + `ingest.times` | TASK-070 | `tests/test_utc_ohlc.py::TestUtcTimestamps::test_stored_time_matches_utc_epoch` | 🟢 |
-| RNF-005 | SPA React (ADR-003) | TASK-073, TASK-UI-061 | [pendiente] | 🔵 |
+| RNF-005 | SPA React (ADR-003) | TASK-073, TASK-UI-061 | `frontend/src/components/DownloadForm/__tests__/DownloadForm.test.tsx` (nota "1 minuto (UTC)") | 🔵 |
 | RNF-006 | Stack OSS, sin deps nuevas (ADR-008) | TASK-072 | [pendiente] | 🔵 |
 | RNF-007 | Alcance acotado a `ingest` + base | TECH-002 | [pendiente] | 🔵 |
 | RNF-008 | Contrato `Candle` → `lightweight-charts` (ADR-005) | TASK-070 | `tests/test_utc_ohlc.py::TestChartContract::test_payload_candles_have_chart_keys` | 🟢 |
