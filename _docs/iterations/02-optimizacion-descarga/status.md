@@ -10,19 +10,18 @@
 | 📥 Backlog | 1 (+1) | −1 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | — |
-| ✅ Done | 24 | +1 |
+| ✅ Done | 24 (+TECH-002) | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 100% (24/24) | +4% |
+| % Completado | 100% (24/24 + cierre) | — |
 | Días sin movimiento | 0 | — |
 
-**Estado general:** 🟢 En curso · **ruta crítica 5/5 (100%)**
+**Estado general:** ✅ **Iteración 02 cerrada** · ruta crítica 5/5 (100%)
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (1)
+### 📥 Backlog (0)
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
-| TECH-002 | Cierre iteración 02 | — | M | — |
 
 ### 🔨 Doing (0)
 | ID | Tarea | Épica | Est. | Iniciada | Días en curso |
@@ -34,7 +33,7 @@
 |----|-------|-------|------|-----------------|
 | — | — | — | — | — |
 
-### ✅ Done (24)
+### ✅ Done (24 + cierre)
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
 | TASK-052 | Planificador bloques ≤30k | EP-005 | 2026-09-28 | `tests/ingest/test_planner.py::TestPlanBlocks::test_one_year_blocks_within_limit_and_sum_matches` |
@@ -61,6 +60,7 @@
 | TASK-073 | Smoke app | EP-UI-007 | 2026-09-28 | `frontend/src/__tests__/smoke-base-1m.test.tsx` (rutas + gráfico 1 m) |
 | TASK-067 | Docs RNF-002 | TEC-005 | 2026-09-28 | grep de iteración 02 sin referencias obsoletas vigentes (RNF-002→RNF-102) |
 | TASK-072 | Auditoría licencias | TEC-005 | 2026-09-28 | `_docs/.../license-audit.md` (backend 50 · frontend 310 · denylist 0) |
+| TECH-002 | Cierre iteración 02 | — | 2026-09-28 | `_docs/.../_cierre.md` (RNF-007 verificado) |
 
 ### 🔴 Blocked (0)
 | ID | Tarea | Motivo | Bloqueada desde | Desbloqueador |
@@ -98,13 +98,13 @@ Ninguno.
 Ninguna.
 
 ### 🟡 Advertencias
-- Todas las tareas Done (24/24). Deuda abierta: `TECH-002` (cierre de la iteración).
+- Todas las tareas Done (24/24) y cierre (`TECH-002`). Iteración completa.
 - `contracts.ohlc.Timeframe` conserva `"1s"` (rechazado por storage); cambio de contrato aparte.
 
 ### 🟢 Informativas
 - `TASK-065` cerrada: reanudación por rango restante con merge sin duplicados (KPI-4).
 - **Ruta crítica 5/5 (100%)** y **RF-104 al 100%**.
-- Nada pendiente salvo TECH-002 (cierre).
+- Sin tareas pendientes.
 
 ## 7. Trazabilidad — salud
 | Requisito | Tareas | Done | Cobertura |
@@ -129,11 +129,11 @@ Ninguna.
 | RX-101 | 2 | 2 | 100% |
 | RX-001 | 1 | 1 | 100% |
 
-**Requisitos sin tareas:** ninguno ✓ · **Requisitos 100% Done:** 18/19 (RF-101, RF-102, RF-103, RF-104, RF-105, RF-106, RNF-003, RNF-004, RNF-005, RNF-006, RNF-008, RNF-101, RNF-102, RI-101, RI-102, RI-002, RX-101, RX-001)
+**Requisitos sin tareas:** ninguno ✓ · **Requisitos 100% Done:** 19/19 (todos; RNF-007 cerrado con TECH-002)
 
 ## 8. Próximas acciones sugeridas
-1. **TECH-002** (cierre de la iteración 02).
-2. Requisito pendiente: **RNF-007** (entrega en 2 semanas), cubierto por TECH-002.
+1. **Iteración 02 cerrada** — sin tareas pendientes.
+2. Candidato para iteración 03: retirar `"1s"` del contrato `Timeframe` y evaluar reanudación desde la UI.
 
 ## 9. Historial de cambios (append-only)
 | Fecha | Tarea | Transición | Motivo |
@@ -162,3 +162,4 @@ Ninguna.
 | 2026-09-28 | TASK-073 | 📥 → 👀 → ✅ Done | "Autorizado a pasar a done si aplica y realiza commit"; smoke de rutas + gráfico 1 m (frontend 286 tests, lint/typecheck OK). **RNF-005 al 100%**. Commit `test(TASK-073)` + `docs(...)` |
 | 2026-09-28 | TASK-067 | 📥 → 👀 → ✅ Done | "Autorizado a pasar a done si aplica y realiza commit"; docs de iteración 02 actualizadas a RNF-102 y pendientes del handoff resueltos. Commit `docs(TASK-067)` |
 | 2026-09-28 | TASK-072 | 📥 → 👀 → ✅ Done | "Autorizado a pasar a done si aplica y realiza commit"; auditoría de licencias con denylist 0 y sin dependencias nuevas (backend 50 · frontend 310). **RNF-006 al 100%**; 24/24 tareas Done. Commit `docs(TASK-072)` + `docs(...)` |
+| 2026-09-28 | TECH-002 | 📥 → 👀 → ✅ Done | "Autorizado a pasar a done si aplica y realiza commit"; cierre de la iteración con `_cierre.md` y **RNF-007 verificado**. **19/19 requisitos al 100 %**. Commit `docs(TECH-002)` |
