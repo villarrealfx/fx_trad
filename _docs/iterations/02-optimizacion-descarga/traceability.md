@@ -9,7 +9,7 @@
 | RF-102 | Planificador: bloques ≤30k + pacing (ADR-013) | TASK-052, TASK-054, TASK-058 | `tests/ingest/test_planner.py::TestPlanBlocks::test_one_year_blocks_within_limit_and_sum_matches`, `tests/ingest/test_pacing.py::TestDownloadBlocks::test_sleeps_n_minus_one_times_for_n_blocks`, `tests/ingest/test_pagination_integrity.py::TestDownloadIntegrity::test_downloaded_candles_match_market_expectation` | 🟢 |
 | RF-103 | `pipeline.resample` base 1m (ADR-012) | TASK-059, TASK-061, TASK-062, TASK-063 | `tests/pipeline/test_resample.py::TestResampleAggregation::test_1h_matches_60_1m_candles`, `tests/storage/test_timeframes.py::TestPrecomputePersistence::test_base_uses_1m_filename`, `tests/api/test_series_endpoint.py::TestSeriesMatchesDirectDuckDB::test_resampled_timeframe_matches_direct_query`, `tests/test_base_timeframe_regression.py::TestDerivedRefreshFromBase::test_derived_one_hour_matches_direct_aggregation` | 🟢 |
 | RF-104 | Tandas + Celery (ADR-015/016) | TASK-056, TASK-064, TASK-065 | `tests/ingest/test_batches.py::TestBatchDecomposition::test_two_years_yields_two_batches`, `tests/ingest/test_resume.py::TestResumeDownload::test_resume_downloads_pending_range_without_duplicates`, `tests/ingest/test_tasks.py::TestEndToEndEager::test_task_downloads_range_and_returns_summary` | 🟢 |
-| RF-105 | `persist`/`storage` upsert + metadata (ADR-004) | TASK-068 | [pendiente] | 🔵 |
+| RF-105 | `persist`/`storage` upsert + metadata (ADR-004) | TASK-068 | `tests/test_incremental_integrity.py::TestIncrementalIntegrity::test_overlapping_periods_do_not_duplicate` | 🟢 |
 | RF-106 | `pipeline.filter` + `calendar` (01-mvp) | TASK-069 | [pendiente] | 🔵 |
 | RNF-101 | Planificador + pacing (ADR-013) | TASK-054, TASK-074 | `tests/ingest/test_benchmark.py::TestBenchmarkDownload::test_measures_elapsed_and_counts`, `_docs/iterations/02-optimizacion-descarga/benchmark-download.md` (309,9 s/año) | 🟢 |
 | RNF-102 | `storage` Parquet + caché (ADR-004/007/012) | TASK-060, TASK-066 | `scripts/benchmark_parquet.py` (726k velas @1m, 52,1 µs/vela, KPI-4=0), `tests/storage/test_timeframes.py::TestPrecomputePersistence::test_base_uses_1m_filename` | 🟢 |
@@ -21,7 +21,7 @@
 | RNF-008 | Contrato `Candle` → `lightweight-charts` (ADR-005) | TASK-070 | `tests/test_utc_ohlc.py::TestChartContract::test_payload_candles_have_chart_keys` | 🟢 |
 | RI-101 | Esquema serie base 1m (ADR-004/012) | TASK-060 | `tests/pipeline/test_schema.py::TestSchema::test_duckdb_declares_bigint_time_and_double_prices` | 🟢 |
 | RI-102 | Naming `{symbol}.1m.parquet` + derivadas (ADR-004/007) | TASK-060 | `tests/storage/test_timeframes.py::TestPrecomputePersistence::test_base_uses_1m_filename` | 🟢 |
-| RI-002 | `storage.metadata` (ADR-004) | TASK-068 | [pendiente] | 🔵 |
+| RI-002 | `storage.metadata` (ADR-004) | TASK-068 | `tests/test_incremental_integrity.py::TestMetadata::test_each_download_records_metadata` | 🟢 |
 | RX-101 | `ingest.freeserv` 1m + BID (ADR-013/014) | TASK-053, TASK-055 | `tests/ingest/test_freeserv.py::TestDownloadRange::test_returns_one_minute_candles`, `tests/ingest/test_retry.py::TestRetryDownloadBlock::test_transient_failure_is_retried_and_succeeds` | 🟢 |
 | RX-001 | `ingest.retry` backoff por bloque (ADR-010/016) | TASK-055 | `tests/ingest/test_retry.py::TestRetryDownloadBlock::test_exhausted_retries_raise_block_error`, `tests/ingest/test_retry.py::TestCollectBlocksCandles::test_failing_block_does_not_abort_range` | 🟢 |
 
