@@ -16,6 +16,7 @@ from fxtrad.ingest.freeserv import (
     candles_from_ohlc,
     hour_start_epoch,
 )
+from fxtrad.ingest.pacing import DEFAULT_PAUSE_SECONDS, download_blocks
 from fxtrad.ingest.planner import (
     DEFAULT_MAX_BLOCK_CANDLES,
     DownloadBlock,
@@ -41,6 +42,7 @@ __all__ = [
     "CeleryDownloadQueue",
     "CeleryDownloadStatus",
     "DEFAULT_MAX_BLOCK_CANDLES",
+    "DEFAULT_PAUSE_SECONDS",
     "DownloadBlock",
     "DownloadInfo",
     "DownloadQueue",
@@ -53,6 +55,7 @@ __all__ = [
     "candles_from_ohlc",
     "celery_app",
     "download_asset",
+    "download_blocks",
     "get_asset",
     "hour_start_epoch",
     "MAX_WINDOW_SECONDS",
