@@ -11,7 +11,7 @@
 | RF-104 | Tandas + Celery (ADR-015/016) | TASK-056, TASK-064, TASK-065 | `tests/ingest/test_batches.py::TestBatchDecomposition::test_two_years_yields_two_batches`, `tests/ingest/test_resume.py::TestResumeDownload::test_resume_downloads_pending_range_without_duplicates`, `tests/ingest/test_tasks.py::TestEndToEndEager::test_task_downloads_range_and_returns_summary` | 🟢 |
 | RF-105 | `persist`/`storage` upsert + metadata (ADR-004) | TASK-068 | [pendiente] | 🔵 |
 | RF-106 | `pipeline.filter` + `calendar` (01-mvp) | TASK-069 | [pendiente] | 🔵 |
-| RNF-101 | Planificador + pacing (ADR-013) | TASK-054, TASK-074 | [pendiente] | 🔵 |
+| RNF-101 | Planificador + pacing (ADR-013) | TASK-054, TASK-074 | `tests/ingest/test_benchmark.py::TestBenchmarkDownload::test_measures_elapsed_and_counts`, `_docs/iterations/02-optimizacion-descarga/benchmark-download.md` (309,9 s/año) | 🟢 |
 | RNF-102 | `storage` Parquet + caché (ADR-004/007/012) | TASK-060, TASK-066 | [pendiente] | 🔵 |
 | RNF-003 | `ingest.window` | TASK-071 | [pendiente] | 🔵 |
 | RNF-004 | `pipeline.normalize` + `ingest.times` | TASK-070 | [pendiente] | 🔵 |

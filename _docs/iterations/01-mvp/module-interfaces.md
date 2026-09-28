@@ -67,6 +67,7 @@ Modelos del contrato OHLC: `Candle`, `OhlcResponse`, `Timeframe`.
   `celery_app`.
 - Reanudación: `resume_download`, `pending_ranges`, `coalesce_ranges`,
   `failed_ranges` (TASK-065).
+- Benchmark: `benchmark_download`, `BenchmarkResult`, `DOWNLOAD_TARGET_SECONDS`.
 
 > Reintentos por bloque (`retry_download_block`, `collect_blocks_candles`,
 > `BlockDownloadError`, `RetryPolicy`, `download_status`) viven en el submódulo
