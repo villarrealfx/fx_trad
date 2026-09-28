@@ -14,11 +14,11 @@
 | RNF-101 | Planificador + pacing (ADR-013) | TASK-054, TASK-074 | `tests/ingest/test_benchmark.py::TestBenchmarkDownload::test_measures_elapsed_and_counts`, `_docs/iterations/02-optimizacion-descarga/benchmark-download.md` (309,9 s/año) | 🟢 |
 | RNF-102 | `storage` Parquet + caché (ADR-004/007/012) | TASK-060, TASK-066 | `scripts/benchmark_parquet.py` (726k velas @1m, 52,1 µs/vela, KPI-4=0), `tests/storage/test_timeframes.py::TestPrecomputePersistence::test_base_uses_1m_filename` | 🟢 |
 | RNF-003 | `ingest.window` | TASK-071 | [pendiente] | 🔵 |
-| RNF-004 | `pipeline.normalize` + `ingest.times` | TASK-070 | [pendiente] | 🔵 |
+| RNF-004 | `pipeline.normalize` + `ingest.times` | TASK-070 | `tests/test_utc_ohlc.py::TestUtcTimestamps::test_stored_time_matches_utc_epoch` | 🟢 |
 | RNF-005 | SPA React (ADR-003) | TASK-073, TASK-UI-061 | [pendiente] | 🔵 |
 | RNF-006 | Stack OSS, sin deps nuevas (ADR-008) | TASK-072 | [pendiente] | 🔵 |
 | RNF-007 | Alcance acotado a `ingest` + base | TECH-002 | [pendiente] | 🔵 |
-| RNF-008 | Contrato `Candle` → `lightweight-charts` (ADR-005) | TASK-070 | [pendiente] | 🔵 |
+| RNF-008 | Contrato `Candle` → `lightweight-charts` (ADR-005) | TASK-070 | `tests/test_utc_ohlc.py::TestChartContract::test_payload_candles_have_chart_keys` | 🟢 |
 | RI-101 | Esquema serie base 1m (ADR-004/012) | TASK-060 | `tests/pipeline/test_schema.py::TestSchema::test_duckdb_declares_bigint_time_and_double_prices` | 🟢 |
 | RI-102 | Naming `{symbol}.1m.parquet` + derivadas (ADR-004/007) | TASK-060 | `tests/storage/test_timeframes.py::TestPrecomputePersistence::test_base_uses_1m_filename` | 🟢 |
 | RI-002 | `storage.metadata` (ADR-004) | TASK-068 | [pendiente] | 🔵 |
