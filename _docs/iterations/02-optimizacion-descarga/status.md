@@ -7,24 +7,23 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 24 (+1 TECH-002) | — |
-| 📥 Backlog | 22 (+1) | −1 |
+| 📥 Backlog | 21 (+1) | −1 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | — |
-| ✅ Done | 2 | +1 |
+| ✅ Done | 3 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 8% (2/24) | +4% |
+| % Completado | 13% (3/24) | +5% |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (23)
+### 📥 Backlog (22)
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
-| TASK-054 | Pacing 20 s | EP-005 | S | TASK-053 ✅ |
 | TASK-055 | Retry por bloque | EP-005 | S | TASK-053 ✅ |
-| TASK-056 | Integrar en Celery | EP-005 | M | TASK-053 ✅, TASK-054, TASK-055 |
+| TASK-056 | Integrar en Celery | EP-005 | M | TASK-053 ✅, TASK-054 ✅, TASK-055 |
 | TASK-057 | Retirar ticks | EP-005 | S | TASK-056 |
 | TASK-058 | Test integridad paginación | EP-005 | M | TASK-056 |
 | TASK-074 | Benchmark descarga 1 año | EP-005 | M | TASK-056, TASK-058 |
@@ -56,11 +55,12 @@
 |----|-------|-------|------|-----------------|
 | — | — | — | — | — |
 
-### ✅ Done (2)
+### ✅ Done (3)
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
 | TASK-052 | Planificador bloques ≤30k | EP-005 | 2026-09-28 | `tests/ingest/test_planner.py::TestPlanBlocks::test_one_year_blocks_within_limit_and_sum_matches` |
 | TASK-053 | `download_range` 1m BID | EP-005 | 2026-09-28 | `tests/ingest/test_freeserv.py::TestDownloadRange::test_passes_min_1_interval_and_bid` |
+| TASK-054 | Pacing 20 s | EP-005 | 2026-09-28 | `tests/ingest/test_pacing.py::TestDownloadBlocks::test_sleeps_n_minus_one_times_for_n_blocks` |
 
 ### 🔴 Blocked (0)
 | ID | Tarea | Motivo | Bloqueada desde | Desbloqueador |
@@ -81,7 +81,7 @@ graph LR
 ## 4. Métricas
 
 ### 4.1 Velocidad
-Sin datos suficientes (2 tareas completadas el mismo día).
+Sin datos suficientes (3 tareas completadas el mismo día).
 
 ### 4.2 Burn-down
 Sin datos.
@@ -100,16 +100,16 @@ Ninguna.
 ### 🟡 Advertencias
 - `TASK-074` es la única evidencia de RNF-101 (≤900 s); sin ella el requisito no se cierra.
 - Deuda de artefactos obsoletos: `TASK-066` (benchmark), `TASK-067` (RNF-002), `TASK-UI-061` (nota "1s UTC").
-- `TASK-053` cierra con `download_hour` aún presente (su retiro es `TASK-057`); no deja deuda funcional, pero el código de ticks sigue en producción hasta entonces.
+- `download_hour`/código de ticks sigue en producción hasta `TASK-057`.
 
 ### 🟢 Informativas
-- `TASK-053` cerrada: DoD verificada (suite 482 + 2 skip) y pruebas registradas (RF-101, RX-101). Desbloquea **TASK-054** y **TASK-055**.
+- `TASK-054` cerrada: DoD verificada (suite 489 + 2 skip) y prueba registrada (RF-102). Desbloquea parcialmente **TASK-056** (falta TASK-055).
 
 ## 7. Trazabilidad — salud
 | Requisito | Tareas | Done | Cobertura |
 |-----------|--------|------|-----------|
 | RF-101 | 2 | 1 | 50% |
-| RF-102 | 3 | 1 | 33% |
+| RF-102 | 3 | 2 | 67% |
 | RF-103 | 4 | 0 | 0% |
 | RF-104 | 3 | 0 | 0% |
 | RF-105 | 1 | 0 | 0% |
@@ -131,7 +131,7 @@ Ninguna.
 **Requisitos sin tareas:** ninguno ✓ · **Requisitos 100% Done:** 0/19
 
 ## 8. Próximas acciones sugeridas
-1. Iniciar **TASK-054** (pacing) y **TASK-055** (retry por bloque) — ambas desbloqueadas.
+1. Iniciar **TASK-055** (retry por bloque) — desbloquea TASK-056.
 2. En paralelo, iniciar **TASK-059** (raíz de la rama base, sin deps).
 3. Reservar **TASK-074** para el cierre de EP-005.
 
@@ -142,3 +142,4 @@ Ninguna.
 | 2026-09-28 | TASK-052 | 📥 → 👀 Review | Autorizado por el usuario ("Autorizado a pasar a review"); salto de 🔨 Doing justificado por implementación ya ejecutada y verificada en `/sdd-implement` |
 | 2026-09-28 | TASK-052 | 👀 → ✅ Done | "update TASK-052 done"; DoD verificada (24 tests passing) y prueba registrada en traceability (RF-102) |
 | 2026-09-28 | TASK-053 | 📥 → 👀 → ✅ Done | "update TASK-053 review. Autorizado a pasar a done si aplica"; DoD verificada (suite 482 + 2 skip) y pruebas registradas (RF-101, RX-101). Saltos de 🔨 Doing y 👀 Review autorizados |
+| 2026-09-28 | TASK-054 | 📥 → 👀 → ✅ Done | "update TASK-054 review. Autorizado a pasar a done si aplica y realiza commit"; DoD verificada (suite 489 + 2 skip) y prueba registrada (RF-102). Saltos autorizados |

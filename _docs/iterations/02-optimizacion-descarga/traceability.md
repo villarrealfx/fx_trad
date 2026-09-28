@@ -6,7 +6,7 @@
 | Requisito | Diseño (ADR/Componente) | Tarea | Prueba | Estado |
 |-----------|-------------------------|-------|--------|--------|
 | RF-101 | `ingest` planificador + `FreeservClient` 1m (ADR-012/013/014) | TASK-053, TASK-057 | `tests/ingest/test_freeserv.py::TestDownloadRange::test_passes_min_1_interval_and_bid` | 🔵 |
-| RF-102 | Planificador: bloques ≤30k + pacing (ADR-013) | TASK-052, TASK-054, TASK-058 | `tests/ingest/test_planner.py::TestPlanBlocks::test_one_year_blocks_within_limit_and_sum_matches` | 🔵 |
+| RF-102 | Planificador: bloques ≤30k + pacing (ADR-013) | TASK-052, TASK-054, TASK-058 | `tests/ingest/test_planner.py::TestPlanBlocks::test_one_year_blocks_within_limit_and_sum_matches`, `tests/ingest/test_pacing.py::TestDownloadBlocks::test_sleeps_n_minus_one_times_for_n_blocks` | 🔵 |
 | RF-103 | `pipeline.resample` base 1m (ADR-012) | TASK-059, TASK-061, TASK-062, TASK-063 | [pendiente] | 🔵 |
 | RF-104 | Tandas + Celery (ADR-015/016) | TASK-056, TASK-064, TASK-065 | [pendiente] | 🔵 |
 | RF-105 | `persist`/`storage` upsert + metadata (ADR-004) | TASK-068 | [pendiente] | 🔵 |
