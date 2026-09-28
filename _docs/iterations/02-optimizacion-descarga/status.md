@@ -7,35 +7,34 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 24 (+1 TECH-002) | — |
-| 📥 Backlog | 18 (+1) | −1 |
+| 📥 Backlog | 17 (+1) | −1 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | — |
-| ✅ Done | 6 | +1 |
+| ✅ Done | 7 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 25% (6/24) | +4% |
+| % Completado | 29% (7/24) | +4% |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (19)
+### 📥 Backlog (18)
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
 | TASK-058 | Test integridad paginación | EP-005 | M | TASK-056 ✅ |
 | TASK-074 | Benchmark descarga 1 año | EP-005 | M | TASK-056 ✅, TASK-058 |
-| TASK-059 | Resample base 1m | EP-006 | S | — |
-| TASK-060 | Storage naming 1m | EP-006 | M | TASK-059 |
+| TASK-060 | Storage naming 1m | EP-006 | M | TASK-059 ✅ |
 | TASK-061 | Persist/refresh derivadas | EP-006 | M | TASK-060 |
 | TASK-062 | Queries/API base 1m | EP-006 | S | TASK-060 |
-| TASK-063 | Regresión pipeline/storage | EP-006 | M | TASK-059, TASK-060, TASK-061, TASK-062 |
+| TASK-063 | Regresión pipeline/storage | EP-006 | M | TASK-059 ✅, TASK-060, TASK-061, TASK-062 |
 | TASK-066 | Benchmark parquet 726k | EP-006 | S | TASK-060 |
-| TASK-070 | Verificar UTC/contrato | EP-006 | S | TASK-059 |
+| TASK-070 | Verificar UTC/contrato | EP-006 | S | TASK-059 ✅ |
 | TASK-064 | Tandas 6–12m | EP-007 | M | TASK-056 ✅ |
 | TASK-065 | Reanudación | EP-007 | M | TASK-064 |
 | TASK-071 | Verificar ventana 2a | EP-007 | XS | — |
 | TASK-068 | Verificar upsert/metadatos | EP-008 | S | TASK-061 |
-| TASK-069 | Verificar weekend/feriados | EP-008 | S | TASK-059 |
+| TASK-069 | Verificar weekend/feriados | EP-008 | S | TASK-059 ✅ |
 | TASK-UI-061 | Nota 1m SCR-002 | EP-UI-007 | XS | — |
 | TASK-073 | Smoke app | EP-UI-007 | S | TASK-062 |
 | TASK-067 | Docs RNF-002 | TEC-005 | XS | — |
@@ -52,7 +51,7 @@
 |----|-------|-------|------|-----------------|
 | — | — | — | — | — |
 
-### ✅ Done (6)
+### ✅ Done (7)
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
 | TASK-052 | Planificador bloques ≤30k | EP-005 | 2026-09-28 | `tests/ingest/test_planner.py::TestPlanBlocks::test_one_year_blocks_within_limit_and_sum_matches` |
@@ -60,7 +59,8 @@
 | TASK-054 | Pacing 20 s | EP-005 | 2026-09-28 | `tests/ingest/test_pacing.py::TestDownloadBlocks::test_sleeps_n_minus_one_times_for_n_blocks` |
 | TASK-055 | Retry por bloque | EP-005 | 2026-09-28 | `tests/ingest/test_retry.py::TestCollectBlocksCandles::test_failing_block_does_not_abort_range` |
 | TASK-056 | Integrar en Celery | EP-005 | 2026-09-28 | `tests/ingest/test_tasks.py::TestDownloadPersistence::test_task_stores_candles_and_metadata` |
-| TASK-057 | Retirar ticks | EP-005 | 2026-09-28 | Suite verde sin tests de ticks (`tests/ingest/test_freeserv.py::TestDownloadRange`) |
+| TASK-057 | Retirar ticks | EP-005 | 2026-09-28 | Suite verde sin tests de ticks |
+| TASK-059 | Resample base 1m | EP-006 | 2026-09-28 | `tests/pipeline/test_resample.py::TestResampleAggregation::test_1h_matches_60_1m_candles` |
 
 ### 🔴 Blocked (0)
 | ID | Tarea | Motivo | Bloqueada desde | Desbloqueador |
@@ -81,7 +81,7 @@ graph LR
 ## 4. Métricas
 
 ### 4.1 Velocidad
-Sin datos suficientes (6 tareas completadas el mismo día).
+Sin datos suficientes (7 tareas completadas el mismo día).
 
 ### 4.2 Burn-down
 Sin datos.
@@ -100,18 +100,17 @@ Ninguna.
 ### 🟡 Advertencias
 - `TASK-074` es la única evidencia de RNF-101 (≤900 s); sin ella el requisito no se cierra.
 - Deuda de artefactos obsoletos: `TASK-066` (benchmark), `TASK-067` (RNF-002), `TASK-UI-061` (nota "1s UTC").
-- La verificación "Parquet **1 m**" del E2E queda para `TASK-060` (base/naming).
+- `refresh.py`/storage siguen con la base "1s" (naming y lectura); TASK-060/061 los migran a 1 m.
 
 ### 🟢 Informativas
-- `TASK-057` cerrada: sin código de ticks/horas en producción; suite verde (480 + 2 skip, −18 tests de ticks).
-- **RF-101 cerrado al 100%** (TASK-053 + TASK-057). Junto a **RX-101** y **RX-001** ya son 3 requisitos completos.
+- `TASK-059` cerrada: la base canónica del resample es 1 m (`1m` identidad, `1h == 60×1m`). Desbloquea **TASK-060** y **TASK-070**.
 
 ## 7. Trazabilidad — salud
 | Requisito | Tareas | Done | Cobertura |
 |-----------|--------|------|-----------|
 | RF-101 | 2 | 2 | 100% |
 | RF-102 | 3 | 2 | 67% |
-| RF-103 | 4 | 0 | 0% |
+| RF-103 | 4 | 1 | 25% |
 | RF-104 | 3 | 1 | 33% |
 | RF-105 | 1 | 0 | 0% |
 | RF-106 | 1 | 0 | 0% |
@@ -132,8 +131,8 @@ Ninguna.
 **Requisitos sin tareas:** ninguno ✓ · **Requisitos 100% Done:** 3/19 (RF-101, RX-101, RX-001)
 
 ## 8. Próximas acciones sugeridas
-1. Iniciar **TASK-059** (resample base 1m) — raíz de la rama base, sin deps; desbloquea TASK-060/061/062.
-2. **TASK-058** (integridad de paginación) y **TASK-064** (tandas) están desbloqueadas en EP-005/EP-007.
+1. Iniciar **TASK-060** (storage naming 1m) — desbloqueada; abre el camino de TASK-061/062.
+2. En paralelo, **TASK-058** (integridad paginación) o **TASK-064** (tandas) están desbloqueadas.
 3. Reservar **TASK-074** para el cierre de EP-005.
 
 ## 9. Historial de cambios (append-only)
@@ -147,3 +146,4 @@ Ninguna.
 | 2026-09-28 | TASK-055 | 📥 → 👀 → ✅ Done | "procede" sobre el paso sugerido; DoD verificada (suite 497 + 2 skip) y pruebas registradas (RX-101, RX-001). Saltos autorizados |
 | 2026-09-28 | TASK-056 | 📥 → 👀 → ✅ Done | "ok" sobre el paso sugerido; DoD verificada (suite 498 + 2 skip) y prueba registrada (RF-104). Naming "1 m" diferido a TASK-060 (opción A) |
 | 2026-09-28 | TASK-057 | 📥 → 👀 → ✅ Done | "ok" sobre el paso sugerido; DoD verificada (suite 480 + 2 skip sin tests de ticks) y limpieza de interfaces. **RF-101 al 100%** |
+| 2026-09-28 | TASK-059 | 📥 → 👀 → ✅ Done | "Autorizado a pasar a done si aplica y realiza commit"; DoD verificada (suite 481 + 2 skip) y prueba registrada (RF-103). Commit `feat(TASK-059)` + `docs(...)` |
