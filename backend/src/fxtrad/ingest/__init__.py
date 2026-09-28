@@ -10,7 +10,12 @@ modelo de request de descarga, el cliente de Dukascopy vía API chart freeserv
 from __future__ import annotations
 
 from fxtrad.ingest.catalog import ASSET_CATALOG, Asset, AssetType, assets_by_type, get_asset
-from fxtrad.ingest.freeserv import FreeservClient, aggregate_to_ohlc, hour_start_epoch
+from fxtrad.ingest.freeserv import (
+    FreeservClient,
+    aggregate_to_ohlc,
+    candles_from_ohlc,
+    hour_start_epoch,
+)
 from fxtrad.ingest.planner import (
     DEFAULT_MAX_BLOCK_CANDLES,
     DownloadBlock,
@@ -45,6 +50,7 @@ __all__ = [
     "FreeservClient",
     "aggregate_to_ohlc",
     "assets_by_type",
+    "candles_from_ohlc",
     "celery_app",
     "download_asset",
     "get_asset",
