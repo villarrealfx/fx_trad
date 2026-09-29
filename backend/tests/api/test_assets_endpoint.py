@@ -136,6 +136,30 @@ class TestAssetsContract:
         assert body == []
 
 
+class TestAssetsNewForexPairs:
+    """TASK-203: el contrato AssetRow cubre los 5 pares forex añadidos."""
+
+    _NEW_PAIRS = ("GBPJPY", "EURJPY", "AUDUSD", "USDCAD", "EURGBP")
+
+    def test_lists_five_new_pairs_with_coverage(self) -> None:
+        new_coverage = dict.fromkeys(self._NEW_PAIRS, (_BASE_TIME, _BASE_TIME + _HOUR))
+        client = _client(coverage=new_coverage)
+
+        rows = client.get("/assets").json()
+
+        assert [row["symbol"] for row in rows] == list(self._NEW_PAIRS)
+        assert all(row["type"] == "forex" for row in rows)
+
+    def test_rows_match_assetrow_contract(self) -> None:
+        coverage = dict.fromkeys(self._NEW_PAIRS, (_BASE_TIME, _BASE_TIME + _HOUR))
+        client = _client(coverage=coverage)
+
+        rows = client.get("/assets").json()
+
+        expected_keys = {"symbol", "type", "coverage_start", "coverage_end", "status"}
+        assert all(set(row) == expected_keys for row in rows)
+
+
 class TestAssetStatusMapping:
     """El estado se deriva del último registro de descarga (SCR-001)."""
 

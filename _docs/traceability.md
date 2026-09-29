@@ -24,7 +24,7 @@
 | RF-214 Descarga centrada | `DownloadScreen` (layout) | TASK-UI-250 | `frontend/src/components/DownloadScreen/__tests__/DownloadScreen.test.tsx` | 🟢 |
 | RF-215 Activo en historial | `DownloadHistory` | TASK-UI-251 | `frontend/src/components/DownloadHistory/__tests__/DownloadHistory.test.tsx` | 🟢 |
 | RF-216 5 pares forex nuevos | `ingest.catalog` + `ingest.freeserv` (ADR-021) | TASK-201, TASK-UI-252 | `backend/tests/ingest/test_catalog.py`, `test_freeserv.py` (12 activos + ids) | 🔵 |
-| RF-217 Backend de nuevos activos | `ingest.catalog`/`freeserv` + `api` (ADR-021) | TASK-201, TASK-202, TASK-203 | `backend/tests/ingest/test_catalog.py`, `test_freeserv.py` (parcial) | 🔵 |
+| RF-217 Backend de nuevos activos | `ingest.catalog`/`freeserv` + `api` (ADR-021) | TASK-201, TASK-202, TASK-203 | `backend/tests/ingest/test_catalog.py`, `tests/api/test_assets_endpoint.py` (contrato) | 🔵 |
 | RF-218 Abrir centrada | `OpenChartScreen` (layout) | TASK-UI-260 | `frontend/src/__tests__/app.test.tsx` (contenedor centrado) | 🟢 |
 | RF-219 Retirar `1s` de la UI | `contracts/ohlc` + `pipeline/resample` (ADR-020) | TASK-205, TASK-206, TASK-UI-261 | `backend/tests/contracts/test_ohlc_contract.py`, `frontend/src/components/ChartSelector/__tests__/ChartSelector.test.tsx` (sin `1s`) | 🟢 |
 | RF-220 `GET /assets` + retirar espejo | `catalog` + `GET /assets` (ADR-021) | TASK-204, TASK-UI-270 | [pendiente] | 🔵 |
@@ -50,7 +50,7 @@
 | Requisito | Diseño (ADR/Componente) | Tarea | Prueba | Estado |
 |-----------|-------------------------|-------|--------|--------|
 | RI-201 Entidad Configuración de gráfico | `state/chart-config` (ADR-018) | TASK-UI-220, TASK-UI-240, TASK-UI-241, TASK-UI-242 | `frontend/src/state/__tests__/chart-config.test.ts` (round-trip/migración), `frontend/src/charting/__tests__/drawings.test.ts` | 🟢 |
-| RI-202 Catálogo vía `GET /assets` | `GET /assets` + `CatalogQuery` (ADR-021) | TASK-203, TASK-204 | [pendiente] | 🔵 |
+| RI-202 Catálogo vía `GET /assets` | `GET /assets` + `CatalogQuery` (ADR-021) | TASK-203, TASK-204 | `backend/tests/api/test_assets_endpoint.py` (AssetRow) | 🔵 |
 | RI-001 OHLC time único UTC (heredado) | `storage` (ADR-004) | Heredado (01/02) | [pendiente] | 🔵 |
 | RI-002 Metadatos de descarga (heredado) | `storage` (ADR-004) | Heredado (01/02) | [pendiente] | 🔵 |
 
