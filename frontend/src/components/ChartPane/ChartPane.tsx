@@ -100,6 +100,10 @@ export interface ChartPaneProps {
   end?: number;
   /** Trazos superpuestos anclados a precio/tiempo (TASK-027). */
   drawings?: ReadonlyArray<OverlayShape>;
+  /** Dibujos iniciales que siembran el historial editable (TASK-UI-241). */
+  initialDrawings?: ReadonlyArray<OverlayShape>;
+  /** Notifica los dibujos tras cada cambio (persistencia, TASK-UI-241). */
+  onDrawingsChange?: (shapes: ReadonlyArray<OverlayShape>) => void;
   /** Parámetros de indicadores a renderizar (RF-013). Si se omite, no se dibujan. */
   indicators?: IndicatorParameters;
   /** Controlador de sincronización entre paneles (TASK-034, RF-014). */
@@ -148,6 +152,8 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
     start,
     end,
     drawings = EMPTY_DRAWINGS,
+    initialDrawings,
+    onDrawingsChange,
     indicators,
     sync,
     syncId = 'pane',
@@ -174,9 +180,16 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
   const candlesRef = useRef<ReadonlyArray<Candle>>([]);
   const [markers, setMarkers] = useState<ReadonlyArray<MarkerShape>>([]);
   const [activeTool, setActiveTool] = useState<ActiveTool>(DEFAULT_MARKER_TOOL);
-  /** Historial reversible de los trazos creados/editados (RF-213). */
-  const history = useDrawingHistory(EMPTY_DRAWINGS);
+  /** Historial reversible de los trazos creados/editados (RF-213).
+   *  Se siembra con los dibujos persistidos (TASK-UI-241). */
+  const history = useDrawingHistory(initialDrawings ?? EMPTY_DRAWINGS);
   const drawnShapes = history.shapes;
+  /** Notifica los dibujos al padre tras cada cambio (persistencia). */
+  const onDrawingsChangeRef = useRef(onDrawingsChange);
+  onDrawingsChangeRef.current = onDrawingsChange;
+  useEffect(() => {
+    onDrawingsChangeRef.current?.(history.shapes);
+  }, [history.shapes]);
   const [drawFrom, setDrawFrom] = useState<PriceTimePoint | null>(null);
   const [previewShape, setPreviewShape] = useState<OverlayShape | null>(null);
   const [selectedMarkerId, setSelectedMarkerId] = useState<string | null>(null);

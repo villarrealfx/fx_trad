@@ -28,22 +28,23 @@ import IndicatorForm from './components/IndicatorForm/IndicatorForm';
 import MultiChart from './components/MultiChart/MultiChart';
 import Toast from './components/ui/Toast';
 import type { ExportScale } from './export';
-import {
-  DEFAULT_INDICATOR_CONFIGS,
-  toIndicatorParameters,
-  type IndicatorConfig,
-} from './indicators/config';
+import { toIndicatorParameters } from './indicators/config';
 import { endOfDayEpoch, startOfDayEpoch } from './utils/dates';
+import { useChartConfig } from './state/use-chart-config';
 
 /** Pantalla SCR-004: gráfico de la selección + indicadores + export. */
 function ChartScreen({ selection }: { selection: ChartQuery }) {
-  const [configs, setConfigs] = useState<readonly IndicatorConfig[]>(DEFAULT_INDICATOR_CONFIGS);
+  const { symbol, timeframe } = selection;
+  // Configuración persistida por activo+timeframe (TASK-UI-241, RF-204).
+  const { indicators: configs, drawings, setIndicators, setDrawings } = useChartConfig(
+    symbol,
+    timeframe,
+  );
   const paneRef = useRef<ChartPaneHandle>(null);
   const [exportOpen, setExportOpen] = useState(false);
   const [indicatorsOpen, setIndicatorsOpen] = useState(true);
   const [toast, setToast] = useState<string | null>(null);
 
-  const { symbol, timeframe } = selection;
   const start = selection.start !== undefined ? startOfDayEpoch(selection.start) : undefined;
   const end = selection.end !== undefined ? endOfDayEpoch(selection.end) : undefined;
 
@@ -59,17 +60,20 @@ function ChartScreen({ selection }: { selection: ChartQuery }) {
       <IndicatorForm
         open={indicatorsOpen}
         configs={configs}
-        onChange={setConfigs}
+        onChange={setIndicators}
         onClose={() => setIndicatorsOpen(false)}
       />
       <div className="chart-screen__graph" style={{ height: 420 }}>
         <ChartPane
+          key={`${symbol}:${timeframe}`}
           ref={paneRef}
           symbol={symbol}
           timeframe={timeframe}
           start={start}
           end={end}
           indicators={toIndicatorParameters(configs)}
+          initialDrawings={drawings}
+          onDrawingsChange={(shapes) => setDrawings([...shapes])}
           indicatorsOpen={indicatorsOpen}
           onOpenIndicators={() => setIndicatorsOpen((value) => !value)}
           onExport={() => setExportOpen(true)}

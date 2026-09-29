@@ -516,6 +516,39 @@ describe('ChartPane', () => {
     expect(shapesCount()).toBe('1');
   });
 
+  it('seeds the editable drawings from initialDrawings (TASK-UI-241)', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    const drawing: OverlayShape = {
+      id: 'seed-1',
+      kind: 'line',
+      from: { time: 1_781_000_000, price: 1.08 },
+      to: { time: 1_781_003_600, price: 1.09 },
+    };
+    const { container } = render(
+      <ChartPane symbol="EURUSD" timeframe="1h" initialDrawings={[drawing]} />,
+    );
+    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+
+    expect(container.querySelector('.chart-pane')?.getAttribute('data-shapes')).toBe('1');
+  });
+
+  it('notifies drawings changes through onDrawingsChange (TASK-UI-241)', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    const onDrawingsChange = vi.fn();
+    const { container } = render(
+      <ChartPane symbol="EURUSD" timeframe="1h" onDrawingsChange={onDrawingsChange} />,
+    );
+    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+
+    fireEvent.click(screen.getByRole('button', { name: 'Línea' }));
+    emitChartClick(1_781_000_000, 5, 5);
+    emitChartClick(1_781_003_600, 60, 80);
+
+    const last = onDrawingsChange.mock.calls.at(-1)?.[0] as OverlayShape[];
+    expect(last).toHaveLength(1);
+    expect(container.querySelector('.chart-pane')?.getAttribute('data-shapes')).toBe('1');
+  });
+
   it('draws a rectangle from two clicks with the rect tool', async () => {
     fetchMock.mockResolvedValue(createResponse(RESPONSE));
     const { container } = render(<ChartPane symbol="EURUSD" timeframe="1h" />);

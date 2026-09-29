@@ -1,6 +1,6 @@
 # Estado del Proyecto: Mejoras UX (Ciclo 03)
 
-> Última actualización: 2026-09-29 11:25
+> Última actualización: 2026-09-29 11:30
 > Fuente: `_docs/backlog.md`, `_docs/traceability.md`
 
 ## 1. Resumen ejecutivo
@@ -8,19 +8,19 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 35 | — |
-| 📥 Backlog | 27 | -1 |
+| 📥 Backlog | 26 | -1 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | — |
-| ✅ Done | 8 | +1 |
+| ✅ Done | 9 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 23% | +3% |
+| % Completado | 26% | +3% |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso.
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (27)
+### 📥 Backlog (26)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
@@ -38,7 +38,6 @@
 | TASK-UI-230 | Ejes X `{día} {HH:mm}` / Y 5 dec. derecha | EP-UI-203 | 5 | UI-200 |
 | TASK-UI-231 | Gráfico fullscreen (H+V) | EP-UI-203 | 3 | UI-213 |
 | TASK-UI-232 | Export desde el header | EP-UI-203 | 3 | UI-210 |
-| TASK-UI-241 | Guardar/restaurar config | EP-UI-204 | 5 | UI-240 |
 | TASK-UI-242 | Tests round-trip + migración | EP-UI-204 | 3 | UI-240 |
 | TASK-UI-250 | Centrar Descarga | EP-UI-205 | 2 | UI-200 |
 | TASK-UI-251 | Columna Activo en historial | EP-UI-205 | 3 | UI-250 |
@@ -60,12 +59,13 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (8)
+### ✅ Done (9)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
 | TASK-UI-200 | Tokens del design system (dibujos, popover, ejes, sombras, íconos) | EP-UI-200 | 2026-09-29 | `frontend/src/styles/__tests__/tokens.test.ts` · eslint/tsc OK |
 | TASK-UI-240 | `state/chart-config` (localStorage versionado) | EP-UI-204 | 2026-09-29 | `frontend/src/state/__tests__/chart-config.test.ts` · cobertura 95% |
+| TASK-UI-241 | Guardar/restaurar config en el ciclo de vida | EP-UI-204 | 2026-09-29 | `frontend/src/state/__tests__/use-chart-config.test.tsx` · cobertura 96% |
 | TASK-UI-212 | `IndicatorForm` flotante (CMP-016) | EP-UI-201 | 2026-09-29 | `frontend/src/components/IndicatorForm/__tests__/IndicatorForm.test.tsx` · cobertura 99% |
 | TASK-UI-201 | Setup de accesibilidad base (LiveRegion, `.sr-only`, skip/foco) | EP-UI-200 | 2026-09-29 | `frontend/src/components/ui/__tests__/LiveRegion.test.tsx`, `.../AppShell.test.tsx` |
 | TASK-UI-210 | `ChartHeader` (indicadores + export + ajustar) | EP-UI-201 | 2026-09-29 | `frontend/src/components/ChartHeader/__tests__/ChartHeader.test.tsx`, `frontend/src/__tests__/app.test.tsx` · cobertura 100% |
@@ -84,11 +84,11 @@ graph LR
   UI220[TASK-UI-220 ✅] --> UI221[TASK-UI-221 ✅]
   UI221 --> UI222[TASK-UI-222 ✅]
   UI222 --> UI240[TASK-UI-240 ✅]
-  UI240 --> UI241[TASK-UI-241 📥]
+  UI240 --> UI241[TASK-UI-241 ✅]
 ```
 
-**Avance de ruta crítica:** 4/5 tareas (80%). **ETA:** sin datos (cuatro tramos completados).
-Nota: `TASK-UI-241` (guardar/restaurar en el ciclo de vida) es la última tarea de la ruta crítica.
+**Avance de ruta crítica:** 5/5 tareas (100%). ✅ **Ruta crítica completada.**
+Nota: queda trabajo fuera de la ruta crítica (ejes, marcadores, Descarga, Abrir, Biblioteca, Multigráfico, backend/contrato) antes del cierre.
 
 ## 4. Métricas
 
@@ -161,9 +161,9 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. Cerrar la ruta crítica: `TASK-UI-241` (guardar/restaurar config) — ya desbloqueada por UI-240.
-2. Cerrar EP-UI-201/EP-UI-204: `TASK-UI-211`, `TASK-UI-213`, `TASK-UI-242`.
-3. Avanzar en paralelo sin dependencias: `TASK-201` (catálogo), `TASK-205` (contrato backend), `TASK-UI-223` (marcadores), `TASK-UI-232` (export header).
+1. Cerrar EP-UI-201/EP-UI-204: `TASK-UI-211` (sin defaults), `TASK-UI-213` (eliminar panel), `TASK-UI-242` (tests persistencia).
+2. Avanzar en paralelo sin dependencias: `TASK-201` (catálogo), `TASK-205` (contrato backend), `TASK-UI-223` (marcadores), `TASK-UI-232` (export header), `TASK-UI-230` (ejes).
+3. Para pantallas restantes: `TASK-UI-250/251/252` (Descarga), `TASK-UI-260/261` (Abrir), `TASK-UI-270` (Biblioteca), `TASK-UI-280` (Multigráfico).
 4. Reservar `TASK-TEC-210/211/212` para el cierre.
 
 ## 9. Historial de cambios (append-only)
@@ -179,3 +179,4 @@ Ninguno.
 | 2026-09-29 | TASK-UI-210 | 📥 → ✅ Done | ChartHeader (CMP-017) con estados/a11y; Ajustar migrado; export/indicadores cableados; autorización explícita |
 | 2026-09-29 | TASK-UI-212 | 📥 → ✅ Done | IndicatorForm flotante (CMP-016) no modal, Escape/✕, persiste al cerrar; 8 tests; autorización explícita |
 | 2026-09-29 | TASK-UI-240 | 📥 → ✅ Done | `state/chart-config` versionado con API save/load/clear; 8 tests, cobertura 95%; autorización explícita |
+| 2026-09-29 | TASK-UI-241 | 📥 → ✅ Done | Restauración al navegar/recargar vía `useChartConfig` + dibujos controlados; 6 tests; ruta crítica 100%; autorización explícita |
