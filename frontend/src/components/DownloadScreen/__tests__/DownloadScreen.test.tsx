@@ -105,6 +105,18 @@ describe('DownloadScreen (TASK-UI-021, SCR-002)', () => {
     expect((screen.getByLabelText('Fecha de fin') as HTMLInputElement).value).toBe('1970-01-02');
   });
 
+  it('centers the form and history inside a centered content container (RF-214)', async () => {
+    mocks.fetchDownloadHistory.mockResolvedValue([HISTORY_ROW]);
+
+    const { container } = render(<DownloadScreen />);
+    await flush();
+
+    const content = container.querySelector('.download-screen__content');
+    expect(content).not.toBeNull();
+    expect(content?.querySelector('.download-form')).not.toBeNull();
+    expect(content?.querySelector('table')).not.toBeNull();
+  });
+
   it('shows an error banner when the history cannot be loaded and retries', async () => {
     mocks.fetchDownloadHistory
       .mockRejectedValueOnce(new Error('historial caído'))

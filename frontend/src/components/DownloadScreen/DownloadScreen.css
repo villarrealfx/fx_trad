@@ -1,6 +1,16 @@
+/*
+ * Pantalla de descarga (SCR-002, TASK-UI-250). Solo tokens.
+ * El contenido (formulario y tabla) se centra horizontalmente (RF-214).
+ */
 .download-screen {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-lg);
+}
+
+.download-screen__content {
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
-  padding: var(--space-lg);
+  width: min(720px, 100%);
 }

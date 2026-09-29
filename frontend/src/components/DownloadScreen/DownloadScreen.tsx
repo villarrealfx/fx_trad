@@ -81,32 +81,35 @@ export default function DownloadScreen() {
 
   return (
     <section className="download-screen" aria-label="Descarga de datos históricos">
-      <h2>Descargar datos históricos</h2>
-      <DownloadForm onQueued={handleQueued} prefill={prefill} disabled={activeTask !== null} />
-      {activeTask !== null && <DownloadProgress task={activeTask} onSettled={handleSettled} />}
-      {settled !== null && settled.estado === 'exito' && (
-        <StatusBanner
-          tone="success"
-          message={settledMessage(settled)}
-          autoDismissMs={5000}
-          onClose={() => setSettled(null)}
-        />
-      )}
-      {settled !== null && settled.estado === 'parcial' && (
-        <StatusBanner tone="warning" message={settledMessage(settled)} />
-      )}
-      {settled !== null && settled.estado === 'fallo' && (
-        <StatusBanner tone="error" message={settledMessage(settled)} />
-      )}
-      {historyError !== null && (
-        <StatusBanner
-          tone="error"
-          message={historyError}
-          actionLabel="Reintentar"
-          onAction={() => void loadHistory()}
-        />
-      )}
-      <DownloadHistory entries={entries} onCompleteRange={handleCompleteRange} />
+      {/* Contenido centrado horizontalmente (RF-214): formulario y tabla. */}
+      <div className="download-screen__content">
+        <h2>Descargar datos históricos</h2>
+        <DownloadForm onQueued={handleQueued} prefill={prefill} disabled={activeTask !== null} />
+        {activeTask !== null && <DownloadProgress task={activeTask} onSettled={handleSettled} />}
+        {settled !== null && settled.estado === 'exito' && (
+          <StatusBanner
+            tone="success"
+            message={settledMessage(settled)}
+            autoDismissMs={5000}
+            onClose={() => setSettled(null)}
+          />
+        )}
+        {settled !== null && settled.estado === 'parcial' && (
+          <StatusBanner tone="warning" message={settledMessage(settled)} />
+        )}
+        {settled !== null && settled.estado === 'fallo' && (
+          <StatusBanner tone="error" message={settledMessage(settled)} />
+        )}
+        {historyError !== null && (
+          <StatusBanner
+            tone="error"
+            message={historyError}
+            actionLabel="Reintentar"
+            onAction={() => void loadHistory()}
+          />
+        )}
+        <DownloadHistory entries={entries} onCompleteRange={handleCompleteRange} />
+      </div>
     </section>
   );
 }

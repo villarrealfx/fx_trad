@@ -21,7 +21,7 @@
 | RF-211 Íconos representativos | Design system / iconografía | TASK-UI-200 | `frontend/src/styles/__tests__/tokens.test.ts` (tokens de ícono) | 🔵 |
 | RF-212 Editar dibujos (mover/redimensionar) | `drawing-edit` + `use-drawing-edit` (ADR-017) | TASK-UI-221 | `frontend/src/charting/__tests__/drawing-edit.test.ts`, `.../use-drawing-edit.test.tsx` | 🟢 |
 | RF-213 Undo/redo de dibujos | `drawing-history` + `drawing-edit` (ADR-017) | TASK-UI-222 | `frontend/src/charting/__tests__/drawing-history.test.ts`, `.../ChartPane.test.tsx` (atajos) | 🟢 |
-| RF-214 Descarga centrada | `DownloadScreen` (layout) | TASK-UI-250 | [pendiente] | 🔵 |
+| RF-214 Descarga centrada | `DownloadScreen` (layout) | TASK-UI-250 | `frontend/src/components/DownloadScreen/__tests__/DownloadScreen.test.tsx` | 🟢 |
 | RF-215 Activo en historial | `DownloadHistory` | TASK-UI-251 | [pendiente] | 🔵 |
 | RF-216 5 pares forex nuevos | `ingest.catalog` + `ingest.freeserv` (ADR-021) | TASK-201, TASK-UI-252 | `backend/tests/ingest/test_catalog.py`, `test_freeserv.py` (12 activos + ids) | 🔵 |
 | RF-217 Backend de nuevos activos | `ingest.catalog`/`freeserv` + `api` (ADR-021) | TASK-201, TASK-202, TASK-203 | `backend/tests/ingest/test_catalog.py`, `test_freeserv.py` (parcial) | 🔵 |
