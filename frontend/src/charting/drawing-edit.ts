@@ -79,6 +79,24 @@ export function hitTestHandle(
   return null;
 }
 
+/**
+ * Restringe un ancla a horizontal o vertical respecto de `from` (RF-210).
+ *
+ * Se usa con la tecla `Shift`: se elige el eje con mayor desplazamiento en
+ * píxeles — horizontal (mismo precio que `from`) si `|dx| ≥ |dy|`, vertical
+ * (mismo tiempo que `from`) en caso contrario.
+ */
+export function constrainToAxis(
+  from: PriceTimePoint,
+  to: PriceTimePoint,
+  fromPixel: PixelPoint,
+  toPixel: PixelPoint,
+): PriceTimePoint {
+  const dx = Math.abs(toPixel.x - fromPixel.x);
+  const dy = Math.abs(toPixel.y - fromPixel.y);
+  return dx >= dy ? { time: to.time, price: from.price } : { time: from.time, price: to.price };
+}
+
 /** Convierte un punto de píxeles a un ancla de dominio (inverso del chart). */
 export function pixelToAnchor(
   point: PixelPoint,

@@ -1,6 +1,6 @@
 # Estado del Proyecto: Mejoras UX (Ciclo 03)
 
-> Última actualización: 2026-09-29 11:45
+> Última actualización: 2026-09-29 11:50
 > Fuente: `_docs/backlog.md`, `_docs/traceability.md`
 
 ## 1. Resumen ejecutivo
@@ -8,19 +8,19 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 35 | — |
-| 📥 Backlog | 23 | -1 |
+| 📥 Backlog | 22 | -1 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | — |
-| ✅ Done | 12 | +1 |
+| ✅ Done | 13 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 34% | +3% |
+| % Completado | 37% | +3% |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso.
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (23)
+### 📥 Backlog (22)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
@@ -30,7 +30,6 @@
 | TASK-204 | Consumir `GET /assets` y quitar espejo | EP-201 | 5 | 203 |
 | TASK-205 | Retirar `1s` del contrato backend | EP-202 | 2 | — |
 | TASK-206 | Retirar `1s` del espejo TS | EP-202 | 2 | 205 |
-| TASK-UI-223 | Marcadores 10 pips + Shift H/V | EP-UI-202 | 5 | UI-220 |
 | TASK-UI-224 | Tests de edición + profiling 60 FPS | EP-UI-202 | 3 | UI-222, UI-223 |
 | TASK-UI-230 | Ejes X `{día} {HH:mm}` / Y 5 dec. derecha | EP-UI-203 | 5 | UI-200 |
 | TASK-UI-231 | Gráfico fullscreen (H+V) | EP-UI-203 | 3 | UI-213 |
@@ -56,12 +55,12 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (12)
+### ✅ Done (13)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
-| TASK-UI-211 | Sin indicadores por defecto (RF-201) | EP-UI-201 | 2026-09-29 | `frontend/src/state/__tests__/use-chart-config.test.tsx` (estado inicial vacío) |
 | TASK-UI-214 | Tests de estados/a11y del formulario (axe-core) | EP-UI-201 | 2026-09-29 | `frontend/src/components/IndicatorForm/__tests__/IndicatorForm.a11y.test.tsx` |
+| TASK-UI-223 | Marcadores a 10 pips + Shift H/V | EP-UI-202 | 2026-09-29 | `frontend/src/charting/__tests__/markers.test.ts`, `.../drawing-edit.test.ts` |
 | TASK-UI-213 | Eliminar `IndicatorPanel` inferior | EP-UI-201 | 2026-09-29 | Sin referencias residuales; suites verdes (356) |
 | TASK-UI-240 | `state/chart-config` (localStorage versionado) | EP-UI-204 | 2026-09-29 | `frontend/src/state/__tests__/chart-config.test.ts` · cobertura 95% |
 | TASK-UI-241 | Guardar/restaurar config en el ciclo de vida | EP-UI-204 | 2026-09-29 | `frontend/src/state/__tests__/use-chart-config.test.tsx` · cobertura 96% |
@@ -160,8 +159,8 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. Cerrar EP-UI-202/EP-UI-204: `TASK-UI-223` (marcadores), `TASK-UI-242` (tests persistencia).
-2. Avanzar sin dependencias: `TASK-201` (catálogo), `TASK-205` (contrato backend), `TASK-UI-230` (ejes), `TASK-UI-232` (export header).
+1. Cerrar EP-UI-204/EP-UI-203: `TASK-UI-242` (tests persistencia), `TASK-UI-230` (ejes X/Y), `TASK-UI-232` (export header).
+2. Avanzar sin dependencias: `TASK-201` (catálogo backend), `TASK-205` (contrato backend).
 3. Para pantallas restantes: `TASK-UI-250/251/252` (Descarga), `TASK-UI-260/261` (Abrir), `TASK-UI-270` (Biblioteca), `TASK-UI-280` (Multigráfico).
 4. Reservar `TASK-TEC-210/211/212` para el cierre.
 
@@ -182,3 +181,4 @@ Ninguno.
 | 2026-09-29 | TASK-UI-213 | 📥 → ✅ Done | `IndicatorPanel` eliminado (3 archivos) + mocks repuntados; sin regresión; autorización explícita |
 | 2026-09-29 | TASK-UI-211 | 📥 → ✅ Done | Sin indicadores por defecto: `DEFAULT_INDICATOR_CONFIGS=[]` + test de estado inicial; autorización explícita |
 | 2026-09-29 | TASK-UI-214 | 📥 → ✅ Done | Tests axe-core del popover (con indicadores y vacío) sin violaciones; EP-UI-201 cerrada; autorización explícita |
+| 2026-09-29 | TASK-UI-223 | 📥 → ✅ Done | Marcador a 10 pips fuera de la vela + Shift H/V; 9 tests; EP-UI-202 cerrada; autorización explícita |

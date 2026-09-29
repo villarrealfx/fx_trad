@@ -8,6 +8,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   HANDLE_HIT_SIZE,
+  constrainToAxis,
   hitTestHandle,
   handlePositions,
   isResizableShape,
@@ -100,6 +101,28 @@ describe('resizeShape', () => {
 
   it('deja intactos los trazos no redimensionables', () => {
     expect(resizeShape(MARKER, 'from', { time: 1, price: 1 })).toBe(MARKER);
+  });
+});
+
+describe('constrainToAxis (RF-210)', () => {
+  const FROM = { time: 0, price: 1 };
+  const TO = { time: 100, price: 2 };
+
+  it('fija el precio (horizontal) cuando el desplazamiento es mayor en X', () => {
+    const result = constrainToAxis(FROM, TO, { x: 0, y: 0 }, { x: 50, y: 10 });
+    expect(result).toEqual({ time: 100, price: 1 });
+  });
+
+  it('fija el tiempo (vertical) cuando el desplazamiento es mayor en Y', () => {
+    const result = constrainToAxis(FROM, TO, { x: 0, y: 0 }, { x: 5, y: 40 });
+    expect(result).toEqual({ time: 0, price: 2 });
+  });
+
+  it('elige horizontal ante desplazamientos iguales', () => {
+    expect(constrainToAxis(FROM, TO, { x: 0, y: 0 }, { x: 20, y: 20 })).toEqual({
+      time: 100,
+      price: 1,
+    });
   });
 });
 

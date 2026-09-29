@@ -20,6 +20,8 @@ import {
 import type { Candle, Timeframe } from '../../contracts/ohlc';
 import { createOverlayBinding, type OverlayBinding } from '../../charting/chart-binding';
 import type { ChartSyncController } from '../../charting/chart-sync';
+import { constrainToAxis } from '../../charting/drawing-edit';
+import { markerAnchorPrice } from '../../charting/markers';
 import OverlayCanvas from '../../charting/OverlayCanvas';
 import {
   hitTestFragment,
@@ -196,6 +198,22 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
   const confirmRef = useRef<HTMLButtonElement | null>(null);
   const clickHandlerRef = useRef<(param: MouseEventParams<Time>) => void>(() => {});
   const previewHandlerRef = useRef<(param: MouseEventParams<Time>) => void>(() => {});
+  /** Estado de la tecla `Shift` para restringir líneas a H/V (RF-210). */
+  const shiftRef = useRef(false);
+  useEffect(() => {
+    const onKeyDown = (event: globalThis.KeyboardEvent): void => {
+      if (event.key === 'Shift') shiftRef.current = true;
+    };
+    const onKeyUp = (event: globalThis.KeyboardEvent): void => {
+      if (event.key === 'Shift') shiftRef.current = false;
+    };
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
+    };
+  }, []);
 
   /** Edición por arrastre de los trazos creados (mover/redimensionar, RF-212). */
   const { selectedShapeId, setSelectedShapeId, ...drawingEditHandlers } = useDrawingEdit({
@@ -484,6 +502,17 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
     }
   }
 
+  /** Aplica la restricción H/V de `Shift` al 2.º punto de una línea (RF-210). */
+  function constrainLineAnchor(
+    from: PriceTimePoint,
+    to: PriceTimePoint,
+    cursor: PixelPoint,
+  ): PriceTimePoint {
+    if (activeTool !== 'line' || !shiftRef.current || overlayBinding === null) return to;
+    const fromPixel = projectPoint(from, overlayBinding);
+    return fromPixel === null ? to : constrainToAxis(from, to, fromPixel, cursor);
+  }
+
   /** Crea línea/rectángulo a dos clics con anclas de tiempo/precio (RF-011). */
   function handleDrawClick(param: MouseEventParams<Time>, cursor: PixelPoint): void {
     const price = priceAt(cursor.y);
@@ -493,13 +522,14 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
       setDrawFrom(anchor);
       return;
     }
-    const id = `${activeTool}-${drawFrom.time}-${anchor.time}`;
+    const to = constrainLineAnchor(drawFrom, anchor, cursor);
+    const id = `${activeTool}-${drawFrom.time}-${to.time}`;
     const shape: OverlayShape =
       activeTool === 'line'
-        ? { id, kind: 'line', from: drawFrom, to: anchor }
+        ? { id, kind: 'line', from: drawFrom, to }
         : activeTool === 'rect'
-          ? { id, kind: 'rect', from: drawFrom, to: anchor }
-          : { id, kind: 'fib', from: drawFrom, to: anchor };
+          ? { id, kind: 'rect', from: drawFrom, to }
+          : { id, kind: 'fib', from: drawFrom, to };
     history.update((current) => [...current, shape]);
     setDrawFrom(null);
     setPreviewShape(null);
@@ -535,10 +565,12 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
       (marker) => marker.direction === activeTool && marker.position.time === barTime,
     );
     if (candle === undefined || duplicated) return;
+    const anchorPrice = markerAnchorPrice(symbol, activeTool, candle.low, candle.high);
     const marker: MarkerShape = {
       id: `${activeTool}-${barTime}`,
       kind: 'marker',
-      position: { time: barTime, price: candle.close },
+      // Ancla fuera del rango de la vela (10 pips bajo/sobre la vela) — RF-208.
+      position: { time: barTime, price: anchorPrice },
       direction: activeTool,
     };
     setMarkers((current) => [...current, marker]);
@@ -674,15 +706,13 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
     ) {
       return;
     }
-    const y = param.point?.y;
-    const price = y === undefined ? null : priceAt(y);
+    const point = param.point;
+    if (point === undefined) return;
+    const price = priceAt(point.y);
     if (param.time === undefined || price === null) return;
-    setPreviewShape({
-      id: 'preview',
-      kind: activeTool,
-      from: drawFrom,
-      to: { time: Number(param.time), price },
-    } as OverlayShape);
+    const anchorTo = { time: Number(param.time), price };
+    const to = constrainLineAnchor(drawFrom, anchorTo, { x: point.x, y: point.y });
+    setPreviewShape({ id: 'preview', kind: activeTool, from: drawFrom, to } as OverlayShape);
   };
 
   return (

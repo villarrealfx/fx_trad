@@ -403,7 +403,7 @@ describe('ChartPane', () => {
     expect(chartMocks.timeToCoordinate).toHaveBeenCalledWith(1_781_003_600);
   });
 
-  it('creates a buy marker at the close of the bar under the cursor', async () => {
+  it('creates a buy marker anchored below the bar under the cursor (RF-208)', async () => {
     fetchMock.mockResolvedValue(createResponse(RESPONSE));
     render(<ChartPane symbol="EURUSD" timeframe="1h" />);
     await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
