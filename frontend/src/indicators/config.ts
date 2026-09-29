@@ -6,7 +6,6 @@
  */
 import {
   ATR_PERIOD_DEFAULT,
-  MA_PERIODS_DEFAULT,
   RSI_PERIOD_DEFAULT,
   type IndicatorParameters,
 } from './indicators';
@@ -24,17 +23,14 @@ export interface IndicatorConfig {
   visible: boolean;
 }
 
-/** Lista por defecto (J-004): MA 20/50/200, ATR 14 y RSI 14. */
-export const DEFAULT_INDICATOR_CONFIGS: ReadonlyArray<IndicatorConfig> = [
-  ...MA_PERIODS_DEFAULT.map((period) => ({
-    id: `ma-${period}`,
-    kind: 'MA' as const,
-    period,
-    visible: true,
-  })),
-  { id: `atr-${ATR_PERIOD_DEFAULT}`, kind: 'ATR', period: ATR_PERIOD_DEFAULT, visible: true },
-  { id: `rsi-${RSI_PERIOD_DEFAULT}`, kind: 'RSI', period: RSI_PERIOD_DEFAULT, visible: true },
-];
+/**
+ * Indicadores iniciales: **ninguno** (RF-201).
+ *
+ * El gráfico abre sin indicadores; el usuario los agrega a petición desde el
+ * formulario flotante (ADR-019). La lista se persiste por activo+timeframe
+ * (RI-201).
+ */
+export const DEFAULT_INDICATOR_CONFIGS: ReadonlyArray<IndicatorConfig> = [];
 
 /** Periodo por defecto al añadir un indicador de cada tipo. */
 export const NEW_INDICATOR_PERIOD: Record<IndicatorKind, number> = {

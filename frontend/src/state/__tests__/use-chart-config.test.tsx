@@ -83,7 +83,7 @@ function makeStore(): { storage: MemoryStorage; store: ChartConfigStore } {
 describe('useChartConfig (RF-204)', () => {
   afterEach(cleanup);
 
-  it('parte de los indicadores por defecto y sin dibujos', () => {
+  it('abre sin indicadores ni dibujos por defecto', () => {
     const { store } = makeStore();
     const onState = vi.fn();
 
@@ -94,7 +94,7 @@ describe('useChartConfig (RF-204)', () => {
       drawings: OverlayShape[];
     };
     expect(last.drawings).toEqual([]);
-    expect(last.indicators.length).toBeGreaterThan(0);
+    expect(last.indicators).toEqual([]);
   });
 
   it('persiste los cambios de indicadores y dibujos', () => {
