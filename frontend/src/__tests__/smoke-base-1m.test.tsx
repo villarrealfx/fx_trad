@@ -24,8 +24,8 @@ vi.mock('../components/ChartPane/ChartPane', async () => {
   };
 });
 
-vi.mock('../components/IndicatorPanel/IndicatorPanel', () => ({
-  default: () => <div data-testid="indicator-panel" />,
+vi.mock('../components/IndicatorForm/IndicatorForm', () => ({
+  default: () => <div data-testid="indicator-form" />,
 }));
 
 vi.mock('../export', () => ({
