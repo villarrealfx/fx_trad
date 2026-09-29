@@ -349,6 +349,52 @@ describe('ChartPane', () => {
     expect(chartMocks.createChart).toHaveBeenCalledTimes(1);
   });
 
+  it('sustains the frame budget while editing (dragging) a drawing (RNF-202)', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    const originalTime = chartMocks.coordinateToTime.getMockImplementation();
+    const originalPrice = chartMocks.coordinateToPrice.getMockImplementation();
+    chartMocks.coordinateToTime.mockImplementation((x?: number) => 1_781_000_000 + (x ?? 0) * 60);
+    chartMocks.coordinateToPrice.mockImplementation((y?: number) => 1.5 + (y ?? 0) / 1000);
+    try {
+      const { container } = render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+      await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+      const host = container.querySelector('.chart-pane__host') as HTMLElement;
+      fireEvent.click(screen.getByRole('button', { name: 'Línea' }));
+      emitChartClick(1_781_000_000, 5, 5);
+      emitChartClick(1_781_003_600, 60, 80);
+
+      const scheduler = createManualScheduler();
+      const meter = new FrameRateMeter({
+        now: scheduler.now,
+        schedule: scheduler.schedule,
+        cancel: scheduler.cancel,
+      });
+      meter.start();
+      fireEvent(host, new MouseEvent('pointerdown', { clientX: 10, clientY: 40, bubbles: true }));
+      for (let frame = 0; frame < 60; frame += 1) {
+        for (let move = 0; move < 5; move += 1) {
+          fireEvent(
+            host,
+            new MouseEvent('pointermove', {
+              clientX: 10 + frame + move,
+              clientY: 40 + frame,
+              bubbles: true,
+            }),
+          );
+        }
+        scheduler.advance(FRAME_BUDGET_MS);
+      }
+      fireEvent(host, new MouseEvent('pointerup', { clientX: 80, clientY: 90, bubbles: true }));
+
+      const metrics = meter.stop();
+      expect(metrics.avgFps).toBeGreaterThan(58);
+      expect(metrics.droppedFrames).toBe(0);
+    } finally {
+      chartMocks.coordinateToTime.mockImplementation(originalTime ?? (() => 1_781_000_000));
+      chartMocks.coordinateToPrice.mockImplementation(originalPrice ?? (() => 1.5));
+    }
+  });
+
   it('batches crosshair legend updates to a single commit per frame', async () => {
     fetchMock.mockResolvedValue(createResponse(RESPONSE));
     render(<ChartPane symbol="EURUSD" timeframe="1h" />);

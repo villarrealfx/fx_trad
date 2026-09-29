@@ -34,7 +34,7 @@
 | Requisito | Diseño (ADR/Componente) | Tarea | Prueba | Estado |
 |-----------|-------------------------|-------|--------|--------|
 | RNF-201 Persistencia versionada robusta | `state/chart-config` (ADR-018) | TASK-UI-240, TASK-UI-241, TASK-UI-242 | [pendiente] | 🔵 |
-| RNF-202 Edición de dibujos a 60 FPS | `OverlayCanvas` + drawings (ADR-017) | TASK-UI-222, TASK-UI-224 | TASK-TEC-212 | 🔵 |
+| RNF-202 Edición de dibujos a 60 FPS | `OverlayCanvas` + drawings (ADR-017) | TASK-UI-222, TASK-UI-224, TASK-TEC-212 | `frontend/src/components/ChartPane/ChartPane.test.tsx` (frame budget), `_docs/benchmark-ui.md` | 🟢 |
 | RNF-203 0 regresiones | CI GitHub Actions (ADR-008) + suites | TASK-TEC-210 | `pytest` 546/2 + `vitest` 389 · ruff/black/mypy(src)/eslint/tsc OK | 🟢 |
 | RNF-204 Tokens de diseño | Design system frontend | TASK-UI-200 | `frontend/src/styles/__tests__/tokens.test.ts` (contraste + anti-drift) | 🟢 |
 | RNF-205 Activos nuevos misma latencia/contrato | `ingest` (ADR-021) | TASK-202, TASK-203 | [pendiente] | 🔵 |

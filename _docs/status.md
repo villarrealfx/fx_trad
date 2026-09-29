@@ -1,6 +1,6 @@
 # Estado del Proyecto: Mejoras UX (Ciclo 03)
 
-> Última actualización: 2026-09-29 13:40
+> Última actualización: 2026-09-29 13:45
 > Fuente: `_docs/backlog.md`, `_docs/traceability.md`
 
 ## 1. Resumen ejecutivo
@@ -8,25 +8,24 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 35 | — |
-| 📥 Backlog | 4 | -1 |
+| 📥 Backlog | 3 | -1 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | — |
-| ✅ Done | 31 | +1 |
+| ✅ Done | 32 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 89% | +3% |
+| % Completado | 91% | +2% |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso.
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (4)
+### 📥 Backlog (3)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
 | TASK-202 | `instrument_id` de los 5 pares en freeserv | EP-201 | 5 | 201 |
 | TASK-UI-224 | Tests de edición + profiling 60 FPS | EP-UI-202 | 3 | UI-222, UI-223 |
-| TASK-TEC-212 | Profiling 60 FPS global | TEC-201 | 2 | UI-224 |
 | TASK-TEC-213 | Documentación de cierre | TEC-201 | 2 | — |
 
 ### 🔨 Doing (0)
@@ -37,12 +36,12 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (31)
+### ✅ Done (32)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
-| TASK-TEC-210 | Suites completas sin regresiones | TEC-201 | 2026-09-29 | `pytest` 546/2 · `vitest` 389 · linters OK |
 | TASK-TEC-211 | axe-core + teclado por pantalla | TEC-201 | 2026-09-29 | `frontend/src/components/ChartPane/ChartPane.test.tsx` (axe + teclado) |
+| TASK-TEC-212 | Profiling 60 FPS (pan/zoom + edición) | TEC-201 | 2026-09-29 | `frontend/src/components/ChartPane/ChartPane.test.tsx`, `_docs/benchmark-ui.md` |
 | TASK-UI-231 | Gráfico a pantalla completa (H + V) | EP-UI-203 | 2026-09-29 | `frontend/src/__tests__/app.test.tsx` (sin altura fija) |
 | TASK-UI-270 | Biblioteca desde `GET /assets` (estados + a11y) | EP-UI-207 | 2026-09-29 | `frontend/src/components/AssetLibraryScreen/__tests__/AssetLibraryScreen.test.tsx` |
 | TASK-UI-280 | Multigráfico hereda mejoras (indicadores/header/edición) | EP-UI-208 | 2026-09-29 | `frontend/src/components/MultiChart/__tests__/MultiChart.test.tsx` |
@@ -103,7 +102,7 @@ Ninguno.
 
 ### 🟡 Advertencias
 
-- `TASK-TEC-212/213` (verificación final: profiling, docs) deben ejecutarse al cierre; vigilar que no se omitan.
+- `TASK-TEC-213` (documentación de cierre) pendiente.
 
 ### 🟢 Informativas
 
@@ -147,7 +146,7 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. Cierre: `TASK-TEC-212` (profiling 60 FPS), `TASK-TEC-213` (docs).
+1. Cierre: `TASK-TEC-213` (documentación de cierre de iteración).
 2. Backend/dominio: `TASK-202` (verificación empírica 1 m BID con acceso a red).
 
 ## 9. Historial de cambios (append-only)
@@ -186,3 +185,4 @@ Ninguno.
 | 2026-09-29 | TASK-UI-231 | 📥 → ✅ Done | Gráfico a pantalla completa vertical (sin altura fija); autorización explícita |
 | 2026-09-29 | TASK-TEC-210 | 📥 → ✅ Done | Suites backend 546/2 y frontend 389 en verde; sin regresiones (RNF-203) |
 | 2026-09-29 | TASK-TEC-211 | 📥 → ✅ Done | axe-core sin violaciones en el Gráfico real + teclado operativo (ACC-201) |
+| 2026-09-29 | TASK-TEC-212 | 📥 → ✅ Done | Medición 60 FPS (pan/zoom + edición) documentada; 0 frames caídos (RNF-202) |
