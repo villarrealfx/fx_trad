@@ -33,6 +33,8 @@ interface HarnessProps {
   initial: ReadonlyArray<OverlayShape>;
   enabled?: boolean;
   onShapes: (shapes: ReadonlyArray<OverlayShape>) => void;
+  onGestureStart?: () => void;
+  onGestureEnd?: () => void;
 }
 
 /** Emite un evento de puntero con coordenadas sobre el host (jsdom). */
@@ -41,7 +43,13 @@ function emitPointer(host: HTMLElement, type: string, x: number, y: number): voi
 }
 
 /** Harness que monta el hook sobre un div y publica los trazos resultantes. */
-function Harness({ initial, enabled = true, onShapes }: HarnessProps) {
+function Harness({
+  initial,
+  enabled = true,
+  onShapes,
+  onGestureStart,
+  onGestureEnd,
+}: HarnessProps) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const [shapes, setShapes] = useState<ReadonlyArray<OverlayShape>>(initial);
   const edit = useDrawingEdit({
@@ -50,6 +58,8 @@ function Harness({ initial, enabled = true, onShapes }: HarnessProps) {
     getInverseMapper: () => inverseMapper,
     shapes,
     onShapesChange: setShapes,
+    onGestureStart,
+    onGestureEnd,
     enabled,
   });
 
@@ -172,5 +182,46 @@ describe('useDrawingEdit', () => {
       from: { time: 2, price: 0 },
       to: { time: 12, price: 10 },
     });
+  });
+
+  it('notifica el inicio y el fin del gesto durante el arrastre', () => {
+    const onGestureStart = vi.fn();
+    const onGestureEnd = vi.fn();
+    const { getByTestId } = render(
+      <Harness
+        initial={[LINE]}
+        onShapes={() => {}}
+        onGestureStart={onGestureStart}
+        onGestureEnd={onGestureEnd}
+      />,
+    );
+    const host = getByTestId('host');
+
+    emitPointer(host, 'pointerdown', 5, 5);
+    emitPointer(host, 'pointermove', 6, 6);
+    emitPointer(host, 'pointerup', 6, 6);
+
+    expect(onGestureStart).toHaveBeenCalledTimes(1);
+    expect(onGestureEnd).toHaveBeenCalledTimes(1);
+  });
+
+  it('no notifica gesto al tocar un área vacía', () => {
+    const onGestureStart = vi.fn();
+    const onGestureEnd = vi.fn();
+    const { getByTestId } = render(
+      <Harness
+        initial={[LINE]}
+        onShapes={() => {}}
+        onGestureStart={onGestureStart}
+        onGestureEnd={onGestureEnd}
+      />,
+    );
+    const host = getByTestId('host');
+
+    emitPointer(host, 'pointerdown', 100, 100);
+    emitPointer(host, 'pointerup', 100, 100);
+
+    expect(onGestureStart).not.toHaveBeenCalled();
+    expect(onGestureEnd).not.toHaveBeenCalled();
   });
 });

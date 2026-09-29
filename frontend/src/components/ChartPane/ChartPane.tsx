@@ -33,6 +33,7 @@ import {
   type PriceTimePoint,
 } from '../../charting/overlay-geometry';
 import { useDrawingEdit } from '../../charting/use-drawing-edit';
+import { useDrawingHistory } from '../../charting/use-drawing-history';
 import { createFrameBatcher, type FrameBatcher } from '../../performance/frame-batch';
 import { composeChartCanvas, type ExportScale } from '../../export';
 import ChartToolbar, { type ChartToolDescriptor } from '../ChartToolbar/ChartToolbar';
@@ -163,7 +164,9 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
   const candlesRef = useRef<ReadonlyArray<Candle>>([]);
   const [markers, setMarkers] = useState<ReadonlyArray<MarkerShape>>([]);
   const [activeTool, setActiveTool] = useState<ActiveTool>(DEFAULT_MARKER_TOOL);
-  const [drawnShapes, setDrawnShapes] = useState<ReadonlyArray<OverlayShape>>([]);
+  /** Historial reversible de los trazos creados/editados (RF-213). */
+  const history = useDrawingHistory(EMPTY_DRAWINGS);
+  const drawnShapes = history.shapes;
   const [drawFrom, setDrawFrom] = useState<PriceTimePoint | null>(null);
   const [previewShape, setPreviewShape] = useState<OverlayShape | null>(null);
   const [selectedMarkerId, setSelectedMarkerId] = useState<string | null>(null);
@@ -184,7 +187,9 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
       coordinateToPrice: (y) => seriesRef.current?.coordinateToPrice(y) ?? null,
     }),
     shapes: drawnShapes,
-    onShapesChange: setDrawnShapes,
+    onShapesChange: history.update,
+    onGestureStart: history.begin,
+    onGestureEnd: history.end,
     enabled: status === 'success' && activeTool !== 'erase',
   });
 
@@ -452,7 +457,7 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
     }
     const hit = drawnShapes.find((shape) => shapeHitTest(shape, cursor));
     if (hit !== undefined) {
-      setDrawnShapes((current) => current.filter((shape) => shape.id !== hit.id));
+      history.update((current) => current.filter((shape) => shape.id !== hit.id));
     }
   }
 
@@ -472,7 +477,7 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
         : activeTool === 'rect'
           ? { id, kind: 'rect', from: drawFrom, to: anchor }
           : { id, kind: 'fib', from: drawFrom, to: anchor };
-    setDrawnShapes((current) => [...current, shape]);
+    history.update((current) => [...current, shape]);
     setDrawFrom(null);
     setPreviewShape(null);
   }
@@ -545,6 +550,21 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
 
   /** Maneja los atajos de teclado del panel (+/− zoom, 1 ajustar, Esc cancelar). */
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>): void {
+    const modifier = event.ctrlKey || event.metaKey;
+    if (modifier && (event.key === 'z' || event.key === 'Z')) {
+      event.preventDefault();
+      if (event.shiftKey) {
+        history.redo();
+      } else {
+        history.undo();
+      }
+      return;
+    }
+    if (modifier && (event.key === 'y' || event.key === 'Y')) {
+      event.preventDefault();
+      history.redo();
+      return;
+    }
     if (event.key === 'Escape') {
       if (selectedMarkerId !== null) {
         event.preventDefault();
@@ -649,6 +669,10 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
         active={activeTool}
         onTool={setActiveTool}
         onZoomFit={() => chartRef.current?.timeScale().fitContent()}
+        onUndo={history.undo}
+        onRedo={history.redo}
+        canUndo={history.canUndo}
+        canRedo={history.canRedo}
       />
       <div className="chart-pane__graph">
         <div

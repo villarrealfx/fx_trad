@@ -37,6 +37,10 @@ export interface UseDrawingEditOptions {
   shapes: ReadonlyArray<OverlayShape>;
   /** Actualiza los trazos (recibe un updater funcional). */
   onShapesChange: (updater: (current: ReadonlyArray<OverlayShape>) => OverlayShape[]) => void;
+  /** Notifica el inicio de un arrastre (agrupa el gesto en el historial). */
+  onGestureStart?: () => void;
+  /** Notifica el fin de un arrastre. */
+  onGestureEnd?: () => void;
   /** Habilita la edición; por defecto `true`. */
   enabled?: boolean;
 }
@@ -108,6 +112,8 @@ export function useDrawingEdit({
   getInverseMapper,
   shapes,
   onShapesChange,
+  onGestureStart,
+  onGestureEnd,
   enabled = true,
 }: UseDrawingEditOptions): DrawingEdit {
   const [selectedShapeId, setSelectedShapeId] = useState<string | null>(null);
@@ -131,6 +137,7 @@ export function useDrawingEdit({
     event.stopPropagation();
     event.preventDefault();
     event.currentTarget.setPointerCapture?.(event.pointerId);
+    onGestureStart?.();
     if (target.handle !== null) {
       dragRef.current = { kind: 'resize', id: target.id, handle: target.handle };
     } else {
@@ -173,12 +180,14 @@ export function useDrawingEdit({
     dragRef.current = null;
     event.stopPropagation();
     event.currentTarget.releasePointerCapture?.(event.pointerId);
+    onGestureEnd?.();
   };
 
   const onPointerCancel = (event: ReactPointerEvent<HTMLElement>): void => {
     if (dragRef.current === null) return;
     dragRef.current = null;
     event.currentTarget.releasePointerCapture?.(event.pointerId);
+    onGestureEnd?.();
   };
 
   return {

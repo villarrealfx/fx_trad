@@ -19,6 +19,14 @@ export interface ChartToolbarProps {
   onTool: (type: ChartToolType) => void;
   /** Ajusta la vista a toda la serie (atajo `1`). */
   onZoomFit: () => void;
+  /** Deshace el último cambio de dibujos (RF-213). */
+  onUndo?: () => void;
+  /** Rehace el último cambio deshecho (RF-213). */
+  onRedo?: () => void;
+  /** Habilita el botón de deshacer. */
+  canUndo?: boolean;
+  /** Habilita el botón de rehacer. */
+  canRedo?: boolean;
   /** Deshabilita todas las acciones (p. ej. mientras carga). */
   disabled?: boolean;
 }
@@ -35,6 +43,10 @@ export default function ChartToolbar({
   active,
   onTool,
   onZoomFit,
+  onUndo,
+  onRedo,
+  canUndo = false,
+  canRedo = false,
   disabled = false,
 }: ChartToolbarProps) {
   return (
@@ -50,6 +62,26 @@ export default function ChartToolbar({
           disabled={disabled}
         />
       ))}
+      <button
+        type="button"
+        className="chart-toolbar__action"
+        aria-label="Deshacer"
+        title="Deshacer (Ctrl+Z)"
+        disabled={disabled || !canUndo}
+        onClick={onUndo}
+      >
+        <span aria-hidden="true">↶</span>
+      </button>
+      <button
+        type="button"
+        className="chart-toolbar__action"
+        aria-label="Rehacer"
+        title="Rehacer (Ctrl+Shift+Z)"
+        disabled={disabled || !canRedo}
+        onClick={onRedo}
+      >
+        <span aria-hidden="true">↷</span>
+      </button>
       <button
         type="button"
         className="chart-toolbar__action"

@@ -497,6 +497,25 @@ describe('ChartPane', () => {
     expect(ctx.moveTo).toHaveBeenCalledWith(10, 40);
   });
 
+  it('undoes and redoes a drawn line with keyboard shortcuts', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    const { container } = render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+    fireEvent.click(screen.getByRole('button', { name: 'Línea' }));
+    emitChartClick(1_781_000_000, 5, 5);
+    emitChartClick(1_781_003_600, 60, 80);
+    const host = container.querySelector('.chart-pane__host') as HTMLElement;
+    const shapesCount = (): string | null =>
+      container.querySelector('.chart-pane')?.getAttribute('data-shapes') ?? null;
+    expect(shapesCount()).toBe('1');
+
+    fireEvent.keyDown(host, { key: 'z', ctrlKey: true });
+    expect(shapesCount()).toBe('0');
+
+    fireEvent.keyDown(host, { key: 'z', ctrlKey: true, shiftKey: true });
+    expect(shapesCount()).toBe('1');
+  });
+
   it('draws a rectangle from two clicks with the rect tool', async () => {
     fetchMock.mockResolvedValue(createResponse(RESPONSE));
     const { container } = render(<ChartPane symbol="EURUSD" timeframe="1h" />);
