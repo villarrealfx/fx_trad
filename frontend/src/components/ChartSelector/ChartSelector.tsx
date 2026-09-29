@@ -72,10 +72,16 @@ export default function ChartSelector({ onOpen, defaultSymbol, onDownload }: Cha
   }, [load]);
 
   const selected = assets.find((asset) => asset.symbol === symbol);
-  const minDay = selected !== undefined ? epochToIsoDay(selected.coverage_start) : undefined;
-  const maxDay = selected !== undefined ? epochToIsoDay(selected.coverage_end) : undefined;
+  // El catálogo de la biblioteca siempre trae cobertura; se contempla `null` por
+  // el contrato de `GET /assets` (scope=all) sin romper el tipado.
+  const coverageStart = selected?.coverage_start ?? null;
+  const coverageEnd = selected?.coverage_end ?? null;
+  const minDay = coverageStart !== null ? epochToIsoDay(coverageStart) : undefined;
+  const maxDay = coverageEnd !== null ? epochToIsoDay(coverageEnd) : undefined;
   const coverageRange =
-    selected !== undefined ? formatEpochRange(selected.coverage_start, selected.coverage_end) : '';
+    coverageStart !== null && coverageEnd !== null
+      ? formatEpochRange(coverageStart, coverageEnd)
+      : '';
   const partialMessage =
     selected !== undefined
       ? `La cobertura de ${selected.symbol} es parcial. Rango útil exacto: ${coverageRange}.`

@@ -39,18 +39,20 @@ vi.mock('../services/downloads', () => ({
   DownloadError: class extends Error {},
 }));
 
-vi.mock('../services/assets', () => ({
-  fetchAssets: vi.fn().mockResolvedValue([
-    {
-      symbol: 'EURUSD',
-      type: 'forex',
-      coverage_start: 1725580800,
-      coverage_end: 1788134399,
-      status: 'completo',
-    },
-  ]),
-  AssetsError: class extends Error {},
-}));
+vi.mock('../services/assets', () => {
+  const row = {
+    symbol: 'EURUSD',
+    type: 'forex',
+    coverage_start: 1725580800,
+    coverage_end: 1788134399,
+    status: 'completo',
+  };
+  return {
+    fetchAssets: vi.fn().mockResolvedValue([row]),
+    fetchCatalog: vi.fn().mockResolvedValue([row]),
+    AssetsError: class extends Error {},
+  };
+});
 
 describe('accesibilidad (axe-core)', () => {
   afterEach(() => {

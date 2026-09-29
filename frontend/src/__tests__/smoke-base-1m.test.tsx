@@ -37,7 +37,7 @@ vi.mock('../export', () => ({
 
 vi.mock('../services/assets', () => ({
   fetchAssets: vi.fn().mockResolvedValue([]),
-  AssetsError: class extends Error {},
+  fetchCatalog: vi.fn().mockResolvedValue([]),
 }));
 
 vi.mock('../services/downloads', () => ({

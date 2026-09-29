@@ -27,7 +27,7 @@ import structlog
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, Field
 
-from fxtrad.api.catalog import AssetRow, CatalogQuery
+from fxtrad.api.catalog import AssetRow, CatalogQuery, CatalogScope
 from fxtrad.api.downloads import DownloadHistoryQuery, DownloadHistoryRow
 from fxtrad.contracts.ohlc import OhlcResponse, Timeframe
 from fxtrad.ingest import DownloadInfo, DownloadQueue, DownloadRequest, DownloadStatusQuery
@@ -111,21 +111,24 @@ CatalogQueryDependency = Annotated[CatalogQuery, Depends(_get_catalog_query)]
 def get_assets(
     request: Request,
     catalog_query: CatalogQueryDependency,
+    scope: CatalogScope = "stored",
 ) -> list[AssetRow]:
     """Devuelve los activos con cobertura y estado en el contrato CMP-006.
 
-    Compone el catálogo canónico de RF-001 con la cobertura almacenada en el
-    Parquet 1s y el último estado de descarga (RF-007, TASK-020): la
-    biblioteca del frontend lista solo activos con datos guardados (SCR-001).
+    Con ``scope="stored"`` (default) lista solo activos con datos guardados para
+    la biblioteca (SCR-001, RF-007). Con ``scope="all"`` devuelve todo el
+    catálogo canónico (incluidos activos sin datos) para el formulario de
+    descarga (SCR-002, RF-216).
 
     Args:
         request: Request HTTP (para correlación).
         catalog_query: Consulta de catálogo inyectada (cobertura + estado).
+        scope: ``stored`` (solo con datos) o ``all`` (catálogo completo).
 
     Returns:
-        Filas de activos con datos almacenados, en orden canónico.
+        Filas de activos en orden canónico.
     """
-    rows = catalog_query.list()
+    rows = catalog_query.list(scope)
     logger.info(
         "catalogo_activos_consultado",
         correlation_id=request.headers.get("x-correlation-id"),

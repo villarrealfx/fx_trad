@@ -160,6 +160,46 @@ class TestAssetsNewForexPairs:
         assert all(set(row) == expected_keys for row in rows)
 
 
+class TestAssetsScopeAll:
+    """TASK-204: `scope=all` devuelve el catálogo canónico completo (SCR-002)."""
+
+    def test_scope_all_includes_assets_without_data(self) -> None:
+        client = _client(coverage={"EURUSD": (_BASE_TIME, _BASE_TIME + _HOUR)})
+
+        body = client.get("/assets", params={"scope": "all"}).json()
+
+        symbols = [row["symbol"] for row in body]
+        assert len(body) == 12
+        assert "GBPJPY" in symbols
+        uncovered = next(row for row in body if row["symbol"] == "GBPJPY")
+        assert uncovered["status"] == "sin_datos"
+        assert uncovered["coverage_start"] is None
+        assert uncovered["coverage_end"] is None
+
+    def test_scope_all_keeps_coverage_for_stored_assets(self) -> None:
+        client = _client(coverage={"EURUSD": (_BASE_TIME, _BASE_TIME + _HOUR)})
+
+        body = client.get("/assets", params={"scope": "all"}).json()
+
+        stored = next(row for row in body if row["symbol"] == "EURUSD")
+        assert stored["status"] == "completo"
+        assert stored["coverage_start"] == _BASE_TIME
+
+    def test_default_scope_is_stored(self) -> None:
+        client = _client(coverage={"EURUSD": (_BASE_TIME, _BASE_TIME + _HOUR)})
+
+        body = client.get("/assets").json()
+
+        assert [row["symbol"] for row in body] == ["EURUSD"]
+
+    def test_unknown_scope_is_rejected(self) -> None:
+        client = _client(coverage={"EURUSD": (_BASE_TIME, _BASE_TIME + _HOUR)})
+
+        response = client.get("/assets", params={"scope": "bogus"})
+
+        assert response.status_code == 422
+
+
 class TestAssetStatusMapping:
     """El estado se deriva del último registro de descarga (SCR-001)."""
 

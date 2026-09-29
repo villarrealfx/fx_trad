@@ -32,6 +32,7 @@ export interface AssetListProps {
 const STATUS_LABELS: Record<AssetRow['status'], string> = {
   completo: 'completo',
   parcial: 'parcial',
+  sin_datos: 'sin datos',
 };
 
 /**
@@ -87,7 +88,11 @@ export default function AssetList({
           {rows.map((row) => (
             <tr key={row.symbol}>
               <td className="asset-list__symbol">{row.symbol}</td>
-              <td>{formatEpochRange(row.coverage_start, row.coverage_end)}</td>
+              <td>
+                {row.coverage_start !== null && row.coverage_end !== null
+                  ? formatEpochRange(row.coverage_start, row.coverage_end)
+                  : '—'}
+              </td>
               <td>
                 <span className={`asset-list__status asset-list__status--${row.status}`}>
                   {STATUS_LABELS[row.status]}

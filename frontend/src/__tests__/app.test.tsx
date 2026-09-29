@@ -43,18 +43,20 @@ vi.mock('../export', () => ({
   downloadBlob: exportMocks.downloadBlob,
 }));
 
-vi.mock('../services/assets', () => ({
-  fetchAssets: vi.fn().mockResolvedValue([
-    {
-      symbol: 'EURUSD',
-      type: 'forex',
-      coverage_start: Math.floor(Date.parse('2024-09-06T00:00:00Z') / 1000),
-      coverage_end: Math.floor(Date.parse('2026-08-31T23:59:59Z') / 1000),
-      status: 'completo',
-    },
-  ]),
-  AssetsError: class extends Error {},
-}));
+vi.mock('../services/assets', () => {
+  const row = {
+    symbol: 'EURUSD',
+    type: 'forex',
+    coverage_start: Math.floor(Date.parse('2024-09-06T00:00:00Z') / 1000),
+    coverage_end: Math.floor(Date.parse('2026-08-31T23:59:59Z') / 1000),
+    status: 'completo',
+  };
+  return {
+    fetchAssets: vi.fn().mockResolvedValue([row]),
+    fetchCatalog: vi.fn().mockResolvedValue([row]),
+    AssetsError: class extends Error {},
+  };
+});
 
 vi.mock('../services/downloads', () => ({
   requestDownload: vi.fn(),

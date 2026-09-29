@@ -15,6 +15,18 @@ vi.mock('../../../services/downloads', () => ({
   DownloadError: class extends Error {},
 }));
 
+vi.mock('../../../services/assets', () => ({
+  fetchCatalog: vi.fn().mockResolvedValue([
+    {
+      symbol: 'EURUSD',
+      type: 'forex',
+      coverage_start: 1,
+      coverage_end: 2,
+      status: 'completo',
+    },
+  ]),
+}));
+
 const HISTORY_ROW = {
   date: '2026-08-18T12:00:00Z',
   active: 'EURUSD',

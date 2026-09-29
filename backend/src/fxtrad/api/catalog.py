@@ -20,12 +20,17 @@ from pydantic import BaseModel, ConfigDict, Field
 from fxtrad.ingest import ASSET_CATALOG, AssetType
 from fxtrad.storage import DownloadMetadataStore, ParquetSeriesStore
 
-AssetStatus = Literal["completo", "parcial"]
-"""Estado de la cobertura de un activo en la biblioteca (SCR-001).
+AssetStatus = Literal["completo", "parcial", "sin_datos"]
+"""Estado de cobertura de un activo (CMP-006).
 
 - ``completo``: la última descarga registrada terminó con éxito.
 - ``parcial``: la última descarga quedó parcial o fallida (interaction-specs).
+- ``sin_datos``: el activo está en el catálogo canónico pero no tiene datos
+  almacenados (solo aparece con ``scope=all``, para el formulario de descarga).
 """
+
+CatalogScope = Literal["stored", "all"]
+"""Alcance del catálogo: solo activos con datos (biblioteca) o todo el canónico."""
 
 
 class AssetRow(BaseModel):
@@ -34,18 +39,18 @@ class AssetRow(BaseModel):
     Attributes:
         symbol: Identificador canónico del activo (RF-001).
         type: Categoría del activo (forex, metal u oil).
-        coverage_start: Inicio de la cobertura almacenada en segundos UTC.
-        coverage_end: Fin de la cobertura almacenada en segundos UTC.
-        status: Estado de la cobertura (completo o parcial).
+        coverage_start: Inicio de la cobertura en segundos UTC; ``None`` sin datos.
+        coverage_end: Fin de la cobertura en segundos UTC; ``None`` sin datos.
+        status: Estado de la cobertura (completo/parcial/sin_datos).
     """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     symbol: str = Field(description="Identificador canónico del activo (RF-001).")
     type: AssetType = Field(description="Categoría del activo (forex, metal u oil).")
-    coverage_start: int = Field(description="Inicio de la cobertura en segundos UTC.")
-    coverage_end: int = Field(description="Fin de la cobertura en segundos UTC.")
-    status: AssetStatus = Field(description="Estado de la cobertura (completo/parcial).")
+    coverage_start: int | None = Field(description="Inicio de la cobertura en segundos UTC.")
+    coverage_end: int | None = Field(description="Fin de la cobertura en segundos UTC.")
+    status: AssetStatus = Field(description="Estado de la cobertura (completo/parcial/sin_datos).")
 
 
 class CatalogQuery:
@@ -66,13 +71,19 @@ class CatalogQuery:
         self._series_store = series_store
         self._metadata_store = metadata_store
 
-    def list(self) -> list[AssetRow]:
+    def list(self, scope: CatalogScope = "stored") -> list[AssetRow]:
         """Devuelve las filas del catálogo en orden canónico (CMP-006).
 
-        Incluye únicamente los activos con cobertura almacenada en la base 1s.
-        El ``status`` se deriva del último registro de descarga del activo:
+        Con ``scope="stored"`` (biblioteca, SCR-001) incluye solo activos con
+        cobertura almacenada. Con ``scope="all"`` (formulario de descarga,
+        SCR-002) incluye todo el catálogo canónico; los activos sin datos llevan
+        ``coverage_start``/``coverage_end`` a ``None`` y ``status="sin_datos"``.
+        El ``status`` con datos se deriva del último registro de descarga:
         ``exito`` -> ``completo``; ``parcial``/``fallo`` -> ``parcial``; sin
         registro previo -> ``completo``.
+
+        Args:
+            scope: ``stored`` (solo con datos) o ``all`` (catálogo completo).
 
         Returns:
             Filas de activos ordenadas según ``ASSET_CATALOG``.
@@ -82,6 +93,16 @@ class CatalogQuery:
         for asset in ASSET_CATALOG:
             coverage = self._series_store.coverage(asset.symbol)
             if coverage is None:
+                if scope == "all":
+                    rows.append(
+                        AssetRow(
+                            symbol=asset.symbol,
+                            type=asset.type,
+                            coverage_start=None,
+                            coverage_end=None,
+                            status="sin_datos",
+                        )
+                    )
                 continue
             rows.append(
                 AssetRow(
@@ -111,4 +132,4 @@ class CatalogQuery:
         return states
 
 
-__all__ = ["AssetRow", "AssetStatus", "CatalogQuery"]
+__all__ = ["AssetRow", "AssetStatus", "CatalogQuery", "CatalogScope"]

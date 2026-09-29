@@ -27,7 +27,7 @@
 | RF-217 Backend de nuevos activos | `ingest.catalog`/`freeserv` + `api` (ADR-021) | TASK-201, TASK-202, TASK-203 | `backend/tests/ingest/test_catalog.py`, `tests/api/test_assets_endpoint.py` (contrato) | 🔵 |
 | RF-218 Abrir centrada | `OpenChartScreen` (layout) | TASK-UI-260 | `frontend/src/__tests__/app.test.tsx` (contenedor centrado) | 🟢 |
 | RF-219 Retirar `1s` de la UI | `contracts/ohlc` + `pipeline/resample` (ADR-020) | TASK-205, TASK-206, TASK-UI-261 | `backend/tests/contracts/test_ohlc_contract.py`, `frontend/src/components/ChartSelector/__tests__/ChartSelector.test.tsx` (sin `1s`) | 🟢 |
-| RF-220 `GET /assets` + retirar espejo | `catalog` + `GET /assets` (ADR-021) | TASK-204, TASK-UI-270 | [pendiente] | 🔵 |
+| RF-220 `GET /assets` + retirar espejo | `services/assets` + `GET /assets?scope=all` (ADR-021) | TASK-203, TASK-204, TASK-UI-270 | `backend/tests/api/test_assets_endpoint.py`, `frontend/src/services/__tests__/assets.test.ts` | 🔵 |
 
 ## Requisitos no funcionales
 
@@ -59,7 +59,7 @@
 | Requisito | Diseño (ADR/Componente) | Tarea | Prueba | Estado |
 |-----------|-------------------------|-------|--------|--------|
 | RX-201 Dukascopy sirve los 5 pares nuevos | `ingest.freeserv.FREESERV_INSTRUMENT` (ADR-021) | TASK-201, TASK-202 | `backend/tests/ingest/test_freeserv.py` (mapeo; verificación empírica pendiente) | 🔵 |
-| RX-202 Frontend consume `GET /assets` | `services/assets` + `catalog` (ADR-021) | TASK-204, TASK-UI-270 | [pendiente] | 🔵 |
+| RX-202 Frontend consume `GET /assets` | `services/assets` (ADR-021) | TASK-204, TASK-UI-270 | `frontend/src/services/__tests__/assets.test.ts` (scope) | 🔵 |
 | RX-001 Integración Dukascopy (heredado) | `ingest` (ADR-010) | Heredado (01/02) | [pendiente] | 🔵 |
 
 ## Modificaciones a requisitos previos
