@@ -12,7 +12,7 @@
 | RF-202 Eliminar panel inferior + fullscreen | `IndicatorForm`/`ChartPane` (ADR-019) | TASK-UI-213, TASK-UI-231 | [pendiente] | 🔵 |
 | RF-203 Formulario flotante de indicadores | `IndicatorForm` + `ChartHeader` (ADR-019) | TASK-UI-212, TASK-UI-214 | `frontend/src/components/IndicatorForm/__tests__/IndicatorForm.test.tsx`, `.../IndicatorForm.a11y.test.tsx` (axe) | 🟢 |
 | RF-204 Persistir config al cambiar de hoja | `state/chart-config` + `use-chart-config` (ADR-018) | TASK-UI-240, TASK-UI-241 | `frontend/src/state/__tests__/use-chart-config.test.tsx` (navegar/recargar) | 🟢 |
-| RF-205 Export en el header | `ChartHeader` (ADR-019) | TASK-UI-210, TASK-UI-232 | `frontend/src/components/ChartHeader/__tests__/ChartHeader.test.tsx`, `frontend/src/__tests__/app.test.tsx` | 🔵 |
+| RF-205 Export en el header | `ChartHeader` (ADR-019) | TASK-UI-210, TASK-UI-232 | `.../ChartHeader.test.tsx`, `.../ChartPane.test.tsx` (disparo desde header), `frontend/src/__tests__/app.test.tsx` (modal) | 🟢 |
 | RF-206 Eje X con hora:minuto | `axis-format.formatAxisLabel` (ADR-005) | TASK-UI-230 | `frontend/src/charting/__tests__/axis-format.test.ts` | 🟢 |
 | RF-207 Eje Y 5 decimales (derecha) | `axis-format.PRICE_FORMAT` (ADR-005) | TASK-UI-230 | `frontend/src/charting/__tests__/axis-format.test.ts`, `.../ChartPane.test.tsx` | 🟢 |
 | RF-208 Marcas compra/venta fuera de la vela | `charting/markers` (ADR-017) | TASK-UI-223 | `frontend/src/charting/__tests__/markers.test.ts` (offset 10 pips) | 🟢 |

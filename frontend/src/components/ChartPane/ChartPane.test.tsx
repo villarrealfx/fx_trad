@@ -614,6 +614,19 @@ describe('ChartPane', () => {
     expect(chartMocks.fitContent).toHaveBeenCalledTimes(1);
   });
 
+  it('triggers export from the header action (TASK-UI-232)', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    const onExport = vi.fn();
+    render(<ChartPane symbol="EURUSD" timeframe="1h" onExport={onExport} />);
+    const exportButton = (): HTMLButtonElement =>
+      screen.getByRole('button', { name: 'Exportar' }) as HTMLButtonElement;
+    await waitFor(() => expect(exportButton().disabled).toBe(false));
+
+    fireEvent.click(exportButton());
+
+    expect(onExport).toHaveBeenCalledTimes(1);
+  });
+
   it('configures the axis formats (RF-206/RF-207)', async () => {
     fetchMock.mockResolvedValue(createResponse(RESPONSE));
     render(<ChartPane symbol="EURUSD" timeframe="1h" />);
