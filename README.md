@@ -16,15 +16,17 @@ exportación a imagen.
 |-----------|--------|---------------|--------|
 | 01 — MVP (plataforma + visualización) | 66 / 66 | 29 / 29 | ✅ Cerrada |
 | 02 — Optimización de descarga y base 1 m | 24 / 24 | 19 / 19 | ✅ Cerrada |
+| 03 — Mejoras UX | 32 / 35 | en curso | 🔄 Casi cerrada (`TASK-202` pendiente) |
 
 | Calidad | Valor |
 |---------|-------|
-| Backend | 536 tests ✅ + 2 skip · ruff · black · mypy |
-| Frontend | 286 tests ✅ · eslint · tsc · prettier · axe-core |
-| Rendimiento | descarga 1 año 1 m = **309,9 s** (≤900 s) · escritura Parquet 726k = **52,1 µs/vela** |
+| Backend | 546 tests ✅ + 2 skip · ruff · black · mypy |
+| Frontend | 392 tests ✅ · eslint · tsc · prettier · axe-core |
+| Rendimiento | descarga 1 año 1 m = **309,9 s** (≤900 s) · escritura Parquet 726k = **52,1 µs/vela** · UI pan/zoom y edición **≥60 FPS** (`benchmark-ui.md`) |
 
 Fuentes de verdad: `_docs/iterations/01-mvp/status.md`,
-`_docs/iterations/02-optimizacion-descarga/status.md` (y sus `backlog.md`/`traceability.md`).
+`_docs/iterations/02-optimizacion-descarga/status.md` y `_docs/status.md`
+(ciclo 03 activo; backlog, trazabilidad y cierre en `_docs/`).
 
 ### Qué cambió en la iteración 02
 
@@ -38,6 +40,23 @@ fragmentaba el rango **hora a hora**. La iteración 02 reescribió el transporte
 - **Tandas de 6–12 meses** con progreso y **reanudación** por rango restante
   (`ADR-015`).
 - Celery/RabbitMQ se conservan (`ADR-016`).
+
+### Qué cambió en la iteración 03 (Mejoras UX)
+
+La base de datos ya era correcta; el cuello de botella pasó a la experiencia de
+análisis. El ciclo 03 rediseña el Gráfico, la Descarga y Abrir (`ADR-017…021`):
+
+- **Indicadores a petición**: ninguno por defecto; formulario flotante
+  (mostrar/ocultar, configurar, eliminar) en el header (`ADR-019`).
+- **Dibujos editables**: mover y redimensionar, con **deshacer/rehacer**
+  (command stack) y paleta mate (`ADR-017`).
+- **Configuración persistente** por activo+timeframe en `localStorage`
+  versionado (activo, timeframe, indicadores, dibujos) (`ADR-018`).
+- **Catálogo único** vía `GET /assets?scope=all` (se eliminó el espejo del
+  frontend) y **5 pares forex nuevos** (GBPJPY, EURJPY, AUDUSD, USDCAD, EURGBP)
+  (`ADR-021`).
+- **Ejes** con hora:minuto y **5 decimales**; **fullscreen** vertical; marcas de
+  compra/venta fuera de la vela; contrato `Timeframe` **sin `1s`** (`ADR-020`).
 
 ## Stack
 
@@ -84,20 +103,20 @@ El **worker** no es un directorio propio: es la imagen del backend
 fxtrad/
 ├── backend/                  # FastAPI + Celery + pipeline + storage (Python 3.12)
 │   ├── src/fxtrad/           #   api · ingest · pipeline · storage · contracts · logging_config
-│   ├── tests/                #   pytest (536 tests + 2 skip)
+│   ├── tests/                #   pytest (546 tests + 2 skip)
 │   ├── scripts/              #   benchmark_parquet.py (RNF-102) · benchmark_download.py (RNF-101)
 │   ├── Dockerfile            #   imagen multi-stage: api | worker
 │   └── pyproject.toml        #   ruff · black · mypy · pytest (uv)
 ├── frontend/                 # SPA React 18 + Vite 5 + TS 5 + lightweight-charts
 │   ├── src/                  #   components · charting · export · indicators · services
 │   ├── Dockerfile            #   Vite dev con proxy a la API
-│   ├── package.json          #   eslint · prettier · tsc · vitest (286 tests)
+│   ├── package.json          #   eslint · prettier · tsc · vitest (392 tests)
 │   └── smoke-test.md         #   checklist de smoke de escritorio (RNF-005)
 ├── contracts/                # contrato OHLC canónico (JSON schema + md)
 ├── data/                     # Parquet + DuckDB locales (gitignored; volumen de compose)
 ├── docker-compose.yml        # 4 servicios: frontend, backend, worker, broker
 ├── docker-compose.worker.yml # RabbitMQ + worker (E2E de descarga)
-├── _docs/                    # SDD: iterations/01-mvp · iterations/02-optimizacion-descarga · adr/ · glossary · logging-contract · license-audit
+├── _docs/                    # SDD: ciclo 03 activo (plan/requirements/architecture/ux/backlog/status) · iterations/01-mvp · 02-optimizacion-descarga · 03-mejoras-ux · adr/ · glossary · logging-contract · license-audit
 ├── Makefile                  # lint · format · test · build · compose · benchmark
 └── .editorconfig
 ```
@@ -217,8 +236,8 @@ apuntar a otro backend, define `VITE_PROXY_TARGET`.
 | `GET` | `/series` | Serie OHLC: `?symbol&timeframe&start&end` → `{symbol, timeframe, candles:[{time,open,high,low,close}]}` |
 
 `timeframe` ∈ `1m, 5m, 15m, 1h, 4h, 1d` (la base es **1 m**, por defecto en
-`/series`). Los timestamps son segundos UTC. El contrato `Timeframe` conserva
-`1s`, pero el backend lo **rechaza** (400) al no ser derivable de la base 1 m.
+`/series`). Los timestamps son segundos UTC. El contrato `Timeframe` ya **no
+incluye `1s`** (`ADR-020`); una petición con `1s` se rechaza con **422**.
 
 ## Flujo de la interfaz
 
@@ -301,6 +320,9 @@ paralelo, reutilizando el Makefile:
 - **Iteración 02 (Optimización y base 1 m):**
   `_docs/iterations/02-optimizacion-descarga/` (plan, requirements, architecture,
   adr/ADR-012…016, backlog, status, traceability, benchmark-download, license-audit, _cierre).
+- **Iteración 03 (Mejoras UX, activa):** raíz `_docs/` (plan, requirements,
+  architecture, adr/ADR-017…021, ux/, backlog, status, traceability,
+  `benchmark-ui.md`); histórico en `_docs/iterations/03-mejoras-ux/`.
 - **Transversal:** `_docs/adr/` (ADR-001…011) · `_docs/glossary.md` ·
   `_docs/logging-contract.md` · `_docs/license-audit.md`.
 - **Smoke de escritorio:** `frontend/smoke-test.md`.
