@@ -43,6 +43,13 @@ describe('DownloadHistory (TASK-UI-021, RI-002)', () => {
     expect(history.replace(/[^0-9]/g, '')).toContain('87421');
   });
 
+  it('shows the Activo column with the asset of each download (RF-215)', () => {
+    render(<DownloadHistory entries={[entry({ active: 'GBPJPY' })]} />);
+
+    expect(screen.getByRole('columnheader', { name: 'Activo' })).toBeTruthy();
+    expect(screen.getByRole('cell', { name: 'GBPJPY' })).toBeTruthy();
+  });
+
   it('suggests the pending range for a partial download and lets the user complete it', () => {
     const onCompleteRange = vi.fn();
     render(

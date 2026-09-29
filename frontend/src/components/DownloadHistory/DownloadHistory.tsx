@@ -47,6 +47,7 @@ export default function DownloadHistory({ entries, onCompleteRange }: DownloadHi
         <thead>
           <tr>
             <th scope="col">Fecha</th>
+            <th scope="col">Activo</th>
             <th scope="col">Rango</th>
             <th scope="col">Estado</th>
             <th scope="col">Filas</th>
@@ -57,6 +58,7 @@ export default function DownloadHistory({ entries, onCompleteRange }: DownloadHi
             <Fragment key={entryKey(entry)}>
               <tr>
                 <td>{formatHistoryDate(entry.date)}</td>
+                <td>{entry.active}</td>
                 <td>{formatEpochRange(entry.range.start, entry.range.end)}</td>
                 <td>
                   <span
@@ -69,7 +71,7 @@ export default function DownloadHistory({ entries, onCompleteRange }: DownloadHi
               </tr>
               {entry.status === 'parcial' && onCompleteRange !== undefined && (
                 <tr className="download-history__suggestion">
-                  <td colSpan={4}>
+                  <td colSpan={5}>
                     Falta completar {formatEpochRange(entry.range.start, entry.range.end)} del
                     activo {entry.active}.
                     <Button
