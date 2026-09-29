@@ -1,6 +1,6 @@
 # Estado del Proyecto: Mejoras UX (Ciclo 03)
 
-> Última actualización: 2026-09-29 12:15
+> Última actualización: 2026-09-29 12:30
 > Fuente: `_docs/backlog.md`, `_docs/traceability.md`
 
 ## 1. Resumen ejecutivo
@@ -8,27 +8,25 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 35 | — |
-| 📥 Backlog | 18 | -1 |
+| 📥 Backlog | 16 | -2 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | — |
-| ✅ Done | 17 | +1 |
+| ✅ Done | 19 | +2 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 49% | +3% |
+| % Completado | 54% | +5% |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso.
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (18)
+### 📥 Backlog (16)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
 | TASK-202 | `instrument_id` de los 5 pares en freeserv | EP-201 | 5 | 201 |
 | TASK-203 | Contrato `GET /assets` con catálogo ampliado | EP-201 | 3 | 201 |
 | TASK-204 | Consumir `GET /assets` y quitar espejo | EP-201 | 5 | 203 |
-| TASK-205 | Retirar `1s` del contrato backend | EP-202 | 2 | — |
-| TASK-206 | Retirar `1s` del espejo TS | EP-202 | 2 | 205 |
 | TASK-UI-224 | Tests de edición + profiling 60 FPS | EP-UI-202 | 3 | UI-222, UI-223 |
 | TASK-UI-231 | Gráfico fullscreen (H+V) | EP-UI-203 | 3 | UI-213 |
 | TASK-UI-250 | Centrar Descarga | EP-UI-205 | 2 | UI-200 |
@@ -51,11 +49,13 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (17)
+### ✅ Done (19)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
 | TASK-201 | Catálogo +5 pares forex (+ mapeo freeserv) | EP-201 | 2026-09-29 | `backend/tests/ingest/test_catalog.py`, `test_freeserv.py` |
+| TASK-205 | Retirar `1s` del contrato backend (Timeframe/resample) | EP-202 | 2026-09-29 | `backend/tests/contracts/test_ohlc_contract.py`, `test_base_timeframe_regression.py`, `tests/pipeline/test_resample.py` |
+| TASK-206 | Retirar `1s` del espejo TS | EP-202 | 2026-09-29 | `frontend/src/contracts/__tests__/ohlc.test.ts` (enum) |
 | TASK-UI-242 | Tests de round-trip y migración de esquema | EP-UI-204 | 2026-09-29 | `frontend/src/state/__tests__/chart-config.test.ts` (13 tests) |
 | TASK-UI-213 | Eliminar `IndicatorPanel` inferior | EP-UI-201 | 2026-09-29 | Sin referencias residuales; suites verdes (356) |
 | TASK-UI-240 | `state/chart-config` (localStorage versionado) | EP-UI-204 | 2026-09-29 | `frontend/src/state/__tests__/chart-config.test.ts` · cobertura 95% |
@@ -155,8 +155,8 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. Backend/dominio: `TASK-205` (retirar `1s` del contrato), luego `TASK-202` (verificación empírica), `TASK-203/204` (contrato `GET /assets`).
-2. Pantallas: `TASK-UI-250/251/252` (Descarga), `TASK-UI-260/261` (Abrir), `TASK-UI-270` (Biblioteca), `TASK-UI-280` (Multigráfico).
+1. Backend/dominio: `TASK-202` (verificación empírica), `TASK-203/204` (contrato `GET /assets`, retiro del espejo FE).
+2. Pantallas: `TASK-UI-250/251/252` (Descarga), `TASK-UI-260/261` (Abrir, cierra RF-219), `TASK-UI-270` (Biblioteca), `TASK-UI-280` (Multigráfico).
 3. Reservar `TASK-TEC-210/211/212` para el cierre.
 
 ## 9. Historial de cambios (append-only)
@@ -181,3 +181,5 @@ Ninguno.
 | 2026-09-29 | TASK-UI-232 | 📥 → ✅ Done | Export desde el header reutilizando ExportModal; cobertura del disparo; autorización explícita |
 | 2026-09-29 | TASK-UI-242 | 📥 → ✅ Done | Round-trip y migración de esquema (versión obsoleta/clave antigua); 5 tests; EP-UI-204 cerrada; autorización explícita |
 | 2026-09-29 | TASK-201 | 📥 → ✅ Done | Catálogo a 12 activos (+5 forex) + mapeo freeserv por invariante de tests; 3 tests backend; autorización explícita |
+| 2026-09-29 | TASK-205 | 📥 → ✅ Done | `1s` retirado del contrato `Timeframe` y de `resample`; API 422; plan 205+206 aprobado |
+| 2026-09-29 | TASK-206 | 📥 → ✅ Done | Espejo TS `TIMEFRAMES` sin `1s`; enum alineado con el schema; plan 205+206 aprobado |
