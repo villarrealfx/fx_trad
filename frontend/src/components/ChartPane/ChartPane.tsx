@@ -18,6 +18,7 @@ import {
   type Time,
 } from 'lightweight-charts';
 import type { Candle, Timeframe } from '../../contracts/ohlc';
+import { PRICE_FORMAT, formatAxisLabel } from '../../charting/axis-format';
 import { createOverlayBinding, type OverlayBinding } from '../../charting/chart-binding';
 import type { ChartSyncController } from '../../charting/chart-sync';
 import { constrainToAxis } from '../../charting/drawing-edit';
@@ -254,7 +255,11 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
         vertLines: { color: COLOR_BORDER },
         horzLines: { color: COLOR_BORDER },
       },
-      timeScale: { borderColor: COLOR_BORDER },
+      timeScale: {
+        borderColor: COLOR_BORDER,
+        // Eje X con `{día} {HH:mm}` UTC de apertura de la vela (RF-206).
+        tickMarkFormatter: (time: Time) => (typeof time === 'number' ? formatAxisLabel(time) : ''),
+      },
       rightPriceScale: { borderColor: COLOR_BORDER },
       crosshair: {
         vertLine: { color: COLOR_BORDER },
@@ -268,6 +273,8 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
       borderDownColor: COLOR_DOWN,
       wickUpColor: COLOR_UP,
       wickDownColor: COLOR_DOWN,
+      // Eje Y a 5 decimales en la escala derecha (RF-207).
+      priceFormat: PRICE_FORMAT,
     });
     legendBatcherRef.current = createFrameBatcher();
     let suppress = 0;

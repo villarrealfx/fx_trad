@@ -614,6 +614,25 @@ describe('ChartPane', () => {
     expect(chartMocks.fitContent).toHaveBeenCalledTimes(1);
   });
 
+  it('configures the axis formats (RF-206/RF-207)', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+
+    const options = chartMocks.createChart.mock.calls[0]?.[1] as {
+      timeScale?: { tickMarkFormatter?: (time: number) => string };
+    };
+    expect(typeof options.timeScale?.tickMarkFormatter).toBe('function');
+    expect(options.timeScale?.tickMarkFormatter?.(Date.UTC(2026, 0, 1, 0, 15) / 1000)).toBe(
+      '1 00:15',
+    );
+    expect(chartMocks.addCandlestickSeries).toHaveBeenCalledWith(
+      expect.objectContaining({
+        priceFormat: { type: 'price', precision: 5, minMove: 0.00001 },
+      }),
+    );
+  });
+
   it('shows a preview of the pending shape while drawing', async () => {
     fetchMock.mockResolvedValue(createResponse(RESPONSE));
     const { container } = render(<ChartPane symbol="EURUSD" timeframe="1h" />);
