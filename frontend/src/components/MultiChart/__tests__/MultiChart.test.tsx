@@ -2,16 +2,20 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import MultiChart from '../MultiChart';
 
+const captured = vi.hoisted(() => ({ props: [] as Array<Record<string, unknown>> }));
+
 vi.mock('../../ChartPane/ChartPane', async () => {
   const React = await import('react');
   return {
     default: function MockChartPane({
       timeframe,
       onLegend,
+      ...rest
     }: {
       timeframe?: string;
       onLegend?: (c: unknown) => void;
     }) {
+      captured.props.push({ timeframe, onLegend, ...rest });
       const onLegendRef = React.useRef(onLegend);
       onLegendRef.current = onLegend;
       React.useEffect(() => {
@@ -22,8 +26,29 @@ vi.mock('../../ChartPane/ChartPane', async () => {
   };
 });
 
+vi.mock('../../IndicatorForm/IndicatorForm', () => ({
+  default: () => <div data-testid="indicator-form" />,
+}));
+
 describe('MultiChart (SCR-005)', () => {
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+    captured.props.length = 0;
+  });
+
+  it('propagates indicators and header actions to each pane (RF-203, TASK-UI-280)', () => {
+    render(<MultiChart symbol="EURUSD" />);
+
+    expect(screen.getByTestId('indicator-form')).toBeTruthy();
+    expect(captured.props.length).toBeGreaterThanOrEqual(2);
+    for (const props of captured.props) {
+      expect(props.indicators).toBeDefined();
+      expect(typeof props.onOpenIndicators).toBe('function');
+      // Sincronización intacta.
+      expect(props.sync).toBeDefined();
+      expect(props.syncId).toBeTruthy();
+    }
+  });
 
   it('renders two independent panes with their timeframes', () => {
     render(<MultiChart symbol="EURUSD" />);

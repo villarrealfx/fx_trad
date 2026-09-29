@@ -9,8 +9,8 @@
 | Requisito | Diseño (ADR/Componente) | Tarea | Prueba | Estado |
 |-----------|-------------------------|-------|--------|--------|
 | RF-201 Indicadores sin defaults | `IndicatorForm` + `ChartHeader` (ADR-019) | TASK-UI-211, TASK-UI-212 | `frontend/src/state/__tests__/use-chart-config.test.tsx` (estado inicial vacío) | 🟢 |
-| RF-202 Eliminar panel inferior + fullscreen | `IndicatorForm`/`ChartPane` (ADR-019) | TASK-UI-213, TASK-UI-231 | [pendiente] | 🔵 |
-| RF-203 Formulario flotante de indicadores | `IndicatorForm` + `ChartHeader` (ADR-019) | TASK-UI-212, TASK-UI-214 | `frontend/src/components/IndicatorForm/__tests__/IndicatorForm.test.tsx`, `.../IndicatorForm.a11y.test.tsx` (axe) | 🟢 |
+| RF-202 Eliminar panel inferior + fullscreen | `IndicatorForm`/`ChartPane` (ADR-019) | TASK-UI-213, TASK-UI-231, TASK-UI-280 | `frontend/src/components/MultiChart/__tests__/MultiChart.test.tsx` (parcial) | 🔵 |
+| RF-203 Formulario flotante de indicadores | `IndicatorForm` + `ChartHeader` (ADR-019) | TASK-UI-212, TASK-UI-214, TASK-UI-280 | `frontend/src/components/IndicatorForm/__tests__/IndicatorForm.test.tsx`, `.../MultiChart.test.tsx` (por pane) | 🟢 |
 | RF-204 Persistir config al cambiar de hoja | `state/chart-config` + `use-chart-config` (ADR-018) | TASK-UI-240, TASK-UI-241 | `frontend/src/state/__tests__/use-chart-config.test.tsx` (navegar/recargar) | 🟢 |
 | RF-205 Export en el header | `ChartHeader` (ADR-019) | TASK-UI-210, TASK-UI-232 | `.../ChartHeader.test.tsx`, `.../ChartPane.test.tsx` (disparo desde header), `frontend/src/__tests__/app.test.tsx` (modal) | 🟢 |
 | RF-206 Eje X con hora:minuto | `axis-format.formatAxisLabel` (ADR-005) | TASK-UI-230 | `frontend/src/charting/__tests__/axis-format.test.ts` | 🟢 |

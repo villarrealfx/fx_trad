@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { ChartSyncController } from '../../charting/chart-sync';
 import { TIMEFRAMES, type Candle, type Timeframe } from '../../contracts/ohlc';
+import { toIndicatorParameters, type IndicatorConfig } from '../../indicators/config';
 import ChartPane from '../ChartPane/ChartPane';
+import IndicatorForm from '../IndicatorForm/IndicatorForm';
 import Select from '../ui/Select';
 import Tab from '../ui/Tab';
 import './MultiChart.css';
@@ -52,6 +54,9 @@ export default function MultiChart({ symbol }: MultiChartProps) {
   ]);
   const [activeId, setActiveId] = useState<string>(() => panes[0]?.id ?? '');
   const [legends, setLegends] = useState<Record<string, Candle | null>>({});
+  // Indicadores compartidos por todos los panes (RF-203, TASK-UI-280).
+  const [configs, setConfigs] = useState<readonly IndicatorConfig[]>([]);
+  const [indicatorsOpen, setIndicatorsOpen] = useState(false);
 
   /** Añade un panel (hasta 3) y lo activa. */
   function addPane(): void {
@@ -78,6 +83,12 @@ export default function MultiChart({ symbol }: MultiChartProps) {
 
   return (
     <section className="multi-chart" aria-label={`Multigráfico de ${symbol}`}>
+      <IndicatorForm
+        open={indicatorsOpen}
+        configs={configs}
+        onChange={setConfigs}
+        onClose={() => setIndicatorsOpen(false)}
+      />
       <Tab
         tabs={tabs}
         active={activeId}
@@ -105,6 +116,9 @@ export default function MultiChart({ symbol }: MultiChartProps) {
                 timeframe={pane.timeframe}
                 sync={sync}
                 syncId={pane.id}
+                indicators={toIndicatorParameters(configs)}
+                indicatorsOpen={indicatorsOpen}
+                onOpenIndicators={() => setIndicatorsOpen((value) => !value)}
                 onLegend={(candle) => setLegends((current) => ({ ...current, [pane.id]: candle }))}
               />
             </div>

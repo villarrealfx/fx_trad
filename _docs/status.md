@@ -1,6 +1,6 @@
 # Estado del Proyecto: Mejoras UX (Ciclo 03)
 
-> Última actualización: 2026-09-29 12:50
+> Última actualización: 2026-09-29 12:55
 > Fuente: `_docs/backlog.md`, `_docs/traceability.md`
 
 ## 1. Resumen ejecutivo
@@ -8,19 +8,19 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 35 | — |
-| 📥 Backlog | 12 | -1 |
+| 📥 Backlog | 11 | -1 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | — |
-| ✅ Done | 23 | +1 |
+| ✅ Done | 24 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 66% | +3% |
+| % Completado | 69% | +3% |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso.
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (12)
+### 📥 Backlog (11)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
@@ -31,7 +31,6 @@
 | TASK-UI-231 | Gráfico fullscreen (H+V) | EP-UI-203 | 3 | UI-213 |
 | TASK-UI-252 | Selector de activos desde `GET /assets` | EP-UI-205 | 3 | 204 |
 | TASK-UI-270 | Biblioteca desde `GET /assets` | EP-UI-207 | 5 | 204, UI-200 |
-| TASK-UI-280 | Multigráfico hereda mejoras | EP-UI-208 | 5 | UI-212, UI-221, UI-230 |
 | TASK-TEC-210 | Suites sin regresiones | TEC-201 | 3 | — |
 | TASK-TEC-211 | axe-core + teclado por pantalla | TEC-201 | 3 | UI-200 |
 | TASK-TEC-212 | Profiling 60 FPS global | TEC-201 | 2 | UI-224 |
@@ -45,12 +44,12 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (23)
+### ✅ Done (24)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
-| TASK-UI-260 | Centrar el formulario de Abrir | EP-UI-206 | 2026-09-29 | `frontend/src/__tests__/app.test.tsx` (contenedor centrado) |
 | TASK-UI-261 | Timeframe sin `1s` en Abrir | EP-UI-206 | 2026-09-29 | `frontend/src/components/ChartSelector/__tests__/ChartSelector.test.tsx` |
+| TASK-UI-280 | Multigráfico hereda mejoras (indicadores/header/edición) | EP-UI-208 | 2026-09-29 | `frontend/src/components/MultiChart/__tests__/MultiChart.test.tsx` |
 | TASK-205 | Retirar `1s` del contrato backend (Timeframe/resample) | EP-202 | 2026-09-29 | `backend/tests/contracts/test_ohlc_contract.py`, `test_base_timeframe_regression.py`, `tests/pipeline/test_resample.py` |
 | TASK-206 | Retirar `1s` del espejo TS | EP-202 | 2026-09-29 | `frontend/src/contracts/__tests__/ohlc.test.ts` (enum) |
 | TASK-UI-242 | Tests de round-trip y migración de esquema | EP-UI-204 | 2026-09-29 | `frontend/src/state/__tests__/chart-config.test.ts` (13 tests) |
@@ -153,7 +152,7 @@ Ninguno.
 ## 8. Próximas acciones sugeridas
 
 1. Backend/dominio: `TASK-202` (verificación empírica), `TASK-203/204` (contrato `GET /assets`, retiro del espejo FE).
-2. Pantallas: `TASK-UI-280` (Multigráfico). `TASK-UI-252/270` requieren `TASK-203/204` (catálogo `GET /assets`).
+2. Pantallas: `TASK-UI-252/270` requieren `TASK-203/204` (catálogo `GET /assets`); `TASK-UI-231` (fullscreen vertical) cierra RF-202.
 3. Reservar `TASK-TEC-210/211/212` para el cierre.
 
 ## 9. Historial de cambios (append-only)
@@ -184,3 +183,4 @@ Ninguno.
 | 2026-09-29 | TASK-UI-251 | 📥 → ✅ Done | Columna Activo en el historial (`th scope=col`, colSpan 5); autorización explícita |
 | 2026-09-29 | TASK-UI-260 | 📥 → ✅ Done | Formulario de Abrir centrado (contenedor `min(720px,100%)`); autorización explícita |
 | 2026-09-29 | TASK-UI-261 | 📥 → ✅ Done | Sin `1s` en Abrir (leyenda 1 m, sin opción 1s); cierra RF-219; autorización explícita |
+| 2026-09-29 | TASK-UI-280 | 📥 → ✅ Done | Panes con indicadores/header/edición; sincronización intacta; 6 tests; autorización explícita |
