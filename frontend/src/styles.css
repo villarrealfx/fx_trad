@@ -19,6 +19,19 @@ body {
   outline-offset: 2px;
 }
 
+/* Pantalla Gráfico (SCR-004): el canvas ocupa todo el alto (RF-202). */
+.chart-screen {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.chart-screen__graph {
+  flex: 1;
+  min-height: 0;
+}
+
 /* Pantalla Abrir (SCR-003): formulario centrado (RF-218). */
 .open-chart-screen {
   display: flex;

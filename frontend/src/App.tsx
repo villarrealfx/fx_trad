@@ -52,18 +52,15 @@ function ChartScreen({ selection }: { selection: ChartQuery }) {
   const compose = useCallback((scale: ExportScale) => paneRef.current?.compose(scale) ?? null, []);
 
   return (
-    <section
-      className="chart-screen"
-      aria-label="Gráfico principal"
-      style={{ position: 'relative' }}
-    >
+    <section className="chart-screen" aria-label="Gráfico principal">
       <IndicatorForm
         open={indicatorsOpen}
         configs={configs}
         onChange={setIndicators}
         onClose={() => setIndicatorsOpen(false)}
       />
-      <div className="chart-screen__graph" style={{ height: 420 }}>
+      {/* Sin altura fija: el gráfico ocupa todo el alto disponible (RF-202). */}
+      <div className="chart-screen__graph">
         <ChartPane
           key={`${symbol}:${timeframe}`}
           ref={paneRef}

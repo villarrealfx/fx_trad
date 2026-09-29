@@ -102,6 +102,17 @@ describe('App', () => {
     expect(await screen.findByRole('button', { name: 'Exportar' })).toBeTruthy();
   });
 
+  it('lets the chart fill the vertical space without a fixed height (RF-202)', async () => {
+    const { container } = render(<App />);
+
+    fireEvent.click(screen.getByRole('link', { name: 'Gráfico' }));
+    await screen.findByTestId('chart-pane');
+
+    const graph = container.querySelector('.chart-screen__graph') as HTMLElement | null;
+    expect(graph).not.toBeNull();
+    expect(graph?.style.height).toBe('');
+  });
+
   it('centers the Abrir form inside a centered content container (RF-218)', async () => {
     const { container } = render(<App />);
 
