@@ -105,13 +105,16 @@ function ScreenPlaceholder({ route }: { route: AppRoute }) {
 /** Pantalla SCR-003: selector de activo/rango/timeframe → SCR-004 (TASK-026). */
 function OpenChartScreen({ symbol }: { symbol?: string }) {
   return (
-    <section aria-label="Abrir gráfico">
-      <h2>Abrir gráfico</h2>
-      <ChartSelector
-        onOpen={navigate}
-        defaultSymbol={symbol}
-        onDownload={() => navigate('/downloads')}
-      />
+    <section className="open-chart-screen" aria-label="Abrir gráfico">
+      {/* Formulario centrado horizontalmente (RF-218). */}
+      <div className="open-chart-screen__content">
+        <h2>Abrir gráfico</h2>
+        <ChartSelector
+          onOpen={navigate}
+          defaultSymbol={symbol}
+          onDownload={() => navigate('/downloads')}
+        />
+      </div>
     </section>
   );
 }

@@ -1,6 +1,6 @@
 # Estado del Proyecto: Mejoras UX (Ciclo 03)
 
-> Última actualización: 2026-09-29 12:40
+> Última actualización: 2026-09-29 12:45
 > Fuente: `_docs/backlog.md`, `_docs/traceability.md`
 
 ## 1. Resumen ejecutivo
@@ -8,19 +8,19 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 35 | — |
-| 📥 Backlog | 14 | -1 |
+| 📥 Backlog | 13 | -1 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | — |
-| ✅ Done | 21 | +1 |
+| ✅ Done | 22 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 60% | +3% |
+| % Completado | 63% | +3% |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso.
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (14)
+### 📥 Backlog (13)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
@@ -30,7 +30,6 @@
 | TASK-UI-224 | Tests de edición + profiling 60 FPS | EP-UI-202 | 3 | UI-222, UI-223 |
 | TASK-UI-231 | Gráfico fullscreen (H+V) | EP-UI-203 | 3 | UI-213 |
 | TASK-UI-252 | Selector de activos desde `GET /assets` | EP-UI-205 | 3 | 204 |
-| TASK-UI-260 | Centrar Abrir | EP-UI-206 | 2 | UI-200 |
 | TASK-UI-261 | Timeframe sin `1s` en Abrir | EP-UI-206 | 2 | 206, UI-260 |
 | TASK-UI-270 | Biblioteca desde `GET /assets` | EP-UI-207 | 5 | 204, UI-200 |
 | TASK-UI-280 | Multigráfico hereda mejoras | EP-UI-208 | 5 | UI-212, UI-221, UI-230 |
@@ -47,12 +46,12 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (21)
+### ✅ Done (22)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
-| TASK-UI-250 | Centrar formulario y tabla de Descarga | EP-UI-205 | 2026-09-29 | `frontend/src/components/DownloadScreen/__tests__/DownloadScreen.test.tsx` |
 | TASK-UI-251 | Columna Activo en el historial | EP-UI-205 | 2026-09-29 | `frontend/src/components/DownloadHistory/__tests__/DownloadHistory.test.tsx` |
+| TASK-UI-260 | Centrar el formulario de Abrir | EP-UI-206 | 2026-09-29 | `frontend/src/__tests__/app.test.tsx` (contenedor centrado) |
 | TASK-205 | Retirar `1s` del contrato backend (Timeframe/resample) | EP-202 | 2026-09-29 | `backend/tests/contracts/test_ohlc_contract.py`, `test_base_timeframe_regression.py`, `tests/pipeline/test_resample.py` |
 | TASK-206 | Retirar `1s` del espejo TS | EP-202 | 2026-09-29 | `frontend/src/contracts/__tests__/ohlc.test.ts` (enum) |
 | TASK-UI-242 | Tests de round-trip y migración de esquema | EP-UI-204 | 2026-09-29 | `frontend/src/state/__tests__/chart-config.test.ts` (13 tests) |
@@ -155,7 +154,7 @@ Ninguno.
 ## 8. Próximas acciones sugeridas
 
 1. Backend/dominio: `TASK-202` (verificación empírica), `TASK-203/204` (contrato `GET /assets`, retiro del espejo FE).
-2. Pantallas: `TASK-UI-260/261` (Abrir, cierra RF-219), `TASK-UI-270` (Biblioteca), `TASK-UI-280` (Multigráfico). `TASK-UI-252` requiere `TASK-203/204` (catálogo `GET /assets`).
+2. Pantallas: `TASK-UI-261` (Abrir sin `1s`, cierra RF-219), `TASK-UI-280` (Multigráfico). `TASK-UI-252/270` requieren `TASK-203/204` (catálogo `GET /assets`).
 3. Reservar `TASK-TEC-210/211/212` para el cierre.
 
 ## 9. Historial de cambios (append-only)
@@ -184,3 +183,4 @@ Ninguno.
 | 2026-09-29 | TASK-206 | 📥 → ✅ Done | Espejo TS `TIMEFRAMES` sin `1s`; enum alineado con el schema; plan 205+206 aprobado |
 | 2026-09-29 | TASK-UI-250 | 📥 → ✅ Done | Formulario y historial centrados (contenedor `min(720px,100%)`); autorización explícita |
 | 2026-09-29 | TASK-UI-251 | 📥 → ✅ Done | Columna Activo en el historial (`th scope=col`, colSpan 5); autorización explícita |
+| 2026-09-29 | TASK-UI-260 | 📥 → ✅ Done | Formulario de Abrir centrado (contenedor `min(720px,100%)`); autorización explícita |

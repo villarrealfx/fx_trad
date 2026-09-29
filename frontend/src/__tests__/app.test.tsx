@@ -100,6 +100,17 @@ describe('App', () => {
     expect(await screen.findByRole('button', { name: 'Exportar' })).toBeTruthy();
   });
 
+  it('centers the Abrir form inside a centered content container (RF-218)', async () => {
+    const { container } = render(<App />);
+
+    fireEvent.click(screen.getByRole('link', { name: 'Abrir' }));
+    await screen.findByRole('button', { name: 'Abrir gráfico' });
+
+    const content = container.querySelector('.open-chart-screen__content');
+    expect(content).not.toBeNull();
+    expect(content?.querySelector('.chart-selector')).not.toBeNull();
+  });
+
   it('opens the export modal and downloads a PNG', async () => {
     render(<App />);
 
