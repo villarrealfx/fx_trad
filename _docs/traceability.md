@@ -19,8 +19,8 @@
 | RF-209 Colores mate por dibujo | `charting/drawings` (ADR-017) | TASK-UI-220 | `frontend/src/charting/__tests__/drawings.test.ts` (color por token) | 🟢 |
 | RF-210 Shift horizontal/vertical | `drawing-edit.constrainToAxis` (ADR-017) | TASK-UI-223 | `frontend/src/charting/__tests__/drawing-edit.test.ts` (constrainToAxis) | 🟢 |
 | RF-211 Íconos representativos | Design system / iconografía | TASK-UI-200 | `frontend/src/styles/__tests__/tokens.test.ts` (tokens de ícono) | 🔵 |
-| RF-212 Editar dibujos (mover/redimensionar) | `drawing-edit` + `use-drawing-edit` (ADR-017) | TASK-UI-221 | `frontend/src/charting/__tests__/drawing-edit.test.ts`, `.../use-drawing-edit.test.tsx` | 🟢 |
-| RF-213 Undo/redo de dibujos | `drawing-history` + `drawing-edit` (ADR-017) | TASK-UI-222 | `frontend/src/charting/__tests__/drawing-history.test.ts`, `.../ChartPane.test.tsx` (atajos) | 🟢 |
+| RF-212 Editar dibujos (mover/redimensionar) | `drawing-edit` + `use-drawing-edit` (ADR-017) | TASK-UI-221, TASK-UI-224 | `frontend/src/charting/__tests__/drawing-edit.test.ts`, `.../ChartPane.test.tsx` (edición+undo) | 🟢 |
+| RF-213 Undo/redo de dibujos | `drawing-history` + `drawing-edit` (ADR-017) | TASK-UI-222, TASK-UI-224 | `frontend/src/charting/__tests__/drawing-history.test.ts`, `.../ChartPane.test.tsx` (edición+undo) | 🟢 |
 | RF-214 Descarga centrada | `DownloadScreen` (layout) | TASK-UI-250 | `frontend/src/components/DownloadScreen/__tests__/DownloadScreen.test.tsx` | 🟢 |
 | RF-215 Activo en historial | `DownloadHistory` | TASK-UI-251 | `frontend/src/components/DownloadHistory/__tests__/DownloadHistory.test.tsx` | 🟢 |
 | RF-216 5 pares forex nuevos | `ingest.catalog` + `services/assets` (ADR-021) | TASK-201, TASK-UI-252 | `backend/tests/ingest/test_catalog.py`, `frontend/src/components/DownloadForm/__tests__/DownloadForm.test.tsx` (5 pares) | 🟢 |
