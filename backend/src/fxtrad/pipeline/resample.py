@@ -8,8 +8,8 @@ cambios, pues la base 1m es el origen de toda agregación (ADR-012).
 
 Los buckets se alinean al epoch UTC (``time // tf_seconds``); con la base 1m
 alineada, una vela 1h contiene exactamente 60 velas 1m y la agregación 1m→1d
-directa coincide con 1m→1h→1d (DoD TASK-059). El timeframe ``1s`` sigue en el
-contrato ``Timeframe`` pero ya no es derivable (quedaría por debajo de la base).
+directa coincide con 1m→1h→1d (DoD TASK-059). ``1s`` ya no pertenece al contrato
+``Timeframe`` (ADR-020) y por tanto es un target inválido.
 """
 
 from __future__ import annotations
@@ -25,7 +25,6 @@ logger = structlog.get_logger()
 
 #: Segundos por timeframe canónico (RF-009, contrato ``Timeframe``).
 TIMEFRAME_SECONDS: dict[Timeframe, int] = {
-    "1s": 1,
     "1m": 60,
     "5m": 300,
     "15m": 900,

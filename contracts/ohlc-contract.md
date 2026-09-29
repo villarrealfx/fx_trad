@@ -51,8 +51,10 @@ Respuesta de una serie para el frontend (RX-002, endpoint `GET /series`).
 
 | Valor | Significado |
 |-------|-------------|
-| `1s` | 1 segundo (base de descarga) |
-| `1m` / `5m` / `15m` / `1h` / `4h` / `1d` | Granularidades de visualización por resampling (RF-009) |
+| `1m` | 1 minuto (base canónica, ADR-012) |
+| `5m` / `15m` / `1h` / `4h` / `1d` | Granularidades de visualización por resampling (RF-009) |
+
+> `1s` se retiró del contrato (ADR-020): la base es 1 m y no existe serie sub-minuto.
 
 ## 6. Límite de la validación en el contrato
 

@@ -15,8 +15,11 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, NonNegativeInt
 
-Timeframe = Literal["1s", "1m", "5m", "15m", "1h", "4h", "1d"]
-"""Granularidad de agregación de cada vela (RF-009)."""
+Timeframe = Literal["1m", "5m", "15m", "1h", "4h", "1d"]
+"""Granularidad de agregación de cada vela (RF-009).
+
+La base canónica es 1 m (ADR-012); ``"1s"`` se retiró del contrato (ADR-020).
+"""
 
 
 class Candle(BaseModel):

@@ -154,10 +154,15 @@ class TestOhlcResponseBehavior:
 
     def test_round_trip_preserves_values(self) -> None:
         candle = Candle(time=1700000000, open=1.08, high=1.09, low=1.07, close=1.085)
-        response = OhlcResponse(symbol="EURUSD", timeframe="1s", candles=[candle])
+        response = OhlcResponse(symbol="EURUSD", timeframe="1m", candles=[candle])
         exported = response.model_dump(mode="json")
         assert exported["symbol"] == "EURUSD"
-        assert exported["timeframe"] == "1s"
+        assert exported["timeframe"] == "1m"
         assert exported["candles"] == [
             {"time": 1700000000, "open": 1.08, "high": 1.09, "low": 1.07, "close": 1.085}
         ]
+
+    def test_one_second_is_rejected_by_contract(self) -> None:
+        # ``1s`` se retiró del contrato (ADR-020): la validación lo rechaza.
+        with pytest.raises(ValidationError):
+            OhlcResponse(symbol="EURUSD", timeframe="1s", candles=[])

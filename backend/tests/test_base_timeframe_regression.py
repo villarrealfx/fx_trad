@@ -78,9 +78,11 @@ class TestOneSecondIsRejected:
             SeriesQuery(store).read("EURUSD", timeframe="1s")
 
     def test_api_rejects_one_second(self, tmp_path: Path) -> None:
+        # Tras ADR-020, ``1s`` ni siquiera es un Timeframe del contrato: la
+        # validación de FastAPI/Pydantic lo rechaza con 422 antes del storage.
         response = _client(tmp_path).get("/series", params={"symbol": "EURUSD", "timeframe": "1s"})
 
-        assert response.status_code == 400
+        assert response.status_code == 422
 
 
 class TestBaseTimeframeDefaults:

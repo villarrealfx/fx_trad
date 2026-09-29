@@ -72,7 +72,7 @@ describe('alineación del contrato TS', () => {
   it('una OhlcResponse documentada conforma el tipo', () => {
     const response: OhlcResponse = {
       symbol: 'EURUSD',
-      timeframe: '1s',
+      timeframe: '1m',
       candles: [{ time: 1700000000, open: 1.08, high: 1.09, low: 1.07, close: 1.085 }],
     };
     expect(response.candles).toHaveLength(1);

@@ -41,8 +41,8 @@
     "timeframe": {
       "type": "string",
       "title": "Timeframe",
-      "description": "Granularidad de agregación de cada vela (RF-009).",
-      "enum": ["1s", "1m", "5m", "15m", "1h", "4h", "1d"]
+      "description": "Granularidad de agregación de cada vela (RF-009). Base 1 m; '1s' retirado (ADR-020).",
+      "enum": ["1m", "5m", "15m", "1h", "4h", "1d"]
     },
     "ohlcResponse": {
       "type": "object",

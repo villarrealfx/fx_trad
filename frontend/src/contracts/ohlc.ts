@@ -11,8 +11,12 @@
  * consistencia contra el schema canónico.
  */
 
-/** Granularidad de agregación de cada vela (RF-009). */
-export const TIMEFRAMES = ['1s', '1m', '5m', '15m', '1h', '4h', '1d'] as const;
+/**
+ * Granularidad de agregación de cada vela (RF-009).
+ *
+ * Base canónica 1 m; ``'1s'`` se retiró del contrato (ADR-020).
+ */
+export const TIMEFRAMES = ['1m', '5m', '15m', '1h', '4h', '1d'] as const;
 
 /** Granularidad de agregación de cada vela (RF-009). */
 export type Timeframe = (typeof TIMEFRAMES)[number];

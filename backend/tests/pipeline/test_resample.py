@@ -162,12 +162,12 @@ class TestResampleValidation:
         with pytest.raises(InvalidSourceTimeframeError):
             resample_ohlc(serie, "1m", source="1h")
 
-    def test_rejects_1s_target_from_1m_base(self) -> None:
+    def test_rejects_1s_target_not_in_contract(self) -> None:
         # Arrange.
         serie = _make_1m_series(BASE_TS, 10)
 
-        # Act / Assert: 1s queda por debajo de la base 1m (ADR-012).
-        with pytest.raises(InvalidSourceTimeframeError):
+        # Act / Assert: 1s ya no es un Timeframe del contrato (ADR-020).
+        with pytest.raises(InvalidTimeframeError):
             resample_ohlc(serie, "1s")
 
     def test_rejects_duplicate_time(self) -> None:
@@ -201,7 +201,6 @@ class TestResampleValidation:
 def test_timeframe_seconds_mapping_is_canonical() -> None:
     # Arrange / Act / Assert: cada timeframe canónico tiene su duración.
     assert TIMEFRAME_SECONDS == {
-        "1s": 1,
         "1m": 60,
         "5m": 300,
         "15m": 900,
