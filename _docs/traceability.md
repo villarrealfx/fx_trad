@@ -43,7 +43,7 @@
 | RNF-005 Navegador moderno (heredado) | SPA React (ADR-003) | Heredado (01/02) | [pendiente] | 🔵 |
 | RNF-006 $0 OSS (heredado) | Stack OSS (ADR-008) | Heredado (01/02) | [pendiente] | 🔵 |
 | RNF-007 Plazo 2 semanas (heredado) | Alcance acotado | Heredado (01/02) | [pendiente] | 🔵 |
-| ACC-201 Accesibilidad axe-core (heredado) | ADR-011 + contratos ARIA | TASK-UI-201, TASK-TEC-211 | `frontend/src/components/ui/__tests__/LiveRegion.test.tsx`, `.../AppShell.test.tsx` (skip link) | 🔵 |
+| ACC-201 Accesibilidad axe-core (heredado) | ADR-011 + contratos ARIA | TASK-UI-201, TASK-TEC-211 | `frontend/src/components/ChartPane/ChartPane.test.tsx` (axe + teclado), `frontend/src/__tests__/a11y.test.tsx` | 🟢 |
 
 ## Requisitos de información
 

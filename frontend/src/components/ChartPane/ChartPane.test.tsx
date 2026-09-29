@@ -1,3 +1,4 @@
+import axe from 'axe-core';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { createRef } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -625,6 +626,47 @@ describe('ChartPane', () => {
     fireEvent.click(exportButton());
 
     expect(onExport).toHaveBeenCalledTimes(1);
+  });
+
+  it('has no detectable accessibility violations (ACC-201)', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    const { container } = render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+    await waitFor(() =>
+      expect(
+        (screen.getByRole('button', { name: 'Ajustar vista' }) as HTMLButtonElement).disabled,
+      ).toBe(false),
+    );
+
+    const results = await axe.run(container, { rules: { 'color-contrast': { enabled: false } } });
+
+    expect(results.violations).toEqual([]);
+  });
+
+  it('exposes keyboard-operable chart controls (ACC-201)', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+    await waitFor(() =>
+      expect(
+        (screen.getByRole('button', { name: 'Ajustar vista' }) as HTMLButtonElement).disabled,
+      ).toBe(false),
+    );
+
+    const enabledControls = [
+      'Indicadores',
+      'Exportar',
+      'Ajustar vista',
+      'Línea',
+      'Rectángulo',
+      'Fibonacci',
+      'Compra',
+      'Venta',
+      'Borrar trazo',
+    ];
+    for (const name of enabledControls) {
+      expect((screen.getByRole('button', { name }) as HTMLButtonElement).disabled).toBe(false);
+    }
   });
 
   it('configures the axis formats (RF-206/RF-207)', async () => {
