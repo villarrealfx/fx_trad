@@ -23,8 +23,8 @@
 | RF-213 Undo/redo de dibujos | `drawing-history` + `drawing-edit` (ADR-017) | TASK-UI-222 | `frontend/src/charting/__tests__/drawing-history.test.ts`, `.../ChartPane.test.tsx` (atajos) | 🟢 |
 | RF-214 Descarga centrada | `DownloadScreen` (layout) | TASK-UI-250 | [pendiente] | 🔵 |
 | RF-215 Activo en historial | `DownloadHistory` | TASK-UI-251 | [pendiente] | 🔵 |
-| RF-216 5 pares forex nuevos | `ingest.catalog` + `ingest.freeserv` (ADR-021) | TASK-201, TASK-UI-252 | [pendiente] | 🔵 |
-| RF-217 Backend de nuevos activos | `ingest` + `api` (ADR-021) | TASK-202, TASK-203 | [pendiente] | 🔵 |
+| RF-216 5 pares forex nuevos | `ingest.catalog` + `ingest.freeserv` (ADR-021) | TASK-201, TASK-UI-252 | `backend/tests/ingest/test_catalog.py`, `test_freeserv.py` (12 activos + ids) | 🔵 |
+| RF-217 Backend de nuevos activos | `ingest.catalog`/`freeserv` + `api` (ADR-021) | TASK-201, TASK-202, TASK-203 | `backend/tests/ingest/test_catalog.py`, `test_freeserv.py` (parcial) | 🔵 |
 | RF-218 Abrir centrada | `ChartSelector` (layout) | TASK-UI-260 | [pendiente] | 🔵 |
 | RF-219 Retirar `1s` de la UI | `contracts/ohlc` front+back (ADR-020) | TASK-205, TASK-206, TASK-UI-261 | [pendiente] | 🔵 |
 | RF-220 `GET /assets` + retirar espejo | `catalog` + `GET /assets` (ADR-021) | TASK-204, TASK-UI-270 | [pendiente] | 🔵 |
@@ -58,7 +58,7 @@
 
 | Requisito | Diseño (ADR/Componente) | Tarea | Prueba | Estado |
 |-----------|-------------------------|-------|--------|--------|
-| RX-201 Dukascopy sirve los 5 pares nuevos | `ingest.freeserv.FREESERV_INSTRUMENT` (ADR-021) | TASK-202 | [pendiente] | 🔵 |
+| RX-201 Dukascopy sirve los 5 pares nuevos | `ingest.freeserv.FREESERV_INSTRUMENT` (ADR-021) | TASK-201, TASK-202 | `backend/tests/ingest/test_freeserv.py` (mapeo; verificación empírica pendiente) | 🔵 |
 | RX-202 Frontend consume `GET /assets` | `services/assets` + `catalog` (ADR-021) | TASK-204, TASK-UI-270 | [pendiente] | 🔵 |
 | RX-001 Integración Dukascopy (heredado) | `ingest` (ADR-010) | Heredado (01/02) | [pendiente] | 🔵 |
 

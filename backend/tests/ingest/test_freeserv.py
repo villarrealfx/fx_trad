@@ -72,6 +72,14 @@ class TestInstrumentMapping:
         assert instrument_id_for("GBPUSD") == "GBP/USD"
         assert instrument_id_for("USDJPY") == "USD/JPY"
 
+    def test_new_forex_ids(self) -> None:
+        # Pares añadidos en el ciclo 03 (TASK-201/TASK-202).
+        assert instrument_id_for("GBPJPY") == "GBP/JPY"
+        assert instrument_id_for("EURJPY") == "EUR/JPY"
+        assert instrument_id_for("AUDUSD") == "AUD/USD"
+        assert instrument_id_for("USDCAD") == "USD/CAD"
+        assert instrument_id_for("EURGBP") == "EUR/GBP"
+
     def test_metal_ids(self) -> None:
         assert instrument_id_for("XAUUSD") == "XAU/USD"
         assert instrument_id_for("XAGUSD") == "XAG/USD"

@@ -1,6 +1,6 @@
 # Estado del Proyecto: Mejoras UX (Ciclo 03)
 
-> Última actualización: 2026-09-29 12:05
+> Última actualización: 2026-09-29 12:15
 > Fuente: `_docs/backlog.md`, `_docs/traceability.md`
 
 ## 1. Resumen ejecutivo
@@ -8,23 +8,22 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 35 | — |
-| 📥 Backlog | 19 | -1 |
+| 📥 Backlog | 18 | -1 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | — |
-| ✅ Done | 16 | +1 |
+| ✅ Done | 17 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 46% | +3% |
+| % Completado | 49% | +3% |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso.
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (19)
+### 📥 Backlog (18)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
-| TASK-201 | Catálogo +5 pares en `ASSET_CATALOG` | EP-201 | 3 | — |
 | TASK-202 | `instrument_id` de los 5 pares en freeserv | EP-201 | 5 | 201 |
 | TASK-203 | Contrato `GET /assets` con catálogo ampliado | EP-201 | 3 | 201 |
 | TASK-204 | Consumir `GET /assets` y quitar espejo | EP-201 | 5 | 203 |
@@ -52,11 +51,11 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (16)
+### ✅ Done (17)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
-| TASK-UI-232 | Export desde el header (modal reutilizado) | EP-UI-203 | 2026-09-29 | `frontend/src/components/ChartPane/ChartPane.test.tsx`, `frontend/src/__tests__/app.test.tsx` |
+| TASK-201 | Catálogo +5 pares forex (+ mapeo freeserv) | EP-201 | 2026-09-29 | `backend/tests/ingest/test_catalog.py`, `test_freeserv.py` |
 | TASK-UI-242 | Tests de round-trip y migración de esquema | EP-UI-204 | 2026-09-29 | `frontend/src/state/__tests__/chart-config.test.ts` (13 tests) |
 | TASK-UI-213 | Eliminar `IndicatorPanel` inferior | EP-UI-201 | 2026-09-29 | Sin referencias residuales; suites verdes (356) |
 | TASK-UI-240 | `state/chart-config` (localStorage versionado) | EP-UI-204 | 2026-09-29 | `frontend/src/state/__tests__/chart-config.test.ts` · cobertura 95% |
@@ -156,7 +155,7 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. Backend/dominio: `TASK-201` (catálogo +5 pares), `TASK-205` (retirar `1s` del contrato), `TASK-202/203/204` (encadenadas).
+1. Backend/dominio: `TASK-205` (retirar `1s` del contrato), luego `TASK-202` (verificación empírica), `TASK-203/204` (contrato `GET /assets`).
 2. Pantallas: `TASK-UI-250/251/252` (Descarga), `TASK-UI-260/261` (Abrir), `TASK-UI-270` (Biblioteca), `TASK-UI-280` (Multigráfico).
 3. Reservar `TASK-TEC-210/211/212` para el cierre.
 
@@ -181,3 +180,4 @@ Ninguno.
 | 2026-09-29 | TASK-UI-230 | 📥 → ✅ Done | Eje X `{día} {HH:mm}` y eje Y 5 decimales a la derecha; 5 tests; autorización explícita |
 | 2026-09-29 | TASK-UI-232 | 📥 → ✅ Done | Export desde el header reutilizando ExportModal; cobertura del disparo; autorización explícita |
 | 2026-09-29 | TASK-UI-242 | 📥 → ✅ Done | Round-trip y migración de esquema (versión obsoleta/clave antigua); 5 tests; EP-UI-204 cerrada; autorización explícita |
+| 2026-09-29 | TASK-201 | 📥 → ✅ Done | Catálogo a 12 activos (+5 forex) + mapeo freeserv por invariante de tests; 3 tests backend; autorización explícita |

@@ -33,6 +33,19 @@ class TestCatalogCoverage:
         valid = {"forex", "metal", "oil"}
         assert {a.type for a in ASSET_CATALOG}.issubset(valid)
 
+    def test_catalog_has_twelve_assets(self) -> None:
+        # 7 originales + 5 pares forex del ciclo 03 (TASK-201).
+        assert len(ASSET_CATALOG) == 12
+
+    def test_catalog_includes_new_forex_pairs(self) -> None:
+        symbols = {a.symbol for a in ASSET_CATALOG}
+        expected = {"GBPJPY", "EURJPY", "AUDUSD", "USDCAD", "EURGBP"}
+        assert expected <= symbols
+        for symbol in expected:
+            asset = get_asset(symbol)
+            assert asset is not None
+            assert asset.type == "forex"
+
 
 class TestCatalogQueries:
     """Consultas del catálogo por símbolo y por categoría."""
