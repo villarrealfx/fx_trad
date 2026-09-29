@@ -10,7 +10,7 @@
 |-----------|-------------------------|-------|--------|--------|
 | RF-201 Indicadores sin defaults | `IndicatorForm` + `ChartHeader` (ADR-019) | TASK-UI-211, TASK-UI-212 | [pendiente] | 🔵 |
 | RF-202 Eliminar panel inferior + fullscreen | `IndicatorForm`/`ChartPane` (ADR-019) | TASK-UI-213, TASK-UI-231 | [pendiente] | 🔵 |
-| RF-203 Formulario flotante de indicadores | `IndicatorForm` + `ChartHeader` (ADR-019) | TASK-UI-212, TASK-UI-214 | [pendiente] | 🔵 |
+| RF-203 Formulario flotante de indicadores | `IndicatorForm` + `ChartHeader` (ADR-019) | TASK-UI-212, TASK-UI-214 | `frontend/src/components/IndicatorForm/__tests__/IndicatorForm.test.tsx` | 🔵 |
 | RF-204 Persistir config al cambiar de hoja | `state/chart-config` (ADR-018) | TASK-UI-240, TASK-UI-241 | [pendiente] | 🔵 |
 | RF-205 Export en el header | `ChartHeader` (ADR-019) | TASK-UI-210, TASK-UI-232 | `frontend/src/components/ChartHeader/__tests__/ChartHeader.test.tsx`, `frontend/src/__tests__/app.test.tsx` | 🔵 |
 | RF-206 Eje X con hora:minuto | `ChartPane` (ejes) | TASK-UI-230 | [pendiente] | 🔵 |

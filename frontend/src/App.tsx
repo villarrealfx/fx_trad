@@ -24,7 +24,7 @@ import type { ChartPaneHandle } from './components/ChartPane/ChartPane';
 import ChartSelector from './components/ChartSelector/ChartSelector';
 import DownloadScreen from './components/DownloadScreen/DownloadScreen';
 import ExportModal from './components/ExportModal/ExportModal';
-import IndicatorPanel from './components/IndicatorPanel/IndicatorPanel';
+import IndicatorForm from './components/IndicatorForm/IndicatorForm';
 import MultiChart from './components/MultiChart/MultiChart';
 import Toast from './components/ui/Toast';
 import type { ExportScale } from './export';
@@ -51,7 +51,17 @@ function ChartScreen({ selection }: { selection: ChartQuery }) {
   const compose = useCallback((scale: ExportScale) => paneRef.current?.compose(scale) ?? null, []);
 
   return (
-    <section className="chart-screen" aria-label="Gráfico principal">
+    <section
+      className="chart-screen"
+      aria-label="Gráfico principal"
+      style={{ position: 'relative' }}
+    >
+      <IndicatorForm
+        open={indicatorsOpen}
+        configs={configs}
+        onChange={setConfigs}
+        onClose={() => setIndicatorsOpen(false)}
+      />
       <div className="chart-screen__graph" style={{ height: 420 }}>
         <ChartPane
           ref={paneRef}
@@ -65,7 +75,6 @@ function ChartScreen({ selection }: { selection: ChartQuery }) {
           onExport={() => setExportOpen(true)}
         />
       </div>
-      {indicatorsOpen && <IndicatorPanel configs={configs} onChange={setConfigs} />}
       <ExportModal
         open={exportOpen}
         onClose={() => setExportOpen(false)}
