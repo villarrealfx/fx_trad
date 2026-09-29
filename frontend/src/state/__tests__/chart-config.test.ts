@@ -139,3 +139,64 @@ describe('createChartConfigStore', () => {
     ).not.toThrow();
   });
 });
+
+describe('esquema y migración (TASK-UI-242)', () => {
+  it('el documento serializado declara la versión de esquema actual', () => {
+    const raw = serializeChartConfig({ indicators: INDICATORS, drawings: DRAWINGS });
+
+    expect((JSON.parse(raw) as { version: number }).version).toBe(CHART_CONFIG_VERSION);
+  });
+
+  it('hace round-trip vacío y poblado sin pérdida', () => {
+    const empty = serializeChartConfig({ indicators: [], drawings: [] });
+    expect(deserializeChartConfig(empty)).toEqual({
+      version: CHART_CONFIG_VERSION,
+      indicators: [],
+      drawings: [],
+    });
+
+    const populated = serializeChartConfig({ indicators: INDICATORS, drawings: DRAWINGS });
+    expect(deserializeChartConfig(populated)).toEqual({
+      version: CHART_CONFIG_VERSION,
+      indicators: INDICATORS,
+      drawings: DRAWINGS,
+    });
+  });
+
+  it('descarta documentos de una versión anterior (política ADR-018)', () => {
+    const obsolete = JSON.stringify({
+      version: CHART_CONFIG_VERSION - 1,
+      indicators: INDICATORS,
+      drawings: DRAWINGS,
+    });
+
+    expect(deserializeChartConfig(obsolete)).toBeNull();
+  });
+
+  it('ignora entradas guardadas bajo una clave de versión antigua', () => {
+    const storage = new MemoryStorage();
+    storage.setItem(
+      'fxtrad.chart.v0.EURUSD.1h',
+      JSON.stringify({ version: 0, indicators: INDICATORS, drawings: DRAWINGS }),
+    );
+
+    const store = createChartConfigStore(storage);
+
+    expect(store.load('EURUSD', '1h')).toBeNull();
+  });
+
+  it('ignora campos desconocidos del documento (contrato extensible)', () => {
+    const raw = JSON.stringify({
+      version: CHART_CONFIG_VERSION,
+      indicators: INDICATORS,
+      drawings: DRAWINGS,
+      futureField: { anything: true },
+    });
+
+    expect(deserializeChartConfig(raw)).toEqual({
+      version: CHART_CONFIG_VERSION,
+      indicators: INDICATORS,
+      drawings: DRAWINGS,
+    });
+  });
+});

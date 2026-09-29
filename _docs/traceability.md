@@ -49,7 +49,7 @@
 
 | Requisito | Diseño (ADR/Componente) | Tarea | Prueba | Estado |
 |-----------|-------------------------|-------|--------|--------|
-| RI-201 Entidad Configuración de gráfico | `state/chart-config` (ADR-018) | TASK-UI-220, TASK-UI-240, TASK-UI-241, TASK-UI-242 | `frontend/src/state/__tests__/chart-config.test.ts`, `frontend/src/charting/__tests__/drawings.test.ts` | 🔵 |
+| RI-201 Entidad Configuración de gráfico | `state/chart-config` (ADR-018) | TASK-UI-220, TASK-UI-240, TASK-UI-241, TASK-UI-242 | `frontend/src/state/__tests__/chart-config.test.ts` (round-trip/migración), `frontend/src/charting/__tests__/drawings.test.ts` | 🟢 |
 | RI-202 Catálogo vía `GET /assets` | `GET /assets` + `CatalogQuery` (ADR-021) | TASK-203, TASK-204 | [pendiente] | 🔵 |
 | RI-001 OHLC time único UTC (heredado) | `storage` (ADR-004) | Heredado (01/02) | [pendiente] | 🔵 |
 | RI-002 Metadatos de descarga (heredado) | `storage` (ADR-004) | Heredado (01/02) | [pendiente] | 🔵 |
