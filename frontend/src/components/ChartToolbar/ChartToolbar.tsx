@@ -17,8 +17,6 @@ export interface ChartToolbarProps {
   active: ChartToolType;
   /** Selecciona una herramienta. */
   onTool: (type: ChartToolType) => void;
-  /** Ajusta la vista a toda la serie (atajo `1`). */
-  onZoomFit: () => void;
   /** Deshace el último cambio de dibujos (RF-213). */
   onUndo?: () => void;
   /** Rehace el último cambio deshecho (RF-213). */
@@ -34,15 +32,14 @@ export interface ChartToolbarProps {
 /**
  * Barra de herramientas del gráfico (CMP-008, SCR-004).
  *
- * Agrupa los `DrawTool` (CMP-009) como `role="toolbar"` y añade la acción
- * "Ajustar vista". Operable 100% por teclado; la herramienta activa se marca
- * con `aria-pressed`.
+ * Agrupa los `DrawTool` (CMP-009) como `role="toolbar"` y las acciones de
+ * deshacer/rehacer. Operable 100% por teclado; la herramienta activa se marca
+ * con `aria-pressed`. "Ajustar vista" vive en el `ChartHeader` (CMP-017).
  */
 export default function ChartToolbar({
   tools,
   active,
   onTool,
-  onZoomFit,
   onUndo,
   onRedo,
   canUndo = false,
@@ -81,16 +78,6 @@ export default function ChartToolbar({
         onClick={onRedo}
       >
         <span aria-hidden="true">↷</span>
-      </button>
-      <button
-        type="button"
-        className="chart-toolbar__action"
-        aria-label="Ajustar vista"
-        title="Ajustar vista (1)"
-        disabled={disabled}
-        onClick={onZoomFit}
-      >
-        <span aria-hidden="true">⤢</span>
       </button>
     </div>
   );

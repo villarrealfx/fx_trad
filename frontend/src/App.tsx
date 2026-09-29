@@ -26,7 +26,6 @@ import DownloadScreen from './components/DownloadScreen/DownloadScreen';
 import ExportModal from './components/ExportModal/ExportModal';
 import IndicatorPanel from './components/IndicatorPanel/IndicatorPanel';
 import MultiChart from './components/MultiChart/MultiChart';
-import Button from './components/ui/Button';
 import Toast from './components/ui/Toast';
 import type { ExportScale } from './export';
 import {
@@ -41,6 +40,7 @@ function ChartScreen({ selection }: { selection: ChartQuery }) {
   const [configs, setConfigs] = useState<readonly IndicatorConfig[]>(DEFAULT_INDICATOR_CONFIGS);
   const paneRef = useRef<ChartPaneHandle>(null);
   const [exportOpen, setExportOpen] = useState(false);
+  const [indicatorsOpen, setIndicatorsOpen] = useState(true);
   const [toast, setToast] = useState<string | null>(null);
 
   const { symbol, timeframe } = selection;
@@ -60,12 +60,12 @@ function ChartScreen({ selection }: { selection: ChartQuery }) {
           start={start}
           end={end}
           indicators={toIndicatorParameters(configs)}
+          indicatorsOpen={indicatorsOpen}
+          onOpenIndicators={() => setIndicatorsOpen((value) => !value)}
+          onExport={() => setExportOpen(true)}
         />
       </div>
-      <IndicatorPanel configs={configs} onChange={setConfigs} />
-      <section aria-label="Exportación de la captura">
-        <Button label="Exportar" onClick={() => setExportOpen(true)} />
-      </section>
+      {indicatorsOpen && <IndicatorPanel configs={configs} onChange={setConfigs} />}
       <ExportModal
         open={exportOpen}
         onClose={() => setExportOpen(false)}

@@ -13,11 +13,21 @@ const exportMocks = vi.hoisted(() => ({
 vi.mock('../components/ChartPane/ChartPane', async () => {
   const React = await import('react');
   return {
-    default: React.forwardRef(function MockChartPane(_props: unknown, ref: unknown) {
+    default: React.forwardRef(function MockChartPane(
+      props: { onExport?: () => void },
+      ref: unknown,
+    ) {
       React.useImperativeHandle(ref as never, () => ({
         compose: () => ({ toDataURL: () => 'data:image/png;base64,AAA' }),
       }));
-      return <div data-testid="chart-pane" aria-hidden="true" />;
+      return (
+        <div>
+          <div data-testid="chart-pane" aria-hidden="true" />
+          <button type="button" onClick={props.onExport}>
+            Exportar
+          </button>
+        </div>
+      );
     }),
   };
 });

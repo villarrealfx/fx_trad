@@ -568,13 +568,15 @@ describe('ChartPane', () => {
     );
   });
 
-  it('fits the view from the toolbar action', async () => {
+  it('fits the view from the header action', async () => {
     fetchMock.mockResolvedValue(createResponse(RESPONSE));
     render(<ChartPane symbol="EURUSD" timeframe="1h" />);
-    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+    const fitButton = (): HTMLButtonElement =>
+      screen.getByRole('button', { name: 'Ajustar vista' }) as HTMLButtonElement;
+    await waitFor(() => expect(fitButton().disabled).toBe(false));
     chartMocks.fitContent.mockClear();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Ajustar vista' }));
+    fireEvent.click(fitButton());
 
     expect(chartMocks.fitContent).toHaveBeenCalledTimes(1);
   });

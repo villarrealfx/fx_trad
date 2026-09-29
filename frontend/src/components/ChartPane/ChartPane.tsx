@@ -36,6 +36,7 @@ import { useDrawingEdit } from '../../charting/use-drawing-edit';
 import { useDrawingHistory } from '../../charting/use-drawing-history';
 import { createFrameBatcher, type FrameBatcher } from '../../performance/frame-batch';
 import { composeChartCanvas, type ExportScale } from '../../export';
+import ChartHeader from '../ChartHeader/ChartHeader';
 import ChartToolbar, { type ChartToolDescriptor } from '../ChartToolbar/ChartToolbar';
 import { type ChartToolType } from '../DrawTool/DrawTool';
 import StatusBanner from '../ui/StatusBanner';
@@ -107,6 +108,12 @@ export interface ChartPaneProps {
   syncId?: string;
   /** Notifica la vela de la leyenda (última o bajo el crosshair) — TASK-UI-050. */
   onLegend?: (candle: Candle | null) => void;
+  /** Estado abierto del formulario de indicadores (CMP-017, RF-203). */
+  indicatorsOpen?: boolean;
+  /** Abre/cierra el formulario de indicadores (CMP-017, RF-203). */
+  onOpenIndicators?: () => void;
+  /** Dispara la exportación de la captura (CMP-017, RF-205). */
+  onExport?: () => void;
 }
 
 /** Handle imperativo del panel para el export PNG (TASK-035, RF-015). */
@@ -145,6 +152,9 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
     sync,
     syncId = 'pane',
     onLegend,
+    indicatorsOpen = false,
+    onOpenIndicators,
+    onExport,
   },
   ref,
 ) {
@@ -664,11 +674,19 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
 
   return (
     <div className="chart-pane" data-shapes={overlayShapes.length}>
+      <ChartHeader
+        symbol={symbol}
+        timeframe={timeframe}
+        indicatorsOpen={indicatorsOpen}
+        onOpenIndicators={onOpenIndicators ?? (() => {})}
+        onExport={onExport ?? (() => {})}
+        onFit={() => chartRef.current?.timeScale().fitContent()}
+        disabled={status !== 'success'}
+      />
       <ChartToolbar
         tools={TOOL_DESCRIPTORS}
         active={activeTool}
         onTool={setActiveTool}
-        onZoomFit={() => chartRef.current?.timeScale().fitContent()}
         onUndo={history.undo}
         onRedo={history.redo}
         canUndo={history.canUndo}
