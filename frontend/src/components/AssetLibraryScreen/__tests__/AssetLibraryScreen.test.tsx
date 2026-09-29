@@ -53,6 +53,29 @@ describe('AssetLibraryScreen (TASK-UI-010, SCR-001)', () => {
     expect(screen.getByText(/Última descarga: 26-08-2026 · EURUSD ·/)).toBeTruthy();
   });
 
+  it('shows the loading skeleton while the catalog is read (RF-220)', () => {
+    mocks.fetchAssets.mockReturnValue(new Promise(() => {}));
+
+    render(<AssetLibraryScreen />);
+
+    expect(screen.getByRole('status').textContent).toContain('Cargando activos');
+    expect(screen.queryByRole('table')).toBeNull();
+  });
+
+  it('lists the stored assets (including a new pair) from GET /assets (RF-220)', async () => {
+    mocks.fetchAssets.mockResolvedValue([
+      ASSET,
+      { symbol: 'GBPJPY', type: 'forex', coverage_start: 10, coverage_end: 20, status: 'completo' },
+    ]);
+
+    render(<AssetLibraryScreen />);
+
+    expect(await screen.findByRole('cell', { name: 'EURUSD' })).toBeTruthy();
+    expect(screen.getByRole('cell', { name: 'GBPJPY' })).toBeTruthy();
+    expect(screen.getByRole('columnheader', { name: 'Cobertura' })).toBeTruthy();
+    expect(screen.getByRole('columnheader', { name: 'Estado' })).toBeTruthy();
+  });
+
   it('shows the empty CTA and navigates to SCR-002', async () => {
     mocks.fetchAssets.mockResolvedValue([]);
     const onNavigate = vi.fn();

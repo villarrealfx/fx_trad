@@ -1,6 +1,6 @@
 # Estado del Proyecto: Mejoras UX (Ciclo 03)
 
-> Última actualización: 2026-09-29 13:15
+> Última actualización: 2026-09-29 13:20
 > Fuente: `_docs/backlog.md`, `_docs/traceability.md`
 
 ## 1. Resumen ejecutivo
@@ -8,26 +8,25 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 35 | — |
-| 📥 Backlog | 8 | -1 |
+| 📥 Backlog | 7 | -1 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | — |
-| ✅ Done | 27 | +1 |
+| ✅ Done | 28 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 77% | +3% |
+| % Completado | 80% | +3% |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso.
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (8)
+### 📥 Backlog (7)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
 | TASK-202 | `instrument_id` de los 5 pares en freeserv | EP-201 | 5 | 201 |
 | TASK-UI-224 | Tests de edición + profiling 60 FPS | EP-UI-202 | 3 | UI-222, UI-223 |
 | TASK-UI-231 | Gráfico fullscreen (H+V) | EP-UI-203 | 3 | UI-213 |
-| TASK-UI-270 | Biblioteca desde `GET /assets` | EP-UI-207 | 5 | 204, UI-200 |
 | TASK-TEC-210 | Suites sin regresiones | TEC-201 | 3 | — |
 | TASK-TEC-211 | axe-core + teclado por pantalla | TEC-201 | 3 | UI-200 |
 | TASK-TEC-212 | Profiling 60 FPS global | TEC-201 | 2 | UI-224 |
@@ -41,12 +40,12 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (27)
+### ✅ Done (28)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
-| TASK-204 | Consumir `GET /assets` y quitar el espejo FE | EP-201 | 2026-09-29 | `frontend/src/services/__tests__/assets.test.ts`, `.../DownloadForm.test.tsx` |
 | TASK-UI-252 | Selector de activos desde `GET /assets` (5 pares) | EP-UI-205 | 2026-09-29 | `frontend/src/components/DownloadForm/__tests__/DownloadForm.test.tsx` |
+| TASK-UI-270 | Biblioteca desde `GET /assets` (estados + a11y) | EP-UI-207 | 2026-09-29 | `frontend/src/components/AssetLibraryScreen/__tests__/AssetLibraryScreen.test.tsx` |
 | TASK-UI-280 | Multigráfico hereda mejoras (indicadores/header/edición) | EP-UI-208 | 2026-09-29 | `frontend/src/components/MultiChart/__tests__/MultiChart.test.tsx` |
 | TASK-205 | Retirar `1s` del contrato backend (Timeframe/resample) | EP-202 | 2026-09-29 | `backend/tests/contracts/test_ohlc_contract.py`, `test_base_timeframe_regression.py`, `tests/pipeline/test_resample.py` |
 | TASK-206 | Retirar `1s` del espejo TS | EP-202 | 2026-09-29 | `frontend/src/contracts/__tests__/ohlc.test.ts` (enum) |
@@ -149,8 +148,9 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. Pantallas: `TASK-UI-270` (biblioteca sobre `GET /assets`) y `TASK-UI-231` (fullscreen vertical, cierra RF-202).
+1. Pantalla: `TASK-UI-231` (fullscreen vertical del gráfico, cierra RF-202).
 2. Backend/dominio: `TASK-202` (verificación empírica 1 m BID).
+3. Cierre: `TASK-TEC-210/211/212/213` (regresiones, axe, 60 FPS, docs).
 3. Reservar `TASK-TEC-210/211/212` para el cierre.
 
 ## 9. Historial de cambios (append-only)
@@ -185,3 +185,4 @@ Ninguno.
 | 2026-09-29 | TASK-203 | 📥 → ✅ Done | Test de contrato `GET /assets` con los 5 pares nuevos (2 tests); autorización explícita |
 | 2026-09-29 | TASK-204 | 📥 → ✅ Done | `GET /assets?scope=all` + retiro del espejo FE; Descarga con catálogo canónico; autorización explícita |
 | 2026-09-29 | TASK-UI-252 | 📥 → ✅ Done | Selector de Descarga con los 5 pares desde `GET /assets`; test; autorización explícita |
+| 2026-09-29 | TASK-UI-270 | 📥 → ✅ Done | Biblioteca con estados + a11y desde `GET /assets`; +2 tests; autorización explícita |
