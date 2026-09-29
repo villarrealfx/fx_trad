@@ -1,6 +1,6 @@
 # Estado del Proyecto: Mejoras UX (Ciclo 03)
 
-> Última actualización: 2026-09-29 13:50
+> Última actualización: 2026-09-29 13:55
 > Fuente: `_docs/backlog.md`, `_docs/traceability.md`
 
 ## 1. Resumen ejecutivo
@@ -8,23 +8,22 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 35 | — |
-| 📥 Backlog | 2 | -1 |
+| 📥 Backlog | 1 | -1 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | — |
-| ✅ Done | 33 | +1 |
+| ✅ Done | 34 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 94% | +3% |
+| % Completado | 97% | +3% |
 | Días sin movimiento | 0 | — |
 
-**Estado general:** 🟢 En curso (solo `TASK-202` pendiente).
+**Estado general:** 🟢 En curso (solo `TASK-UI-224` pendiente).
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (2)
+### 📥 Backlog (1)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
-| TASK-202 | `instrument_id` de los 5 pares en freeserv | EP-201 | 5 | 201 |
 | TASK-UI-224 | Tests de edición + profiling 60 FPS | EP-UI-202 | 3 | UI-222, UI-223 |
 
 ### 🔨 Doing (0)
@@ -35,10 +34,11 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (33)
+### ✅ Done (34)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
+| TASK-202 | `instrument_id` de los 5 pares + verificación empírica | EP-201 | 2026-09-29 | `backend/tests/ingest/test_freeserv.py`, `_docs/validation-new-pairs.md` |
 | TASK-TEC-212 | Profiling 60 FPS (pan/zoom + edición) | TEC-201 | 2026-09-29 | `frontend/src/components/ChartPane/ChartPane.test.tsx`, `_docs/benchmark-ui.md` |
 | TASK-TEC-213 | Documentación de cierre de iteración | TEC-201 | 2026-09-29 | `README.md` (ciclo 03) |
 | TASK-UI-231 | Gráfico a pantalla completa (H + V) | EP-UI-203 | 2026-09-29 | `frontend/src/__tests__/app.test.tsx` (sin altura fija) |
@@ -101,7 +101,7 @@ Ninguno.
 
 ### 🟡 Advertencias
 
-- `TASK-202` (verificación empírica 1 m BID) requiere acceso a red/Dukascopy.
+- `TASK-UI-224` (tests de edición + profiling) pendiente; sus dependencias (UI-222/223) están Done.
 
 ### 🟢 Informativas
 
@@ -145,7 +145,7 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. Última tarea: `TASK-202` (verificación empírica 1 m BID con acceso a red/Dukascopy).
+1. Última tarea: `TASK-UI-224` (tests de edición + profiling 60 FPS).
 
 ## 9. Historial de cambios (append-only)
 
@@ -185,3 +185,4 @@ Ninguno.
 | 2026-09-29 | TASK-TEC-211 | 📥 → ✅ Done | axe-core sin violaciones en el Gráfico real + teclado operativo (ACC-201) |
 | 2026-09-29 | TASK-TEC-212 | 📥 → ✅ Done | Medición 60 FPS (pan/zoom + edición) documentada; 0 frames caídos (RNF-202) |
 | 2026-09-29 | TASK-TEC-213 | 📥 → ✅ Done | README actualizado a la iteración 03 (estado, calidad, cambios) |
+| 2026-09-29 | TASK-202 | 📥 → ✅ Done | Verificación empírica de los 5 pares a 1 m BID (`validation-new-pairs.md`) |
