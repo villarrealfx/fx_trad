@@ -18,7 +18,7 @@
 | RF-208 Marcas compra/venta fuera de la vela | `charting/drawings` (ADR-017) | TASK-UI-223 | [pendiente] | 🔵 |
 | RF-209 Colores mate por dibujo | `charting/drawings` (ADR-017) | TASK-UI-220 | [pendiente] | 🔵 |
 | RF-210 Shift horizontal/vertical | `charting/drawings` (ADR-017) | TASK-UI-223 | [pendiente] | 🔵 |
-| RF-211 Íconos representativos | Design system / iconografía | TASK-UI-200 | [pendiente] | 🔵 |
+| RF-211 Íconos representativos | Design system / iconografía | TASK-UI-200 | `frontend/src/styles/__tests__/tokens.test.ts` (tokens de ícono) | 🔵 |
 | RF-212 Editar dibujos (mover/redimensionar) | `drawings` + `OverlayCanvas` (ADR-017) | TASK-UI-221 | [pendiente] | 🔵 |
 | RF-213 Undo/redo de dibujos | Command stack (ADR-017) | TASK-UI-222 | [pendiente] | 🔵 |
 | RF-214 Descarga centrada | `DownloadScreen` (layout) | TASK-UI-250 | [pendiente] | 🔵 |
@@ -36,7 +36,7 @@
 | RNF-201 Persistencia versionada robusta | `state/chart-config` (ADR-018) | TASK-UI-240, TASK-UI-241, TASK-UI-242 | [pendiente] | 🔵 |
 | RNF-202 Edición de dibujos a 60 FPS | `OverlayCanvas` + drawings (ADR-017) | TASK-UI-222, TASK-UI-224 | TASK-TEC-212 | 🔵 |
 | RNF-203 0 regresiones | CI GitHub Actions (ADR-008) + suites | TASK-TEC-210 | TASK-TEC-210 | 🔵 |
-| RNF-204 Tokens de diseño | Design system frontend | TASK-UI-200 | [pendiente] | 🔵 |
+| RNF-204 Tokens de diseño | Design system frontend | TASK-UI-200 | `frontend/src/styles/__tests__/tokens.test.ts` (contraste + anti-drift) | 🟢 |
 | RNF-205 Activos nuevos misma latencia/contrato | `ingest` (ADR-021) | TASK-202, TASK-203 | [pendiente] | 🔵 |
 | RNF-001 Latencia 60 FPS (heredado) | `lightweight-charts` + overlay (ADR-005/017) | Heredado (01/02) | [pendiente] | 🔵 |
 | RNF-004 UTC (heredado) | `pipeline` (ADR-002) | Heredado (01/02) | [pendiente] | 🔵 |

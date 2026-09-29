@@ -1,26 +1,26 @@
 # Estado del Proyecto: Mejoras UX (Ciclo 03)
 
-> Última actualización: 2026-09-29 09:55
+> Última actualización: 2026-09-29 10:20
 > Fuente: `_docs/backlog.md`, `_docs/traceability.md`
 
 ## 1. Resumen ejecutivo
 
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
-| Tareas totales | 35 | — (inicial) |
-| 📥 Backlog | 35 | — |
+| Tareas totales | 35 | — |
+| 📥 Backlog | 34 | -1 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | — |
-| ✅ Done | 0 | — |
+| ✅ Done | 1 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 0% | — |
+| % Completado | 3% | +3% |
 | Días sin movimiento | 0 | — |
 
-**Estado general:** 🟢 En curso (recién planificado; sin ejecución).
+**Estado general:** 🟢 En curso.
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (35)
+### 📥 Backlog (34)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
@@ -30,7 +30,6 @@
 | TASK-204 | Consumir `GET /assets` y quitar espejo | EP-201 | 5 | 203 |
 | TASK-205 | Retirar `1s` del contrato backend | EP-202 | 2 | — |
 | TASK-206 | Retirar `1s` del espejo TS | EP-202 | 2 | 205 |
-| TASK-UI-200 | Tokens design system | EP-UI-200 | 3 | — |
 | TASK-UI-201 | Accesibilidad base | EP-UI-200 | 2 | UI-200 |
 | TASK-UI-210 | `ChartHeader` | EP-UI-201 | 3 | UI-200 |
 | TASK-UI-211 | Sin indicadores por defecto | EP-UI-201 | 2 | UI-210 |
@@ -68,9 +67,11 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (0)
+### ✅ Done (1)
 
-Sin tareas.
+| ID | Tarea | Épica | Completada | Prueba |
+|----|-------|-------|------------|--------|
+| TASK-UI-200 | Tokens del design system (dibujos, popover, ejes, sombras, íconos) | EP-UI-200 | 2026-09-29 | `frontend/src/styles/__tests__/tokens.test.ts` · 289 tests · eslint/tsc OK |
 
 ### 🔴 Blocked (0)
 
@@ -86,7 +87,8 @@ graph LR
   UI240 --> UI241[TASK-UI-241 📥]
 ```
 
-**Avance de ruta crítica:** 0/5 tareas (0%). **ETA:** sin datos (0% ejecutado).
+**Avance de ruta crítica:** 0/5 tareas (0%). **ETA:** sin datos.
+Nota: `TASK-UI-200` (fundación, fuera de la ruta crítica) está ✅ Done → desbloquea el inicio de `TASK-UI-220` (cabeza de la ruta crítica).
 
 ## 4. Métricas
 
@@ -159,8 +161,8 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. Iniciar `TASK-UI-200` (tokens) y `TASK-201`/`TASK-205` (backend) — sin dependencias.
-2. Seguir la ruta crítica por `TASK-UI-220` en cuanto `TASK-UI-200` esté Done.
+1. Iniciar la ruta crítica: `TASK-UI-220` (modelo de dibujo), ya desbloqueada por `TASK-UI-200`.
+2. Avanzar en paralelo tareas sin dependencias: `TASK-201` (catálogo), `TASK-205` (contrato backend), `TASK-UI-201` (a11y base).
 3. Reservar `TASK-TEC-210/211/212` para el cierre.
 
 ## 9. Historial de cambios (append-only)
@@ -168,3 +170,4 @@ Ninguno.
 | Fecha | Tarea | Transición | Motivo |
 |-------|-------|-----------|--------|
 | 2026-09-29 | — (todas) | — → 📥 Backlog | Inicialización de `status.md` desde `backlog.md` |
+| 2026-09-29 | TASK-UI-200 | 📥 → ✅ Done | Tokens implementados y verificados (contraste + 289 tests, eslint/tsc OK); autorización explícita |

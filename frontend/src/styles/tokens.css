@@ -16,6 +16,11 @@
   --color-down: #ef5350;
   --color-warning: #c9b458;
   --color-focus: #58a6ff;
+  --color-draw-line: #4a6572;
+  --color-draw-rect: #d6c7ae;
+  --color-draw-fib: #ddb2ac;
+  --color-popover-bg: #161b22;
+  --color-popover-border: #30363d;
 
   /* Tipografía */
   --font-family: Inter, system-ui, sans-serif;
@@ -44,4 +49,22 @@
   /* Sombras */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-modal: 0 12px 32px rgba(0, 0, 0, 0.6);
+  --shadow-popover: 0 8px 24px rgba(0, 0, 0, 0.5);
+
+  /* Formato de ejes (RF-206, RF-207) */
+  --axis-price-decimals: 5;
+  --axis-price-side: right;
+  --axis-x-format: "{día} {HH:mm}";
+  --axis-x-tick: 15m;
+
+  /* Offset de marcas compra/venta (RF-208) */
+  --marker-offset-pips: 10;
+  --marker-pip-value: 0.0001;
+  --marker-pip-value-jpy: 0.01;
+
+  /* Iconografía (RF-211) */
+  --icon-set: lucide;
+  --icon-size-sm: 16px;
+  --icon-size-md: 20px;
+  --icon-size-lg: 24px;
 }

@@ -10,7 +10,12 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { contrastRatio, relativeLuminance } from '../contrast';
 import {
+  AXIS_TOKENS,
   COLOR_TOKENS,
+  DRAWING_COLORS,
+  DRAWING_COLOR_ROLES,
+  ICON_TOKENS,
+  MARKER_TOKENS,
   RADIUS_TOKENS,
   SHADOW_TOKENS,
   SPACING_TOKENS,
@@ -70,6 +75,41 @@ describe('colorVar', () => {
   it('mapea nombres camelCase a custom properties kebab-case', () => {
     expect(colorVar('bg')).toBe('var(--color-bg)');
     expect(colorVar('textMuted')).toBe('var(--color-text-muted)');
+  });
+});
+
+describe('tokens del ciclo 03 (dibujos, ejes, marcas, íconos)', () => {
+  it('los colores de dibujo cumplen contraste no textual (≥ 3:1) sobre el fondo', () => {
+    for (const role of DRAWING_COLOR_ROLES) {
+      expect(contrastRatio(COLOR_TOKENS[role], COLOR_TOKENS.bg)).toBeGreaterThanOrEqual(3);
+    }
+  });
+
+  it('expone el mapa de colores de dibujo desde los tokens', () => {
+    expect(DRAWING_COLORS).toEqual({
+      line: COLOR_TOKENS.drawLine,
+      rect: COLOR_TOKENS.drawRect,
+      fib: COLOR_TOKENS.drawFib,
+    });
+  });
+
+  it('tokens.css refleja ejes, marcas e íconos', () => {
+    const expected: ReadonlyArray<readonly [string, string]> = [
+      ['--axis-price-decimals', String(AXIS_TOKENS.priceDecimals)],
+      ['--axis-price-side', AXIS_TOKENS.priceSide],
+      ['--axis-x-format', `"${AXIS_TOKENS.xFormat}"`],
+      ['--axis-x-tick', AXIS_TOKENS.xTick],
+      ['--marker-offset-pips', String(MARKER_TOKENS.offsetPips)],
+      ['--marker-pip-value', String(MARKER_TOKENS.pipValue)],
+      ['--marker-pip-value-jpy', String(MARKER_TOKENS.pipValueJpy)],
+      ['--icon-set', ICON_TOKENS.set],
+      ['--icon-size-sm', ICON_TOKENS.sizes.sm],
+      ['--icon-size-md', ICON_TOKENS.sizes.md],
+      ['--icon-size-lg', ICON_TOKENS.sizes.lg],
+    ];
+    for (const [property, value] of expected) {
+      expect(css).toContain(`${property}: ${value.toLowerCase()};`);
+    }
   });
 });
 
