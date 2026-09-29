@@ -1,7 +1,8 @@
 import { useEffect, useRef, type MutableRefObject, type Ref, type RefObject } from 'react';
-import { COLOR_TEXT_MUTED } from '../components/ChartPane/theme';
+import { COLOR_FOCUS, COLOR_TEXT_MUTED } from '../components/ChartPane/theme';
 import { createFrameBatcher, type FrameBatcher } from '../performance/frame-batch';
 import type { OverlayBinding } from './chart-binding';
+import { HANDLE_DRAW_SIZE, handlePositions } from './drawing-edit';
 import { colorForShape } from './drawings';
 import { projectShape, type MarketDirection, type OverlayShape } from './overlay-geometry';
 
@@ -27,6 +28,8 @@ export interface OverlayCanvasProps {
    * cada trazo usa el token del design system según su `kind`.
    */
   strokeColor?: string;
+  /** Id del trazo seleccionado: pinta sus handles de edición (RF-212). */
+  selectedShapeId?: string | null;
   /** Ref opcional al `<canvas>` overlay para su composición en export (TASK-035). */
   canvasRef?: Ref<HTMLCanvasElement>;
 }
@@ -52,12 +55,32 @@ function drawMarker(
   context.fill();
 }
 
+/** Pinta los handles de edición del trazo seleccionado (RF-212). */
+function drawSelectionHandles(
+  context: CanvasRenderingContext2D,
+  shapes: ReadonlyArray<OverlayShape>,
+  selectedShapeId: string | null,
+  mapper: OverlayBinding,
+): void {
+  if (selectedShapeId === null) return;
+  const selected = shapes.find((shape) => shape.id === selectedShapeId);
+  if (selected === undefined) return;
+  const half = HANDLE_DRAW_SIZE / 2;
+  context.fillStyle = COLOR_FOCUS;
+  for (const handle of handlePositions(selected, mapper)) {
+    const x = handle.point.x - half;
+    const y = handle.point.y - half;
+    context.fillRect(x, y, HANDLE_DRAW_SIZE, HANDLE_DRAW_SIZE);
+  }
+}
+
 /** Overlay decorativo, no interactivo (los tools son TASK-028/029/030). */
 export default function OverlayCanvas({
   hostRef,
   binding,
   shapes,
   strokeColor,
+  selectedShapeId = null,
   canvasRef: externalCanvasRef,
 }: OverlayCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -136,6 +159,7 @@ export default function OverlayCanvas({
         }
         drawMarker(context, fragment.position, fragment.direction, colorForShape(shape));
       }
+      drawSelectionHandles(context, shapes, selectedShapeId, binding);
     };
 
     const scheduleRedraw = (): void => batcherRef.current?.schedule(draw);
@@ -153,7 +177,7 @@ export default function OverlayCanvas({
       unsubscribe();
       resizeObserver?.disconnect();
     };
-  }, [hostRef, binding, shapes, strokeColor]);
+  }, [hostRef, binding, shapes, strokeColor, selectedShapeId]);
 
   return (
     <canvas

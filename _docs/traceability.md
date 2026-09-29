@@ -19,7 +19,7 @@
 | RF-209 Colores mate por dibujo | `charting/drawings` (ADR-017) | TASK-UI-220 | `frontend/src/charting/__tests__/drawings.test.ts` (color por token) | 🟢 |
 | RF-210 Shift horizontal/vertical | `charting/drawings` (ADR-017) | TASK-UI-223 | [pendiente] | 🔵 |
 | RF-211 Íconos representativos | Design system / iconografía | TASK-UI-200 | `frontend/src/styles/__tests__/tokens.test.ts` (tokens de ícono) | 🔵 |
-| RF-212 Editar dibujos (mover/redimensionar) | `drawings` + `OverlayCanvas` (ADR-017) | TASK-UI-221 | [pendiente] | 🔵 |
+| RF-212 Editar dibujos (mover/redimensionar) | `drawing-edit` + `use-drawing-edit` (ADR-017) | TASK-UI-221 | `frontend/src/charting/__tests__/drawing-edit.test.ts`, `.../use-drawing-edit.test.tsx` | 🟢 |
 | RF-213 Undo/redo de dibujos | Command stack (ADR-017) | TASK-UI-222 | [pendiente] | 🔵 |
 | RF-214 Descarga centrada | `DownloadScreen` (layout) | TASK-UI-250 | [pendiente] | 🔵 |
 | RF-215 Activo en historial | `DownloadHistory` | TASK-UI-251 | [pendiente] | 🔵 |

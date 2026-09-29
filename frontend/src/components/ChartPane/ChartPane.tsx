@@ -32,6 +32,7 @@ import {
   type PixelPoint,
   type PriceTimePoint,
 } from '../../charting/overlay-geometry';
+import { useDrawingEdit } from '../../charting/use-drawing-edit';
 import { createFrameBatcher, type FrameBatcher } from '../../performance/frame-batch';
 import { composeChartCanvas, type ExportScale } from '../../export';
 import ChartToolbar, { type ChartToolDescriptor } from '../ChartToolbar/ChartToolbar';
@@ -169,6 +170,23 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
   const confirmRef = useRef<HTMLButtonElement | null>(null);
   const clickHandlerRef = useRef<(param: MouseEventParams<Time>) => void>(() => {});
   const previewHandlerRef = useRef<(param: MouseEventParams<Time>) => void>(() => {});
+
+  /** Edición por arrastre de los trazos creados (mover/redimensionar, RF-212). */
+  const { selectedShapeId, setSelectedShapeId, ...drawingEditHandlers } = useDrawingEdit({
+    hostRef,
+    getMapper: () => overlayBinding,
+    getInverseMapper: () => ({
+      coordinateToTime: (x) => {
+        const scale = chartRef.current?.timeScale();
+        const time = scale ? scale.coordinateToTime(x) : null;
+        return time === null ? null : Number(time);
+      },
+      coordinateToPrice: (y) => seriesRef.current?.coordinateToPrice(y) ?? null,
+    }),
+    shapes: drawnShapes,
+    onShapesChange: setDrawnShapes,
+    enabled: status === 'success' && activeTool !== 'erase',
+  });
 
   /** Notifica la vela de la leyenda al consumidor sin re-suscribir (TASK-UI-050). */
   const onLegendRef = useRef(onLegend);
@@ -522,7 +540,8 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
     setDrawFrom(null);
     setPreviewShape(null);
     setSelectedMarkerId(null);
-  }, [activeTool]);
+    setSelectedShapeId(null);
+  }, [activeTool, setSelectedShapeId]);
 
   /** Maneja los atajos de teclado del panel (+/− zoom, 1 ajustar, Esc cancelar). */
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>): void {
@@ -639,11 +658,16 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
           aria-label={`Gráfico de velas ${symbol} ${timeframe}`}
           tabIndex={0}
           onKeyDown={handleKeyDown}
+          onPointerDownCapture={drawingEditHandlers.onPointerDown}
+          onPointerMoveCapture={drawingEditHandlers.onPointerMove}
+          onPointerUpCapture={drawingEditHandlers.onPointerUp}
+          onPointerCancelCapture={drawingEditHandlers.onPointerCancel}
         />
         <OverlayCanvas
           hostRef={hostRef}
           binding={overlayBinding}
           shapes={overlayShapes}
+          selectedShapeId={selectedShapeId}
           canvasRef={overlayCanvasRef}
         />
         {selectedMarker !== null && selectedPixel !== null && (

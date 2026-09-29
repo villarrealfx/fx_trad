@@ -1,6 +1,6 @@
 # Estado del Proyecto: Mejoras UX (Ciclo 03)
 
-> Última actualización: 2026-09-29 10:40
+> Última actualización: 2026-09-29 10:45
 > Fuente: `_docs/backlog.md`, `_docs/traceability.md`
 
 ## 1. Resumen ejecutivo
@@ -8,19 +8,19 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 35 | — |
-| 📥 Backlog | 33 | -1 |
+| 📥 Backlog | 32 | -1 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | — |
-| ✅ Done | 2 | +1 |
+| ✅ Done | 3 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 6% | +3% |
+| % Completado | 9% | +3% |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso.
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (33)
+### 📥 Backlog (32)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
@@ -36,7 +36,6 @@
 | TASK-UI-212 | `IndicatorForm` flotante | EP-UI-201 | 5 | UI-210, UI-201 |
 | TASK-UI-213 | Eliminar `IndicatorPanel` inferior | EP-UI-201 | 2 | UI-212 |
 | TASK-UI-214 | Tests de estados/a11y del formulario | EP-UI-201 | 2 | UI-212 |
-| TASK-UI-221 | Geometría editable + handles | EP-UI-202 | 8 | UI-220 |
 | TASK-UI-222 | Command stack undo/redo | EP-UI-202 | 5 | UI-221 |
 | TASK-UI-223 | Marcadores 10 pips + Shift H/V | EP-UI-202 | 5 | UI-220 |
 | TASK-UI-224 | Tests de edición + profiling 60 FPS | EP-UI-202 | 3 | UI-222, UI-223 |
@@ -66,12 +65,13 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (2)
+### ✅ Done (3)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
 | TASK-UI-200 | Tokens del design system (dibujos, popover, ejes, sombras, íconos) | EP-UI-200 | 2026-09-29 | `frontend/src/styles/__tests__/tokens.test.ts` · eslint/tsc OK |
-| TASK-UI-220 | Modelo de dibujo + serialización + paleta mate | EP-UI-202 | 2026-09-29 | `frontend/src/charting/__tests__/drawings.test.ts` · 301 tests · cobertura 100% |
+| TASK-UI-220 | Modelo de dibujo + serialización + paleta mate | EP-UI-202 | 2026-09-29 | `frontend/src/charting/__tests__/drawings.test.ts` · cobertura 100% |
+| TASK-UI-221 | Geometría editable + hit-testing + handles | EP-UI-202 | 2026-09-29 | `frontend/src/charting/__tests__/drawing-edit.test.ts`, `.../use-drawing-edit.test.tsx` · cobertura 100% |
 
 ### 🔴 Blocked (0)
 
@@ -81,14 +81,14 @@ Sin tareas.
 
 ```mermaid
 graph LR
-  UI220[TASK-UI-220 ✅] --> UI221[TASK-UI-221 📥]
+  UI220[TASK-UI-220 ✅] --> UI221[TASK-UI-221 ✅]
   UI221 --> UI222[TASK-UI-222 📥]
   UI222 --> UI240[TASK-UI-240 📥]
   UI240 --> UI241[TASK-UI-241 📥]
 ```
 
-**Avance de ruta crítica:** 1/5 tareas (20%). **ETA:** sin datos (primer tramo completado).
-Nota: `TASK-UI-221` (geometría editable + handles) es ahora la cabeza de la ruta crítica y está desbloqueada.
+**Avance de ruta crítica:** 2/5 tareas (40%). **ETA:** sin datos (dos tramos completados).
+Nota: `TASK-UI-222` (command stack undo/redo) es la nueva cabeza de la ruta crítica y está desbloqueada.
 
 ## 4. Métricas
 
@@ -161,7 +161,7 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. Continuar la ruta crítica: `TASK-UI-221` (geometría editable + handles), ya desbloqueada por `TASK-UI-220`.
+1. Continuar la ruta crítica: `TASK-UI-222` (command stack undo/redo), ya desbloqueada por `TASK-UI-221`.
 2. Avanzar en paralelo tareas sin dependencias: `TASK-201` (catálogo), `TASK-205` (contrato backend), `TASK-UI-201` (a11y base).
 3. Reservar `TASK-TEC-210/211/212` para el cierre.
 
@@ -172,3 +172,4 @@ Ninguno.
 | 2026-09-29 | — (todas) | — → 📥 Backlog | Inicialización de `status.md` desde `backlog.md` |
 | 2026-09-29 | TASK-UI-200 | 📥 → ✅ Done | Tokens implementados y verificados (contraste + 289 tests, eslint/tsc OK); autorización explícita |
 | 2026-09-29 | TASK-UI-220 | 📥 → ✅ Done | Modelo + serialización + paleta verificados (12 tests, cobertura 100% líneas); autorización explícita |
+| 2026-09-29 | TASK-UI-221 | 📥 → ✅ Done | Mover/redimensionar con handles y target ≥24px verificados (18 tests, cobertura 100% líneas); autorización explícita |
