@@ -170,7 +170,7 @@ export default function ChartSelector({ onOpen, defaultSymbol, onDownload }: Cha
       </fieldset>
       <RadioGroup
         name="timeframe"
-        legend="Timeframe (agregado desde 1s)"
+        legend="Timeframe (agregado desde 1 m)"
         options={TIMEFRAME_OPTIONS}
         value={timeframe}
         onChange={(value) => setTimeframe(value as Timeframe)}

@@ -46,8 +46,15 @@ describe('ChartSelector (TASK-026/TASK-UI-030, SCR-003)', () => {
     await renderLoaded();
 
     expect(screen.getByLabelText('Fecha de inicio')).toBeTruthy();
-    expect(screen.getByRole('group', { name: 'Timeframe (agregado desde 1s)' })).toBeTruthy();
+    expect(screen.getByRole('group', { name: 'Timeframe (agregado desde 1 m)' })).toBeTruthy();
     expect(screen.getByText(/Cobertura: 2024-09-06 → 2026-08-31/)).toBeTruthy();
+  });
+
+  it('offers no 1s timeframe option (RF-219)', async () => {
+    await renderLoaded();
+
+    expect(screen.queryByRole('radio', { name: '1s' })).toBeNull();
+    expect(screen.getByRole('radio', { name: '1m' })).toBeTruthy();
   });
 
   it('shows a loading skeleton while reading coverage', () => {

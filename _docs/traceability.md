@@ -26,7 +26,7 @@
 | RF-216 5 pares forex nuevos | `ingest.catalog` + `ingest.freeserv` (ADR-021) | TASK-201, TASK-UI-252 | `backend/tests/ingest/test_catalog.py`, `test_freeserv.py` (12 activos + ids) | 🔵 |
 | RF-217 Backend de nuevos activos | `ingest.catalog`/`freeserv` + `api` (ADR-021) | TASK-201, TASK-202, TASK-203 | `backend/tests/ingest/test_catalog.py`, `test_freeserv.py` (parcial) | 🔵 |
 | RF-218 Abrir centrada | `OpenChartScreen` (layout) | TASK-UI-260 | `frontend/src/__tests__/app.test.tsx` (contenedor centrado) | 🟢 |
-| RF-219 Retirar `1s` de la UI | `contracts/ohlc` + `pipeline/resample` (ADR-020) | TASK-205, TASK-206, TASK-UI-261 | `backend/tests/contracts/test_ohlc_contract.py`, `frontend/src/contracts/__tests__/ohlc.test.ts` (enum) | 🔵 |
+| RF-219 Retirar `1s` de la UI | `contracts/ohlc` + `pipeline/resample` (ADR-020) | TASK-205, TASK-206, TASK-UI-261 | `backend/tests/contracts/test_ohlc_contract.py`, `frontend/src/components/ChartSelector/__tests__/ChartSelector.test.tsx` (sin `1s`) | 🟢 |
 | RF-220 `GET /assets` + retirar espejo | `catalog` + `GET /assets` (ADR-021) | TASK-204, TASK-UI-270 | [pendiente] | 🔵 |
 
 ## Requisitos no funcionales
