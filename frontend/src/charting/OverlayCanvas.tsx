@@ -1,7 +1,8 @@
 import { useEffect, useRef, type MutableRefObject, type Ref, type RefObject } from 'react';
-import { COLOR_DOWN, COLOR_FOCUS, COLOR_TEXT_MUTED, COLOR_UP } from '../components/ChartPane/theme';
+import { COLOR_TEXT_MUTED } from '../components/ChartPane/theme';
 import { createFrameBatcher, type FrameBatcher } from '../performance/frame-batch';
 import type { OverlayBinding } from './chart-binding';
+import { colorForShape } from './drawings';
 import { projectShape, type MarketDirection, type OverlayShape } from './overlay-geometry';
 
 /**
@@ -21,7 +22,10 @@ export interface OverlayCanvasProps {
   binding: OverlayBinding | null;
   /** Trazos a dibujar (anclados a precio/tiempo, efímeros RI-003). */
   shapes: ReadonlyArray<OverlayShape>;
-  /** Color del trazo; por defecto el token accent del design system. */
+  /**
+   * Color de trazo que sobrescribe la paleta por tipo (RF-209). Si se omite,
+   * cada trazo usa el token del design system según su `kind`.
+   */
   strokeColor?: string;
   /** Ref opcional al `<canvas>` overlay para su composición en export (TASK-035). */
   canvasRef?: Ref<HTMLCanvasElement>;
@@ -34,10 +38,11 @@ function drawMarker(
   context: CanvasRenderingContext2D,
   position: { x: number; y: number },
   direction: MarketDirection,
+  color: string,
 ): void {
   const size = MARKER_SIZE;
   const tipOffset = direction === 'buy' ? -size : size;
-  context.fillStyle = direction === 'buy' ? COLOR_UP : COLOR_DOWN;
+  context.fillStyle = color;
   context.beginPath();
   context.moveTo(position.x, position.y);
   context.lineTo(position.x + size, position.y);
@@ -52,7 +57,7 @@ export default function OverlayCanvas({
   hostRef,
   binding,
   shapes,
-  strokeColor = COLOR_FOCUS,
+  strokeColor,
   canvasRef: externalCanvasRef,
 }: OverlayCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -91,11 +96,12 @@ export default function OverlayCanvas({
       canvas.height = Math.round(height * dpr);
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
       context.clearRect(0, 0, width, height);
-      context.strokeStyle = strokeColor;
       context.lineWidth = 1.5;
       for (const shape of shapes) {
         const fragment = projectShape(shape, binding);
         if (fragment.kind === 'hidden') continue;
+        // Paleta por tipo desde los tokens; `strokeColor` la sobrescribe (RF-209).
+        context.strokeStyle = strokeColor ?? colorForShape(shape);
         if (fragment.kind === 'line') {
           context.beginPath();
           context.moveTo(fragment.from.x, fragment.from.y);
@@ -128,7 +134,7 @@ export default function OverlayCanvas({
           }
           continue;
         }
-        drawMarker(context, fragment.position, fragment.direction);
+        drawMarker(context, fragment.position, fragment.direction, colorForShape(shape));
       }
     };
 

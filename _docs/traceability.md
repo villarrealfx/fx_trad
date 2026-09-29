@@ -16,7 +16,7 @@
 | RF-206 Eje X con hora:minuto | `ChartPane` (ejes) | TASK-UI-230 | [pendiente] | 🔵 |
 | RF-207 Eje Y 5 decimales (derecha) | `ChartPane` (ejes) | TASK-UI-230 | [pendiente] | 🔵 |
 | RF-208 Marcas compra/venta fuera de la vela | `charting/drawings` (ADR-017) | TASK-UI-223 | [pendiente] | 🔵 |
-| RF-209 Colores mate por dibujo | `charting/drawings` (ADR-017) | TASK-UI-220 | [pendiente] | 🔵 |
+| RF-209 Colores mate por dibujo | `charting/drawings` (ADR-017) | TASK-UI-220 | `frontend/src/charting/__tests__/drawings.test.ts` (color por token) | 🟢 |
 | RF-210 Shift horizontal/vertical | `charting/drawings` (ADR-017) | TASK-UI-223 | [pendiente] | 🔵 |
 | RF-211 Íconos representativos | Design system / iconografía | TASK-UI-200 | `frontend/src/styles/__tests__/tokens.test.ts` (tokens de ícono) | 🔵 |
 | RF-212 Editar dibujos (mover/redimensionar) | `drawings` + `OverlayCanvas` (ADR-017) | TASK-UI-221 | [pendiente] | 🔵 |
@@ -49,7 +49,7 @@
 
 | Requisito | Diseño (ADR/Componente) | Tarea | Prueba | Estado |
 |-----------|-------------------------|-------|--------|--------|
-| RI-201 Entidad Configuración de gráfico | `state/chart-config` (ADR-018) | TASK-UI-240, TASK-UI-241, TASK-UI-242 | [pendiente] | 🔵 |
+| RI-201 Entidad Configuración de gráfico | `state/chart-config` (ADR-018) | TASK-UI-220, TASK-UI-240, TASK-UI-241, TASK-UI-242 | `frontend/src/charting/__tests__/drawings.test.ts` (serialización, parcial) | 🔵 |
 | RI-202 Catálogo vía `GET /assets` | `GET /assets` + `CatalogQuery` (ADR-021) | TASK-203, TASK-204 | [pendiente] | 🔵 |
 | RI-001 OHLC time único UTC (heredado) | `storage` (ADR-004) | Heredado (01/02) | [pendiente] | 🔵 |
 | RI-002 Metadatos de descarga (heredado) | `storage` (ADR-004) | Heredado (01/02) | [pendiente] | 🔵 |
