@@ -9,7 +9,7 @@
 | Requisito | Diseño (ADR/Componente) | Tarea | Prueba | Estado |
 |-----------|-------------------------|-------|--------|--------|
 | RF-201 Indicadores sin defaults | `IndicatorForm` + `ChartHeader` (ADR-019) | TASK-UI-211, TASK-UI-212 | `frontend/src/state/__tests__/use-chart-config.test.tsx` (estado inicial vacío) | 🟢 |
-| RF-202 Eliminar panel inferior + fullscreen | `IndicatorForm`/`ChartPane` (ADR-019) | TASK-UI-213, TASK-UI-231, TASK-UI-280 | `frontend/src/components/MultiChart/__tests__/MultiChart.test.tsx` (parcial) | 🔵 |
+| RF-202 Eliminar panel inferior + fullscreen | `IndicatorForm`/`ChartPane` (ADR-019) | TASK-UI-213, TASK-UI-231, TASK-UI-280 | `frontend/src/__tests__/app.test.tsx` (fullscreen), `.../MultiChart.test.tsx` | 🟢 |
 | RF-203 Formulario flotante de indicadores | `IndicatorForm` + `ChartHeader` (ADR-019) | TASK-UI-212, TASK-UI-214, TASK-UI-280 | `frontend/src/components/IndicatorForm/__tests__/IndicatorForm.test.tsx`, `.../MultiChart.test.tsx` (por pane) | 🟢 |
 | RF-204 Persistir config al cambiar de hoja | `state/chart-config` + `use-chart-config` (ADR-018) | TASK-UI-240, TASK-UI-241 | `frontend/src/state/__tests__/use-chart-config.test.tsx` (navegar/recargar) | 🟢 |
 | RF-205 Export en el header | `ChartHeader` (ADR-019) | TASK-UI-210, TASK-UI-232 | `.../ChartHeader.test.tsx`, `.../ChartPane.test.tsx` (disparo desde header), `frontend/src/__tests__/app.test.tsx` (modal) | 🟢 |
@@ -35,7 +35,7 @@
 |-----------|-------------------------|-------|--------|--------|
 | RNF-201 Persistencia versionada robusta | `state/chart-config` (ADR-018) | TASK-UI-240, TASK-UI-241, TASK-UI-242 | [pendiente] | 🔵 |
 | RNF-202 Edición de dibujos a 60 FPS | `OverlayCanvas` + drawings (ADR-017) | TASK-UI-222, TASK-UI-224 | TASK-TEC-212 | 🔵 |
-| RNF-203 0 regresiones | CI GitHub Actions (ADR-008) + suites | TASK-TEC-210 | TASK-TEC-210 | 🔵 |
+| RNF-203 0 regresiones | CI GitHub Actions (ADR-008) + suites | TASK-TEC-210 | `pytest` 546/2 + `vitest` 389 · ruff/black/mypy(src)/eslint/tsc OK | 🟢 |
 | RNF-204 Tokens de diseño | Design system frontend | TASK-UI-200 | `frontend/src/styles/__tests__/tokens.test.ts` (contraste + anti-drift) | 🟢 |
 | RNF-205 Activos nuevos misma latencia/contrato | `ingest` (ADR-021) | TASK-202, TASK-203 | [pendiente] | 🔵 |
 | RNF-001 Latencia 60 FPS (heredado) | `lightweight-charts` + overlay (ADR-005/017) | Heredado (01/02) | [pendiente] | 🔵 |
