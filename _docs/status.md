@@ -1,6 +1,6 @@
 # Estado del Proyecto: Mejoras UX (Ciclo 03)
 
-> Última actualización: 2026-09-29 10:55
+> Última actualización: 2026-09-29 11:05
 > Fuente: `_docs/backlog.md`, `_docs/traceability.md`
 
 ## 1. Resumen ejecutivo
@@ -8,19 +8,19 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 35 | — |
-| 📥 Backlog | 31 | -1 |
+| 📥 Backlog | 30 | -1 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | — |
-| ✅ Done | 4 | +1 |
+| ✅ Done | 5 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 11% | +2% |
+| % Completado | 14% | +3% |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso.
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (31)
+### 📥 Backlog (30)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
@@ -30,7 +30,6 @@
 | TASK-204 | Consumir `GET /assets` y quitar espejo | EP-201 | 5 | 203 |
 | TASK-205 | Retirar `1s` del contrato backend | EP-202 | 2 | — |
 | TASK-206 | Retirar `1s` del espejo TS | EP-202 | 2 | 205 |
-| TASK-UI-201 | Accesibilidad base | EP-UI-200 | 2 | UI-200 |
 | TASK-UI-210 | `ChartHeader` | EP-UI-201 | 3 | UI-200 |
 | TASK-UI-211 | Sin indicadores por defecto | EP-UI-201 | 2 | UI-210 |
 | TASK-UI-212 | `IndicatorForm` flotante | EP-UI-201 | 5 | UI-210, UI-201 |
@@ -64,11 +63,12 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (4)
+### ✅ Done (5)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
 | TASK-UI-200 | Tokens del design system (dibujos, popover, ejes, sombras, íconos) | EP-UI-200 | 2026-09-29 | `frontend/src/styles/__tests__/tokens.test.ts` · eslint/tsc OK |
+| TASK-UI-201 | Setup de accesibilidad base (LiveRegion, `.sr-only`, skip/foco) | EP-UI-200 | 2026-09-29 | `frontend/src/components/ui/__tests__/LiveRegion.test.tsx`, `.../AppShell.test.tsx` |
 | TASK-UI-220 | Modelo de dibujo + serialización + paleta mate | EP-UI-202 | 2026-09-29 | `frontend/src/charting/__tests__/drawings.test.ts` · cobertura 100% |
 | TASK-UI-221 | Geometría editable + hit-testing + handles | EP-UI-202 | 2026-09-29 | `frontend/src/charting/__tests__/drawing-edit.test.ts`, `.../use-drawing-edit.test.tsx` · cobertura 100% |
 | TASK-UI-222 | Command stack undo/redo + atajos | EP-UI-202 | 2026-09-29 | `frontend/src/charting/__tests__/drawing-history.test.ts`, `.../ChartPane.test.tsx` · cobertura 100% |
@@ -161,9 +161,10 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. Continuar la ruta crítica: `TASK-UI-240` (persistencia), que depende de `TASK-UI-212` (`IndicatorForm`, en Backlog).
-2. Avanzar en paralelo tareas sin dependencias: `TASK-201` (catálogo), `TASK-205` (contrato backend), `TASK-UI-201` (a11y base), `TASK-UI-223` (marcadores, dep UI-220 ✅).
-3. Reservar `TASK-TEC-210/211/212` para el cierre.
+1. Implementar `TASK-UI-210` (ChartHeader): desbloquea `TASK-UI-211`, `TASK-UI-212`, `TASK-UI-232` y `TASK-UI-280`.
+2. Continuar la ruta crítica: `TASK-UI-240` (persistencia) cuando `TASK-UI-212` esté Done.
+3. Avanzar en paralelo sin dependencias: `TASK-201` (catálogo), `TASK-205` (contrato backend), `TASK-UI-223` (marcadores, dep UI-220 ✅).
+4. Reservar `TASK-TEC-210/211/212` para el cierre.
 
 ## 9. Historial de cambios (append-only)
 
@@ -174,3 +175,4 @@ Ninguno.
 | 2026-09-29 | TASK-UI-220 | 📥 → ✅ Done | Modelo + serialización + paleta verificados (12 tests, cobertura 100% líneas); autorización explícita |
 | 2026-09-29 | TASK-UI-221 | 📥 → ✅ Done | Mover/redimensionar con handles y target ≥24px verificados (18 tests, cobertura 100% líneas); autorización explícita |
 | 2026-09-29 | TASK-UI-222 | 📥 → ✅ Done | Command stack con gesto; undo/redo por botones y atajos (13 tests, cobertura 100% stmts); autorización explícita |
+| 2026-09-29 | TASK-UI-201 | 📥 → ✅ Done | LiveRegion (CMP-020) + `.sr-only`; skip link y foco verificados; autorización explícita |

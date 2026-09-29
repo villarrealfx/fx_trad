@@ -24,6 +24,7 @@
 | **CMP-017** | **ChartHeader** (nuevo) | — | `symbol`, `timeframe`, `onOpenIndicators`, `onExport`, `onFit` | default, indicators-open | SCR-004, SCR-005 |
 | **CMP-018** | **DrawingHandle** (nuevo) | endpoint, midpoint | `position`, `onDragStart`, `onDrag`, `onDragEnd` | default, hover, active, disabled | SCR-004, SCR-005 |
 | **CMP-019** | **EditableDrawing** (nuevo) | line, rect, fib, buy, sell | `model`, `editable`, `onChange`, `selected` | default, selected, dragging, read-only | SCR-004, SCR-005 |
+| **CMP-020** | **LiveRegion** (nuevo) | polite, assertive | `message`, `tone`, `atomic` | anuncio (sin estados visuales) | SCR-001…006 |
 
 ## Reglas de composición
 

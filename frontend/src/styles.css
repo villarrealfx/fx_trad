@@ -19,6 +19,20 @@ body {
   outline-offset: 2px;
 }
 
+/* Contenido solo para lectores de pantalla: regiones live y etiquetas
+   auxiliares (WCAG 1.3.1, 4.1.3). */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* Respeta la preferencia de movimiento reducido (WCAG 2.3.3). */
 @media (prefers-reduced-motion: reduce) {
   *,

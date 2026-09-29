@@ -21,7 +21,10 @@ describe('AppShell (TASK-UI-003)', () => {
     expect(screen.getByRole('link', { name: 'Saltar al contenido' }).getAttribute('href')).toBe(
       '#main-content',
     );
-    expect(screen.getByRole('main')).toBeTruthy();
+    const main = screen.getByRole('main');
+    expect(main).toBeTruthy();
+    // El destino del skip link debe ser enfocable programáticamente (WCAG 2.4.1).
+    expect(main.getAttribute('tabindex')).toBe('-1');
   });
 
   it('marks the active route with aria-current', () => {

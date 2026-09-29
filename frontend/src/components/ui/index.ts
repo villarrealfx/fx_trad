@@ -19,3 +19,4 @@ export { default as ProgressBar, type ProgressBarProps, type ProgressStatus } fr
 export { default as Toast, type ToastProps, type ToastTone } from './Toast';
 export { default as Modal, type ModalProps } from './Modal';
 export { default as Tab, type TabItem, type TabProps } from './Tab';
+export { default as LiveRegion, type LiveRegionProps, type LiveTone } from './LiveRegion';
