@@ -62,6 +62,27 @@ describe('DownloadForm (SCR-002)', () => {
     expect(screen.getByRole('button', { name: 'Iniciar descarga' })).toBeTruthy();
   });
 
+  it('offers the 5 new forex pairs from the catalog (RF-216, TASK-UI-252)', async () => {
+    const pairs = ['GBPJPY', 'EURJPY', 'AUDUSD', 'USDCAD', 'EURGBP'];
+    assetsMocks.fetchCatalog.mockResolvedValue(
+      pairs.map((symbol) => ({
+        symbol,
+        type: 'forex',
+        coverage_start: null,
+        coverage_end: null,
+        status: 'sin_datos',
+      })),
+    );
+
+    render(<DownloadForm referenceDate={REFERENCE} />);
+    await screen.findByRole('option', { name: 'GBPJPY' });
+
+    for (const symbol of pairs) {
+      expect(screen.getByRole('option', { name: symbol })).toBeTruthy();
+    }
+    expect(assetsMocks.fetchCatalog).toHaveBeenCalledTimes(1);
+  });
+
   it('changes the asset options with the type', async () => {
     await renderReady();
 
