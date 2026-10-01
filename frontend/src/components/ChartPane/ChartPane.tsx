@@ -510,13 +510,14 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
     }
   }
 
-  /** Aplica la restricción H/V de `Shift` al 2.º punto de una línea (RF-210). */
+  /** Aplica la restricción H/V de `Shift` al 2.º punto de línea u operación (RF-210). */
   function constrainLineAnchor(
     from: PriceTimePoint,
     to: PriceTimePoint,
     cursor: PixelPoint,
   ): PriceTimePoint {
-    if (activeTool !== 'line' || !shiftRef.current || overlayBinding === null) return to;
+    const shiftable = activeTool === 'line' || activeTool === 'operation';
+    if (!shiftable || !shiftRef.current || overlayBinding === null) return to;
     const fromPixel = projectPoint(from, overlayBinding);
     return fromPixel === null ? to : constrainToAxis(from, to, fromPixel, cursor);
   }
@@ -532,12 +533,16 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
     }
     const to = constrainLineAnchor(drawFrom, anchor, cursor);
     const id = `${activeTool}-${drawFrom.time}-${to.time}`;
-    const shape: OverlayShape =
-      activeTool === 'line'
-        ? { id, kind: 'line', from: drawFrom, to }
-        : activeTool === 'rect'
-          ? { id, kind: 'rect', from: drawFrom, to }
-          : { id, kind: 'fib', from: drawFrom, to };
+    let shape: OverlayShape;
+    if (activeTool === 'line') {
+      shape = { id, kind: 'line', from: drawFrom, to };
+    } else if (activeTool === 'rect') {
+      shape = { id, kind: 'rect', from: drawFrom, to };
+    } else if (activeTool === 'operation') {
+      shape = { id, kind: 'operation', from: drawFrom, to };
+    } else {
+      shape = { id, kind: 'fib', from: drawFrom, to };
+    }
     history.update((current) => [...current, shape]);
     setDrawFrom(null);
     setPreviewShape(null);
@@ -555,11 +560,12 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
       eraseAt(cursor);
       return;
     }
-    if (activeTool === 'operation') {
-      // TODO(TASK-UI-311): crear la operación con dos clics (Entrada, SL).
-      return;
-    }
-    if (activeTool === 'line' || activeTool === 'rect' || activeTool === 'fib') {
+    if (
+      activeTool === 'line' ||
+      activeTool === 'rect' ||
+      activeTool === 'fib' ||
+      activeTool === 'operation'
+    ) {
       handleDrawClick(param, cursor);
       return;
     }
@@ -714,7 +720,10 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
   previewHandlerRef.current = (param) => {
     if (
       drawFrom === null ||
-      (activeTool !== 'line' && activeTool !== 'rect' && activeTool !== 'fib')
+      (activeTool !== 'line' &&
+        activeTool !== 'rect' &&
+        activeTool !== 'fib' &&
+        activeTool !== 'operation')
     ) {
       return;
     }

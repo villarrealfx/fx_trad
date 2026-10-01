@@ -8,11 +8,11 @@
 
 | Requisito | Diseño (ADR/Componente) | Tarea | Prueba | Estado |
 |-----------|-------------------------|-------|--------|--------|
-| RF-301 Dos anclas Entrada/SL | `operation-geometry` + `OverlayShape {kind:'operation'}` (ADR-022) | TASK-301, TASK-302 | `operation-geometry.test.ts` (`operationRisk`) · `drawings.test.ts` | 🟢 |
+| RF-301 Dos anclas Entrada/SL | `operation-geometry` + `OverlayShape {kind:'operation'}` (ADR-022) | TASK-301, TASK-302, TASK-UI-311 | `operation-geometry.test.ts` (`operationRisk`) · `drawings.test.ts` · `ChartPane.test.tsx` (creación en 2 clics) | 🟢 |
 | RF-302 Dirección automática | `operationDirection` (ADR-022) | TASK-301 | `operation-geometry.test.ts` (`operationDirection`) | 🟢 |
 | RF-303 Cinco niveles visibles | `operationLevels` + `projectShape` (ADR-022) | TASK-301, TASK-304, TASK-303, TASK-305 | `operation-geometry.test.ts` (precios RF-303) · `overlay-geometry.test.ts` (proyección de los 5, hit-test y zeroRisk) · `OverlayCanvas.test.tsx` | 🔵 |
 | RF-304 Niveles de cálculo no visibles | `OPERATION_TP_MULTIPLIERS` = solo `[1.382, 1.5, 2]`; sin 1:1 (ADR-022, D-3) | TASK-301 | `operation-geometry.test.ts` (no incluye el 1:1) | 🟢 |
-| RF-305 Recálculo de TP y dirección | Derivación pura por proyección; sin estado ni caché (ADR-022, RI-301) | TASK-301, TASK-UI-311, TASK-UI-314 | `operation-geometry.test.ts` (recalcula al mover el SL) | 🔵 |
+| RF-305 Recálculo de TP y dirección | Derivación pura por proyección; sin estado ni caché (ADR-022, RI-301) | TASK-301, TASK-UI-311, TASK-UI-314 | `operation-geometry.test.ts` (recalcula al mover el SL) · `ChartPane.test.tsx` (Shift en creación) | 🔵 |
 | RF-306 Un único dibujo | `kind:'operation'` propio; `hitTestFragment` por línea (ADR-022) | TASK-302, TASK-304, TASK-UI-311 | `drawings.test.ts` (unión y guarda aceptan la operación) · `overlay-geometry.test.ts` (hit-test de cualquiera de las 5) | 🔵 |
 | RF-307 Edición por handles | `'operation'` en `ResizableShape` (ADR-022); command stack heredado | TASK-302, TASK-UI-311, TASK-UI-315 | `drawing-edit.test.ts` (`isResizableShape`, handles, resize/move de la operación) | 🔵 |
 | RF-308 Etiquetas con precio a 5 decimales | `layoutOperationLabels` + `axis-format` (ADR-025) | TASK-UI-312, TASK-UI-313, TASK-UI-315 | `operation-geometry.test.ts` | 🔵 |

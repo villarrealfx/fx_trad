@@ -655,6 +655,56 @@ describe('ChartPane', () => {
     await waitFor(() => expect(ctx.stroke).toHaveBeenCalled());
   });
 
+  it('creates an operation from two clicks with the operation tool (RF-301)', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    const onDrawingsChange = vi.fn();
+    const { container } = render(
+      <ChartPane symbol="EURUSD" timeframe="1h" onDrawingsChange={onDrawingsChange} />,
+    );
+    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+    fireEvent.click(screen.getByRole('button', { name: 'Operación: 2 clics (Entrada, SL)' }));
+    emitChartClick(1_781_000_000, 5, 5);
+    emitChartClick(1_781_003_600, 60, 80);
+
+    expect(container.querySelector('.chart-pane')?.getAttribute('data-shapes')).toBe('1');
+    const last = onDrawingsChange.mock.calls.at(-1)?.[0] as OverlayShape[];
+    expect(last[0]?.kind).toBe('operation');
+  });
+
+  it('does not place a marker while the operation tool is active (RF-306)', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+    fireEvent.click(screen.getByRole('button', { name: 'Operación: 2 clics (Entrada, SL)' }));
+    emitChartClick(1_781_000_000, 5, 5);
+    emitChartClick(1_781_003_600, 60, 80);
+
+    expect(ctx.fill).not.toHaveBeenCalled();
+  });
+
+  it('restricts the second operation anchor with Shift (RF-210 heredado)', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    const originalPrice = chartMocks.coordinateToPrice.getMockImplementation();
+    chartMocks.coordinateToPrice.mockImplementation((y?: number) => 1.5 + (y ?? 0) / 1000);
+    try {
+      const onDrawingsChange = vi.fn();
+      render(<ChartPane symbol="EURUSD" timeframe="1h" onDrawingsChange={onDrawingsChange} />);
+      await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+      fireEvent.click(screen.getByRole('button', { name: 'Operación: 2 clics (Entrada, SL)' }));
+      fireEvent.keyDown(window, { key: 'Shift' });
+      emitChartClick(1_781_000_000, 0, 0);
+      emitChartClick(1_781_003_600, 100, 40);
+      fireEvent.keyUp(window, { key: 'Shift' });
+
+      const last = onDrawingsChange.mock.calls.at(-1)?.[0] as OverlayShape[];
+      const operation = last[0];
+      if (operation?.kind !== 'operation') throw new Error('expected an operation');
+      expect(operation.to.price).toBe(operation.from.price);
+    } finally {
+      chartMocks.coordinateToPrice.mockImplementation(originalPrice ?? (() => 1.5));
+    }
+  });
+
   it('erases a drawn shape with the erase tool', async () => {
     fetchMock.mockResolvedValue(createResponse(RESPONSE));
     const { container } = render(<ChartPane symbol="EURUSD" timeframe="1h" />);
