@@ -17,7 +17,7 @@
 | RF-307 Edición por handles | `'operation'` en `ResizableShape` (ADR-022); command stack heredado | TASK-302, TASK-UI-311, TASK-UI-315 | `drawing-edit.test.ts` (`isResizableShape`, handles, resize/move de la operación) | 🔵 |
 | RF-308 Etiquetas con precio a 5 decimales | `layoutOperationLabels` + `axis-format` (ADR-025) | TASK-UI-312, TASK-UI-313, TASK-UI-315 | `operation-geometry.test.ts` (layout) · `OverlayCanvas.test.tsx` (chips con precio exacto) · `ChartPane.test.tsx` | 🔵 |
 | RF-309 Colores por token de rol | `operationLevelColors` + `drawOpSl/Entry/Tp` (ADR-024) | TASK-302, TASK-UI-300, TASK-UI-313 | `tokens.test.ts` (reutiliza `up`/`down`/`text` + contraste) · `drawings.test.ts` (`colorForShape`) · `ChartPane.test.tsx` (render) | 🔵 |
-| RF-310 Disponible en Gráfico y Multigráfico | `ChartToolType` + `TOOL_DESCRIPTORS` (`ChartPane.tsx:77`) | TASK-UI-310, TASK-UI-321 | `ChartPane.test.tsx` (herramienta tras Fibonacci) · `DrawTool.test.tsx` (nombre accesible) | 🔵 |
+| RF-310 Disponible en Gráfico y Multigráfico | `ChartToolType` + `TOOL_DESCRIPTORS` (`ChartPane.tsx:77`) | TASK-UI-310, TASK-UI-321 | `ChartPane.test.tsx` (herramienta tras Fibonacci) · `DrawTool.test.tsx` · `operation-geometry.test.ts` (layout pane a pane) · `MultiChart.test.tsx` (syncId por pane) | 🔵 |
 | RF-311 Persistencia sin campos nuevos | Ampliación aditiva en v1 (ADR-023) | TASK-302, TASK-UI-320 | `drawings.test.ts` (round-trip conserva la operación) · `chart-config.test.ts` (documento mixto con operación) | 🔵 |
 | RF-312 Desenlace legible por lectura | Niveles visibles, sin cálculo ni persistencia (RF-W-302) | TASK-UI-313, TASK-UI-315 | `OverlayCanvas.test.tsx` | 🔵 |
 

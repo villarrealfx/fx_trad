@@ -59,6 +59,14 @@ describe('MultiChart (SCR-005)', () => {
     expect(panes[1].getAttribute('data-timeframe')).toBe('1d');
   });
 
+  it('gives each pane its own syncId for independent projection (TASK-UI-321)', () => {
+    render(<MultiChart symbol="EURUSD" />);
+
+    const syncIds = captured.props.map((props) => props.syncId);
+    expect(new Set(syncIds).size).toBe(2);
+    expect(syncIds.every((id) => typeof id === 'string' && id.length > 0)).toBe(true);
+  });
+
   it('adds panes up to the maximum of three and disables add with a tooltip', () => {
     render(<MultiChart symbol="EURUSD" />);
     const add = screen.getByRole('button', { name: 'Añadir gráfico' }) as HTMLButtonElement;

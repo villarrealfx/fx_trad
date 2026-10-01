@@ -206,3 +206,43 @@ describe('layoutOperationLabels (ADR-025, RNF-301)', () => {
     expect(layout.every((item) => item.leader === false)).toBe(true);
   });
 });
+
+describe('layout pane a pane en Multigráfico (TASK-UI-321)', () => {
+  // Dos escalas del mismo activo: un pane "amplio" y otro "estrecho".
+  const wideScale = (price: number): number => (1.7 - price) * 1000;
+  const narrowScale = (price: number): number => (1.7 - price) * 100;
+
+  /** Proyecta la operación con un mapper (el de un pane) y reparte sus etiquetas. */
+  function paneLayout(priceToY: (price: number) => number, height: number) {
+    const levels = operationLevels(1.5, 1.49).map((level) => ({
+      key: level.key,
+      y: priceToY(level.price),
+    }));
+    return layoutOperationLabels(levels, 20, { top: 0, bottom: height });
+  }
+
+  it('no solapa las cinco etiquetas en ningún pane, con su propio mapper', () => {
+    for (const [mapper, height] of [
+      [wideScale, 400],
+      [narrowScale, 400],
+    ] as const) {
+      const layout = paneLayout(mapper, height);
+      expect(layout).toHaveLength(5);
+      for (let i = 1; i < layout.length; i += 1) {
+        expect(layout[i].y - layout[i - 1].y).toBeGreaterThanOrEqual(20);
+      }
+      expect(layout.every((item) => item.y >= 0 && item.y <= height)).toBe(true);
+    }
+  });
+
+  it('proyecta con el mapper de cada pane (mismas anclas, distinta y)', () => {
+    const wide = paneLayout(wideScale, 400).map((item) => item.y);
+    const narrow = paneLayout(narrowScale, 400).map((item) => item.y);
+
+    expect(wide).not.toEqual(narrow);
+    for (let i = 1; i < wide.length; i += 1) {
+      expect(wide[i] - wide[i - 1]).toBeGreaterThanOrEqual(20);
+      expect(narrow[i] - narrow[i - 1]).toBeGreaterThanOrEqual(20);
+    }
+  });
+});
