@@ -12,6 +12,7 @@
  * referencia 1:1 **no** forma parte del conjunto visible (RF-304, D-3).
  */
 import { OPERATION_TOKENS } from '../styles/tokens';
+import { PRICE_FORMAT } from './axis-format';
 
 /** Multiplicadores de objetivo, en unidades de riesgo `R` (RF-303, S-6). */
 export const OPERATION_TP_MULTIPLIERS = OPERATION_TOKENS.tpMultipliers;
@@ -172,4 +173,38 @@ export function layoutOperationLabels(
     y: placed[index],
     leader: placed[index] !== level.y,
   }));
+}
+
+/** Orden de los niveles en el anuncio accesible: Entrada, SL y los tres TP. */
+const OPERATION_ANNOUNCEMENT_ORDER: ReadonlyArray<OperationLevelKey> = [
+  'entry',
+  'sl',
+  'tp1382',
+  'tp15',
+  'tp2',
+];
+
+/**
+ * Construye el texto que anuncia una operación a lectores de pantalla (ACC-201).
+ *
+ * Deriva de `operationLevels` —la misma fuente que el render— para que el
+ * anuncio y lo dibujado no puedan desincronizarse. En riesgo nulo
+ * (`Entrada == SL`) devuelve el aviso de `zeroRisk` en lugar de los niveles.
+ *
+ * @param entry Precio de entrada.
+ * @param sl Precio del stop loss.
+ * @returns Texto en español listo para `LiveRegion`.
+ */
+export function operationAnnouncement(entry: number, sl: number): string {
+  if (operationRisk(entry, sl) === 0) {
+    return 'Atención: entrada y SL coinciden; R = 0.';
+  }
+  const direction = operationDirection(entry, sl) === 'buy' ? 'compra' : 'venta';
+  const byKey = new Map(operationLevels(entry, sl).map((level) => [level.key, level]));
+  const parts = OPERATION_ANNOUNCEMENT_ORDER.map((key) => {
+    const level = byKey.get(key);
+    if (level === undefined) return '';
+    return `${level.label} ${level.price.toFixed(PRICE_FORMAT.precision)}`;
+  });
+  return `Operación ${direction}. ${parts.join(', ')}`;
 }

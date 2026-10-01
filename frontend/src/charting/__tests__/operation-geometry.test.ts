@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   OPERATION_TP_MULTIPLIERS,
   layoutOperationLabels,
+  operationAnnouncement,
   operationDirection,
   operationLevels,
   operationRisk,
@@ -132,6 +133,26 @@ describe('operationLevels', () => {
 describe('OPERATION_TP_MULTIPLIERS', () => {
   it('fixes the target multipliers at 1.382, 1.5 and 2', () => {
     expect(OPERATION_TP_MULTIPLIERS).toEqual([1.382, 1.5, 2]);
+  });
+});
+
+describe('operationAnnouncement (ACC-201)', () => {
+  it('announces a buy with its five levels at five decimals', () => {
+    expect(operationAnnouncement(1.1, 1.095)).toBe(
+      'Operación compra. Entrada 1.10000, SL 1.09500, ' +
+        'TP 1.382 1.10691, TP 1.5 1.10750, TP 2 1.11000',
+    );
+  });
+
+  it('announces a sell with the targets below the entry', () => {
+    expect(operationAnnouncement(1.095, 1.1)).toBe(
+      'Operación venta. Entrada 1.09500, SL 1.10000, ' +
+        'TP 1.382 1.08809, TP 1.5 1.08750, TP 2 1.08500',
+    );
+  });
+
+  it('warns instead of listing levels on zero risk', () => {
+    expect(operationAnnouncement(1.1, 1.1)).toBe('Atención: entrada y SL coinciden; R = 0.');
   });
 });
 

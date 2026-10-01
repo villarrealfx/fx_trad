@@ -737,6 +737,29 @@ describe('ChartPane', () => {
     }
   });
 
+  it('announces the operation on confirm, not while previewing (ACC-201)', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    const originalPrice = chartMocks.coordinateToPrice.getMockImplementation();
+    chartMocks.coordinateToPrice.mockImplementation((y?: number) => 1.5 + (y ?? 0) / 1000);
+    try {
+      const { container } = render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+      await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+      fireEvent.click(screen.getByRole('button', { name: 'Operación: 2 clics (Entrada, SL)' }));
+      emitChartClick(1_781_000_000, 0, 0);
+      emitCrosshairMove(1_781_003_600, 0, 100);
+      expect(container.querySelector('.sr-only[data-tone="polite"]')).toBeNull();
+
+      emitChartClick(1_781_003_600, 0, 100);
+      await waitFor(() =>
+        expect(container.querySelector('.sr-only[data-tone="polite"]')?.textContent).toContain(
+          'Operación',
+        ),
+      );
+    } finally {
+      chartMocks.coordinateToPrice.mockImplementation(originalPrice ?? (() => 1.5));
+    }
+  });
+
   it('erases a drawn shape with the erase tool', async () => {
     fetchMock.mockResolvedValue(createResponse(RESPONSE));
     const { container } = render(<ChartPane symbol="EURUSD" timeframe="1h" />);

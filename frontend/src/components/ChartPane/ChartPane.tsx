@@ -23,6 +23,7 @@ import { createOverlayBinding, type OverlayBinding } from '../../charting/chart-
 import type { ChartSyncController } from '../../charting/chart-sync';
 import { constrainToAxis } from '../../charting/drawing-edit';
 import { markerAnchorPrice } from '../../charting/markers';
+import { operationAnnouncement } from '../../charting/operation-geometry';
 import OverlayCanvas from '../../charting/OverlayCanvas';
 import {
   hitTestFragment,
@@ -43,6 +44,7 @@ import ChartHeader from '../ChartHeader/ChartHeader';
 import ChartToolbar, { type ChartToolDescriptor } from '../ChartToolbar/ChartToolbar';
 import { type ChartToolType } from '../DrawTool/DrawTool';
 import StatusBanner from '../ui/StatusBanner';
+import LiveRegion from '../ui/LiveRegion';
 import { fetchSeries } from '../../services/series';
 import {
   computeIndicators,
@@ -194,8 +196,14 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
   useEffect(() => {
     onDrawingsChangeRef.current?.(history.shapes);
   }, [history.shapes]);
+  /** Refs con los dibujos y la selección actuales para el fin de gesto. */
+  const drawnShapesRef = useRef(drawnShapes);
+  drawnShapesRef.current = drawnShapes;
+  const selectedShapeIdRef = useRef<string | null>(null);
   const [drawFrom, setDrawFrom] = useState<PriceTimePoint | null>(null);
   const [previewShape, setPreviewShape] = useState<OverlayShape | null>(null);
+  /** Anuncio accesible de la última mutación de una operación (ACC-201). */
+  const [liveMessage, setLiveMessage] = useState('');
   const [selectedMarkerId, setSelectedMarkerId] = useState<string | null>(null);
   const confirmRef = useRef<HTMLButtonElement | null>(null);
   const clickHandlerRef = useRef<(param: MouseEventParams<Time>) => void>(() => {});
@@ -232,9 +240,18 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
     shapes: drawnShapes,
     onShapesChange: history.update,
     onGestureStart: history.begin,
-    onGestureEnd: history.end,
+    onGestureEnd: () => {
+      history.end();
+      const edited = drawnShapesRef.current.find(
+        (shape) => shape.id === selectedShapeIdRef.current,
+      );
+      if (edited?.kind === 'operation') {
+        setLiveMessage(operationAnnouncement(edited.from.price, edited.to.price));
+      }
+    },
     enabled: status === 'success' && activeTool !== 'erase',
   });
+  selectedShapeIdRef.current = selectedShapeId;
 
   /** Notifica la vela de la leyenda al consumidor sin re-suscribir (TASK-UI-050). */
   const onLegendRef = useRef(onLegend);
@@ -507,6 +524,9 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
     const hit = drawnShapes.find((shape) => shapeHitTest(shape, cursor));
     if (hit !== undefined) {
       history.update((current) => current.filter((shape) => shape.id !== hit.id));
+      if (hit.kind === 'operation') {
+        setLiveMessage('Operación eliminada.');
+      }
     }
   }
 
@@ -544,6 +564,9 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
       shape = { id, kind: 'fib', from: drawFrom, to };
     }
     history.update((current) => [...current, shape]);
+    if (shape.kind === 'operation') {
+      setLiveMessage(operationAnnouncement(shape.from.price, shape.to.price));
+    }
     setDrawFrom(null);
     setPreviewShape(null);
   }
@@ -821,6 +844,7 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
           </div>
         )}
       </div>
+      {liveMessage !== '' && <LiveRegion message={liveMessage} />}
       {status === 'success' && partialCoverage && (
         <StatusBanner
           tone="warning"

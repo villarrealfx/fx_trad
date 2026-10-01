@@ -34,7 +34,7 @@
 | RNF-201 Persistencia robusta (heredado) | `state/chart-config` (ADR-018) | Heredado (03) | `chart-config.test.ts` (03) | 🟢 |
 | RNF-204 Tokens de diseño (heredado) | Design system frontend | Heredado (03) | `tokens.test.ts` (03) | 🟢 |
 | RNF-001 / RNF-004 / RNF-005 / RNF-006 / RNF-007 (heredados) | Stack vigente (ADR-001…009) | Heredado (01) | `iterations/01-mvp/` | 🟢 |
-| ACC-201 Accesibilidad axe-core (hijos + extender) | ADR-011 + contratos ARIA | Heredado (03); **nuevo**: TASK-UI-314, TASK-TEC-301 | `a11y.test.tsx` (03) · `ChartPane.test.tsx` (nuevo) | 🟢 |
+| ACC-201 Accesibilidad axe-core (hijos + extender) | ADR-011 + contratos ARIA | Heredado (03); **nuevo**: TASK-UI-314, TASK-TEC-301 | `a11y.test.tsx` (03) · `ChartPane.test.tsx` (anuncio de operación) · `operation-geometry.test.ts` (texto del anuncio) | 🟢 |
 
 ## Requisitos de información
 
