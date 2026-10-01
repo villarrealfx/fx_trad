@@ -27,6 +27,15 @@ const DRAWINGS: OverlayShape[] = [
   },
 ];
 
+/** Documento con los cinco tipos de dibujo, incluida la operación (TASK-UI-320). */
+const MIXED_DRAWINGS: OverlayShape[] = [
+  { id: 'line-1', kind: 'line', from: { time: 0, price: 1 }, to: { time: 10, price: 2 } },
+  { id: 'rect-1', kind: 'rect', from: { time: 0, price: 1 }, to: { time: 10, price: 2 } },
+  { id: 'fib-1', kind: 'fib', from: { time: 0, price: 1 }, to: { time: 10, price: 2 } },
+  { id: 'op-1', kind: 'operation', from: { time: 0, price: 1.1 }, to: { time: 10, price: 1.095 } },
+  { id: 'buy-1', kind: 'marker', position: { time: 0, price: 1 }, direction: 'buy' },
+];
+
 /** `Storage` en memoria para tests deterministas. */
 class MemoryStorage implements Storage {
   private readonly map = new Map<string, string>();
@@ -71,8 +80,9 @@ describe('serializeChartConfig / deserializeChartConfig', () => {
     expect(deserializeChartConfig(null)).toBeNull();
     expect(deserializeChartConfig('')).toBeNull();
     expect(deserializeChartConfig('{no-json')).toBeNull();
-    expect(deserializeChartConfig(JSON.stringify({ version: 999, indicators: [], drawings: [] })))
-      .toBeNull();
+    expect(
+      deserializeChartConfig(JSON.stringify({ version: 999, indicators: [], drawings: [] })),
+    ).toBeNull();
     expect(deserializeChartConfig(JSON.stringify({ version: CHART_CONFIG_VERSION }))).toBeNull();
   });
 
@@ -198,5 +208,44 @@ describe('esquema y migración (TASK-UI-242)', () => {
       indicators: INDICATORS,
       drawings: DRAWINGS,
     });
+  });
+});
+
+describe('documento v1 mixto con operación (TASK-UI-320, RNF-304)', () => {
+  it('hace round-trip de los cinco tipos de dibujo sin pérdida', () => {
+    const raw = serializeChartConfig({ indicators: INDICATORS, drawings: MIXED_DRAWINGS });
+
+    const restored = deserializeChartConfig(raw);
+
+    expect(restored).toEqual({
+      version: CHART_CONFIG_VERSION,
+      indicators: INDICATORS,
+      drawings: MIXED_DRAWINGS,
+    });
+    expect(restored?.drawings).toHaveLength(5);
+  });
+
+  it('conserva la operación a través del store por activo + timeframe', () => {
+    const storage = new MemoryStorage();
+    const store = createChartConfigStore(storage);
+
+    store.save('EURUSD', '1h', { indicators: INDICATORS, drawings: MIXED_DRAWINGS });
+
+    expect(store.load('EURUSD', '1h')?.drawings).toEqual(MIXED_DRAWINGS);
+  });
+
+  it('mantiene la versión 1 y la clave estables (ADR-023, sin bump)', () => {
+    expect(CHART_CONFIG_VERSION).toBe(1);
+    expect(chartConfigKey('EURUSD', '1h')).toBe('fxtrad.chart.v1.EURUSD.1h');
+  });
+
+  it('filtra una operación malformada conservando el resto', () => {
+    const raw = JSON.stringify({
+      version: CHART_CONFIG_VERSION,
+      indicators: INDICATORS,
+      drawings: [...MIXED_DRAWINGS, { id: 'bad-op', kind: 'operation', from: { time: 0 } }],
+    });
+
+    expect(deserializeChartConfig(raw)?.drawings).toEqual(MIXED_DRAWINGS);
   });
 });

@@ -18,7 +18,7 @@
 | RF-308 Etiquetas con precio a 5 decimales | `layoutOperationLabels` + `axis-format` (ADR-025) | TASK-UI-312, TASK-UI-313, TASK-UI-315 | `operation-geometry.test.ts` (layout) · `OverlayCanvas.test.tsx` (chips con precio exacto) · `ChartPane.test.tsx` | 🔵 |
 | RF-309 Colores por token de rol | `operationLevelColors` + `drawOpSl/Entry/Tp` (ADR-024) | TASK-302, TASK-UI-300, TASK-UI-313 | `tokens.test.ts` (reutiliza `up`/`down`/`text` + contraste) · `drawings.test.ts` (`colorForShape`) · `ChartPane.test.tsx` (render) | 🔵 |
 | RF-310 Disponible en Gráfico y Multigráfico | `ChartToolType` + `TOOL_DESCRIPTORS` (`ChartPane.tsx:77`) | TASK-UI-310, TASK-UI-321 | `ChartPane.test.tsx` (herramienta tras Fibonacci) · `DrawTool.test.tsx` (nombre accesible) | 🔵 |
-| RF-311 Persistencia sin campos nuevos | Ampliación aditiva en v1 (ADR-023) | TASK-302, TASK-UI-320 | `drawings.test.ts` (round-trip conserva la operación) · `chart-config.test.ts` (mixto) | 🔵 |
+| RF-311 Persistencia sin campos nuevos | Ampliación aditiva en v1 (ADR-023) | TASK-302, TASK-UI-320 | `drawings.test.ts` (round-trip conserva la operación) · `chart-config.test.ts` (documento mixto con operación) | 🔵 |
 | RF-312 Desenlace legible por lectura | Niveles visibles, sin cálculo ni persistencia (RF-W-302) | TASK-UI-313, TASK-UI-315 | `OverlayCanvas.test.tsx` | 🔵 |
 
 ## Requisitos no funcionales
@@ -28,7 +28,7 @@
 | RNF-301 Etiquetas sin solape | Separación mínima + línea guía en `layoutOperationLabels` (ADR-025) | TASK-UI-312, TASK-UI-315 | `operation-geometry.test.ts` (layout) · `OverlayCanvas.test.tsx` (línea guía) | 🔵 |
 | RNF-302 60 FPS con la figura activa | `OverlayCanvas` + frame-batch (ADR-017); 5 niveles O(1) por frame (ADR-022) | TASK-TEC-300 | `ChartPane.test.tsx` (frame budget) | 🔵 |
 | RNF-303 0 regresiones | CI GitHub Actions (ADR-008) | TASK-TEC-302 | `vitest` completo (baseline 393) | 🔵 |
-| RNF-304 No perder dibujos previos | Sin bump de versión ni de clave; `isOverlayShape` aditivo (ADR-023, P-301) | TASK-302, TASK-UI-320 | `chart-config.test.ts` (doc v1 mixto) | 🔵 |
+| RNF-304 No perder dibujos previos | Sin bump de versión ni de clave; `isOverlayShape` aditivo (ADR-023, P-301) | TASK-302, TASK-UI-320 | `chart-config.test.ts` (documento v1 mixto con operación, versión y clave) | 🔵 |
 | RNF-305 Contraste y anti-drift de tokens | 3 tokens en `tokens.ts` **y** `tokens.css` (ADR-024); medido 5.61 / 16.56 / 6.53 : 1 | TASK-302, TASK-UI-300, TASK-UI-301, TASK-TEC-301 | `tokens.test.ts` (anti-drift de `OPERATION_TOKENS` + contraste de las 4 etiquetas sobre chart y chip) | 🔵 |
 | RNF-202 60 FPS en edición (heredado) | `OverlayCanvas` + drawings (ADR-017) | Heredado (03) | `benchmark-ui.md` (03) | 🟢 |
 | RNF-201 Persistencia robusta (heredado) | `state/chart-config` (ADR-018) | Heredado (03) | `chart-config.test.ts` (03) | 🟢 |

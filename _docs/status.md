@@ -1,6 +1,6 @@
 # Estado del Proyecto: Dibujo Referencia de Operación (Ciclo 04)
 
-> Última actualización: 2026-10-01 14:37
+> Última actualización: 2026-10-01 14:49
 > Fuente: `_docs/backlog.md`, `_docs/traceability.md`
 
 ## 1. Resumen ejecutivo
@@ -8,23 +8,22 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 20 | — |
-| 📥 Backlog | 7 | -1 |
+| 📥 Backlog | 6 | -1 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | — |
-| ✅ Done | 13 | +1 |
+| ✅ Done | 14 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 65% (13/20 tareas · 43/56 pts) | +5% |
+| % Completado | 70% (14/20 tareas · 45/56 pts) | +5% |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (7)
+### 📥 Backlog (6)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
-| TASK-UI-320 | Round-trip de documento v1 mixto | EP-UI-302 | 2 | TASK-302 |
 | TASK-UI-321 | Verificación en Multigráfico | EP-UI-302 | 2 | TASK-UI-311, TASK-UI-313 |
 | TASK-TEC-300 | Frame budget con figura activa | EP-TEC-300 | 3 | TASK-UI-313 |
 | TASK-TEC-301 | axe-core + a11y | EP-TEC-300 | 2 | TASK-UI-315 |
@@ -40,7 +39,7 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (13)
+### ✅ Done (14)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
@@ -57,6 +56,7 @@ Sin tareas.
 | TASK-UI-313 | Render de 5 líneas + chips de etiqueta | EP-UI-301 | 2026-10-01 | `frontend/src/components/ChartPane/ChartPane.test.tsx` (render de líneas y chips) |
 | TASK-UI-314 | `LiveRegion`: anuncio de la operación | EP-UI-301 | 2026-10-01 | `operation-geometry.test.ts` (texto) · `ChartPane.test.tsx` (anuncio al confirmar) |
 | TASK-UI-315 | Tests de render + interacción | EP-UI-301 | 2026-10-01 | `OverlayCanvas.test.tsx` (5 líneas, chips, líder, zeroRisk) · `ChartPane.test.tsx` |
+| TASK-UI-320 | Round-trip de documento v1 mixto | EP-UI-302 | 2026-10-01 | `frontend/src/state/__tests__/chart-config.test.ts` (5 tipos + operación) |
 
 ### 🔴 Blocked (0)
 
@@ -109,15 +109,15 @@ Ninguno.
 
 ### 🟢 Informativas
 
-- `TASK-UI-315` completada: tests de render/interacción + **fix de `zeroRisk`**. **EP-UI-301 cerrada (6/6)**; ruta crítica 4/7. Suite 55 archivos / 447 tests.
-- **11/19 requisitos al 100%**: todos los RF de dibujo (301-309, 312) y RNF-301. RNF-305 75%; RI-301 67%.
-- Restan: EP-UI-302 (TASK-UI-320/321) y EP-TEC-300 (TASK-TEC-300…303, TECH-301).
+- `TASK-UI-320` completada: round-trip de documento v1 mixto con operación. **RF-311, RNF-304 y RI-301 a 100% → 14/19 requisitos.** Suite 55 archivos / 451 tests.
+- Restan 5 requisitos sin cerrar: RF-310 (TASK-UI-321), RNF-302 (TASK-TEC-300), RNF-303/RX-301 (TASK-TEC-302/303) y RNF-305 (TASK-TEC-301).
+- Restan tareas: EP-UI-302 (TASK-UI-321) y EP-TEC-300 (TASK-TEC-300…303, TECH-301).
 
 ## 7. Trazabilidad — salud
 
 | Requisito | Tareas | Done | Cobertura |
 |-----------|--------|------|-----------|
-| RF-301 | 2 | 2 | 100% |
+| RF-301 | 3 | 3 | 100% |
 | RF-302 | 1 | 1 | 100% |
 | RF-303 | 4 | 4 | 100% |
 | RF-304 | 1 | 1 | 100% |
@@ -127,22 +127,22 @@ Ninguno.
 | RF-308 | 3 | 3 | 100% |
 | RF-309 | 3 | 3 | 100% |
 | RF-310 | 2 | 1 | 50% |
-| RF-311 | 2 | 1 | 50% |
+| RF-311 | 2 | 2 | 100% |
 | RF-312 | 2 | 2 | 100% |
 | RNF-301 | 2 | 2 | 100% |
 | RNF-302 | 1 | 0 | 0% |
 | RNF-303 | 1 | 0 | 0% |
-| RNF-304 | 2 | 1 | 50% |
+| RNF-304 | 2 | 2 | 100% |
 | RNF-305 | 4 | 3 | 75% |
-| RI-301 | 3 | 2 | 67% |
+| RI-301 | 3 | 3 | 100% |
 | RX-301 | 1 | 0 | 0% |
 
-**Requisitos sin tareas:** ninguno ✅ · **Requisitos 100% Done:** 11/19 (RF-301, RF-302, RF-303, RF-304, RF-305, RF-306, RF-307, RF-308, RF-309, RF-312, RNF-301)
+**Requisitos sin tareas:** ninguno ✅ · **Requisitos 100% Done:** 14/19 (todos menos RF-310, RNF-302, RNF-303, RNF-305, RX-301)
 
 ## 8. Próximas acciones sugeridas
 
-1. Iniciar **TASK-UI-320** (2 pts, deps ✅) y **TASK-UI-321** (2 pts, deps ✅): cierran EP-UI-302.
-2. La ruta crítica sigue por `TASK-TEC-301` (tras TASK-UI-315 ✅); le siguen TASK-TEC-300/302/303.
+1. Iniciar **TASK-UI-321** (2 pts, deps ✅): verificación en Multigráfico; cierra EP-UI-302.
+2. La ruta crítica sigue por `TASK-TEC-301`; le siguen TASK-TEC-300/302/303.
 
 ## 9. Historial de cambios (append-only)
 
@@ -188,3 +188,6 @@ Ninguno.
 | 2026-10-01 | TASK-UI-315 | 📥 → 🔨 | Tests de render/interacción + fix de `zeroRisk` (gap de spec) |
 | 2026-10-01 | TASK-UI-315 | 🔨 → 👀 | Movida a revisión; árbol verde (447 tests, tsc/eslint OK) |
 | 2026-10-01 | TASK-UI-315 | 👀 → ✅ Done | DoD verificada; EP-UI-301 cerrada; 11/19 requisitos 100%; autorización del usuario |
+| 2026-10-01 | TASK-UI-320 | 📥 → 🔨 | Round-trip de documento v1 mixto con operación |
+| 2026-10-01 | TASK-UI-320 | 🔨 → 👀 | Movida a revisión; árbol verde (451 tests, tsc/eslint OK) |
+| 2026-10-01 | TASK-UI-320 | 👀 → ✅ Done | DoD verificada; RF-311/RNF-304/RI-301 100% (14/19); autorización del usuario |
