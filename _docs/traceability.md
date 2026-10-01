@@ -27,7 +27,7 @@
 |-----------|-------------------------|-------|--------|--------|
 | RNF-301 Etiquetas sin solape | Separación mínima + línea guía en `layoutOperationLabels` (ADR-025) | TASK-UI-312, TASK-UI-315 | `operation-geometry.test.ts` (layout) · `OverlayCanvas.test.tsx` (línea guía) | 🔵 |
 | RNF-302 60 FPS con la figura activa | `OverlayCanvas` + frame-batch (ADR-017); 5 niveles O(1) por frame (ADR-022) | TASK-TEC-300 | `ChartPane.test.tsx` (frame budget arrastrando la operación, 0 frames caídos) | 🔵 |
-| RNF-303 0 regresiones | CI GitHub Actions (ADR-008) | TASK-TEC-302 | `vitest` completo (baseline 393) | 🔵 |
+| RNF-303 0 regresiones | CI GitHub Actions (ADR-008) | TASK-TEC-302 | `vitest` completo en verde: **55 archivos / 458 tests** (baseline 393) | 🔵 |
 | RNF-304 No perder dibujos previos | Sin bump de versión ni de clave; `isOverlayShape` aditivo (ADR-023, P-301) | TASK-302, TASK-UI-320 | `chart-config.test.ts` (documento v1 mixto con operación, versión y clave) | 🔵 |
 | RNF-305 Contraste y anti-drift de tokens | 3 tokens en `tokens.ts` **y** `tokens.css` (ADR-024); medido 5.61 / 16.56 / 6.53 : 1 | TASK-302, TASK-UI-300, TASK-UI-301, TASK-TEC-301 | `tokens.test.ts` (anti-drift de `OPERATION_TOKENS` + contraste de las 4 etiquetas sobre chart y chip) | 🔵 |
 | RNF-202 60 FPS en edición (heredado) | `OverlayCanvas` + drawings (ADR-017) | Heredado (03) | `benchmark-ui.md` (03) | 🟢 |
