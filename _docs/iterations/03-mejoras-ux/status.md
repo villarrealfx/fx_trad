@@ -77,7 +77,7 @@ Nota: queda trabajo fuera de la ruta crítica (ejes, marcadores, Descarga, Abrir
 
 ### 4.1 Velocidad (si hay histórico)
 
-Sin histórico (no hay tareas Done).
+35 tareas completadas en la sesión del 2026-09-29 (121 puntos estimados, 1 dev).
 
 ### 4.2 Burn-down (si hay datos)
 
@@ -110,41 +110,44 @@ Ninguno.
 
 | Requisito | Tareas | Done | Cobertura |
 |-----------|--------|------|-----------|
-| RF-201 | 2 | 0 | 0% |
-| RF-202 | 2 | 0 | 0% |
-| RF-203 | 2 | 0 | 0% |
-| RF-204 | 2 | 0 | 0% |
-| RF-205 | 2 | 0 | 0% |
-| RF-206 | 1 | 0 | 0% |
-| RF-207 | 1 | 0 | 0% |
-| RF-208 | 1 | 0 | 0% |
-| RF-209 | 1 | 0 | 0% |
-| RF-210 | 1 | 0 | 0% |
-| RF-211 | 1 | 0 | 0% |
-| RF-212 | 1 | 0 | 0% |
-| RF-213 | 1 | 0 | 0% |
-| RF-214 | 1 | 0 | 0% |
-| RF-215 | 1 | 0 | 0% |
-| RF-216 | 2 | 0 | 0% |
-| RF-217 | 2 | 0 | 0% |
-| RF-218 | 1 | 0 | 0% |
-| RF-219 | 3 | 0 | 0% |
-| RF-220 | 2 | 0 | 0% |
-| RNF-201 | 3 | 0 | 0% |
-| RNF-202 | 2 (+TEC-212) | 0 | 0% |
-| RNF-203 | 1 | 0 | 0% |
-| RNF-204 | 1 | 0 | 0% |
-| RNF-205 | 2 | 0 | 0% |
-| RI-201 | 3 | 0 | 0% |
-| RI-202 | 2 | 0 | 0% |
-| RX-201 | 1 | 0 | 0% |
-| RX-202 | 2 | 0 | 0% |
+| RF-201 | 2 | 2 | 100% |
+| RF-202 | 2 | 2 | 100% |
+| RF-203 | 2 | 2 | 100% |
+| RF-204 | 2 | 2 | 100% |
+| RF-205 | 2 | 2 | 100% |
+| RF-206 | 1 | 1 | 100% |
+| RF-207 | 1 | 1 | 100% |
+| RF-208 | 1 | 1 | 100% |
+| RF-209 | 1 | 1 | 100% |
+| RF-210 | 1 | 1 | 100% |
+| RF-211 | 1 | 1 | 100% |
+| RF-212 | 1 | 1 | 100% |
+| RF-213 | 1 | 1 | 100% |
+| RF-214 | 1 | 1 | 100% |
+| RF-215 | 1 | 1 | 100% |
+| RF-216 | 2 | 2 | 100% |
+| RF-217 | 2 | 2 | 100% |
+| RF-218 | 1 | 1 | 100% |
+| RF-219 | 3 | 3 | 100% |
+| RF-220 | 2 | 2 | 100% |
+| RNF-201 | 3 | 3 | 100% |
+| RNF-202 | 2 (+TEC-212) | 2 | 100% |
+| RNF-203 | 1 | 1 | 100% |
+| RNF-204 | 1 | 1 | 100% |
+| RNF-205 | 2 | 2 | 100% |
+| RI-201 | 3 | 3 | 100% |
+| RI-202 | 2 | 2 | 100% |
+| RX-201 | 1 | 1 | 100% |
+| RX-202 | 2 | 2 | 100% |
 
-**Requisitos sin tareas:** ninguno ✅ · **Requisitos 100% Done:** 0/29.
+**Requisitos sin tareas:** ninguno ✅ · **Requisitos 100% Done:** 29/29 (100%).
+**Nota:** RF-211, RNF-201, RNF-205, RI-202 y RX-202 figuraban 🔵 por desincronización de
+`traceability.md`; corregidos a 🟢 con sus pruebas reales al cerrar el ciclo (2026-09-29).
 
 ## 8. Próximas acciones sugeridas
 
-1. Ciclo 03 completo. Cerrar la iteración: `/sdd-next new-cycle <nombre>` (archiva `_docs/` en `iterations/03-mejoras-ux/` y prepara el siguiente ciclo).
+1. Ciclo 03 completo (35/35). Cerrar la iteración: `/sdd-next new-cycle <nombre>` (archiva `_docs/` en `iterations/03-mejoras-ux/` y prepara el siguiente ciclo).
+2. `/sdd-backlog` deja de ser necesario: el backlog raíz ya refleja el 100% y se archiva con el ciclo.
 
 ## 9. Historial de cambios (append-only)
 

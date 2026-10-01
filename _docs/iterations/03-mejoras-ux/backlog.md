@@ -4,6 +4,7 @@
 > Fecha: 2026-09-29
 > Método de estimación: Fibonacci (1/2/3/5/8/13)
 > Cadencia: Kanban (flujo continuo, 1 dev)
+> Estado al cierre: **35/35 ✅ (100%)** — sincronizado con `status.md` el 2026-09-29
 
 ## 1. Resumen
 
@@ -18,7 +19,8 @@
 | Tareas test | 6 |
 | Tareas docs | 1 |
 | Esfuerzo total | 121 puntos |
-| Ruta crítica | TASK-UI-220 → UI-221 → UI-222 → UI-240 → UI-241 |
+| Estado final | 35/35 ✅ (0 📥 · 0 🔨 · 0 👀 · 0 🔴) |
+| Ruta crítica | TASK-UI-220 → UI-221 → UI-222 → UI-240 → UI-241 (5/5 ✅) |
 
 ## 2. Leyenda
 
@@ -49,10 +51,10 @@
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-201 | Añadir los 5 pares a `ingest.ASSET_CATALOG` | backend | 3 | — | Catálogo con 12 activos; tests de catálogo verdes | 📥 |
-| TASK-202 | Añadir `instrument_id` de los 5 pares en `ingest.freeserv.FREESERV_INSTRUMENT` | backend | 5 | TASK-201 | `instrument_id_for` resuelve los 5; test unitario + verificación empírica 1 m BID | 📥 |
-| TASK-203 | Verificar contrato `GET /assets` con el catálogo ampliado | backend | 3 | TASK-201 | Test de contrato `AssetRow` incluye los 5 pares | 📥 |
-| TASK-204 | Consumir `GET /assets` y eliminar el espejo `frontend/src/catalog/index.ts` | frontend | 5 | TASK-203 | Sin catálogo duplicado; `services/assets` usado; tests actualizados | 📥 |
+| TASK-201 | Añadir los 5 pares a `ingest.ASSET_CATALOG` | backend | 3 | — | Catálogo con 12 activos; tests de catálogo verdes | ✅ |
+| TASK-202 | Añadir `instrument_id` de los 5 pares en `ingest.freeserv.FREESERV_INSTRUMENT` | backend | 5 | TASK-201 | `instrument_id_for` resuelve los 5; test unitario + verificación empírica 1 m BID | ✅ |
+| TASK-203 | Verificar contrato `GET /assets` con el catálogo ampliado | backend | 3 | TASK-201 | Test de contrato `AssetRow` incluye los 5 pares | ✅ |
+| TASK-204 | Consumir `GET /assets` y eliminar el espejo `frontend/src/catalog/index.ts` | frontend | 5 | TASK-203 | Sin catálogo duplicado; `services/assets` usado; tests actualizados | ✅ |
 
 #### HU-202: Catálogo único expuesto al frontend
 - **Requisito origen:** RF-220, RX-202, RI-202
@@ -82,8 +84,8 @@
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-205 | Retirar `"1s"` de `contracts/ohlc.Timeframe` (backend) + tests | backend | 2 | — | Literal sin `1s`; tests backend verdes | 📥 |
-| TASK-206 | Retirar `"1s"` de `contracts/ohlc.ts` TIMEFRAMES (frontend) + tests | frontend | 2 | TASK-205 | Espejo sin `1s`; tests frontend verdes | 📥 |
+| TASK-205 | Retirar `"1s"` de `contracts/ohlc.Timeframe` (backend) + tests | backend | 2 | — | Literal sin `1s`; tests backend verdes | ✅ |
+| TASK-206 | Retirar `"1s"` de `contracts/ohlc.ts` TIMEFRAMES (frontend) + tests | frontend | 2 | TASK-205 | Espejo sin `1s`; tests frontend verdes | ✅ |
 
 ---
 
@@ -98,8 +100,8 @@
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-UI-200 | Tokens del design system (dibujos, popover, formato de ejes, sombras, íconos) | frontend | 3 | — | Tokens consumibles desde código; contraste axe-core verificado | 📥 |
-| TASK-UI-201 | Setup de accesibilidad base (foco, roles ARIA, `aria-live`) | frontend | 2 | TASK-UI-200 | Foco visible; regiones live; skip link | 📥 |
+| TASK-UI-200 | Tokens del design system (dibujos, popover, formato de ejes, sombras, íconos) | frontend | 3 | — | Tokens consumibles desde código; contraste axe-core verificado | ✅ |
+| TASK-UI-201 | Setup de accesibilidad base (foco, roles ARIA, `aria-live`) | frontend | 2 | TASK-UI-200 | Foco visible; regiones live; skip link | ✅ |
 
 ### EP-UI-201: Gráfico · indicadores a petición
 - **Tipo:** UI
@@ -126,11 +128,11 @@
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-UI-210 | `ChartHeader` (botón indicadores + export + ajustar) | frontend | 3 | TASK-UI-200 | Componente con estados; a11y; reutilizado en SCR-004/005 | 📥 |
-| TASK-UI-211 | Estado inicial sin indicadores por defecto | frontend | 2 | TASK-UI-210 | Gráfico abre sin indicadores; test de estado inicial | 📥 |
-| TASK-UI-212 | `IndicatorForm` flotante (mostrar/ocultar, configurar, eliminar) | frontend | 5 | TASK-UI-210, TASK-UI-201 | Popover no modal; `aria-expanded`; `Escape`; persiste al cerrar | 📥 |
-| TASK-UI-213 | Eliminar `IndicatorPanel` inferior | frontend | 2 | TASK-UI-212 | Panel inferior removido; sin regresión en indicadores | 📥 |
-| TASK-UI-214 | Tests de estados y a11y del formulario | test | 2 | TASK-UI-212 | Vitest + axe-core verdes para el popover | 📥 |
+| TASK-UI-210 | `ChartHeader` (botón indicadores + export + ajustar) | frontend | 3 | TASK-UI-200 | Componente con estados; a11y; reutilizado en SCR-004/005 | ✅ |
+| TASK-UI-211 | Estado inicial sin indicadores por defecto | frontend | 2 | TASK-UI-210 | Gráfico abre sin indicadores; test de estado inicial | ✅ |
+| TASK-UI-212 | `IndicatorForm` flotante (mostrar/ocultar, configurar, eliminar) | frontend | 5 | TASK-UI-210, TASK-UI-201 | Popover no modal; `aria-expanded`; `Escape`; persiste al cerrar | ✅ |
+| TASK-UI-213 | Eliminar `IndicatorPanel` inferior | frontend | 2 | TASK-UI-212 | Panel inferior removido; sin regresión en indicadores | ✅ |
+| TASK-UI-214 | Tests de estados y a11y del formulario | test | 2 | TASK-UI-212 | Vitest + axe-core verdes para el popover | ✅ |
 
 ### EP-UI-202: Gráfico · dibujos editables + undo/redo
 - **Tipo:** UI
@@ -158,11 +160,11 @@
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-UI-220 | Modelo de dibujo + serialización + paleta mate (tokens) | frontend | 5 | TASK-UI-200 | Modelo serializable; colores desde tokens; tests unitarios | 📥 |
-| TASK-UI-221 | Geometría editable + hit-testing + handles (mover/redimensionar) | frontend | 8 | TASK-UI-220 | Arrastre y handles funcionando; target ≥24px | 📥 |
-| TASK-UI-222 | Command stack undo/redo + atajos `Ctrl+Z`/`Ctrl+Shift+Z` | frontend | 5 | TASK-UI-221 | Cada mutación reversible; botones accesibles | 📥 |
-| TASK-UI-223 | Marcadores compra/venta con offset 10 pips + `Shift` H/V | frontend | 5 | TASK-UI-220 | Marca fuera de la vela; línea H/V con `Shift` | 📥 |
-| TASK-UI-224 | Tests de edición + profiling 60 FPS | test | 3 | TASK-UI-222, TASK-UI-223 | Tests verdes; profiling de arrastre ≥60 FPS | 📥 |
+| TASK-UI-220 | Modelo de dibujo + serialización + paleta mate (tokens) | frontend | 5 | TASK-UI-200 | Modelo serializable; colores desde tokens; tests unitarios | ✅ |
+| TASK-UI-221 | Geometría editable + hit-testing + handles (mover/redimensionar) | frontend | 8 | TASK-UI-220 | Arrastre y handles funcionando; target ≥24px | ✅ |
+| TASK-UI-222 | Command stack undo/redo + atajos `Ctrl+Z`/`Ctrl+Shift+Z` | frontend | 5 | TASK-UI-221 | Cada mutación reversible; botones accesibles | ✅ |
+| TASK-UI-223 | Marcadores compra/venta con offset 10 pips + `Shift` H/V | frontend | 5 | TASK-UI-220 | Marca fuera de la vela; línea H/V con `Shift` | ✅ |
+| TASK-UI-224 | Tests de edición + profiling 60 FPS | test | 3 | TASK-UI-222, TASK-UI-223 | Tests verdes; profiling de arrastre ≥60 FPS | ✅ |
 
 ### EP-UI-203: Gráfico · ejes, header y layout
 - **Tipo:** UI
@@ -185,9 +187,9 @@
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-UI-230 | Eje X `{día} {HH:mm}` + eje Y 5 decimales a la derecha | frontend | 5 | TASK-UI-200 | Ejes configurados; test de formato | 📥 |
-| TASK-UI-231 | Ampliar el área del gráfico a pantalla completa (H + V) | frontend | 3 | TASK-UI-213 | Sin panel inferior; canvas ocupa todo el alto | 📥 |
-| TASK-UI-232 | Export desde el header (dispara SCR-006) | frontend | 3 | TASK-UI-210 | Botón en header; modal existente reutilizado | 📥 |
+| TASK-UI-230 | Eje X `{día} {HH:mm}` + eje Y 5 decimales a la derecha | frontend | 5 | TASK-UI-200 | Ejes configurados; test de formato | ✅ |
+| TASK-UI-231 | Ampliar el área del gráfico a pantalla completa (H + V) | frontend | 3 | TASK-UI-213 | Sin panel inferior; canvas ocupa todo el alto | ✅ |
+| TASK-UI-232 | Export desde el header (dispara SCR-006) | frontend | 3 | TASK-UI-210 | Botón en header; modal existente reutilizado | ✅ |
 
 ### EP-UI-204: Persistencia de configuración del gráfico
 - **Tipo:** UI (transversal)
@@ -209,9 +211,9 @@
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-UI-240 | Módulo `state/chart-config` (`localStorage` versionado, clave activo+timeframe) | frontend | 5 | TASK-UI-212, TASK-UI-220 | Esquema versionado; API `save/load`; tests unitarios | 📥 |
-| TASK-UI-241 | Guardar/restaurar al cambiar de hoja y recargar | frontend | 5 | TASK-UI-240 | Restauración verificada al navegar y recargar | 📥 |
-| TASK-UI-242 | Tests round-trip + migración/descarte de esquema | test | 3 | TASK-UI-240 | Tests de round-trip y versión obsoleta | 📥 |
+| TASK-UI-240 | Módulo `state/chart-config` (`localStorage` versionado, clave activo+timeframe) | frontend | 5 | TASK-UI-212, TASK-UI-220 | Esquema versionado; API `save/load`; tests unitarios | ✅ |
+| TASK-UI-241 | Guardar/restaurar al cambiar de hoja y recargar | frontend | 5 | TASK-UI-240 | Restauración verificada al navegar y recargar | ✅ |
+| TASK-UI-242 | Tests round-trip + migración/descarte de esquema | test | 3 | TASK-UI-240 | Tests de round-trip y versión obsoleta | ✅ |
 
 ### EP-UI-205: Descarga (centrado + activo)
 - **Tipo:** UI
@@ -233,9 +235,9 @@
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-UI-250 | Centrar formulario y tabla del historial | frontend | 2 | TASK-UI-200 | Layout centrado; responsive desktop | 📥 |
-| TASK-UI-251 | Columna **Activo** en el historial | frontend | 3 | TASK-UI-250 | Columna con datos de `GET /downloads`; a11y tabla | 📥 |
-| TASK-UI-252 | Selector de activos desde `GET /assets` (5 pares visibles) | frontend | 3 | TASK-204 | Los 5 pares aparecen; sin lista hardcodeada | 📥 |
+| TASK-UI-250 | Centrar formulario y tabla del historial | frontend | 2 | TASK-UI-200 | Layout centrado; responsive desktop | ✅ |
+| TASK-UI-251 | Columna **Activo** en el historial | frontend | 3 | TASK-UI-250 | Columna con datos de `GET /downloads`; a11y tabla | ✅ |
+| TASK-UI-252 | Selector de activos desde `GET /assets` (5 pares visibles) | frontend | 3 | TASK-204 | Los 5 pares aparecen; sin lista hardcodeada | ✅ |
 
 ### EP-UI-206: Abrir (centrado + 1 m)
 - **Tipo:** UI
@@ -257,8 +259,8 @@
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-UI-260 | Centrar el formulario de Abrir | frontend | 2 | TASK-UI-200 | Layout centrado | 📥 |
-| TASK-UI-261 | Timeframe sin `1s` en Abrir (consume contrato) | frontend | 2 | TASK-206, TASK-UI-260 | No hay `1s` en la UI; test de opciones | 📥 |
+| TASK-UI-260 | Centrar el formulario de Abrir | frontend | 2 | TASK-UI-200 | Layout centrado | ✅ |
+| TASK-UI-261 | Timeframe sin `1s` en Abrir (consume contrato) | frontend | 2 | TASK-206, TASK-UI-260 | No hay `1s` en la UI; test de opciones | ✅ |
 
 ### EP-UI-207: Biblioteca sobre `GET /assets`
 - **Tipo:** UI
@@ -280,7 +282,7 @@
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-UI-270 | SCR-001 Biblioteca lista desde `GET /assets` (estados loading/empty/error/partial) | frontend | 5 | TASK-204, TASK-UI-200 | Tabla con cobertura/estado; estados implementados; a11y | 📥 |
+| TASK-UI-270 | SCR-001 Biblioteca lista desde `GET /assets` (estados loading/empty/error/partial) | frontend | 5 | TASK-204, TASK-UI-200 | Tabla con cobertura/estado; estados implementados; a11y | ✅ |
 
 ### EP-UI-208: Multigráfico hereda mejoras
 - **Tipo:** UI
@@ -302,7 +304,7 @@
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-UI-280 | Propagar ChartHeader/IndicatorForm/edición a panes sincronizados | frontend | 5 | TASK-UI-212, TASK-UI-221, TASK-UI-230 | Panes con mejoras; sincronización intacta; tests | 📥 |
+| TASK-UI-280 | Propagar ChartHeader/IndicatorForm/edición a panes sincronizados | frontend | 5 | TASK-UI-212, TASK-UI-221, TASK-UI-230 | Panes con mejoras; sincronización intacta; tests | ✅ |
 
 ---
 
@@ -315,10 +317,10 @@
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-TEC-210 | Suites completas sin regresiones (backend + frontend) | test | 3 | — (al cierre) | `pytest` y `vitest` en verde | 📥 |
-| TASK-TEC-211 | axe-core + navegación por teclado por pantalla | test | 3 | TASK-UI-200 | Sin violaciones críticas; teclado operativo | 📥 |
-| TASK-TEC-212 | Profiling 60 FPS (edición de dibujos y pan/zoom) | test | 2 | TASK-UI-224 | Medición ≥60 FPS documentada | 📥 |
-| TASK-TEC-213 | Documentación de cierre de iteración (README/status) | docs | 2 | — (al cierre) | Docs actualizadas a la iteración 03 | 📥 |
+| TASK-TEC-210 | Suites completas sin regresiones (backend + frontend) | test | 3 | — (al cierre) | `pytest` y `vitest` en verde | ✅ |
+| TASK-TEC-211 | axe-core + navegación por teclado por pantalla | test | 3 | TASK-UI-200 | Sin violaciones críticas; teclado operativo | ✅ |
+| TASK-TEC-212 | Profiling 60 FPS (edición de dibujos y pan/zoom) | test | 2 | TASK-UI-224 | Medición ≥60 FPS documentada | ✅ |
+| TASK-TEC-213 | Documentación de cierre de iteración (README/status) | docs | 2 | — (al cierre) | Docs actualizadas a la iteración 03 | ✅ |
 
 ---
 
@@ -365,8 +367,8 @@ graph TD
 
 ## 7. Ruta crítica
 
-`TASK-UI-220` (5) → `TASK-UI-221` (8) → `TASK-UI-222` (5) → `TASK-UI-240` (5) → `TASK-UI-241` (5) = **28 puntos**.
-Secundaria: `TASK-UI-200 → UI-210 → UI-212 → UI-213 → UI-231`.
+`TASK-UI-220` (5) → `TASK-UI-221` (8) → `TASK-UI-222` (5) → `TASK-UI-240` (5) → `TASK-UI-241` (5) = **28 puntos** → ✅ **5/5 completada**.
+Secundaria: `TASK-UI-200 → UI-210 → UI-212 → UI-213 → UI-231` → ✅ completada.
 
 ## 8. Deuda técnica y tareas sin requisito
 
@@ -383,12 +385,12 @@ Secundaria: `TASK-UI-200 → UI-210 → UI-212 → UI-213 → UI-231`.
 
 | Pantalla | Épica | Tareas | Estado |
 |----------|-------|--------|--------|
-| SCR-001 Biblioteca | EP-UI-207 | 1 | 📥 |
-| SCR-002 Descarga | EP-UI-205 | 3 | 📥 |
-| SCR-003 Abrir | EP-UI-206 | 2 | 📥 |
-| SCR-004 Gráfico | EP-UI-201/202/203/204 | 15 | 📥 |
-| SCR-005 Multigráfico | EP-UI-208 | 1 | 📥 |
-| SCR-006 Exportar | EP-UI-203 | 1 (TASK-UI-232) | 📥 |
+| SCR-001 Biblioteca | EP-UI-207 | 1 | ✅ |
+| SCR-002 Descarga | EP-UI-205 | 3 | ✅ |
+| SCR-003 Abrir | EP-UI-206 | 2 | ✅ |
+| SCR-004 Gráfico | EP-UI-201/202/203/204 | 15 | ✅ |
+| SCR-005 Multigráfico | EP-UI-208 | 1 | ✅ |
+| SCR-006 Exportar | EP-UI-203 | 1 (TASK-UI-232) | ✅ |
 
 **Pantallas sin épica:** ninguna ✅
 **Componentes nuevos sin tarea:** ninguno (ChartHeader, IndicatorForm, DrawingHandle, EditableDrawing cubiertos) ✅
@@ -403,5 +405,7 @@ Secundaria: `TASK-UI-200 → UI-210 → UI-212 → UI-213 → UI-231`.
 
 ## 11. Preguntas abiertas
 
-- **PA-1:** Campos exactos de configuración de indicadores (defaults MA 20/50/200, RSI 14, ATR 14) a cerrar en `/sdd-implement`.
-- **PA-2:** `instrument_id` exacto de Dukascopy para los 5 pares a confirmar en TASK-202.
+Ninguna al cierre del ciclo 03.
+
+- ~~**PA-1:** Campos exactos de configuración de indicadores~~ → **resuelta** en TASK-UI-211/212.
+- ~~**PA-2:** `instrument_id` exacto de Dukascopy para los 5 pares~~ → **resuelta** en TASK-202 (`_docs/validation-new-pairs.md`).

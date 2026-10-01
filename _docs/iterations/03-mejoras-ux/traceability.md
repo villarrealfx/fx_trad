@@ -18,7 +18,7 @@
 | RF-208 Marcas compra/venta fuera de la vela | `charting/markers` (ADR-017) | TASK-UI-223 | `frontend/src/charting/__tests__/markers.test.ts` (offset 10 pips) | 🟢 |
 | RF-209 Colores mate por dibujo | `charting/drawings` (ADR-017) | TASK-UI-220 | `frontend/src/charting/__tests__/drawings.test.ts` (color por token) | 🟢 |
 | RF-210 Shift horizontal/vertical | `drawing-edit.constrainToAxis` (ADR-017) | TASK-UI-223 | `frontend/src/charting/__tests__/drawing-edit.test.ts` (constrainToAxis) | 🟢 |
-| RF-211 Íconos representativos | Design system / iconografía | TASK-UI-200 | `frontend/src/styles/__tests__/tokens.test.ts` (tokens de ícono) | 🔵 |
+| RF-211 Íconos representativos | Design system / iconografía | TASK-UI-200 | `frontend/src/styles/__tests__/tokens.test.ts` (tokens de ícono) | 🟢 |
 | RF-212 Editar dibujos (mover/redimensionar) | `drawing-edit` + `use-drawing-edit` (ADR-017) | TASK-UI-221, TASK-UI-224 | `frontend/src/charting/__tests__/drawing-edit.test.ts`, `.../ChartPane.test.tsx` (edición+undo) | 🟢 |
 | RF-213 Undo/redo de dibujos | `drawing-history` + `drawing-edit` (ADR-017) | TASK-UI-222, TASK-UI-224 | `frontend/src/charting/__tests__/drawing-history.test.ts`, `.../ChartPane.test.tsx` (edición+undo) | 🟢 |
 | RF-214 Descarga centrada | `DownloadScreen` (layout) | TASK-UI-250 | `frontend/src/components/DownloadScreen/__tests__/DownloadScreen.test.tsx` | 🟢 |
@@ -33,11 +33,11 @@
 
 | Requisito | Diseño (ADR/Componente) | Tarea | Prueba | Estado |
 |-----------|-------------------------|-------|--------|--------|
-| RNF-201 Persistencia versionada robusta | `state/chart-config` (ADR-018) | TASK-UI-240, TASK-UI-241, TASK-UI-242 | [pendiente] | 🔵 |
+| RNF-201 Persistencia versionada robusta | `state/chart-config` (ADR-018) | TASK-UI-240, TASK-UI-241, TASK-UI-242 | `frontend/src/state/__tests__/chart-config.test.ts` (round-trip, versión obsoleta, clave antigua) | 🟢 |
 | RNF-202 Edición de dibujos a 60 FPS | `OverlayCanvas` + drawings (ADR-017) | TASK-UI-222, TASK-UI-224, TASK-TEC-212 | `frontend/src/components/ChartPane/ChartPane.test.tsx` (frame budget), `_docs/benchmark-ui.md` | 🟢 |
 | RNF-203 0 regresiones | CI GitHub Actions (ADR-008) + suites | TASK-TEC-210 | `pytest` 546/2 + `vitest` 389 · ruff/black/mypy(src)/eslint/tsc OK | 🟢 |
 | RNF-204 Tokens de diseño | Design system frontend | TASK-UI-200 | `frontend/src/styles/__tests__/tokens.test.ts` (contraste + anti-drift) | 🟢 |
-| RNF-205 Activos nuevos misma latencia/contrato | `ingest` (ADR-021) | TASK-202, TASK-203 | [pendiente] | 🔵 |
+| RNF-205 Activos nuevos misma latencia/contrato | `ingest` (ADR-021) | TASK-202, TASK-203 | `backend/tests/ingest/test_freeserv.py` + `_docs/validation-new-pairs.md` (1 m BID empírico) | 🟢 |
 | RNF-001 Latencia 60 FPS (heredado) | `lightweight-charts` + overlay (ADR-005/017) | Heredado (01/02) | [pendiente] | 🔵 |
 | RNF-004 UTC (heredado) | `pipeline` (ADR-002) | Heredado (01/02) | [pendiente] | 🔵 |
 | RNF-005 Navegador moderno (heredado) | SPA React (ADR-003) | Heredado (01/02) | [pendiente] | 🔵 |
@@ -50,7 +50,7 @@
 | Requisito | Diseño (ADR/Componente) | Tarea | Prueba | Estado |
 |-----------|-------------------------|-------|--------|--------|
 | RI-201 Entidad Configuración de gráfico | `state/chart-config` (ADR-018) | TASK-UI-220, TASK-UI-240, TASK-UI-241, TASK-UI-242 | `frontend/src/state/__tests__/chart-config.test.ts` (round-trip/migración), `frontend/src/charting/__tests__/drawings.test.ts` | 🟢 |
-| RI-202 Catálogo vía `GET /assets` | `GET /assets` + `CatalogQuery` (ADR-021) | TASK-203, TASK-204 | `backend/tests/api/test_assets_endpoint.py` (AssetRow) | 🔵 |
+| RI-202 Catálogo vía `GET /assets` | `GET /assets` + `CatalogQuery` (ADR-021) | TASK-203, TASK-204 | `backend/tests/api/test_assets_endpoint.py` (AssetRow), `frontend/src/services/__tests__/assets.test.ts` | 🟢 |
 | RI-001 OHLC time único UTC (heredado) | `storage` (ADR-004) | Heredado (01/02) | [pendiente] | 🔵 |
 | RI-002 Metadatos de descarga (heredado) | `storage` (ADR-004) | Heredado (01/02) | [pendiente] | 🔵 |
 
@@ -59,7 +59,7 @@
 | Requisito | Diseño (ADR/Componente) | Tarea | Prueba | Estado |
 |-----------|-------------------------|-------|--------|--------|
 | RX-201 Dukascopy sirve los 5 pares nuevos | `ingest.freeserv.FREESERV_INSTRUMENT` (ADR-021) | TASK-201, TASK-202 | `backend/tests/ingest/test_freeserv.py` + `_docs/validation-new-pairs.md` (empírica) | 🟢 |
-| RX-202 Frontend consume `GET /assets` | `services/assets` (ADR-021) | TASK-204, TASK-UI-270 | `frontend/src/services/__tests__/assets.test.ts` (scope) | 🔵 |
+| RX-202 Frontend consume `GET /assets` | `services/assets` (ADR-021) | TASK-204, TASK-UI-270 | `frontend/src/services/__tests__/assets.test.ts` (scope), `.../AssetLibraryScreen.test.tsx` | 🟢 |
 | RX-001 Integración Dukascopy (heredado) | `ingest` (ADR-010) | Heredado (01/02) | [pendiente] | 🔵 |
 
 ## Modificaciones a requisitos previos
@@ -72,5 +72,7 @@
 ## Cobertura
 
 - Requisitos `2xx` con ≥1 tarea: ✅ todos.
-- Diseño: ✅ ADR-017…021. Tareas: ✅ `_docs/backlog.md`. Pruebas: pendiente `/sdd-implement` + `/sdd-track`.
-- Heredados (01/02): sin tareas nuevas en este ciclo.
+- Diseño: ✅ ADR-017…021. Tareas: ✅ `_docs/backlog.md`. Pruebas: ✅ todas referenciadas.
+- Estado al cierre del ciclo 03: **20/20 RF 🟢 · 5/5 RNF propios 🟢 · 2/2 RI propios 🟢 · 2/2 RX propios 🟢**.
+- Heredados (01/02): sin tareas nuevas en este ciclo; se mantienen 🔵 por no re-verificarse aquí
+  (su validación histórica vive en `iterations/01-mvp/` y `iterations/02-optimizacion-descarga/`).

@@ -3,7 +3,7 @@
 > Fuente: `_docs/plan.md`, `_docs/requirements.md`
 > Base: `_docs/iterations/01-mvp/architecture.md` y `_docs/iterations/02-optimizacion-descarga/architecture.md`
 > Fecha: 2026-09-29
-> Estado: Borrador
+> Estado: Ejecutado (ciclo 03 cerrado el 29 de septiembre de 2026)
 
 ## 1. Resumen ejecutivo
 

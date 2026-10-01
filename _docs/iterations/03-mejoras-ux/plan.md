@@ -1,7 +1,7 @@
 # Plan del Proyecto: Mejoras UX (Ciclo 03)
 
 **Iteración:** 03 — `mejoras-ux`
-**Estado:** Borrador
+**Estado:** Ejecutado — ciclo cerrado el 29 de septiembre de 2026 (35/35 tareas ✅)
 **Fecha:** 29 de septiembre de 2026
 **Precede:** `_docs/iterations/02-optimizacion-descarga/`
 **Insumo:** `_docs/iterations/03-mejoras-ux/spec-insumo.md`
