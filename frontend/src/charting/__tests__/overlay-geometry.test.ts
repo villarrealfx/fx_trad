@@ -210,19 +210,72 @@ describe('projectShape fib (TASK-029)', () => {
   });
 });
 
-describe('projectShape operation (TASK-302, provisional hasta TASK-304)', () => {
-  it('hides the operation until TASK-304 projects its five levels', () => {
-    const operation: OverlayShape = {
-      id: 'op-1',
+describe('projectShape operation (TASK-304)', () => {
+  const OPERATION: OverlayShape = {
+    id: 'op-1',
+    kind: 'operation',
+    from: { time: 1_781_000_000, price: 1.1 },
+    to: { time: 1_781_003_600, price: 1.095 },
+  };
+  // Precio → y: crece hacia abajo; separa los cinco precios del ejemplo RF-303.
+  const priceMapper = makeMapper(
+    () => 0,
+    (price) => (1.12 - price) * 100_000,
+  );
+
+  it('projects exactly the five levels with their mapped y', () => {
+    const fragment = projectShape(OPERATION, priceMapper);
+    if (fragment.kind !== 'operation') throw new Error('expected an operation fragment');
+
+    expect(fragment.levels.map((level) => level.key)).toEqual([
+      'tp2',
+      'tp15',
+      'tp1382',
+      'entry',
+      'sl',
+    ]);
+    const yByKey = Object.fromEntries(fragment.levels.map((level) => [level.key, level.y]));
+    expect(yByKey.tp2).toBeCloseTo(1000, 4);
+    expect(yByKey.tp15).toBeCloseTo(1250, 4);
+    expect(yByKey.tp1382).toBeCloseTo(1309, 4);
+    expect(yByKey.entry).toBeCloseTo(2000, 4);
+    expect(yByKey.sl).toBeCloseTo(2500, 4);
+  });
+
+  it('keeps the label and color role of each level', () => {
+    const fragment = projectShape(OPERATION, priceMapper);
+    if (fragment.kind !== 'operation') throw new Error('expected an operation fragment');
+
+    const byKey = new Map(fragment.levels.map((level) => [level.key, level]));
+    expect(byKey.get('tp1382')?.label).toBe('TP 1.382');
+    expect(byKey.get('tp1382')?.colorRole).toBe('tp');
+    expect(byKey.get('sl')?.colorRole).toBe('sl');
+    expect(byKey.get('entry')?.colorRole).toBe('entry');
+  });
+
+  it('drops levels whose price leaves the visible range', () => {
+    const partial = makeMapper(
+      () => 0,
+      (price) => (price > 1.109 ? null : 100),
+    );
+    const fragment = projectShape(OPERATION, partial);
+    if (fragment.kind !== 'operation') throw new Error('expected an operation fragment');
+
+    expect(fragment.levels.map((level) => level.key)).toEqual(['tp15', 'tp1382', 'entry', 'sl']);
+  });
+
+  it('projects five coincident levels on zero risk without NaN', () => {
+    const zeroRisk: OverlayShape = {
+      id: 'op-0',
       kind: 'operation',
       from: { time: 1_781_000_000, price: 1.1 },
-      to: { time: 1_781_003_600, price: 1.095 },
+      to: { time: 1_781_000_000, price: 1.1 },
     };
-    const mapper = makeMapper(
-      () => 0,
-      () => 0,
-    );
-    expect(projectShape(operation, mapper)).toEqual({ kind: 'hidden' });
+    const fragment = projectShape(zeroRisk, priceMapper);
+    if (fragment.kind !== 'operation') throw new Error('expected an operation fragment');
+
+    expect(fragment.levels).toHaveLength(5);
+    expect(new Set(fragment.levels.map((level) => level.y)).size).toBe(1);
   });
 });
 
@@ -252,5 +305,39 @@ describe('hitTestFragment (TASK-028)', () => {
 
   it('never hits a hidden fragment', () => {
     expect(hitTestFragment({ x: 0, y: 0 }, { kind: 'hidden' })).toBe(false);
+  });
+});
+
+describe('hitTestFragment operation (TASK-304)', () => {
+  const fragment = {
+    kind: 'operation' as const,
+    levels: [
+      {
+        key: 'entry' as const,
+        label: 'Entrada',
+        price: 1.1,
+        multiplier: null,
+        colorRole: 'entry' as const,
+        y: 100,
+      },
+      {
+        key: 'sl' as const,
+        label: 'SL',
+        price: 1.095,
+        multiplier: null,
+        colorRole: 'sl' as const,
+        y: 200,
+      },
+    ],
+  };
+
+  it('hits any of the five lines within the 6px radius', () => {
+    expect(hitTestFragment({ x: 999, y: 104 }, fragment)).toBe(true);
+    expect(hitTestFragment({ x: 0, y: 196 }, fragment)).toBe(true);
+  });
+
+  it('misses a line beyond the grab radius', () => {
+    expect(hitTestFragment({ x: 0, y: 107 }, fragment)).toBe(false);
+    expect(hitTestFragment({ x: 0, y: 150 }, fragment)).toBe(false);
   });
 });

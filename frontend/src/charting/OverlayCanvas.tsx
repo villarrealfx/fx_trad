@@ -157,6 +157,10 @@ export default function OverlayCanvas({
           }
           continue;
         }
+        if (fragment.kind === 'operation') {
+          // TODO(TASK-UI-313): pintar las 5 líneas y sus chips de etiqueta.
+          continue;
+        }
         drawMarker(context, fragment.position, fragment.direction, colorForShape(shape));
       }
       drawSelectionHandles(context, shapes, selectedShapeId, binding);

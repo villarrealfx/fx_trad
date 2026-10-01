@@ -8,6 +8,8 @@
  * (nunca se cachean píxeles): un cambio de rango produce píxeles nuevos para
  * las mismas anclas de precio/tiempo.
  */
+import { OPERATION_TOKENS } from '../styles/tokens';
+import { operationLevels, type OperationLevel } from './operation-geometry';
 
 /** Ancla de un trazo en coordenadas del dominio del gráfico. */
 export interface PriceTimePoint {
@@ -86,6 +88,12 @@ export interface PixelPoint {
   y: number;
 }
 
+/** Nivel de la operación proyectado a la `y` del lienzo (RF-303, ADR-025). */
+export interface OperationProjectedLevel extends OperationLevel {
+  /** Coordenada y del nivel en píxeles del lienzo. */
+  y: number;
+}
+
 /** Resultado de proyectar un trazo (o descartarlo si sale de la vista). */
 export type OverlayFragment =
   | { kind: 'line'; from: PixelPoint; to: PixelPoint }
@@ -95,6 +103,10 @@ export type OverlayFragment =
       from: PixelPoint;
       to: PixelPoint;
       levels: { ratio: number; y: number }[];
+    }
+  | {
+      kind: 'operation';
+      levels: OperationProjectedLevel[];
     }
   | { kind: 'marker'; position: PixelPoint; direction: MarketDirection }
   | { kind: 'hidden' };
@@ -137,8 +149,11 @@ export function projectShape(shape: OverlayShape, mapper: CoordinateMapper): Ove
       return { kind: 'fib', from, to, levels };
     }
     case 'operation': {
-      // TODO(TASK-304): proyectar los 5 niveles (SL, Entrada y TP) y sus etiquetas.
-      return { kind: 'hidden' };
+      const levels = operationLevels(shape.from.price, shape.to.price).flatMap((level) => {
+        const y = mapper.priceToCoordinate(level.price);
+        return y === null ? [] : [{ ...level, y }];
+      });
+      return { kind: 'operation', levels };
     }
     case 'marker': {
       const position = projectPoint(shape.position, mapper);
@@ -162,23 +177,32 @@ function distanceToSegment(point: PixelPoint, a: PixelPoint, b: PixelPoint): num
  * Hit-test de un fragmento proyectado contra el cursor (TASK-028).
  *
  * `line` usa la distancia al segmento; `rect` la distancia a sus cuatro
- * aristas; `marker` el radio de grabado; `hidden` nunca impacta.
+ * aristas; `marker` el radio de grabado; `operation` impacta si el cursor está a
+ * `radius` en vertical de cualquiera de sus niveles (líneas de extremo a
+ * extremo); `hidden` nunca impacta. Sin `radius` explícito, cada tipo usa su
+ * radio por defecto (la operación usa `opHitRadius`, el resto `MARKER_HIT_RADIUS`).
  */
 export function hitTestFragment(
   cursor: PixelPoint,
   fragment: OverlayFragment,
-  radius: number = MARKER_HIT_RADIUS,
+  radius?: number,
 ): boolean {
   if (fragment.kind === 'hidden') return false;
-  if (fragment.kind === 'marker') return hitTestMarker(cursor, fragment.position, radius);
+  if (fragment.kind === 'operation') {
+    const operationRadius = radius ?? OPERATION_TOKENS.hitRadius;
+    return fragment.levels.some((level) => Math.abs(cursor.y - level.y) <= operationRadius);
+  }
+  const grabRadius = radius ?? MARKER_HIT_RADIUS;
+  if (fragment.kind === 'marker') return hitTestMarker(cursor, fragment.position, grabRadius);
   if (fragment.kind === 'line') {
-    return distanceToSegment(cursor, fragment.from, fragment.to) <= radius;
+    return distanceToSegment(cursor, fragment.from, fragment.to) <= grabRadius;
   }
   if (fragment.kind === 'fib') {
     const x1 = Math.min(fragment.from.x, fragment.to.x);
     const x2 = Math.max(fragment.from.x, fragment.to.x);
     return fragment.levels.some(
-      (level) => distanceToSegment(cursor, { x: x1, y: level.y }, { x: x2, y: level.y }) <= radius,
+      (level) =>
+        distanceToSegment(cursor, { x: x1, y: level.y }, { x: x2, y: level.y }) <= grabRadius,
     );
   }
   const { from, to } = fragment;
@@ -192,7 +216,7 @@ export function hitTestFragment(
     [bottomRight, bottomLeft],
     [bottomLeft, topLeft],
   ];
-  return edges.some(([a, b]) => distanceToSegment(cursor, a, b) <= radius);
+  return edges.some(([a, b]) => distanceToSegment(cursor, a, b) <= grabRadius);
 }
 
 /** Radio de grabado para seleccionar un marcador con el cursor (TASK-030). */
