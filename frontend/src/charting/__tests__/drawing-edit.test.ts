@@ -124,6 +124,13 @@ describe('resizeShape', () => {
       to: { time: 10, price: 1.09 },
     });
   });
+
+  it('mueve el extremo de la Entrada de una operación (RF-307)', () => {
+    expect(resizeShape(OPERATION, 'from', { time: 1, price: 1.2 })).toEqual({
+      ...OPERATION,
+      from: { time: 1, price: 1.2 },
+    });
+  });
 });
 
 describe('constrainToAxis (RF-210)', () => {
@@ -161,6 +168,14 @@ describe('moveShapeBy', () => {
     expect(moveShapeBy(MARKER, -1, 0.5)).toEqual({
       ...MARKER,
       position: { time: 4, price: 5.5 },
+    });
+  });
+
+  it('desplaza las dos anclas de una operación (RF-307)', () => {
+    expect(moveShapeBy(OPERATION, 2, 3)).toEqual({
+      ...OPERATION,
+      from: { time: 2, price: 4.1 },
+      to: { time: 12, price: 4.095 },
     });
   });
 });

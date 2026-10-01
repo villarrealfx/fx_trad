@@ -1,6 +1,6 @@
 # Estado del Proyecto: Dibujo Referencia de Operación (Ciclo 04)
 
-> Última actualización: 2026-10-01 13:02
+> Última actualización: 2026-10-01 13:13
 > Fuente: `_docs/backlog.md`, `_docs/traceability.md`
 
 ## 1. Resumen ejecutivo
@@ -8,23 +8,22 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 20 | — |
-| 📥 Backlog | 16 | — |
+| 📥 Backlog | 15 | — |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | -1 |
-| ✅ Done | 4 | +1 |
+| ✅ Done | 5 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 20% (4/20 tareas · 10/56 pts) | +5% |
+| % Completado | 25% (5/20 tareas · 13/56 pts) | +5% |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (16)
+### 📥 Backlog (15)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
-| TASK-303 | Tests de geometría + `drawings` + `drawing-edit` | EP-301 | 3 | TASK-301, TASK-302 |
 | TASK-304 | `projectShape` + `hitTestFragment` de operación | EP-301 | 5 | TASK-301, TASK-UI-300 |
 | TASK-305 | Tests de proyección, hit-test y zeroRisk | EP-301 | 3 | TASK-304 |
 | TASK-UI-310 | Herramienta en paleta | EP-UI-301 | 2 | TASK-302, TASK-UI-300 |
@@ -49,12 +48,13 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (4)
+### ✅ Done (5)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
 | TASK-301 | `operation-geometry.ts`: dirección, riesgo y 5 niveles | EP-301 | 2026-10-01 | `frontend/src/charting/__tests__/operation-geometry.test.ts` (16 tests · cobertura 93.33% branch) |
 | TASK-302 | Modelo `'operation'` en kinds, uniones y color | EP-301 | 2026-10-01 | `frontend/src/charting/__tests__/drawings.test.ts` (round-trip) · `drawing-edit.test.ts` · `overlay-geometry.test.ts` |
+| TASK-303 | Tests de geometría + `drawings` + `drawing-edit` | EP-301 | 2026-10-01 | `operation-geometry.test.ts` (17) · `drawing-edit.test.ts` (19) · `drawings.test.ts` (14) |
 | TASK-UI-300 | Tokens de operación (TS + CSS) | EP-UI-300 | 2026-10-01 | `frontend/src/styles/__tests__/tokens.test.ts` (anti-drift + reutilización de colores) |
 | TASK-UI-301 | Test de contraste + anti-drift | EP-UI-300 | 2026-10-01 | `frontend/src/styles/__tests__/tokens.test.ts` (4 etiquetas × 2 fondos) |
 
@@ -109,9 +109,9 @@ Ninguno.
 
 ### 🟢 Informativas
 
-- `TASK-UI-301` completada: contraste de las 4 etiquetas de la operación sobre chart y chip + anti-drift. **EP-UI-300 cerrada.**
+- `TASK-303` completada: **EP-301 al 3/5**; RF-303 al 50%. Suite 55 archivos / 421 tests.
 - RF-301, RF-302 y RF-304 100% Done; RF-309 y RI-301 al 67%; RNF-305 al 75%.
-- `TASK-303` (tests) y `TASK-304` (proyección) quedan listas.
+- `TASK-304` (proyección) queda lista; cierra el hueco de `projectShape`.
 
 ## 7. Trazabilidad — salud
 
@@ -119,7 +119,7 @@ Ninguno.
 |-----------|--------|------|-----------|
 | RF-301 | 2 | 2 | 100% |
 | RF-302 | 1 | 1 | 100% |
-| RF-303 | 4 | 1 | 25% |
+| RF-303 | 4 | 2 | 50% |
 | RF-304 | 1 | 1 | 100% |
 | RF-305 | 3 | 1 | 33% |
 | RF-306 | 3 | 1 | 33% |
@@ -141,8 +141,9 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. Iniciar **TASK-303** (3 pts) y **TASK-304** (5 pts); ambas con deps ✅.
-2. La ruta crítica avanza por `TASK-UI-312`, que aún está en 📥.
+1. Iniciar **TASK-304** (5 pts, deps ✅): reemplaza la rama provisional de `projectShape` y añade `hitTestFragment`.
+2. Tras TASK-304, **TASK-305** (tests de proyección) cierra EP-301.
+3. La ruta crítica avanza por `TASK-UI-312`, que aún está en 📥.
 
 ## 9. Historial de cambios (append-only)
 
@@ -161,3 +162,6 @@ Ninguno.
 | 2026-10-01 | TASK-UI-301 | 📥 → 🔨 | Matriz de contraste 4 etiquetas × 2 fondos + anti-drift |
 | 2026-10-01 | TASK-UI-301 | 🔨 → 👀 | Movida a revisión (`/sdd-track update TASK-UI-301 review`) |
 | 2026-10-01 | TASK-UI-301 | 👀 → ✅ Done | DoD verificada (4 etiquetas ≥4.5:1 sobre chart y chip, anti-drift); autorización del usuario |
+| 2026-10-01 | TASK-303 | 📥 → 🔨 | 3 casos nuevos (arrastre, resize `from`, etiquetas en Venta) |
+| 2026-10-01 | TASK-303 | 🔨 → 👀 | Movida a revisión (`/sdd-track update TASK-303 review`) |
+| 2026-10-01 | TASK-303 | 👀 → ✅ Done | DoD verificada (7 puntos cubiertos + 3 casos nuevos); autorización del usuario |

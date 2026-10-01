@@ -14,7 +14,7 @@
 | RF-304 Niveles de cálculo no visibles | `OPERATION_TP_MULTIPLIERS` = solo `[1.382, 1.5, 2]`; sin 1:1 (ADR-022, D-3) | TASK-301 | `operation-geometry.test.ts` (no incluye el 1:1) | 🟢 |
 | RF-305 Recálculo de TP y dirección | Derivación pura por proyección; sin estado ni caché (ADR-022, RI-301) | TASK-301, TASK-UI-311, TASK-UI-314 | `operation-geometry.test.ts` (recalcula al mover el SL) | 🔵 |
 | RF-306 Un único dibujo | `kind:'operation'` propio; `hitTestFragment` por línea (ADR-022) | TASK-302, TASK-304, TASK-UI-311 | `drawings.test.ts` (unión y guarda aceptan la operación) · `overlay-geometry.test.ts` | 🔵 |
-| RF-307 Edición por handles | `'operation'` en `ResizableShape` (ADR-022); command stack heredado | TASK-302, TASK-UI-311, TASK-UI-315 | `drawing-edit.test.ts` (`isResizableShape`, handles) | 🔵 |
+| RF-307 Edición por handles | `'operation'` en `ResizableShape` (ADR-022); command stack heredado | TASK-302, TASK-UI-311, TASK-UI-315 | `drawing-edit.test.ts` (`isResizableShape`, handles, resize/move de la operación) | 🔵 |
 | RF-308 Etiquetas con precio a 5 decimales | `layoutOperationLabels` + `axis-format` (ADR-025) | TASK-UI-312, TASK-UI-313, TASK-UI-315 | `operation-geometry.test.ts` | 🔵 |
 | RF-309 Colores por token de rol | `operationLevelColors` + `drawOpSl/Entry/Tp` (ADR-024) | TASK-302, TASK-UI-300, TASK-UI-313 | `tokens.test.ts` (reutiliza `up`/`down`/`text` + contraste) · `drawings.test.ts` (`colorForShape` → `drawOpEntry`) | 🔵 |
 | RF-310 Disponible en Gráfico y Multigráfico | `ChartToolType` + `TOOL_DESCRIPTORS` (`ChartPane.tsx:77`) | TASK-UI-310, TASK-UI-321 | `ChartPane.test.tsx` | 🔵 |

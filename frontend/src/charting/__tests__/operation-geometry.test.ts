@@ -79,6 +79,19 @@ describe('operationLevels', () => {
     });
   });
 
+  it('keeps the same five labels on a sell operation', () => {
+    const labels = Object.fromEntries(
+      operationLevels(1.095, 1.1).map((level) => [level.key, level.label]),
+    );
+    expect(labels).toEqual({
+      sl: 'SL',
+      entry: 'Entrada',
+      tp1382: 'TP 1.382',
+      tp15: 'TP 1.5',
+      tp2: 'TP 2',
+    });
+  });
+
   it('assigns the role color sl, entry or tp without touching tokens', () => {
     const roles = Object.fromEntries(
       operationLevels(1.1, 1.095).map((level) => [level.key, level.colorRole]),
