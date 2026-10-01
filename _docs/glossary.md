@@ -1,8 +1,9 @@
 # Glosario
 
 > Glosario **compartido** entre ciclos. Crece, no se reemplaza. Hereda y consolida
-> los términos de `_docs/iterations/01-mvp/glossary.md` y
-> `_docs/iterations/02-optimizacion-descarga/glossary.md`, y añade los del ciclo 03.
+> los términos de `_docs/iterations/01-mvp/glossary.md`,
+> `_docs/iterations/02-optimizacion-descarga/glossary.md` y
+> `_docs/iterations/03-mejoras-ux/`, y añade los del ciclo 04.
 
 ## Términos del dominio
 
@@ -29,6 +30,13 @@
 | Precisión de eje | Número de decimales mostrados en el eje Y (5 en este dominio: forex, metales y petróleo) | Decimales |
 | Configuración de gráfico | Estado persistido del gráfico (activo, timeframe, indicadores, dibujos) que se conserva entre hojas y recargas | Estado de gráfico |
 | Catálogo de activos | Conjunto canónico de instrumentos analizables, expuesto por `GET /assets` | Asset catalog |
+| Operación *(nueva en ciclo 04)* | Dibujo que representa una operación de trading: Entrada, Stop Loss y tres objetivos, con precio calculado y etiqueta | Marca de operación, mark buy/sell |
+| R (riesgo) | Distancia en precio entre la Entrada y el Stop Loss: `R = \|Entrada − SL\|`. Unidad de la que derivan todos los objetivos | Riesgo inicial, distancia de SL |
+| SL (Stop Loss) | Precio que invalida la operación; en una Compra se sitúa por debajo de la Entrada y en una Venta por encima | Stop loss, precio de invalidación |
+| TP (Take Profit) | Precio objetivo de la operación; se calcula como `Entrada ± k·R` con k = 1.382, 1.5 o 2 | Objetivo, take profit |
+| Dirección de la operación | Compra (Long) si `Entrada > SL`; Venta (Short) si `Entrada < SL`. Se deduce automáticamente de las anclas | Long/Short, sentido |
+| Referencia 1:1 | Nivel de cálculo `Entrada + R` (o `Entrada − R` en Venta) que representa riesgo y beneficio iguales. **No se dibuja** | Nivel 1.0 |
+| Backtesting manual | Evaluación de una estrategia sobre precio histórico anotando operaciones en el gráfico y leyendo su desenlace. Es el propósito del proyecto desde el ciclo 04 | Simulación manual, paper trading |
 
 **Términos obsoletos**
 
@@ -57,6 +65,9 @@
 | FPS | Frames Per Second |
 | PII | Personally Identifiable Information |
 | QA | Quality Assurance |
+| SL | Stop Loss |
+| TP | Take Profit |
+| R | Riesgo de la operación (distancia Entrada–SL) |
 
 ## Entidades principales
 
@@ -116,3 +127,14 @@
 - **Volumen estimado:** bajo (una entrada por activo+timeframe).
 - **Retención:** local del navegador; puede limpiarse por el usuario.
 - **Persistencia:** `localStorage`/IndexedDB. `[modifica RI-003 del ciclo 01]`
+
+### Operación *(nueva en ciclo 04)*
+
+- **Descripción:** dibujo del overlay que representa una operación de trading con su riesgo y sus objetivos.
+- **Atributos clave:** `id`, `kind`, ancla Entrada (`{time, price}`), ancla SL (`{time, price}`); versión de esquema del documento.
+- **Derivados (no se persisten):** dirección (Compra/Venta), `R`, niveles SL/Entrada/TP 1.382/TP 1.5/TP 2 y sus etiquetas con precio.
+- **Relaciones:** 1..N con Activo por combinación activo+timeframe (vive en la Configuración de gráfico); 0..1 por figura en el Multigráfico.
+- **Sensibilidad:** interna (almacenamiento local del navegador, sin PII).
+- **Volumen estimado:** bajo (decenas de operaciones por activo+timeframe).
+- **Retención:** local del navegador; puede limpiarse por el usuario.
+- **Persistencia:** `localStorage` vía `state/chart-config` (ADR-018). El desenlace (cumplido/invalidado) **no se persiste**: se lee del precio.
