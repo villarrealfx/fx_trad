@@ -25,7 +25,7 @@
 
 | Requisito | Diseño (ADR/Componente) | Tarea | Prueba | Estado |
 |-----------|-------------------------|-------|--------|--------|
-| RNF-301 Etiquetas sin solape | Separación mínima + línea guía en `layoutOperationLabels` (ADR-025) | TASK-UI-312, TASK-UI-315 | `operation-geometry.test.ts` (niveles a ~14 px) | 🔵 |
+| RNF-301 Etiquetas sin solape | Separación mínima + línea guía en `layoutOperationLabels` (ADR-025) | TASK-UI-312, TASK-UI-315 | `operation-geometry.test.ts` (`layoutOperationLabels`: niveles a ~14 px, desbordamiento) | 🔵 |
 | RNF-302 60 FPS con la figura activa | `OverlayCanvas` + frame-batch (ADR-017); 5 niveles O(1) por frame (ADR-022) | TASK-TEC-300 | `ChartPane.test.tsx` (frame budget) | 🔵 |
 | RNF-303 0 regresiones | CI GitHub Actions (ADR-008) | TASK-TEC-302 | `vitest` completo (baseline 393) | 🔵 |
 | RNF-304 No perder dibujos previos | Sin bump de versión ni de clave; `isOverlayShape` aditivo (ADR-023, P-301) | TASK-302, TASK-UI-320 | `chart-config.test.ts` (doc v1 mixto) | 🔵 |

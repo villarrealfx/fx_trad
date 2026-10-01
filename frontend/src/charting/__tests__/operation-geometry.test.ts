@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   OPERATION_TP_MULTIPLIERS,
+  layoutOperationLabels,
   operationDirection,
   operationLevels,
   operationRisk,
@@ -131,5 +132,56 @@ describe('operationLevels', () => {
 describe('OPERATION_TP_MULTIPLIERS', () => {
   it('fixes the target multipliers at 1.382, 1.5 and 2', () => {
     expect(OPERATION_TP_MULTIPLIERS).toEqual([1.382, 1.5, 2]);
+  });
+});
+
+describe('layoutOperationLabels (ADR-025, RNF-301)', () => {
+  const KEYS = ['tp2', 'tp15', 'tp1382', 'entry', 'sl'] as const;
+  /** Construye los cinco niveles con las `y` dadas, ordenados de arriba abajo. */
+  function levelsAt(...ys: number[]) {
+    return ys.map((y, index) => ({ key: KEYS[index], y }));
+  }
+
+  it('separates labels closer than the minimum gap and flags the displaced ones', () => {
+    const layout = layoutOperationLabels(levelsAt(0, 14, 28, 42, 56), 20, {
+      top: 0,
+      bottom: 200,
+    });
+
+    expect(layout.map((item) => item.y)).toEqual([0, 20, 40, 60, 80]);
+    expect(layout.map((item) => item.leader)).toEqual([false, true, true, true, true]);
+  });
+
+  it('keeps every pair at least the minimum gap apart', () => {
+    const layout = layoutOperationLabels(levelsAt(0, 14, 28, 42, 56), 20, {
+      top: 0,
+      bottom: 200,
+    });
+    for (let i = 1; i < layout.length; i += 1) {
+      expect(layout[i].y - layout[i - 1].y).toBeGreaterThanOrEqual(20);
+    }
+  });
+
+  it('corrects the whole spread when the last label overflows the bottom', () => {
+    const layout = layoutOperationLabels(levelsAt(0, 14, 28, 42, 120), 20, {
+      top: 0,
+      bottom: 100,
+    });
+
+    expect(layout[layout.length - 1].y).toBe(100);
+    expect(layout.every((item) => item.y >= 0 && item.y <= 100)).toBe(true);
+    for (let i = 1; i < layout.length; i += 1) {
+      expect(layout[i].y - layout[i - 1].y).toBeGreaterThanOrEqual(20);
+    }
+  });
+
+  it('leaves already separated labels untouched with no leader', () => {
+    const layout = layoutOperationLabels(levelsAt(0, 50, 100, 150, 200), 20, {
+      top: 0,
+      bottom: 300,
+    });
+
+    expect(layout.map((item) => item.y)).toEqual([0, 50, 100, 150, 200]);
+    expect(layout.every((item) => item.leader === false)).toBe(true);
   });
 });

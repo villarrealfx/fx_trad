@@ -109,3 +109,67 @@ export function operationLevels(entry: number, sl: number): OperationLevel[] {
   }));
   return levels.sort((a, b) => b.price - a.price);
 }
+
+/** Nivel que entra al layout de etiquetas: clave y `y` proyectada (ADR-025). */
+export interface OperationLabelInput {
+  /** Clave estable del nivel. */
+  key: OperationLevelKey;
+  /** Coordenada y de la línea del nivel, en píxeles. */
+  y: number;
+}
+
+/** Rango vertical visible (en píxeles) donde deben caber las cinco etiquetas. */
+export interface OperationLabelArea {
+  /** Borde superior visible. */
+  top: number;
+  /** Borde inferior visible. */
+  bottom: number;
+}
+
+/** Etiqueta colocada: su `y` final y si necesita línea guía (ADR-025). */
+export interface OperationLabelLayout {
+  /** Clave del nivel al que pertenece. */
+  key: OperationLevelKey;
+  /** Coordenada y final del centro de la etiqueta. */
+  y: number;
+  /** `true` si la etiqueta se desplazó de su línea y necesita línea guía. */
+  leader: boolean;
+}
+
+/**
+ * Reparte las cinco etiquetas de la operación sin solapes (RNF-301, ADR-025).
+ *
+ * Recibe los niveles ya proyectados (ordenados de arriba abajo, `y` ascendente)
+ * y los desplaza verticalmente para respetar una separación mínima; si la última
+ * se sale por abajo, corrige el reparto hacia arriba para que las cinco quepan en
+ * el área visible. Toda etiqueta cuya `y` final difiere de la de su línea lleva
+ * línea guía. Función pura: no toca DOM ni canvas.
+ *
+ * @param levels Niveles proyectados, ordenados por `y` ascendente.
+ * @param minGap Separación vertical mínima entre etiquetas, en píxeles.
+ * @param area Rango vertical visible (`top`/`bottom`).
+ * @returns Una posición final y el flag de guía por nivel, en el mismo orden.
+ */
+export function layoutOperationLabels(
+  levels: ReadonlyArray<OperationLabelInput>,
+  minGap: number,
+  area: OperationLabelArea,
+): OperationLabelLayout[] {
+  if (levels.length === 0) return [];
+  const placed = levels.map((level) => level.y);
+  for (let i = 1; i < placed.length; i += 1) {
+    placed[i] = Math.max(placed[i], placed[i - 1] + minGap);
+  }
+  const last = placed.length - 1;
+  if (placed[last] > area.bottom) {
+    placed[last] = area.bottom;
+    for (let i = last - 1; i >= 0; i -= 1) {
+      placed[i] = Math.min(placed[i], placed[i + 1] - minGap);
+    }
+  }
+  return levels.map((level, index) => ({
+    key: level.key,
+    y: placed[index],
+    leader: placed[index] !== level.y,
+  }));
+}
