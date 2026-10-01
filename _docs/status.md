@@ -1,6 +1,6 @@
 # Estado del Proyecto: Dibujo Referencia de Operación (Ciclo 04)
 
-> Última actualización: 2026-10-01 15:22
+> Última actualización: 2026-10-01 15:26
 > Fuente: `_docs/backlog.md`, `_docs/traceability.md`
 
 ## 1. Resumen ejecutivo
@@ -8,23 +8,22 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 20 | — |
-| 📥 Backlog | 2 | -1 |
+| 📥 Backlog | 1 | -1 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | — |
-| ✅ Done | 18 | +1 |
+| ✅ Done | 19 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 90% (18/20 tareas · 54/56 pts) | +5% |
+| % Completado | 95% (19/20 tareas · 55/56 pts) | +5% |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (2)
+### 📥 Backlog (1)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
-| TASK-TEC-303 | Sin deps + backend intacto | EP-TEC-300 | 1 | TASK-TEC-302 |
 | TECH-301 | Corregir recuento de tests en README | EP-TEC-300 | 1 | TASK-TEC-302 |
 
 ### 🔨 Doing (0)
@@ -35,7 +34,7 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (18)
+### ✅ Done (19)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
@@ -57,6 +56,7 @@ Sin tareas.
 | TASK-TEC-301 | axe-core + a11y de la operación | EP-TEC-300 | 2026-10-01 | `frontend/src/components/ChartPane/ChartPane.test.tsx` (axe con operación, ARIA, anuncio al mover) |
 | TASK-TEC-300 | Frame budget con la operación activa | EP-TEC-300 | 2026-10-01 | `frontend/src/components/ChartPane/ChartPane.test.tsx` (60 FPS, 0 frames caídos) |
 | TASK-TEC-302 | Suite completa + revisión de previas | EP-TEC-300 | 2026-10-01 | `vitest` 55 archivos / 458 tests; tests de fib/line/rect/marker intactos |
+| TASK-TEC-303 | Sin dependencias nuevas + backend intacto | EP-TEC-300 | 2026-10-01 | `git diff 0422923..HEAD` de `frontend/package.json`, `package-lock.json` y `backend/`: vacío |
 
 ### 🔴 Blocked (0)
 
@@ -71,10 +71,10 @@ graph LR
   T313 --> T315[TASK-UI-315 ✅]
   T315 --> TT301[TASK-TEC-301 ✅]
   TT301 --> TT302[TASK-TEC-302 ✅]
-  TT302 --> TT303[TASK-TEC-303 📥]
+  TT302 --> TT303[TASK-TEC-303 ✅]
 ```
 
-**Avance de ruta crítica:** 6/7 tareas (86%) · 22/23 pts · **ETA estimada:** desconocido (sin velocidad medida).
+**Avance de ruta crítica:** 7/7 tareas (100%) · 23/23 pts · **ETA estimada:** ruta crítica cerrada ✅ (sin velocidad medida)
 
 ## 4. Métricas
 
@@ -105,13 +105,12 @@ Ninguno.
 
 - **`zeroRisk` implementado en TASK-UI-315** (no en TASK-UI-313): gap de spec detectado al auditar el DoD; corregido en la tarea de test y anotado.
 - Deuda preexistente: `npm run format:check` falla en 12 ficheros de `master` (incl. `App.tsx`, `LiveRegion.tsx`, `use-drawing-history.ts` y una línea previa de `tokens.css`). Ajena a este ciclo.
-- `TASK-TEC-303` compara contra el arranque del ciclo; el commit `0422923` sirve de base. Sin nuevas dependencias detectadas.
 
 ### 🟢 Informativas
 
-- `TASK-TEC-302` completada: suite frontend **55 archivos / 458 tests** en verde; tests de fib/line/rect/marker intactos. **RNF-303 a 100% → 18/19 requisitos.**
-- Solo falta **RX-301**, que cierra **TASK-TEC-303** (sin deps + backend intacto).
-- Faltan TASK-TEC-303 (sin deps) y TECH-301 (README).
+- `TASK-TEC-303` completada: `git diff 0422923..HEAD` de `frontend/package.json`, `frontend/package-lock.json` y `backend/` **vacío** → sin dependencias nuevas y backend intacto. **RX-301 a 100% → 19/19 requisitos.**
+- **Ruta crítica cerrada: 7/7 tareas · 23/23 pts.** No queda ninguna tarea funcional del ciclo 04.
+- Solo queda **TECH-301** (README, 1 pt), tarea documental sin requisito asociado.
 
 ## 7. Trazabilidad — salud
 
@@ -135,14 +134,14 @@ Ninguno.
 | RNF-304 | 2 | 2 | 100% |
 | RNF-305 | 4 | 4 | 100% |
 | RI-301 | 3 | 3 | 100% |
-| RX-301 | 1 | 0 | 0% |
+| RX-301 | 1 | 1 | 100% |
 
-**Requisitos sin tareas:** ninguno ✅ · **Requisitos 100% Done:** 18/19 (solo falta RX-301)
+**Requisitos sin tareas:** ninguno ✅ · **Requisitos 100% Done:** 19/19 ✅ (ciclo funcional completo)
 
 ## 8. Próximas acciones sugeridas
 
-1. Iniciar **TASK-TEC-303** (1 pt, deps ✅): `package.json` sin deps nuevas y backend intacto (RX-301).
-2. Le sigue **TECH-301** (README, 1 pt); cierra el ciclo.
+1. Iniciar **TECH-301** (README, 1 pt, deps ✅): corregir el recuento de tests frontend (392 → 458).
+2. Cerrar el ciclo 04 con el reporte final de cierre.
 
 ## 9. Historial de cambios (append-only)
 
@@ -203,3 +202,6 @@ Ninguno.
 | 2026-10-01 | TASK-TEC-302 | 📥 → 🔨 | Suite completa en verde + revisión de las herramientas previas |
 | 2026-10-01 | TASK-TEC-302 | 🔨 → 👀 | Movida a revisión; 55 archivos / 458 tests |
 | 2026-10-01 | TASK-TEC-302 | 👀 → ✅ Done | DoD verificada (458 tests, previas intactas); RNF-303 100% (18/19); autorización del usuario |
+| 2026-10-01 | TASK-TEC-303 | 📥 → 🔨 | Verificación de RX-301 contra el arranque de ciclo `0422923` |
+| 2026-10-01 | TASK-TEC-303 | 🔨 → 👀 | Movida a revisión; diff de manifiesto, lockfile y backend vacío |
+| 2026-10-01 | TASK-TEC-303 | 👀 → ✅ Done | DoD verificada (sin deps nuevas, backend intacto); RX-301 100% (19/19); ruta crítica 7/7; autorización del usuario |
