@@ -341,3 +341,47 @@ describe('hitTestFragment operation (TASK-304)', () => {
     expect(hitTestFragment({ x: 0, y: 150 }, fragment)).toBe(false);
   });
 });
+
+describe('operation projection and hit-test (TASK-305)', () => {
+  const OPERATION: OverlayShape = {
+    id: 'op-1',
+    kind: 'operation',
+    from: { time: 1_781_000_000, price: 1.1 },
+    to: { time: 1_781_003_600, price: 1.095 },
+  };
+  const priceMapper = makeMapper(
+    () => 0,
+    (price) => (1.12 - price) * 100_000,
+  );
+
+  it('hits each of the five projected levels and misses just outside the radius', () => {
+    const fragment = projectShape(OPERATION, priceMapper);
+    if (fragment.kind !== 'operation') throw new Error('expected an operation fragment');
+    expect(fragment.levels).toHaveLength(5);
+
+    for (const level of fragment.levels) {
+      expect(hitTestFragment({ x: 0, y: level.y }, fragment)).toBe(true);
+      expect(hitTestFragment({ x: 0, y: level.y + 7 }, fragment)).toBe(false);
+    }
+  });
+
+  it('keeps the three targets finite and coincident with the entry on zero risk', () => {
+    const zeroRisk: OverlayShape = {
+      id: 'op-0',
+      kind: 'operation',
+      from: { time: 1_781_000_000, price: 1.1 },
+      to: { time: 1_781_000_000, price: 1.1 },
+    };
+    const fragment = projectShape(zeroRisk, priceMapper);
+    if (fragment.kind !== 'operation') throw new Error('expected an operation fragment');
+
+    expect(fragment.levels.every((level) => Number.isFinite(level.y))).toBe(true);
+    const entry = fragment.levels.find((level) => level.key === 'entry');
+    const targets = fragment.levels.filter((level) => level.colorRole === 'tp');
+    expect(targets).toHaveLength(3);
+    for (const target of targets) {
+      expect(target.price).toBe(entry?.price);
+      expect(target.y).toBe(entry?.y);
+    }
+  });
+});

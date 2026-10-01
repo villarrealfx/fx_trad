@@ -10,7 +10,7 @@
 |-----------|-------------------------|-------|--------|--------|
 | RF-301 Dos anclas Entrada/SL | `operation-geometry` + `OverlayShape {kind:'operation'}` (ADR-022) | TASK-301, TASK-302 | `operation-geometry.test.ts` (`operationRisk`) · `drawings.test.ts` | 🟢 |
 | RF-302 Dirección automática | `operationDirection` (ADR-022) | TASK-301 | `operation-geometry.test.ts` (`operationDirection`) | 🟢 |
-| RF-303 Cinco niveles visibles | `operationLevels` + `projectShape` (ADR-022) | TASK-301, TASK-304, TASK-303, TASK-305 | `operation-geometry.test.ts` (precios RF-303) · `overlay-geometry.test.ts` (proyección de los 5 niveles) · `OverlayCanvas.test.tsx` | 🔵 |
+| RF-303 Cinco niveles visibles | `operationLevels` + `projectShape` (ADR-022) | TASK-301, TASK-304, TASK-303, TASK-305 | `operation-geometry.test.ts` (precios RF-303) · `overlay-geometry.test.ts` (proyección de los 5, hit-test y zeroRisk) · `OverlayCanvas.test.tsx` | 🔵 |
 | RF-304 Niveles de cálculo no visibles | `OPERATION_TP_MULTIPLIERS` = solo `[1.382, 1.5, 2]`; sin 1:1 (ADR-022, D-3) | TASK-301 | `operation-geometry.test.ts` (no incluye el 1:1) | 🟢 |
 | RF-305 Recálculo de TP y dirección | Derivación pura por proyección; sin estado ni caché (ADR-022, RI-301) | TASK-301, TASK-UI-311, TASK-UI-314 | `operation-geometry.test.ts` (recalcula al mover el SL) | 🔵 |
 | RF-306 Un único dibujo | `kind:'operation'` propio; `hitTestFragment` por línea (ADR-022) | TASK-302, TASK-304, TASK-UI-311 | `drawings.test.ts` (unión y guarda aceptan la operación) · `overlay-geometry.test.ts` (hit-test de cualquiera de las 5) | 🔵 |
