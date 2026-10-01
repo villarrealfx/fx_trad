@@ -1,6 +1,6 @@
 # Estado del Proyecto: Dibujo Referencia de Operación (Ciclo 04)
 
-> Última actualización: 2026-10-01 15:09
+> Última actualización: 2026-10-01 15:16
 > Fuente: `_docs/backlog.md`, `_docs/traceability.md`
 
 ## 1. Resumen ejecutivo
@@ -8,23 +8,22 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 20 | — |
-| 📥 Backlog | 4 | -1 |
+| 📥 Backlog | 3 | -1 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | — |
-| ✅ Done | 16 | +1 |
+| ✅ Done | 17 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 80% (16/20 tareas · 49/56 pts) | +5% |
+| % Completado | 85% (17/20 tareas · 52/56 pts) | +5% |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (4)
+### 📥 Backlog (3)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
-| TASK-TEC-300 | Frame budget con figura activa | EP-TEC-300 | 3 | TASK-UI-313 |
 | TASK-TEC-302 | Suite completa + revisión de previas | EP-TEC-300 | 2 | TASK-UI-321, TASK-TEC-300, TASK-TEC-301 |
 | TASK-TEC-303 | Sin deps + backend intacto | EP-TEC-300 | 1 | TASK-TEC-302 |
 | TECH-301 | Corregir recuento de tests en README | EP-TEC-300 | 1 | TASK-TEC-302 |
@@ -37,7 +36,7 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (16)
+### ✅ Done (17)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
@@ -57,6 +56,7 @@ Sin tareas.
 | TASK-UI-320 | Round-trip de documento v1 mixto | EP-UI-302 | 2026-10-01 | `frontend/src/state/__tests__/chart-config.test.ts` (5 tipos + operación) |
 | TASK-UI-321 | Verificación pane a pane en Multigráfico | EP-UI-302 | 2026-10-01 | `operation-geometry.test.ts` (layout 2 escalas) · `MultiChart.test.tsx` (syncId por pane) |
 | TASK-TEC-301 | axe-core + a11y de la operación | EP-TEC-300 | 2026-10-01 | `frontend/src/components/ChartPane/ChartPane.test.tsx` (axe con operación, ARIA, anuncio al mover) |
+| TASK-TEC-300 | Frame budget con la operación activa | EP-TEC-300 | 2026-10-01 | `frontend/src/components/ChartPane/ChartPane.test.tsx` (60 FPS, 0 frames caídos) |
 
 ### 🔴 Blocked (0)
 
@@ -109,9 +109,9 @@ Ninguno.
 
 ### 🟢 Informativas
 
-- `TASK-TEC-301` completada: axe con operación, ARIA del botón y anuncio al mover. **RNF-305 a 100% → 16/19 requisitos.** Ruta crítica 5/7.
-- Restan 3 requisitos: RNF-302 (TASK-TEC-300), RNF-303 y RX-301 (TASK-TEC-302/303).
-- Faltan TASK-TEC-300 (frame budget), TASK-TEC-302 (suite), TASK-TEC-303 (sin deps) y TECH-301 (README).
+- `TASK-TEC-300` completada: frame budget arrastrando la operación (0 frames caídos). **RNF-302 a 100% → 17/19 requisitos.**
+- Restan 2 requisitos: RNF-303 y RX-301, que cierra **TASK-TEC-302/303**.
+- Faltan TASK-TEC-302 (suite + revisión), TASK-TEC-303 (sin deps) y TECH-301 (README).
 
 ## 7. Trazabilidad — salud
 
@@ -130,19 +130,19 @@ Ninguno.
 | RF-311 | 2 | 2 | 100% |
 | RF-312 | 2 | 2 | 100% |
 | RNF-301 | 2 | 2 | 100% |
-| RNF-302 | 1 | 0 | 0% |
+| RNF-302 | 1 | 1 | 100% |
 | RNF-303 | 1 | 0 | 0% |
 | RNF-304 | 2 | 2 | 100% |
 | RNF-305 | 4 | 4 | 100% |
 | RI-301 | 3 | 3 | 100% |
 | RX-301 | 1 | 0 | 0% |
 
-**Requisitos sin tareas:** ninguno ✅ · **Requisitos 100% Done:** 16/19 (todos menos RNF-302, RNF-303, RX-301)
+**Requisitos sin tareas:** ninguno ✅ · **Requisitos 100% Done:** 17/19 (solo faltan RNF-303 y RX-301)
 
 ## 8. Próximas acciones sugeridas
 
-1. Iniciar **TASK-TEC-300** (3 pts, deps ✅): frame budget con la operación activa (RNF-302).
-2. Le siguen **TASK-TEC-302** (suite + revisión) y **TASK-TEC-303** (sin deps).
+1. Iniciar **TASK-TEC-302** (2 pts, deps ✅): suite completa y revisión de las herramientas previas.
+2. Le siguen **TASK-TEC-303** (sin deps) y **TECH-301** (README); cierran el ciclo.
 
 ## 9. Historial de cambios (append-only)
 
@@ -197,3 +197,6 @@ Ninguno.
 | 2026-10-01 | TASK-TEC-301 | 📥 → 🔨 | axe con operación, ARIA del botón y anuncio al mover |
 | 2026-10-01 | TASK-TEC-301 | 🔨 → 👀 | Movida a revisión; árbol verde (457 tests, tsc/eslint OK) |
 | 2026-10-01 | TASK-TEC-301 | 👀 → ✅ Done | DoD verificada; RNF-305 100% (16/19); ruta crítica 5/7; autorización del usuario |
+| 2026-10-01 | TASK-TEC-300 | 📥 → 🔨 | Frame budget arrastrando la operación |
+| 2026-10-01 | TASK-TEC-300 | 🔨 → 👀 | Movida a revisión; árbol verde (458 tests, tsc/eslint OK) |
+| 2026-10-01 | TASK-TEC-300 | 👀 → ✅ Done | DoD verificada (0 frames caídos); RNF-302 100% (17/19); autorización del usuario |

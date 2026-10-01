@@ -395,6 +395,52 @@ describe('ChartPane', () => {
     }
   });
 
+  it('sustains the frame budget while dragging an operation (RNF-302)', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    const originalTime = chartMocks.coordinateToTime.getMockImplementation();
+    const originalPrice = chartMocks.coordinateToPrice.getMockImplementation();
+    chartMocks.coordinateToTime.mockImplementation((x?: number) => 1_781_000_000 + (x ?? 0) * 60);
+    chartMocks.coordinateToPrice.mockImplementation((y?: number) => 1.5 + (y ?? 0) / 1000);
+    try {
+      const { container } = render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+      await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+      const host = container.querySelector('.chart-pane__host') as HTMLElement;
+      fireEvent.click(screen.getByRole('button', { name: 'Operación: 2 clics (Entrada, SL)' }));
+      emitChartClick(1_781_000_000, 0, 0);
+      emitChartClick(1_781_003_600, 100, 100);
+
+      const scheduler = createManualScheduler();
+      const meter = new FrameRateMeter({
+        now: scheduler.now,
+        schedule: scheduler.schedule,
+        cancel: scheduler.cancel,
+      });
+      meter.start();
+      fireEvent(host, new MouseEvent('pointerdown', { clientX: 10, clientY: 40, bubbles: true }));
+      for (let frame = 0; frame < 60; frame += 1) {
+        for (let move = 0; move < 5; move += 1) {
+          fireEvent(
+            host,
+            new MouseEvent('pointermove', {
+              clientX: 10 + frame + move,
+              clientY: 40 + frame,
+              bubbles: true,
+            }),
+          );
+        }
+        scheduler.advance(FRAME_BUDGET_MS);
+      }
+      fireEvent(host, new MouseEvent('pointerup', { clientX: 80, clientY: 90, bubbles: true }));
+
+      const metrics = meter.stop();
+      expect(metrics.avgFps).toBeGreaterThan(58);
+      expect(metrics.droppedFrames).toBe(0);
+    } finally {
+      chartMocks.coordinateToTime.mockImplementation(originalTime ?? (() => 1_781_000_000));
+      chartMocks.coordinateToPrice.mockImplementation(originalPrice ?? (() => 1.5));
+    }
+  });
+
   it('edits a drawing by dragging and restores it with undo (RF-212/RF-213)', async () => {
     fetchMock.mockResolvedValue(createResponse(RESPONSE));
     const originalTime = chartMocks.coordinateToTime.getMockImplementation();
