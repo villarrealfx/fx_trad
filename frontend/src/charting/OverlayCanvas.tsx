@@ -1,10 +1,18 @@
 import { useEffect, useRef, type MutableRefObject, type Ref, type RefObject } from 'react';
 import { COLOR_FOCUS, COLOR_TEXT_MUTED } from '../components/ChartPane/theme';
 import { createFrameBatcher, type FrameBatcher } from '../performance/frame-batch';
+import { COLOR_TOKENS, FONT_FAMILY, OPERATION_TOKENS, TYPOGRAPHY_TOKENS } from '../styles/tokens';
+import { PRICE_FORMAT } from './axis-format';
 import type { OverlayBinding } from './chart-binding';
 import { HANDLE_DRAW_SIZE, handlePositions } from './drawing-edit';
 import { colorForShape } from './drawings';
-import { projectShape, type MarketDirection, type OverlayShape } from './overlay-geometry';
+import { layoutOperationLabels, type OperationColorRole } from './operation-geometry';
+import {
+  projectPoint,
+  projectShape,
+  type MarketDirection,
+  type OverlayShape,
+} from './overlay-geometry';
 
 /**
  * Lienzo overlay de dibujos sincronizado con los ejes de lightweight-charts
@@ -36,6 +44,114 @@ export interface OverlayCanvasProps {
 
 /** Triángulo del marcador (▲ compra / ▼ venta) con base sobre el ancla. */
 const MARKER_SIZE = 6;
+
+/** Color de cada nivel de la operación, desde los tokens (RF-309, ADR-024). */
+const OPERATION_LEVEL_COLORS: Record<OperationColorRole, string> = {
+  sl: COLOR_TOKENS.drawOpSl,
+  entry: COLOR_TOKENS.drawOpEntry,
+  tp: COLOR_TOKENS.drawOpTp,
+};
+
+/** Tamaño de fuente de las etiquetas de nivel, en píxeles (font-num). */
+const OPERATION_LABEL_FONT_SIZE = Number.parseInt(TYPOGRAPHY_TOKENS.num.fontSize, 10);
+
+/** Traza un rectángulo redondeado (chip de etiqueta), sin borde (ADR-025). */
+function traceRoundedRect(
+  context: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number,
+): void {
+  const r = Math.min(radius, width / 2, height / 2);
+  context.beginPath();
+  context.moveTo(x + r, y);
+  context.arcTo(x + width, y, x + width, y + height, r);
+  context.arcTo(x + width, y + height, x, y + height, r);
+  context.arcTo(x, y + height, x, y, r);
+  context.arcTo(x, y, x + width, y, r);
+  context.closePath();
+}
+
+/**
+ * Pinta una operación: cinco líneas de extremo a extremo con el color de su
+ * nivel, sus chips de etiqueta (nombre + precio a `PRICE_FORMAT`) y la línea
+ * guía de las desplazadas (RF-308, RF-309, RF-312, RNF-301).
+ */
+function drawOperation(
+  context: CanvasRenderingContext2D,
+  shape: Extract<OverlayShape, { kind: 'operation' }>,
+  fragment: Extract<ReturnType<typeof projectShape>, { kind: 'operation' }>,
+  mapper: OverlayBinding,
+  width: number,
+  height: number,
+): void {
+  for (const level of fragment.levels) {
+    context.strokeStyle = OPERATION_LEVEL_COLORS[level.colorRole];
+    context.beginPath();
+    context.moveTo(0, level.y);
+    context.lineTo(width, level.y);
+    context.stroke();
+  }
+
+  const layout = layoutOperationLabels(
+    fragment.levels.map((level) => ({ key: level.key, y: level.y })),
+    OPERATION_TOKENS.labelMinGap,
+    { top: 0, bottom: height },
+  );
+
+  const stop = projectPoint(shape.to, mapper);
+  const labelX = (stop === null ? width : stop.x) + OPERATION_TOKENS.labelOffset;
+  const chipHeight = OPERATION_LABEL_FONT_SIZE + OPERATION_TOKENS.labelPadY * 2;
+  context.font = [
+    TYPOGRAPHY_TOKENS.num.fontWeight,
+    TYPOGRAPHY_TOKENS.num.fontSize,
+    FONT_FAMILY,
+  ].join(' ');
+  context.textBaseline = 'middle';
+  context.textAlign = 'left';
+
+  for (const [index, level] of fragment.levels.entries()) {
+    const placed = layout[index];
+    const name = level.label;
+    const price = level.price.toFixed(PRICE_FORMAT.precision);
+    const nameWidth = context.measureText(name).width;
+    const priceWidth = context.measureText(price).width;
+    const chipWidth =
+      OPERATION_TOKENS.labelPadX * 2 + nameWidth + OPERATION_TOKENS.labelPadX + priceWidth;
+
+    if (placed.leader) {
+      context.strokeStyle = OPERATION_LEVEL_COLORS[level.colorRole];
+      context.lineWidth = OPERATION_TOKENS.leaderWidth;
+      context.beginPath();
+      context.moveTo(labelX - 2, level.y);
+      context.lineTo(labelX - 2, placed.y);
+      context.stroke();
+      context.lineWidth = 1.5;
+    }
+
+    context.fillStyle = COLOR_TOKENS.surface;
+    traceRoundedRect(
+      context,
+      labelX,
+      placed.y - chipHeight / 2,
+      chipWidth,
+      chipHeight,
+      OPERATION_TOKENS.labelRadius,
+    );
+    context.fill();
+
+    context.fillStyle = COLOR_TEXT_MUTED;
+    context.fillText(name, labelX + OPERATION_TOKENS.labelPadX, placed.y);
+    context.fillStyle = OPERATION_LEVEL_COLORS[level.colorRole];
+    context.fillText(
+      price,
+      labelX + OPERATION_TOKENS.labelPadX + nameWidth + OPERATION_TOKENS.labelPadX,
+      placed.y,
+    );
+  }
+}
 
 function drawMarker(
   context: CanvasRenderingContext2D,
@@ -158,7 +274,9 @@ export default function OverlayCanvas({
           continue;
         }
         if (fragment.kind === 'operation') {
-          // TODO(TASK-UI-313): pintar las 5 líneas y sus chips de etiqueta.
+          if (shape.kind === 'operation') {
+            drawOperation(context, shape, fragment, binding, width, height);
+          }
           continue;
         }
         drawMarker(context, fragment.position, fragment.direction, colorForShape(shape));

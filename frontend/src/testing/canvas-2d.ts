@@ -7,6 +7,7 @@ export interface Canvas2DContextMock {
   beginPath: ReturnType<typeof vi.fn>;
   moveTo: ReturnType<typeof vi.fn>;
   lineTo: ReturnType<typeof vi.fn>;
+  arcTo: ReturnType<typeof vi.fn>;
   stroke: ReturnType<typeof vi.fn>;
   strokeRect: ReturnType<typeof vi.fn>;
   closePath: ReturnType<typeof vi.fn>;
@@ -14,7 +15,10 @@ export interface Canvas2DContextMock {
   fillRect: ReturnType<typeof vi.fn>;
   drawImage: ReturnType<typeof vi.fn>;
   fillText: ReturnType<typeof vi.fn>;
+  measureText: ReturnType<typeof vi.fn>;
   fillStyle: string;
+  strokeStyle: string;
+  lineWidth: number;
   font: string;
   textBaseline: string;
   textAlign: string;
@@ -32,6 +36,7 @@ export function installCanvas2DContextMock(): { ctx: Canvas2DContextMock } {
     beginPath: vi.fn(),
     moveTo: vi.fn(),
     lineTo: vi.fn(),
+    arcTo: vi.fn(),
     stroke: vi.fn(),
     strokeRect: vi.fn(),
     closePath: vi.fn(),
@@ -39,7 +44,10 @@ export function installCanvas2DContextMock(): { ctx: Canvas2DContextMock } {
     fillRect: vi.fn(),
     drawImage: vi.fn(),
     fillText: vi.fn(),
+    measureText: vi.fn(() => ({ width: 10 }) as TextMetrics),
     fillStyle: '',
+    strokeStyle: '',
+    lineWidth: 1,
     font: '',
     textBaseline: '',
     textAlign: '',

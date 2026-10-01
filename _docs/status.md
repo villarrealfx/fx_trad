@@ -1,6 +1,6 @@
 # Estado del Proyecto: Dibujo Referencia de Operación (Ciclo 04)
 
-> Última actualización: 2026-10-01 14:04
+> Última actualización: 2026-10-01 14:14
 > Fuente: `_docs/backlog.md`, `_docs/traceability.md`
 
 ## 1. Resumen ejecutivo
@@ -8,23 +8,22 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 20 | — |
-| 📥 Backlog | 10 | -1 |
+| 📥 Backlog | 9 | -1 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | — |
-| ✅ Done | 10 | +1 |
+| ✅ Done | 11 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 50% (10/20 tareas · 31/56 pts) | +5% |
+| % Completado | 55% (11/20 tareas · 36/56 pts) | +5% |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (10)
+### 📥 Backlog (9)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
-| TASK-UI-313 | Render 5 líneas + chips | EP-UI-301 | 5 | TASK-UI-312 |
 | TASK-UI-314 | `LiveRegion` | EP-UI-301 | 2 | TASK-UI-311 |
 | TASK-UI-315 | Tests de render + interacción | EP-UI-301 | 5 | TASK-UI-313, TASK-UI-314 |
 | TASK-UI-320 | Round-trip de documento v1 mixto | EP-UI-302 | 2 | TASK-302 |
@@ -43,7 +42,7 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (10)
+### ✅ Done (11)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
@@ -57,6 +56,7 @@ Sin tareas.
 | TASK-UI-310 | Herramienta "Operación" en la paleta | EP-UI-301 | 2026-10-01 | `frontend/src/components/ChartPane/ChartPane.test.tsx` (tras Fibonacci) · `DrawTool.test.tsx` |
 | TASK-UI-311 | Creación en 2 clics + guards + Shift | EP-UI-301 | 2026-10-01 | `frontend/src/components/ChartPane/ChartPane.test.tsx` (creación, guard y Shift) |
 | TASK-UI-312 | `layoutOperationLabels` (separación mínima + guía) | EP-UI-301 | 2026-10-01 | `frontend/src/charting/__tests__/operation-geometry.test.ts` (4 casos de layout) |
+| TASK-UI-313 | Render de 5 líneas + chips de etiqueta | EP-UI-301 | 2026-10-01 | `frontend/src/components/ChartPane/ChartPane.test.tsx` (render de líneas y chips) |
 
 ### 🔴 Blocked (0)
 
@@ -67,14 +67,14 @@ Sin tareas.
 ```mermaid
 graph LR
   T301[TASK-301 ✅] --> T312[TASK-UI-312 ✅]
-  T312 --> T313[TASK-UI-313 📥]
+  T312 --> T313[TASK-UI-313 ✅]
   T313 --> T315[TASK-UI-315 📥]
   T315 --> TT301[TASK-TEC-301 📥]
   TT301 --> TT302[TASK-TEC-302 📥]
   TT302 --> TT303[TASK-TEC-303 📥]
 ```
 
-**Avance de ruta crítica:** 2/7 tareas (29%) · 8/23 pts · **ETA estimada:** desconocido (sin velocidad medida).
+**Avance de ruta crítica:** 3/7 tareas (43%) · 13/23 pts · **ETA estimada:** desconocido (sin velocidad medida).
 
 ## 4. Métricas
 
@@ -109,9 +109,9 @@ Ninguno.
 
 ### 🟢 Informativas
 
-- `TASK-UI-312` completada: `layoutOperationLabels` (separación mínima + guía). Ruta crítica 2/7. Suite 55 archivos / 437 tests.
-- RF-301, RF-302, RF-303, RF-304 y RF-306 100% Done; RNF-301 al 50%; RF-305/RF-307 al 67%; RNF-305 75%.
-- Siguiente: **TASK-UI-313** (render de las 5 líneas + chips), que retira el skip `TODO(TASK-UI-313)`.
+- `TASK-UI-313` completada: render de las 5 líneas + chips (colores por token, precio vía `PRICE_FORMAT`). **RF-309 a 100%** (6/19). Ruta crítica 3/7. Suite 55 archivos / 438 tests.
+- RF-301, RF-302, RF-303, RF-304, RF-306 y RF-309 100% Done; RNF-301 al 50%; RF-308/RF-305/RF-307 al 67%; RNF-305 75%.
+- Siguiente: **TASK-UI-314** (`LiveRegion`) y luego **TASK-UI-315** (tests), que cierra EP-UI-301.
 
 ## 7. Trazabilidad — salud
 
@@ -124,11 +124,11 @@ Ninguno.
 | RF-305 | 3 | 2 | 67% |
 | RF-306 | 3 | 3 | 100% |
 | RF-307 | 3 | 2 | 67% |
-| RF-308 | 3 | 1 | 33% |
-| RF-309 | 3 | 2 | 67% |
+| RF-308 | 3 | 2 | 67% |
+| RF-309 | 3 | 3 | 100% |
 | RF-310 | 2 | 1 | 50% |
 | RF-311 | 2 | 1 | 50% |
-| RF-312 | 2 | 0 | 0% |
+| RF-312 | 2 | 1 | 50% |
 | RNF-301 | 2 | 1 | 50% |
 | RNF-302 | 1 | 0 | 0% |
 | RNF-303 | 1 | 0 | 0% |
@@ -137,12 +137,12 @@ Ninguno.
 | RI-301 | 3 | 2 | 67% |
 | RX-301 | 1 | 0 | 0% |
 
-**Requisitos sin tareas:** ninguno ✅ · **Requisitos 100% Done:** 5/19 (RF-301, RF-302, RF-303, RF-304, RF-306)
+**Requisitos sin tareas:** ninguno ✅ · **Requisitos 100% Done:** 6/19 (RF-301, RF-302, RF-303, RF-304, RF-306, RF-309)
 
 ## 8. Próximas acciones sugeridas
 
-1. Iniciar **TASK-UI-313** (5 pts, deps ✅): render de las 5 líneas + chips; retira el skip `TODO(TASK-UI-313)`.
-2. `TASK-UI-315` (tests de render + interacción) va después de TASK-UI-313.
+1. Iniciar **TASK-UI-314** (2 pts, deps ✅): `LiveRegion` con los 5 valores y `zeroRisk`.
+2. `TASK-UI-315` (tests de render + interacción) va después de TASK-UI-314 y cierra EP-UI-301.
 
 ## 9. Historial de cambios (append-only)
 
@@ -179,3 +179,6 @@ Ninguno.
 | 2026-10-01 | TASK-UI-312 | 📥 → 🔨 | `layoutOperationLabels`: separación mínima y corrección de desbordamiento |
 | 2026-10-01 | TASK-UI-312 | 🔨 → 👀 | Movida a revisión; árbol verde (437 tests, tsc/eslint OK) |
 | 2026-10-01 | TASK-UI-312 | 👀 → ✅ Done | DoD verificada sin problemas; ruta crítica 2/7; autorización del usuario |
+| 2026-10-01 | TASK-UI-313 | 📥 → 🔨 | Render de las 5 líneas + chips; retira el skip provisional |
+| 2026-10-01 | TASK-UI-313 | 🔨 → 👀 | Movida a revisión; árbol verde (438 tests, tsc/eslint OK) |
+| 2026-10-01 | TASK-UI-313 | 👀 → ✅ Done | DoD verificada sin problemas; RF-309 100%; ruta crítica 3/7; autorización del usuario |

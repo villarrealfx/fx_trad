@@ -705,6 +705,38 @@ describe('ChartPane', () => {
     }
   });
 
+  it('renders the five operation lines and their labelled chips (RF-308/RF-312)', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    const originalPrice = chartMocks.coordinateToPrice.getMockImplementation();
+    const originalPixel = chartMocks.priceToCoordinate.getMockImplementation();
+    chartMocks.coordinateToPrice.mockImplementation((y?: number) => 1.5 + (y ?? 0) / 1000);
+    chartMocks.priceToCoordinate.mockImplementation(
+      (price?: number) => (1.7 - (price ?? 1.5)) * 1000,
+    );
+    try {
+      const { container } = render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+      await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+      const host = container.querySelector('.chart-pane__host') as HTMLElement;
+      Object.defineProperty(host, 'clientWidth', { value: 800, configurable: true });
+      Object.defineProperty(host, 'clientHeight', { value: 400, configurable: true });
+      fireEvent.click(screen.getByRole('button', { name: 'Operación: 2 clics (Entrada, SL)' }));
+      emitChartClick(1_781_000_000, 0, 0);
+      emitChartClick(1_781_003_600, 0, 100);
+
+      await waitFor(() => expect(ctx.fillText).toHaveBeenCalled());
+      const texts = ctx.fillText.mock.calls.map((call) => call[0]);
+      expect(texts).toEqual(
+        expect.arrayContaining(['SL', 'Entrada', 'TP 1.382', 'TP 1.5', 'TP 2', '1.50000']),
+      );
+      // Cinco líneas de extremo a extremo (borde izquierdo y derecho del chart).
+      const horizontalLines = ctx.moveTo.mock.calls.filter((call) => call[0] === 0);
+      expect(horizontalLines.length).toBeGreaterThanOrEqual(5);
+    } finally {
+      chartMocks.coordinateToPrice.mockImplementation(originalPrice ?? (() => 1.5));
+      chartMocks.priceToCoordinate.mockImplementation(originalPixel ?? (() => 40));
+    }
+  });
+
   it('erases a drawn shape with the erase tool', async () => {
     fetchMock.mockResolvedValue(createResponse(RESPONSE));
     const { container } = render(<ChartPane symbol="EURUSD" timeframe="1h" />);
