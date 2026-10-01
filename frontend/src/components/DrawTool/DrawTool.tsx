@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import './DrawTool.css';
 
 /** Tipos de herramienta del gráfico (CMP-009, SCR-004). */
-export type ChartToolType = 'line' | 'rect' | 'fib' | 'buy' | 'sell' | 'erase';
+export type ChartToolType = 'line' | 'rect' | 'fib' | 'operation' | 'buy' | 'sell' | 'erase';
 
 /** Props del botón de herramienta (CMP-009, `components.md`). */
 export interface DrawToolProps {

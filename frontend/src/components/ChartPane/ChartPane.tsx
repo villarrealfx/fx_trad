@@ -75,6 +75,7 @@ const TOOL_DESCRIPTORS: ReadonlyArray<ChartToolDescriptor> = [
   { type: 'line', icon: '✏️', label: 'Línea' },
   { type: 'rect', icon: '▭', label: 'Rectángulo' },
   { type: 'fib', icon: 'Φ', label: 'Fibonacci' },
+  { type: 'operation', icon: '◎', label: 'Operación: 2 clics (Entrada, SL)' },
   { type: 'buy', icon: '▲', label: 'Compra' },
   { type: 'sell', icon: '▼', label: 'Venta' },
   { type: 'erase', icon: '🗑', label: 'Borrar trazo' },
@@ -552,6 +553,10 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
     const cursor = { x: point.x, y: point.y };
     if (activeTool === 'erase') {
       eraseAt(cursor);
+      return;
+    }
+    if (activeTool === 'operation') {
+      // TODO(TASK-UI-311): crear la operación con dos clics (Entrada, SL).
       return;
     }
     if (activeTool === 'line' || activeTool === 'rect' || activeTool === 'fib') {

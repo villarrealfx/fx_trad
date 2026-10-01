@@ -21,6 +21,23 @@ describe('DrawTool (CMP-009)', () => {
     );
   });
 
+  it('renders the operation tool with its two-click hint (RF-310)', () => {
+    const ariaLabel = 'Operación: 2 clics (Entrada, SL)';
+    render(
+      <DrawTool
+        type="operation"
+        icon="◎"
+        ariaLabel={ariaLabel}
+        active={false}
+        onSelect={() => {}}
+      />,
+    );
+
+    const button = screen.getByRole('button', { name: ariaLabel });
+    expect(button.getAttribute('title')).toBe(ariaLabel);
+    expect(button.getAttribute('aria-pressed')).toBe('false');
+  });
+
   it('reports the selected tool', () => {
     const onSelect = vi.fn();
     render(

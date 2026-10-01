@@ -1,5 +1,5 @@
 import axe from 'axe-core';
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { createRef } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
@@ -683,6 +683,20 @@ describe('ChartPane', () => {
     expect(screen.getByRole('button', { name: 'Compra' }).getAttribute('aria-pressed')).toBe(
       'false',
     );
+  });
+
+  it('places the operation tool right after Fibonacci (RF-310)', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+
+    const toolbar = screen.getByRole('toolbar', { name: 'Herramientas del gráfico' });
+    const labels = within(toolbar)
+      .getAllByRole('button')
+      .map((button) => button.getAttribute('aria-label'));
+    const fibIndex = labels.indexOf('Fibonacci');
+    expect(fibIndex).toBeGreaterThanOrEqual(0);
+    expect(labels[fibIndex + 1]).toBe('Operación: 2 clics (Entrada, SL)');
   });
 
   it('fits the view from the header action', async () => {

@@ -1,6 +1,6 @@
 # Estado del Proyecto: Dibujo Referencia de Operación (Ciclo 04)
 
-> Última actualización: 2026-10-01 13:32
+> Última actualización: 2026-10-01 13:45
 > Fuente: `_docs/backlog.md`, `_docs/traceability.md`
 
 ## 1. Resumen ejecutivo
@@ -8,23 +8,22 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 20 | — |
-| 📥 Backlog | 13 | -1 |
+| 📥 Backlog | 12 | -1 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | — |
-| ✅ Done | 7 | +1 |
+| ✅ Done | 8 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 35% (7/20 tareas · 21/56 pts) | +5% |
+| % Completado | 40% (8/20 tareas · 23/56 pts) | +5% |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (13)
+### 📥 Backlog (12)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
-| TASK-UI-310 | Herramienta en paleta | EP-UI-301 | 2 | TASK-302, TASK-UI-300 |
 | TASK-UI-311 | Creación en 2 clics + guards + Shift | EP-UI-301 | 3 | TASK-UI-310, TASK-304 |
 | TASK-UI-312 | `layoutOperationLabels` | EP-UI-301 | 5 | TASK-301, TASK-UI-300 |
 | TASK-UI-313 | Render 5 líneas + chips | EP-UI-301 | 5 | TASK-UI-312 |
@@ -46,7 +45,7 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (7)
+### ✅ Done (8)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
@@ -57,6 +56,7 @@ Sin tareas.
 | TASK-305 | Tests de proyección, hit-test y zeroRisk | EP-301 | 2026-10-01 | `frontend/src/charting/__tests__/overlay-geometry.test.ts` (hit-test de las 5 y zeroRisk) |
 | TASK-UI-300 | Tokens de operación (TS + CSS) | EP-UI-300 | 2026-10-01 | `frontend/src/styles/__tests__/tokens.test.ts` (anti-drift + reutilización de colores) |
 | TASK-UI-301 | Test de contraste + anti-drift | EP-UI-300 | 2026-10-01 | `frontend/src/styles/__tests__/tokens.test.ts` (4 etiquetas × 2 fondos) |
+| TASK-UI-310 | Herramienta "Operación" en la paleta | EP-UI-301 | 2026-10-01 | `frontend/src/components/ChartPane/ChartPane.test.tsx` (tras Fibonacci) · `DrawTool.test.tsx` |
 
 ### 🔴 Blocked (0)
 
@@ -109,9 +109,9 @@ Ninguno.
 
 ### 🟢 Informativas
 
-- `TASK-305` completada: **EP-301 cerrada (5/5)**. RF-303 a 100%. Suite 55 archivos / 428 tests.
+- `TASK-UI-310` completada: herramienta `◎` en la paleta tras Fibonacci. RF-310 al 50%. Suite 55 archivos / 430 tests.
 - RF-301, RF-302, RF-303 y RF-304 100% Done; RF-306 y RF-309 al 67%; RI-301 67%; RNF-305 75%.
-- Siguiente: **EP-UI-301** (herramienta y figura en el gráfico), empezando por `TASK-UI-310`.
+- Siguiente: **TASK-UI-311** (creación en 2 clics), que retira el guard provisional `TODO(TASK-UI-311)`.
 
 ## 7. Trazabilidad — salud
 
@@ -126,7 +126,7 @@ Ninguno.
 | RF-307 | 3 | 1 | 33% |
 | RF-308 | 3 | 0 | 0% |
 | RF-309 | 3 | 2 | 67% |
-| RF-310 | 2 | 0 | 0% |
+| RF-310 | 2 | 1 | 50% |
 | RF-311 | 2 | 1 | 50% |
 | RF-312 | 2 | 0 | 0% |
 | RNF-301 | 2 | 0 | 0% |
@@ -141,7 +141,7 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. Iniciar **TASK-UI-310** (2 pts, deps ✅): herramienta "Operación" en la paleta; abre EP-UI-301.
+1. Iniciar **TASK-UI-311** (3 pts, deps ✅): creación en 2 clics; retira el guard provisional.
 2. La ruta crítica avanza por `TASK-UI-312`, que aún está en 📥.
 
 ## 9. Historial de cambios (append-only)
@@ -170,3 +170,6 @@ Ninguno.
 | 2026-10-01 | TASK-305 | 📥 → 🔨 | Hit-test de las 5 reales y caracterización de zeroRisk |
 | 2026-10-01 | TASK-305 | 🔨 → 👀 | Movida a revisión; árbol verde (428 tests, tsc/eslint OK) |
 | 2026-10-01 | TASK-305 | 👀 → ✅ Done | DoD verificada sin problemas; cierra EP-301; autorización del usuario |
+| 2026-10-01 | TASK-UI-310 | 📥 → 🔨 | Herramienta "Operación" en la paleta + guard provisional |
+| 2026-10-01 | TASK-UI-310 | 🔨 → 👀 | Movida a revisión; árbol verde (430 tests, tsc/eslint OK) |
+| 2026-10-01 | TASK-UI-310 | 👀 → ✅ Done | DoD verificada sin problemas (botón tras Fibonacci, nombre accesible, aria-pressed); autorización del usuario |
