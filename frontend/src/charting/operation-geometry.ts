@@ -11,9 +11,10 @@
  * Los cinco niveles visibles son SL, Entrada, TP 1.382, TP 1.5 y TP 2. La
  * referencia 1:1 **no** forma parte del conjunto visible (RF-304, D-3).
  */
+import { OPERATION_TOKENS } from '../styles/tokens';
 
 /** Multiplicadores de objetivo, en unidades de riesgo `R` (RF-303, S-6). */
-export const OPERATION_TP_MULTIPLIERS = [1.382, 1.5, 2] as const;
+export const OPERATION_TP_MULTIPLIERS = OPERATION_TOKENS.tpMultipliers;
 
 /** Dirección de la operación, deducida de las anclas (RF-302). */
 export type OperationDirection = 'buy' | 'sell';

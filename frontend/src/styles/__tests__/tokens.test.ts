@@ -16,6 +16,7 @@ import {
   DRAWING_COLOR_ROLES,
   ICON_TOKENS,
   MARKER_TOKENS,
+  OPERATION_TOKENS,
   RADIUS_TOKENS,
   SHADOW_TOKENS,
   SPACING_TOKENS,
@@ -106,6 +107,41 @@ describe('tokens del ciclo 03 (dibujos, ejes, marcas, íconos)', () => {
       ['--icon-size-sm', ICON_TOKENS.sizes.sm],
       ['--icon-size-md', ICON_TOKENS.sizes.md],
       ['--icon-size-lg', ICON_TOKENS.sizes.lg],
+    ];
+    for (const [property, value] of expected) {
+      expect(css).toContain(`${property}: ${value.toLowerCase()};`);
+    }
+  });
+});
+
+describe('tokens de la operación (ciclo 04)', () => {
+  it('los 3 colores reutilizan la base del design system, sin color nuevo (ADR-024)', () => {
+    expect(COLOR_TOKENS.drawOpSl).toBe(COLOR_TOKENS.down);
+    expect(COLOR_TOKENS.drawOpEntry).toBe(COLOR_TOKENS.text);
+    expect(COLOR_TOKENS.drawOpTp).toBe(COLOR_TOKENS.up);
+  });
+
+  it('cumple AA (≥ 4.5:1) sobre el chart y sobre el chip', () => {
+    for (const role of ['drawOpSl', 'drawOpEntry', 'drawOpTp'] as const) {
+      expect(contrastRatio(COLOR_TOKENS[role], COLOR_TOKENS.bg)).toBeGreaterThanOrEqual(4.5);
+      expect(contrastRatio(COLOR_TOKENS[role], COLOR_TOKENS.surface)).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  it('fija los multiplicadores de objetivo sin el 1:1 (RF-303, RF-304)', () => {
+    expect(OPERATION_TOKENS.tpMultipliers).toEqual([1.382, 1.5, 2]);
+  });
+
+  it('tokens.css refleja el formato de la operación (anti-drift)', () => {
+    const expected: ReadonlyArray<readonly [string, string]> = [
+      ['--operation-label-min-gap', `${OPERATION_TOKENS.labelMinGap}px`],
+      ['--operation-label-offset', `${OPERATION_TOKENS.labelOffset}px`],
+      ['--operation-label-pad-x', `${OPERATION_TOKENS.labelPadX}px`],
+      ['--operation-label-pad-y', `${OPERATION_TOKENS.labelPadY}px`],
+      ['--operation-label-radius', `${OPERATION_TOKENS.labelRadius}px`],
+      ['--operation-hit-radius', `${OPERATION_TOKENS.hitRadius}px`],
+      ['--operation-leader-width', `${OPERATION_TOKENS.leaderWidth}px`],
+      ['--operation-tp-multipliers', OPERATION_TOKENS.tpMultipliers.join(' ')],
     ];
     for (const [property, value] of expected) {
       expect(css).toContain(`${property}: ${value.toLowerCase()};`);

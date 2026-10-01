@@ -102,6 +102,34 @@ export const MARKER_TOKENS = {
 } as const;
 
 /**
+ * Formato de la operación (RF-308, RF-309, RNF-301, ADR-025).
+ *
+ * Geometría del chip de etiqueta, radio de hit-test por línea y multiplicadores
+ * de objetivo. Sigue el patrón de `AXIS_TOKENS`/`MARKER_TOKENS`: el nombre del
+ * objeto da el prefijo de la custom property (`--operation-*`) y cada campo su
+ * sufijo. Los valores de longitud están en píxeles (consumo en canvas); el color
+ * por rol vive en `COLOR_TOKENS` (`drawOpSl`/`drawOpEntry`/`drawOpTp`).
+ */
+export const OPERATION_TOKENS = {
+  /** Separación vertical mínima entre etiquetas (RNF-301). */
+  labelMinGap: 20,
+  /** Separación chip ↔ borde derecho (RF-308). */
+  labelOffset: 4,
+  /** Padding horizontal del chip. */
+  labelPadX: 4,
+  /** Padding vertical del chip. */
+  labelPadY: 2,
+  /** Radio del chip (radius-sm). */
+  labelRadius: 4,
+  /** Radio de hit-test por línea (RF-306, alineado con `fib`). */
+  hitRadius: 6,
+  /** Grosor de la línea guía de etiquetas desplazadas. */
+  leaderWidth: 1,
+  /** Multiplicadores de objetivo, en unidades de R (RF-303, S-6). */
+  tpMultipliers: [1.382, 1.5, 2],
+} as const;
+
+/**
  * Iconografía (RF-211).
  *
  * `set` documenta la librería (Lucide, MIT, costo $0 — RNF-006); `sizes`

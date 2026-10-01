@@ -65,6 +65,16 @@
   --marker-pip-value: 0.0001;
   --marker-pip-value-jpy: 0.01;
 
+  /* Formato de la operación (RF-308, RF-309, RNF-301) */
+  --operation-label-min-gap: 20px;
+  --operation-label-offset: 4px;
+  --operation-label-pad-x: 4px;
+  --operation-label-pad-y: 2px;
+  --operation-label-radius: 4px;
+  --operation-hit-radius: 6px;
+  --operation-leader-width: 1px;
+  --operation-tp-multipliers: 1.382 1.5 2;
+
   /* Iconografía (RF-211) */
   --icon-set: lucide;
   --icon-size-sm: 16px;

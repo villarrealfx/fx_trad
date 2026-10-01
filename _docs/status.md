@@ -1,6 +1,6 @@
 # Estado del Proyecto: Dibujo Referencia de Operación (Ciclo 04)
 
-> Última actualización: 2026-10-01 12:24
+> Última actualización: 2026-10-01 12:47
 > Fuente: `_docs/backlog.md`, `_docs/traceability.md`
 
 ## 1. Resumen ejecutivo
@@ -8,26 +8,25 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 20 | — |
-| 📥 Backlog | 18 | — |
+| 📥 Backlog | 17 | — |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | -1 |
-| ✅ Done | 2 | +1 |
+| ✅ Done | 3 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 10% (2/20 tareas · 6/56 pts) | +5% |
+| % Completado | 15% (3/20 tareas · 8/56 pts) | +5% |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (18)
+### 📥 Backlog (17)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
 | TASK-303 | Tests de geometría + `drawings` + `drawing-edit` | EP-301 | 3 | TASK-301, TASK-302 |
 | TASK-304 | `projectShape` + `hitTestFragment` de operación | EP-301 | 5 | TASK-301, TASK-UI-300 |
 | TASK-305 | Tests de proyección, hit-test y zeroRisk | EP-301 | 3 | TASK-304 |
-| TASK-UI-300 | Tokens de operación (TS + CSS) | EP-UI-300 | 2 | — |
 | TASK-UI-301 | Test de contraste + anti-drift | EP-UI-300 | 2 | TASK-UI-300 |
 | TASK-UI-310 | Herramienta en paleta | EP-UI-301 | 2 | TASK-302, TASK-UI-300 |
 | TASK-UI-311 | Creación en 2 clics + guards + Shift | EP-UI-301 | 3 | TASK-UI-310, TASK-304 |
@@ -51,12 +50,13 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (2)
+### ✅ Done (3)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
 | TASK-301 | `operation-geometry.ts`: dirección, riesgo y 5 niveles | EP-301 | 2026-10-01 | `frontend/src/charting/__tests__/operation-geometry.test.ts` (16 tests · cobertura 93.33% branch) |
 | TASK-302 | Modelo `'operation'` en kinds, uniones y color | EP-301 | 2026-10-01 | `frontend/src/charting/__tests__/drawings.test.ts` (round-trip) · `drawing-edit.test.ts` · `overlay-geometry.test.ts` |
+| TASK-UI-300 | Tokens de operación (TS + CSS) | EP-UI-300 | 2026-10-01 | `frontend/src/styles/__tests__/tokens.test.ts` (anti-drift + reutilización de colores) |
 
 ### 🔴 Blocked (0)
 
@@ -103,15 +103,15 @@ Ninguno.
 
 ### 🟡 Advertencias
 
-- `TASK-302` añadió 3 tokens `drawOp*` y una rama provisional en `projectShape` (`TODO(TASK-304)`): **solapamiento parcial con TASK-UI-300** (tokens de formato) y **TASK-304** (proyección real). Anotado, no bloqueante.
+- `TASK-302` introdujo los 3 tokens `drawOp*` y una rama provisional en `projectShape` (`TODO(TASK-304)`). TASK-UI-300 ya cubrió la parte de tokens; queda TASK-304 para la proyección real.
 - Deuda preexistente: `npm run format:check` falla en 12 ficheros de `master` (incl. `App.tsx`, `LiveRegion.tsx`, `use-drawing-history.ts` y una línea previa de `tokens.css`). Ajena a este ciclo.
 - `TASK-TEC-303` compara contra el arranque del ciclo; el commit `0422923` sirve de base. Sin nuevas dependencias detectadas.
 
 ### 🟢 Informativas
 
-- `TASK-302` completada: RF-301 pasa a 100% Done (con TASK-301). 55 archivos / 414 tests; `drawings.ts` 97.67% branch · `drawing-edit.ts` 100% · `overlay-geometry.ts` 93.75%.
-- RF-301, RF-302 y RF-304 quedan 100% Done.
-- `TASK-303` tiene sus dos deps cumplidas (TASK-301 ✅, TASK-302 ✅); `TASK-UI-300` y `TASK-304` son las siguientes sin dependencia / tras tokens.
+- `TASK-UI-300` completada: `OPERATION_TOKENS` (8 tokens) espejado en `tokens.css`; `operation-geometry` consume `tpMultipliers` (fuente única); los 3 colores reutilizan `down`/`up`/`text`. RF-309 al 67% y RNF-305 al 50%.
+- RF-301, RF-302 y RF-304 quedan 100% Done; RI-301 al 67%.
+- `TASK-UI-301` (contraste), `TASK-303` (tests) y `TASK-304` (proyección) quedan listas.
 
 ## 7. Trazabilidad — salud
 
@@ -119,30 +119,30 @@ Ninguno.
 |-----------|--------|------|-----------|
 | RF-301 | 2 | 2 | 100% |
 | RF-302 | 1 | 1 | 100% |
-| RF-303 | 4 | 0 | 0% |
+| RF-303 | 4 | 1 | 25% |
 | RF-304 | 1 | 1 | 100% |
-| RF-305 | 3 | 0 | 0% |
-| RF-306 | 3 | 0 | 0% |
-| RF-307 | 3 | 0 | 0% |
+| RF-305 | 3 | 1 | 33% |
+| RF-306 | 3 | 1 | 33% |
+| RF-307 | 3 | 1 | 33% |
 | RF-308 | 3 | 0 | 0% |
-| RF-309 | 2 | 0 | 0% |
+| RF-309 | 3 | 2 | 67% |
 | RF-310 | 2 | 0 | 0% |
-| RF-311 | 1 | 0 | 0% |
+| RF-311 | 2 | 1 | 50% |
 | RF-312 | 2 | 0 | 0% |
 | RNF-301 | 2 | 0 | 0% |
 | RNF-302 | 1 | 0 | 0% |
 | RNF-303 | 1 | 0 | 0% |
-| RNF-304 | 1 | 0 | 0% |
-| RNF-305 | 3 | 0 | 0% |
-| RI-301 | 2 | 0 | 0% |
+| RNF-304 | 2 | 1 | 50% |
+| RNF-305 | 4 | 2 | 50% |
+| RI-301 | 3 | 2 | 67% |
 | RX-301 | 1 | 0 | 0% |
 
 **Requisitos sin tareas:** ninguno ✅ · **Requisitos 100% Done:** 3/19 (RF-301, RF-302, RF-304)
 
 ## 8. Próximas acciones sugeridas
 
-1. Iniciar **TASK-UI-300** (2 pts, sin deps) y **TASK-303** (3 pts; deps TASK-301 ✅ y TASK-302 ✅).
-2. `TASK-304` queda tras TASK-UI-300.
+1. Iniciar **TASK-UI-301** (2 pts), **TASK-303** (3 pts) y **TASK-304** (5 pts); todas con deps ✅.
+2. La ruta crítica avanza por `TASK-UI-312`, que aún está en 📥.
 
 ## 9. Historial de cambios (append-only)
 
@@ -155,3 +155,6 @@ Ninguno.
 | 2026-10-01 | TASK-302 | 📥 → 🔨 | Ampliación del modelo con `'operation'` y sus tests |
 | 2026-10-01 | TASK-302 | 🔨 → 👀 | Movida a revisión (`/sdd-track update TASK-302 review`) |
 | 2026-10-01 | TASK-302 | 👀 → ✅ Done | DoD verificada (`tsc` limpio, guarda y round-trip, ambas guardas coherentes); autorización del usuario |
+| 2026-10-01 | TASK-UI-300 | 📥 → 🔨 | `OPERATION_TOKENS` + anti-drift y reutilización de colores |
+| 2026-10-01 | TASK-UI-300 | 🔨 → 👀 | Movida a revisión (`/sdd-track update TASK-UI-300 review`) |
+| 2026-10-01 | TASK-UI-300 | 👀 → ✅ Done | DoD verificada (anti-drift verde, colores reutilizan base, patrón AXIS/MARKER); autorización del usuario |
