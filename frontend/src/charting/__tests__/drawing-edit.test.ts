@@ -38,11 +38,19 @@ const MARKER: OverlayShape = {
   direction: 'buy',
 };
 
+const OPERATION: OverlayShape = {
+  id: 'op-1',
+  kind: 'operation',
+  from: { time: 0, price: 1.1 },
+  to: { time: 10, price: 1.095 },
+};
+
 describe('isResizableShape', () => {
-  it('acepta línea, rectángulo y fibonacci', () => {
+  it('acepta línea, rectángulo, fibonacci y operación', () => {
     expect(isResizableShape(LINE)).toBe(true);
     expect(isResizableShape({ ...LINE, kind: 'rect' })).toBe(true);
     expect(isResizableShape({ ...LINE, kind: 'fib' })).toBe(true);
+    expect(isResizableShape(OPERATION)).toBe(true);
   });
 
   it('rechaza los marcadores', () => {
@@ -55,6 +63,13 @@ describe('handlePositions', () => {
     expect(handlePositions(LINE, identityMapper)).toEqual([
       { id: 'from', point: { x: 0, y: 0 } },
       { id: 'to', point: { x: 10, y: 10 } },
+    ]);
+  });
+
+  it('proyecta los dos handles de la operación (RF-307)', () => {
+    expect(handlePositions(OPERATION, identityMapper)).toEqual([
+      { id: 'from', point: { x: 0, y: 1.1 } },
+      { id: 'to', point: { x: 10, y: 1.095 } },
     ]);
   });
 
@@ -101,6 +116,13 @@ describe('resizeShape', () => {
 
   it('deja intactos los trazos no redimensionables', () => {
     expect(resizeShape(MARKER, 'from', { time: 1, price: 1 })).toBe(MARKER);
+  });
+
+  it('mueve el extremo del Stop Loss de una operación (RF-307)', () => {
+    expect(resizeShape(OPERATION, 'to', { time: 10, price: 1.09 })).toEqual({
+      ...OPERATION,
+      to: { time: 10, price: 1.09 },
+    });
   });
 });
 

@@ -31,8 +31,8 @@ export interface DrawingHandle {
   point: PixelPoint;
 }
 
-/** Trazos con dos anclas editables (línea, rectángulo y Fibonacci). */
-export type ResizableShape = Extract<OverlayShape, { kind: 'line' | 'rect' | 'fib' }>;
+/** Trazos con dos anclas editables (línea, rectángulo, Fibonacci y operación). */
+export type ResizableShape = Extract<OverlayShape, { kind: 'line' | 'rect' | 'fib' | 'operation' }>;
 
 /** Mapeo inverso píxel → dominio (tiempo/precio) provisto por el chart. */
 export interface InverseCoordinateMapper {
@@ -44,7 +44,12 @@ export interface InverseCoordinateMapper {
 
 /** Indica si un trazo admite handles de movimiento/redimensionado (RF-212). */
 export function isResizableShape(shape: OverlayShape): shape is ResizableShape {
-  return shape.kind === 'line' || shape.kind === 'rect' || shape.kind === 'fib';
+  return (
+    shape.kind === 'line' ||
+    shape.kind === 'rect' ||
+    shape.kind === 'fib' ||
+    shape.kind === 'operation'
+  );
 }
 
 /** Proyecta los extremos de un trazo a handles en píxeles. */

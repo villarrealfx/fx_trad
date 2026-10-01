@@ -1,6 +1,6 @@
 # Estado del Proyecto: Dibujo Referencia de Operación (Ciclo 04)
 
-> Última actualización: 2026-10-01 12:09
+> Última actualización: 2026-10-01 12:24
 > Fuente: `_docs/backlog.md`, `_docs/traceability.md`
 
 ## 1. Resumen ejecutivo
@@ -8,23 +8,22 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 20 | — |
-| 📥 Backlog | 19 | — |
+| 📥 Backlog | 18 | — |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | -1 |
-| ✅ Done | 1 | +1 |
+| ✅ Done | 2 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 5% (1/20 tareas · 3/56 pts) | +5% |
+| % Completado | 10% (2/20 tareas · 6/56 pts) | +5% |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (19)
+### 📥 Backlog (18)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
-| TASK-302 | Modelo `'operation'` en kinds, uniones y color | EP-301 | 3 | — |
 | TASK-303 | Tests de geometría + `drawings` + `drawing-edit` | EP-301 | 3 | TASK-301, TASK-302 |
 | TASK-304 | `projectShape` + `hitTestFragment` de operación | EP-301 | 5 | TASK-301, TASK-UI-300 |
 | TASK-305 | Tests de proyección, hit-test y zeroRisk | EP-301 | 3 | TASK-304 |
@@ -52,11 +51,12 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (1)
+### ✅ Done (2)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
 | TASK-301 | `operation-geometry.ts`: dirección, riesgo y 5 niveles | EP-301 | 2026-10-01 | `frontend/src/charting/__tests__/operation-geometry.test.ts` (16 tests · cobertura 93.33% branch) |
+| TASK-302 | Modelo `'operation'` en kinds, uniones y color | EP-301 | 2026-10-01 | `frontend/src/charting/__tests__/drawings.test.ts` (round-trip) · `drawing-edit.test.ts` · `overlay-geometry.test.ts` |
 
 ### 🔴 Blocked (0)
 
@@ -103,19 +103,21 @@ Ninguno.
 
 ### 🟡 Advertencias
 
+- `TASK-302` añadió 3 tokens `drawOp*` y una rama provisional en `projectShape` (`TODO(TASK-304)`): **solapamiento parcial con TASK-UI-300** (tokens de formato) y **TASK-304** (proyección real). Anotado, no bloqueante.
+- Deuda preexistente: `npm run format:check` falla en 12 ficheros de `master` (incl. `App.tsx`, `LiveRegion.tsx`, `use-drawing-history.ts` y una línea previa de `tokens.css`). Ajena a este ciclo.
 - `TASK-TEC-303` compara contra el arranque del ciclo; el commit `0422923` sirve de base. Sin nuevas dependencias detectadas.
 
 ### 🟢 Informativas
 
-- `TASK-301` completada: 55 archivos / 409 tests (baseline 393 + 16), `tsc`/`eslint`/`prettier` en verde, cobertura del módulo 93.33% branch.
-- RF-302 y RF-304 quedan 100% cubiertos por TASK-301 (únicos requisitos cuyo único task ya está Done).
-- Se desbloquean TASK-303 y TASK-304 (TASK-304 requiere además TASK-UI-300).
+- `TASK-302` completada: RF-301 pasa a 100% Done (con TASK-301). 55 archivos / 414 tests; `drawings.ts` 97.67% branch · `drawing-edit.ts` 100% · `overlay-geometry.ts` 93.75%.
+- RF-301, RF-302 y RF-304 quedan 100% Done.
+- `TASK-303` tiene sus dos deps cumplidas (TASK-301 ✅, TASK-302 ✅); `TASK-UI-300` y `TASK-304` son las siguientes sin dependencia / tras tokens.
 
 ## 7. Trazabilidad — salud
 
 | Requisito | Tareas | Done | Cobertura |
 |-----------|--------|------|-----------|
-| RF-301 | 2 | 0 | 0% |
+| RF-301 | 2 | 2 | 100% |
 | RF-302 | 1 | 1 | 100% |
 | RF-303 | 4 | 0 | 0% |
 | RF-304 | 1 | 1 | 100% |
@@ -135,13 +137,12 @@ Ninguno.
 | RI-301 | 2 | 0 | 0% |
 | RX-301 | 1 | 0 | 0% |
 
-**Requisitos sin tareas:** ninguno ✅ · **Requisitos 100% Done:** 2/19 (RF-302, RF-304)
+**Requisitos sin tareas:** ninguno ✅ · **Requisitos 100% Done:** 3/19 (RF-301, RF-302, RF-304)
 
 ## 8. Próximas acciones sugeridas
 
-1. Iniciar **TASK-302** (3 pts, sin deps) y **TASK-UI-300** (2 pts, sin deps) en paralelo.
-2. `TASK-303` queda desbloqueada por TASK-301; `TASK-304` también, pero requiere además TASK-UI-300.
-3. Al cerrar TASK-UI-300, TASK-UI-301 (contraste) y TASK-304 quedan listas.
+1. Iniciar **TASK-UI-300** (2 pts, sin deps) y **TASK-303** (3 pts; deps TASK-301 ✅ y TASK-302 ✅).
+2. `TASK-304` queda tras TASK-UI-300.
 
 ## 9. Historial de cambios (append-only)
 
@@ -151,3 +152,6 @@ Ninguno.
 | 2026-10-01 | TASK-301 | 📥 → 🔨 | Implementación del módulo puro y sus tests |
 | 2026-10-01 | TASK-301 | 🔨 → 👀 | Movida a revisión (`/sdd-track update TASK-301 review`) |
 | 2026-10-01 | TASK-301 | 👀 → ✅ Done | DoD verificada (módulo puro, 5 niveles sin 1:1, precios RF-303); autorización del usuario |
+| 2026-10-01 | TASK-302 | 📥 → 🔨 | Ampliación del modelo con `'operation'` y sus tests |
+| 2026-10-01 | TASK-302 | 🔨 → 👀 | Movida a revisión (`/sdd-track update TASK-302 review`) |
+| 2026-10-01 | TASK-302 | 👀 → ✅ Done | DoD verificada (`tsc` limpio, guarda y round-trip, ambas guardas coherentes); autorización del usuario |

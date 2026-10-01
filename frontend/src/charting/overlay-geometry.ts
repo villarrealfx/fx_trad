@@ -52,6 +52,15 @@ export type OverlayShape =
       to: PriceTimePoint;
     }
   | {
+      /** Identificador único de la operación (RF-301). */
+      id: string;
+      kind: 'operation';
+      /** Ancla de la Entrada (primer clic). */
+      from: PriceTimePoint;
+      /** Ancla del Stop Loss (segundo clic). */
+      to: PriceTimePoint;
+    }
+  | {
       /** Identificador único del marcador dentro de la sesión. */
       id: string;
       kind: 'marker';
@@ -126,6 +135,10 @@ export function projectShape(shape: OverlayShape, mapper: CoordinateMapper): Ove
         return y === null ? [] : [{ ratio, y }];
       });
       return { kind: 'fib', from, to, levels };
+    }
+    case 'operation': {
+      // TODO(TASK-304): proyectar los 5 niveles (SL, Entrada y TP) y sus etiquetas.
+      return { kind: 'hidden' };
     }
     case 'marker': {
       const position = projectPoint(shape.position, mapper);

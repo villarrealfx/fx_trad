@@ -9,6 +9,7 @@ import { describe, expect, it } from 'vitest';
 import { COLOR_TOKENS, DRAWING_COLORS } from '../../styles/tokens';
 import {
   DRAWING_DOCUMENT_VERSION,
+  DRAWING_KINDS,
   colorForShape,
   deserializeDrawings,
   fromDrawingDocument,
@@ -53,6 +54,13 @@ const SELL: OverlayShape = {
   direction: 'sell',
 };
 
+const OPERATION: OverlayShape = {
+  id: 'op-1',
+  kind: 'operation',
+  from: { time: 1_781_000_000, price: 1.1 },
+  to: { time: 1_781_003_600, price: 1.095 },
+};
+
 describe('colorForShape (RF-209)', () => {
   it('usa los tokens mate para línea, rectángulo y fibonacci', () => {
     expect(colorForShape(LINE)).toBe(DRAWING_COLORS.line);
@@ -65,6 +73,10 @@ describe('colorForShape (RF-209)', () => {
     expect(colorForShape(SELL)).toBe(COLOR_TOKENS.down);
   });
 
+  it('usa el token de acento para la operación (RF-309, ADR-024)', () => {
+    expect(colorForShape(OPERATION)).toBe(COLOR_TOKENS.drawOpEntry);
+  });
+
   it('no hardcodea colores: provienen del design system (TASK-UI-200)', () => {
     expect(DRAWING_COLORS.line).toBe(COLOR_TOKENS.drawLine);
     expect(DRAWING_COLORS.rect).toBe(COLOR_TOKENS.drawRect);
@@ -73,17 +85,25 @@ describe('colorForShape (RF-209)', () => {
 });
 
 describe('isOverlayShape', () => {
-  it('acepta los cuatro tipos válidos', () => {
+  it('acepta los cinco tipos válidos', () => {
     expect(isOverlayShape(LINE)).toBe(true);
     expect(isOverlayShape(RECT)).toBe(true);
     expect(isOverlayShape(FIB)).toBe(true);
+    expect(isOverlayShape(OPERATION)).toBe(true);
     expect(isOverlayShape(BUY)).toBe(true);
+  });
+
+  it('incluye la operación en DRAWING_KINDS (RF-301)', () => {
+    expect(DRAWING_KINDS).toContain('operation');
   });
 
   it('rechaza formas malformadas', () => {
     expect(isOverlayShape(null)).toBe(false);
     expect(isOverlayShape('line')).toBe(false);
     expect(isOverlayShape({ id: 'x', kind: 'line', from: { time: 1 } })).toBe(false);
+    expect(isOverlayShape({ id: 'x', kind: 'operation', from: { time: 1, price: 1.1 } })).toBe(
+      false,
+    );
     expect(isOverlayShape({ id: 'x', kind: 'marker', position: { time: 1, price: 2 } })).toBe(
       false,
     );
@@ -121,7 +141,7 @@ describe('toDrawingDocument / fromDrawingDocument', () => {
 
 describe('serializeDrawings / deserializeDrawings', () => {
   it('hace round-trip de los trazos (RI-201)', () => {
-    const shapes = [LINE, RECT, FIB, BUY, SELL];
+    const shapes = [LINE, RECT, FIB, OPERATION, BUY, SELL];
     expect(deserializeDrawings(serializeDrawings(shapes))).toEqual(shapes);
   });
 

@@ -24,6 +24,9 @@ export const COLOR_TOKENS = {
   drawLine: '#4A6572',
   drawRect: '#D6C7AE',
   drawFib: '#DDB2AC',
+  drawOpSl: '#EF5350',
+  drawOpEntry: '#E6EDF3',
+  drawOpTp: '#26A69A',
   popoverBg: '#161B22',
   popoverBorder: '#30363D',
 } as const;

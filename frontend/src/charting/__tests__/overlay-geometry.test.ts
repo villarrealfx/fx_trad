@@ -210,6 +210,22 @@ describe('projectShape fib (TASK-029)', () => {
   });
 });
 
+describe('projectShape operation (TASK-302, provisional hasta TASK-304)', () => {
+  it('hides the operation until TASK-304 projects its five levels', () => {
+    const operation: OverlayShape = {
+      id: 'op-1',
+      kind: 'operation',
+      from: { time: 1_781_000_000, price: 1.1 },
+      to: { time: 1_781_003_600, price: 1.095 },
+    };
+    const mapper = makeMapper(
+      () => 0,
+      () => 0,
+    );
+    expect(projectShape(operation, mapper)).toEqual({ kind: 'hidden' });
+  });
+});
+
 describe('hitTestFragment (TASK-028)', () => {
   it('hits a line near its segment and misses far away', () => {
     const line = { kind: 'line' as const, from: { x: 0, y: 0 }, to: { x: 100, y: 0 } };

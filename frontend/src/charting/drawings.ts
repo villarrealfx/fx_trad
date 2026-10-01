@@ -15,7 +15,7 @@ import type { MarketDirection, OverlayShape, PriceTimePoint } from './overlay-ge
 export const DRAWING_DOCUMENT_VERSION = 1;
 
 /** Tipos de trazo soportados por el documento de dibujos. */
-export const DRAWING_KINDS = ['line', 'rect', 'fib', 'marker'] as const;
+export const DRAWING_KINDS = ['line', 'rect', 'fib', 'operation', 'marker'] as const;
 
 /** Tipo de trazo del documento de dibujos. */
 export type DrawingKind = (typeof DRAWING_KINDS)[number];
@@ -47,6 +47,8 @@ export function colorForShape(shape: OverlayShape): string {
       return shape.direction === 'buy' ? COLOR_TOKENS.up : COLOR_TOKENS.down;
     case 'line':
       return DRAWING_COLORS.line;
+    case 'operation':
+      return COLOR_TOKENS.drawOpEntry;
   }
 }
 
@@ -67,7 +69,12 @@ export function isOverlayShape(value: unknown): value is OverlayShape {
   if (typeof value !== 'object' || value === null) return false;
   const shape = value as Record<string, unknown>;
   if (typeof shape.id !== 'string') return false;
-  if (shape.kind === 'line' || shape.kind === 'rect' || shape.kind === 'fib') {
+  if (
+    shape.kind === 'line' ||
+    shape.kind === 'rect' ||
+    shape.kind === 'fib' ||
+    shape.kind === 'operation'
+  ) {
     return isPriceTimePoint(shape.from) && isPriceTimePoint(shape.to);
   }
   if (shape.kind === 'marker') {
