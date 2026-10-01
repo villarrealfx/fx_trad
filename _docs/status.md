@@ -1,6 +1,6 @@
 # Estado del Proyecto: Dibujo Referencia de Operación (Ciclo 04)
 
-> Última actualización: 2026-10-01 14:58
+> Última actualización: 2026-10-01 15:09
 > Fuente: `_docs/backlog.md`, `_docs/traceability.md`
 
 ## 1. Resumen ejecutivo
@@ -8,24 +8,23 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 20 | — |
-| 📥 Backlog | 5 | -1 |
+| 📥 Backlog | 4 | -1 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | — |
-| ✅ Done | 15 | +1 |
+| ✅ Done | 16 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 75% (15/20 tareas · 47/56 pts) | +5% |
+| % Completado | 80% (16/20 tareas · 49/56 pts) | +5% |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (5)
+### 📥 Backlog (4)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
 | TASK-TEC-300 | Frame budget con figura activa | EP-TEC-300 | 3 | TASK-UI-313 |
-| TASK-TEC-301 | axe-core + a11y | EP-TEC-300 | 2 | TASK-UI-315 |
 | TASK-TEC-302 | Suite completa + revisión de previas | EP-TEC-300 | 2 | TASK-UI-321, TASK-TEC-300, TASK-TEC-301 |
 | TASK-TEC-303 | Sin deps + backend intacto | EP-TEC-300 | 1 | TASK-TEC-302 |
 | TECH-301 | Corregir recuento de tests en README | EP-TEC-300 | 1 | TASK-TEC-302 |
@@ -38,7 +37,7 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (15)
+### ✅ Done (16)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
@@ -57,6 +56,7 @@ Sin tareas.
 | TASK-UI-315 | Tests de render + interacción | EP-UI-301 | 2026-10-01 | `OverlayCanvas.test.tsx` (5 líneas, chips, líder, zeroRisk) · `ChartPane.test.tsx` |
 | TASK-UI-320 | Round-trip de documento v1 mixto | EP-UI-302 | 2026-10-01 | `frontend/src/state/__tests__/chart-config.test.ts` (5 tipos + operación) |
 | TASK-UI-321 | Verificación pane a pane en Multigráfico | EP-UI-302 | 2026-10-01 | `operation-geometry.test.ts` (layout 2 escalas) · `MultiChart.test.tsx` (syncId por pane) |
+| TASK-TEC-301 | axe-core + a11y de la operación | EP-TEC-300 | 2026-10-01 | `frontend/src/components/ChartPane/ChartPane.test.tsx` (axe con operación, ARIA, anuncio al mover) |
 
 ### 🔴 Blocked (0)
 
@@ -69,12 +69,12 @@ graph LR
   T301[TASK-301 ✅] --> T312[TASK-UI-312 ✅]
   T312 --> T313[TASK-UI-313 ✅]
   T313 --> T315[TASK-UI-315 ✅]
-  T315 --> TT301[TASK-TEC-301 📥]
+  T315 --> TT301[TASK-TEC-301 ✅]
   TT301 --> TT302[TASK-TEC-302 📥]
   TT302 --> TT303[TASK-TEC-303 📥]
 ```
 
-**Avance de ruta crítica:** 4/7 tareas (57%) · 18/23 pts · **ETA estimada:** desconocido (sin velocidad medida).
+**Avance de ruta crítica:** 5/7 tareas (71%) · 20/23 pts · **ETA estimada:** desconocido (sin velocidad medida).
 
 ## 4. Métricas
 
@@ -109,9 +109,9 @@ Ninguno.
 
 ### 🟢 Informativas
 
-- `TASK-UI-321` completada: verificación pane a pane (layout por mapper + syncId independiente). **EP-UI-302 cerrada; RF-310 a 100% → 15/19 requisitos.**
-- Restan 4 requisitos: RNF-302 (TASK-TEC-300), RNF-303/RX-301 (TASK-TEC-302/303) y RNF-305 (TASK-TEC-301).
-- Solo queda **EP-TEC-300**: TASK-TEC-300…303 y TECH-301.
+- `TASK-TEC-301` completada: axe con operación, ARIA del botón y anuncio al mover. **RNF-305 a 100% → 16/19 requisitos.** Ruta crítica 5/7.
+- Restan 3 requisitos: RNF-302 (TASK-TEC-300), RNF-303 y RX-301 (TASK-TEC-302/303).
+- Faltan TASK-TEC-300 (frame budget), TASK-TEC-302 (suite), TASK-TEC-303 (sin deps) y TECH-301 (README).
 
 ## 7. Trazabilidad — salud
 
@@ -133,16 +133,16 @@ Ninguno.
 | RNF-302 | 1 | 0 | 0% |
 | RNF-303 | 1 | 0 | 0% |
 | RNF-304 | 2 | 2 | 100% |
-| RNF-305 | 4 | 3 | 75% |
+| RNF-305 | 4 | 4 | 100% |
 | RI-301 | 3 | 3 | 100% |
 | RX-301 | 1 | 0 | 0% |
 
-**Requisitos sin tareas:** ninguno ✅ · **Requisitos 100% Done:** 15/19 (todos menos RNF-302, RNF-303, RNF-305, RX-301)
+**Requisitos sin tareas:** ninguno ✅ · **Requisitos 100% Done:** 16/19 (todos menos RNF-302, RNF-303, RX-301)
 
 ## 8. Próximas acciones sugeridas
 
-1. Iniciar **TASK-TEC-301** (2 pts, deps ✅): axe-core + a11y; es el siguiente eslabón de la ruta crítica.
-2. Le siguen **TASK-TEC-300** (3 pts) y **TASK-TEC-302/303** (cierre).
+1. Iniciar **TASK-TEC-300** (3 pts, deps ✅): frame budget con la operación activa (RNF-302).
+2. Le siguen **TASK-TEC-302** (suite + revisión) y **TASK-TEC-303** (sin deps).
 
 ## 9. Historial de cambios (append-only)
 
@@ -194,3 +194,6 @@ Ninguno.
 | 2026-10-01 | TASK-UI-321 | 📥 → 🔨 | Verificación pane a pane en Multigráfico |
 | 2026-10-01 | TASK-UI-321 | 🔨 → 👀 | Movida a revisión; árbol verde (454 tests, tsc/eslint OK) |
 | 2026-10-01 | TASK-UI-321 | 👀 → ✅ Done | DoD verificada; EP-UI-302 cerrada; RF-310 100% (15/19); autorización del usuario |
+| 2026-10-01 | TASK-TEC-301 | 📥 → 🔨 | axe con operación, ARIA del botón y anuncio al mover |
+| 2026-10-01 | TASK-TEC-301 | 🔨 → 👀 | Movida a revisión; árbol verde (457 tests, tsc/eslint OK) |
+| 2026-10-01 | TASK-TEC-301 | 👀 → ✅ Done | DoD verificada; RNF-305 100% (16/19); ruta crítica 5/7; autorización del usuario |

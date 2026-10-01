@@ -897,6 +897,67 @@ describe('ChartPane', () => {
     }
   });
 
+  it('exposes the operation tool with its two-click aria-label (ACC-201)', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+
+    const button = screen.getByRole('button', { name: 'Operación: 2 clics (Entrada, SL)' });
+    expect(button.getAttribute('aria-label')).toBe('Operación: 2 clics (Entrada, SL)');
+    expect(button.getAttribute('aria-pressed')).toBe('false');
+
+    fireEvent.click(button);
+
+    expect(button.getAttribute('aria-pressed')).toBe('true');
+  });
+
+  it('has no accessibility violations with an operation drawn (ACC-201)', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    const { container } = render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+    await waitFor(() =>
+      expect(
+        (screen.getByRole('button', { name: 'Ajustar vista' }) as HTMLButtonElement).disabled,
+      ).toBe(false),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Operación: 2 clics (Entrada, SL)' }));
+    emitChartClick(1_781_000_000, 5, 5);
+    emitChartClick(1_781_003_600, 60, 80);
+
+    const results = await axe.run(container, { rules: { 'color-contrast': { enabled: false } } });
+
+    expect(results.violations).toEqual([]);
+  });
+
+  it('announces the operation after moving it (ACC-201)', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    const originalTime = chartMocks.coordinateToTime.getMockImplementation();
+    const originalPrice = chartMocks.coordinateToPrice.getMockImplementation();
+    try {
+      const { container } = render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+      await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+      const host = container.querySelector('.chart-pane__host') as HTMLElement;
+      chartMocks.coordinateToTime.mockImplementation((x?: number) => 1_781_000_000 + (x ?? 0) * 60);
+      chartMocks.coordinateToPrice.mockImplementation((y?: number) => 1.5 + (y ?? 0) / 1000);
+      fireEvent.click(screen.getByRole('button', { name: 'Operación: 2 clics (Entrada, SL)' }));
+      emitChartClick(1_781_000_000, 0, 0);
+      emitChartClick(1_781_003_600, 100, 100);
+
+      fireEvent(host, new MouseEvent('pointerdown', { clientX: 10, clientY: 40, bubbles: true }));
+      fireEvent(host, new MouseEvent('pointermove', { clientX: 20, clientY: 50, bubbles: true }));
+      fireEvent(host, new MouseEvent('pointerup', { clientX: 20, clientY: 50, bubbles: true }));
+
+      await waitFor(() =>
+        expect(container.querySelector('.sr-only[data-tone="polite"]')?.textContent).toContain(
+          'Operación',
+        ),
+      );
+    } finally {
+      chartMocks.coordinateToTime.mockImplementation(originalTime ?? (() => 1_781_000_000));
+      chartMocks.coordinateToPrice.mockImplementation(originalPrice ?? (() => 1.5));
+    }
+  });
+
   it('configures the axis formats (RF-206/RF-207)', async () => {
     fetchMock.mockResolvedValue(createResponse(RESPONSE));
     render(<ChartPane symbol="EURUSD" timeframe="1h" />);
