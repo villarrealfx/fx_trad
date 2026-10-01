@@ -1,6 +1,6 @@
 # Estado del Proyecto: Dibujo Referencia de Operación (Ciclo 04)
 
-> Última actualización: 2026-10-01 12:47
+> Última actualización: 2026-10-01 13:02
 > Fuente: `_docs/backlog.md`, `_docs/traceability.md`
 
 ## 1. Resumen ejecutivo
@@ -8,26 +8,25 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 20 | — |
-| 📥 Backlog | 17 | — |
+| 📥 Backlog | 16 | — |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | -1 |
-| ✅ Done | 3 | +1 |
+| ✅ Done | 4 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 15% (3/20 tareas · 8/56 pts) | +5% |
+| % Completado | 20% (4/20 tareas · 10/56 pts) | +5% |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (17)
+### 📥 Backlog (16)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
 | TASK-303 | Tests de geometría + `drawings` + `drawing-edit` | EP-301 | 3 | TASK-301, TASK-302 |
 | TASK-304 | `projectShape` + `hitTestFragment` de operación | EP-301 | 5 | TASK-301, TASK-UI-300 |
 | TASK-305 | Tests de proyección, hit-test y zeroRisk | EP-301 | 3 | TASK-304 |
-| TASK-UI-301 | Test de contraste + anti-drift | EP-UI-300 | 2 | TASK-UI-300 |
 | TASK-UI-310 | Herramienta en paleta | EP-UI-301 | 2 | TASK-302, TASK-UI-300 |
 | TASK-UI-311 | Creación en 2 clics + guards + Shift | EP-UI-301 | 3 | TASK-UI-310, TASK-304 |
 | TASK-UI-312 | `layoutOperationLabels` | EP-UI-301 | 5 | TASK-301, TASK-UI-300 |
@@ -50,13 +49,14 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (3)
+### ✅ Done (4)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
 | TASK-301 | `operation-geometry.ts`: dirección, riesgo y 5 niveles | EP-301 | 2026-10-01 | `frontend/src/charting/__tests__/operation-geometry.test.ts` (16 tests · cobertura 93.33% branch) |
 | TASK-302 | Modelo `'operation'` en kinds, uniones y color | EP-301 | 2026-10-01 | `frontend/src/charting/__tests__/drawings.test.ts` (round-trip) · `drawing-edit.test.ts` · `overlay-geometry.test.ts` |
 | TASK-UI-300 | Tokens de operación (TS + CSS) | EP-UI-300 | 2026-10-01 | `frontend/src/styles/__tests__/tokens.test.ts` (anti-drift + reutilización de colores) |
+| TASK-UI-301 | Test de contraste + anti-drift | EP-UI-300 | 2026-10-01 | `frontend/src/styles/__tests__/tokens.test.ts` (4 etiquetas × 2 fondos) |
 
 ### 🔴 Blocked (0)
 
@@ -109,9 +109,9 @@ Ninguno.
 
 ### 🟢 Informativas
 
-- `TASK-UI-300` completada: `OPERATION_TOKENS` (8 tokens) espejado en `tokens.css`; `operation-geometry` consume `tpMultipliers` (fuente única); los 3 colores reutilizan `down`/`up`/`text`. RF-309 al 67% y RNF-305 al 50%.
-- RF-301, RF-302 y RF-304 quedan 100% Done; RI-301 al 67%.
-- `TASK-UI-301` (contraste), `TASK-303` (tests) y `TASK-304` (proyección) quedan listas.
+- `TASK-UI-301` completada: contraste de las 4 etiquetas de la operación sobre chart y chip + anti-drift. **EP-UI-300 cerrada.**
+- RF-301, RF-302 y RF-304 100% Done; RF-309 y RI-301 al 67%; RNF-305 al 75%.
+- `TASK-303` (tests) y `TASK-304` (proyección) quedan listas.
 
 ## 7. Trazabilidad — salud
 
@@ -133,7 +133,7 @@ Ninguno.
 | RNF-302 | 1 | 0 | 0% |
 | RNF-303 | 1 | 0 | 0% |
 | RNF-304 | 2 | 1 | 50% |
-| RNF-305 | 4 | 2 | 50% |
+| RNF-305 | 4 | 3 | 75% |
 | RI-301 | 3 | 2 | 67% |
 | RX-301 | 1 | 0 | 0% |
 
@@ -141,7 +141,7 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. Iniciar **TASK-UI-301** (2 pts), **TASK-303** (3 pts) y **TASK-304** (5 pts); todas con deps ✅.
+1. Iniciar **TASK-303** (3 pts) y **TASK-304** (5 pts); ambas con deps ✅.
 2. La ruta crítica avanza por `TASK-UI-312`, que aún está en 📥.
 
 ## 9. Historial de cambios (append-only)
@@ -158,3 +158,6 @@ Ninguno.
 | 2026-10-01 | TASK-UI-300 | 📥 → 🔨 | `OPERATION_TOKENS` + anti-drift y reutilización de colores |
 | 2026-10-01 | TASK-UI-300 | 🔨 → 👀 | Movida a revisión (`/sdd-track update TASK-UI-300 review`) |
 | 2026-10-01 | TASK-UI-300 | 👀 → ✅ Done | DoD verificada (anti-drift verde, colores reutilizan base, patrón AXIS/MARKER); autorización del usuario |
+| 2026-10-01 | TASK-UI-301 | 📥 → 🔨 | Matriz de contraste 4 etiquetas × 2 fondos + anti-drift |
+| 2026-10-01 | TASK-UI-301 | 🔨 → 👀 | Movida a revisión (`/sdd-track update TASK-UI-301 review`) |
+| 2026-10-01 | TASK-UI-301 | 👀 → ✅ Done | DoD verificada (4 etiquetas ≥4.5:1 sobre chart y chip, anti-drift); autorización del usuario |

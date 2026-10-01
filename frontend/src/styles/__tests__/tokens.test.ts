@@ -36,6 +36,7 @@ describe('contraste WCAG de los colores', () => {
     expect(contrastRatio(COLOR_TOKENS.text, COLOR_TOKENS.bg)).toBeGreaterThanOrEqual(4.5);
     expect(contrastRatio(COLOR_TOKENS.text, COLOR_TOKENS.surface)).toBeGreaterThanOrEqual(4.5);
     expect(contrastRatio(COLOR_TOKENS.textMuted, COLOR_TOKENS.bg)).toBeGreaterThanOrEqual(4.5);
+    expect(contrastRatio(COLOR_TOKENS.textMuted, COLOR_TOKENS.surface)).toBeGreaterThanOrEqual(4.5);
   });
 
   it('cumple AA de elementos UI/texto grande (≥ 3:1)', () => {
@@ -121,10 +122,14 @@ describe('tokens de la operación (ciclo 04)', () => {
     expect(COLOR_TOKENS.drawOpTp).toBe(COLOR_TOKENS.up);
   });
 
-  it('cumple AA (≥ 4.5:1) sobre el chart y sobre el chip', () => {
-    for (const role of ['drawOpSl', 'drawOpEntry', 'drawOpTp'] as const) {
-      expect(contrastRatio(COLOR_TOKENS[role], COLOR_TOKENS.bg)).toBeGreaterThanOrEqual(4.5);
-      expect(contrastRatio(COLOR_TOKENS[role], COLOR_TOKENS.surface)).toBeGreaterThanOrEqual(4.5);
+  it('las 4 etiquetas de la operación cumplen AA sobre chart y chip (RNF-305)', () => {
+    // Medido (chart #0A0C10 / chip #161B22): drawOpSl 5.61/4.96 · drawOpEntry
+    // 16.56/14.64 · drawOpTp 6.53/5.77 · textMuted (nombre de etiqueta) 6.36/5.62.
+    const roles = ['drawOpSl', 'drawOpEntry', 'drawOpTp', 'textMuted'] as const;
+    for (const role of roles) {
+      for (const background of [COLOR_TOKENS.bg, COLOR_TOKENS.surface]) {
+        expect(contrastRatio(COLOR_TOKENS[role], background)).toBeGreaterThanOrEqual(4.5);
+      }
     }
   });
 

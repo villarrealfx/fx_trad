@@ -29,7 +29,7 @@
 | RNF-302 60 FPS con la figura activa | `OverlayCanvas` + frame-batch (ADR-017); 5 niveles O(1) por frame (ADR-022) | TASK-TEC-300 | `ChartPane.test.tsx` (frame budget) | 🔵 |
 | RNF-303 0 regresiones | CI GitHub Actions (ADR-008) | TASK-TEC-302 | `vitest` completo (baseline 393) | 🔵 |
 | RNF-304 No perder dibujos previos | Sin bump de versión ni de clave; `isOverlayShape` aditivo (ADR-023, P-301) | TASK-302, TASK-UI-320 | `chart-config.test.ts` (doc v1 mixto) | 🔵 |
-| RNF-305 Contraste y anti-drift de tokens | 3 tokens en `tokens.ts` **y** `tokens.css` (ADR-024); medido 5.61 / 16.56 / 6.53 : 1 | TASK-302, TASK-UI-300, TASK-UI-301, TASK-TEC-301 | `tokens.test.ts` (anti-drift de `OPERATION_TOKENS`, contraste sobre 2 fondos) | 🔵 |
+| RNF-305 Contraste y anti-drift de tokens | 3 tokens en `tokens.ts` **y** `tokens.css` (ADR-024); medido 5.61 / 16.56 / 6.53 : 1 | TASK-302, TASK-UI-300, TASK-UI-301, TASK-TEC-301 | `tokens.test.ts` (anti-drift de `OPERATION_TOKENS` + contraste de las 4 etiquetas sobre chart y chip) | 🔵 |
 | RNF-202 60 FPS en edición (heredado) | `OverlayCanvas` + drawings (ADR-017) | Heredado (03) | `benchmark-ui.md` (03) | 🟢 |
 | RNF-201 Persistencia robusta (heredado) | `state/chart-config` (ADR-018) | Heredado (03) | `chart-config.test.ts` (03) | 🟢 |
 | RNF-204 Tokens de diseño (heredado) | Design system frontend | Heredado (03) | `tokens.test.ts` (03) | 🟢 |
