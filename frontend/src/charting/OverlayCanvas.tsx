@@ -87,7 +87,13 @@ function drawOperation(
   width: number,
   height: number,
 ): void {
-  for (const level of fragment.levels) {
+  // En riesgo nulo (Entrada == SL) solo se dibujan SL y Entrada; los TP se ocultan.
+  const zeroRisk = shape.from.price === shape.to.price;
+  const levels = zeroRisk
+    ? fragment.levels.filter((level) => level.colorRole !== 'tp')
+    : fragment.levels;
+
+  for (const level of levels) {
     context.strokeStyle = OPERATION_LEVEL_COLORS[level.colorRole];
     context.beginPath();
     context.moveTo(0, level.y);
@@ -96,7 +102,7 @@ function drawOperation(
   }
 
   const layout = layoutOperationLabels(
-    fragment.levels.map((level) => ({ key: level.key, y: level.y })),
+    levels.map((level) => ({ key: level.key, y: level.y })),
     OPERATION_TOKENS.labelMinGap,
     { top: 0, bottom: height },
   );
@@ -112,7 +118,7 @@ function drawOperation(
   context.textBaseline = 'middle';
   context.textAlign = 'left';
 
-  for (const [index, level] of fragment.levels.entries()) {
+  for (const [index, level] of levels.entries()) {
     const placed = layout[index];
     const name = level.label;
     const price = level.price.toFixed(PRICE_FORMAT.precision);

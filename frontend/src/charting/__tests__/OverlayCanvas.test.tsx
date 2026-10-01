@@ -199,4 +199,72 @@ describe('OverlayCanvas', () => {
     await waitFor(() => expect(ctx.stroke).toHaveBeenCalledTimes(FIB_LEVELS.length));
     expect(ctx.fillText).toHaveBeenCalledTimes(FIB_LEVELS.length);
   });
+
+  it('strokes the five operation levels with name and price (TASK-UI-315)', async () => {
+    const fake = createFakeBinding();
+    // Como en un chart real, a mayor precio menor y (niveles ordenados de arriba abajo).
+    fake.priceToCoordinate.mockImplementation((price: number) => (1.7 - price) * 1000);
+    const operation: OverlayShape = {
+      id: 'op-1',
+      kind: 'operation',
+      from: { time: 1_781_000_000, price: 1.5 },
+      to: { time: 1_781_003_600, price: 1.49 },
+    };
+    const { hostRef } = renderWithHost(fake.binding, [operation]);
+    Object.defineProperty(hostRef.current, 'clientWidth', { value: 800, configurable: true });
+    Object.defineProperty(hostRef.current, 'clientHeight', { value: 400, configurable: true });
+    fake.listeners[0]();
+
+    await waitFor(() => expect(ctx.fillText).toHaveBeenCalled());
+    const lineStarts = ctx.moveTo.mock.calls.filter((call) => call[0] === 0);
+    expect(lineStarts).toHaveLength(5);
+    const texts = ctx.fillText.mock.calls.map((call) => call[0]);
+    expect(texts).toEqual(expect.arrayContaining(['SL', 'Entrada', 'TP 1.382', 'TP 1.5', 'TP 2']));
+    expect(texts).toEqual(
+      expect.arrayContaining(['1.49000', '1.50000', '1.51382', '1.51500', '1.52000']),
+    );
+  });
+
+  it('draws a leader for the displaced operation labels (TASK-UI-315)', async () => {
+    const fake = createFakeBinding();
+    fake.priceToCoordinate.mockImplementation((price: number) => (1.7 - price) * 1000);
+    const operation: OverlayShape = {
+      id: 'op-1',
+      kind: 'operation',
+      from: { time: 1_781_000_000, price: 1.5 },
+      to: { time: 1_781_003_600, price: 1.49 },
+    };
+    const { hostRef } = renderWithHost(fake.binding, [operation]);
+    Object.defineProperty(hostRef.current, 'clientWidth', { value: 800, configurable: true });
+    Object.defineProperty(hostRef.current, 'clientHeight', { value: 400, configurable: true });
+    fake.listeners[0]();
+
+    await waitFor(() => expect(ctx.fillText).toHaveBeenCalled());
+    // Cinco líneas + una línea guía por cada etiqueta desplazada.
+    expect(ctx.stroke.mock.calls.length).toBeGreaterThan(5);
+  });
+
+  it('hides the three targets when entry equals the stop loss (TASK-UI-315)', async () => {
+    const fake = createFakeBinding();
+    fake.priceToCoordinate.mockImplementation((price: number) => (1.7 - price) * 1000);
+    const zeroRisk: OverlayShape = {
+      id: 'op-0',
+      kind: 'operation',
+      from: { time: 1_781_000_000, price: 1.5 },
+      to: { time: 1_781_003_600, price: 1.5 },
+    };
+    const { hostRef } = renderWithHost(fake.binding, [zeroRisk]);
+    Object.defineProperty(hostRef.current, 'clientWidth', { value: 800, configurable: true });
+    Object.defineProperty(hostRef.current, 'clientHeight', { value: 400, configurable: true });
+    fake.listeners[0]();
+
+    await waitFor(() => expect(ctx.fillText).toHaveBeenCalled());
+    const texts = ctx.fillText.mock.calls.map((call) => call[0]);
+    expect(texts).toEqual(expect.arrayContaining(['SL', 'Entrada']));
+    expect(texts).not.toContain('TP 2');
+    expect(texts).not.toContain('TP 1.5');
+    expect(texts).not.toContain('TP 1.382');
+    const lineStarts = ctx.moveTo.mock.calls.filter((call) => call[0] === 0);
+    expect(lineStarts).toHaveLength(2);
+  });
 });

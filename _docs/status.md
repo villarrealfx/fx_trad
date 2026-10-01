@@ -1,6 +1,6 @@
 # Estado del Proyecto: Dibujo Referencia de Operación (Ciclo 04)
 
-> Última actualización: 2026-10-01 14:25
+> Última actualización: 2026-10-01 14:37
 > Fuente: `_docs/backlog.md`, `_docs/traceability.md`
 
 ## 1. Resumen ejecutivo
@@ -8,23 +8,22 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 20 | — |
-| 📥 Backlog | 8 | -1 |
+| 📥 Backlog | 7 | -1 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | — |
-| ✅ Done | 12 | +1 |
+| ✅ Done | 13 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 60% (12/20 tareas · 38/56 pts) | +5% |
+| % Completado | 65% (13/20 tareas · 43/56 pts) | +5% |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 En curso
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (8)
+### 📥 Backlog (7)
 
 | ID | Tarea | Épica | Est. | Deps |
 |----|-------|-------|------|------|
-| TASK-UI-315 | Tests de render + interacción | EP-UI-301 | 5 | TASK-UI-313, TASK-UI-314 |
 | TASK-UI-320 | Round-trip de documento v1 mixto | EP-UI-302 | 2 | TASK-302 |
 | TASK-UI-321 | Verificación en Multigráfico | EP-UI-302 | 2 | TASK-UI-311, TASK-UI-313 |
 | TASK-TEC-300 | Frame budget con figura activa | EP-TEC-300 | 3 | TASK-UI-313 |
@@ -41,7 +40,7 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (12)
+### ✅ Done (13)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
@@ -57,6 +56,7 @@ Sin tareas.
 | TASK-UI-312 | `layoutOperationLabels` (separación mínima + guía) | EP-UI-301 | 2026-10-01 | `frontend/src/charting/__tests__/operation-geometry.test.ts` (4 casos de layout) |
 | TASK-UI-313 | Render de 5 líneas + chips de etiqueta | EP-UI-301 | 2026-10-01 | `frontend/src/components/ChartPane/ChartPane.test.tsx` (render de líneas y chips) |
 | TASK-UI-314 | `LiveRegion`: anuncio de la operación | EP-UI-301 | 2026-10-01 | `operation-geometry.test.ts` (texto) · `ChartPane.test.tsx` (anuncio al confirmar) |
+| TASK-UI-315 | Tests de render + interacción | EP-UI-301 | 2026-10-01 | `OverlayCanvas.test.tsx` (5 líneas, chips, líder, zeroRisk) · `ChartPane.test.tsx` |
 
 ### 🔴 Blocked (0)
 
@@ -68,13 +68,13 @@ Sin tareas.
 graph LR
   T301[TASK-301 ✅] --> T312[TASK-UI-312 ✅]
   T312 --> T313[TASK-UI-313 ✅]
-  T313 --> T315[TASK-UI-315 📥]
+  T313 --> T315[TASK-UI-315 ✅]
   T315 --> TT301[TASK-TEC-301 📥]
   TT301 --> TT302[TASK-TEC-302 📥]
   TT302 --> TT303[TASK-TEC-303 📥]
 ```
 
-**Avance de ruta crítica:** 3/7 tareas (43%) · 13/23 pts · **ETA estimada:** desconocido (sin velocidad medida).
+**Avance de ruta crítica:** 4/7 tareas (57%) · 18/23 pts · **ETA estimada:** desconocido (sin velocidad medida).
 
 ## 4. Métricas
 
@@ -103,15 +103,15 @@ Ninguno.
 
 ### 🟡 Advertencias
 
-- `TASK-302` introdujo los 3 tokens `drawOp*` y una rama provisional en `projectShape` (`TODO(TASK-304)`). TASK-UI-300 ya cubrió la parte de tokens; queda TASK-304 para la proyección real.
+- **`zeroRisk` implementado en TASK-UI-315** (no en TASK-UI-313): gap de spec detectado al auditar el DoD; corregido en la tarea de test y anotado.
 - Deuda preexistente: `npm run format:check` falla en 12 ficheros de `master` (incl. `App.tsx`, `LiveRegion.tsx`, `use-drawing-history.ts` y una línea previa de `tokens.css`). Ajena a este ciclo.
 - `TASK-TEC-303` compara contra el arranque del ciclo; el commit `0422923` sirve de base. Sin nuevas dependencias detectadas.
 
 ### 🟢 Informativas
 
-- `TASK-UI-314` completada: anuncio accesible de la operación (crear/mover/borrar, sin preview). Suite 55 archivos / 442 tests.
-- RF-301, RF-302, RF-303, RF-304, RF-306 y RF-309 100% Done; RNF-301 al 50%; RF-308/RF-305/RF-307 al 67%; RNF-305 75%.
-- Siguiente: **TASK-UI-315** (tests de render + interacción), que cierra EP-UI-301.
+- `TASK-UI-315` completada: tests de render/interacción + **fix de `zeroRisk`**. **EP-UI-301 cerrada (6/6)**; ruta crítica 4/7. Suite 55 archivos / 447 tests.
+- **11/19 requisitos al 100%**: todos los RF de dibujo (301-309, 312) y RNF-301. RNF-305 75%; RI-301 67%.
+- Restan: EP-UI-302 (TASK-UI-320/321) y EP-TEC-300 (TASK-TEC-300…303, TECH-301).
 
 ## 7. Trazabilidad — salud
 
@@ -121,15 +121,15 @@ Ninguno.
 | RF-302 | 1 | 1 | 100% |
 | RF-303 | 4 | 4 | 100% |
 | RF-304 | 1 | 1 | 100% |
-| RF-305 | 3 | 2 | 67% |
+| RF-305 | 3 | 3 | 100% |
 | RF-306 | 3 | 3 | 100% |
-| RF-307 | 3 | 2 | 67% |
-| RF-308 | 3 | 2 | 67% |
+| RF-307 | 3 | 3 | 100% |
+| RF-308 | 3 | 3 | 100% |
 | RF-309 | 3 | 3 | 100% |
 | RF-310 | 2 | 1 | 50% |
 | RF-311 | 2 | 1 | 50% |
-| RF-312 | 2 | 1 | 50% |
-| RNF-301 | 2 | 1 | 50% |
+| RF-312 | 2 | 2 | 100% |
+| RNF-301 | 2 | 2 | 100% |
 | RNF-302 | 1 | 0 | 0% |
 | RNF-303 | 1 | 0 | 0% |
 | RNF-304 | 2 | 1 | 50% |
@@ -137,12 +137,12 @@ Ninguno.
 | RI-301 | 3 | 2 | 67% |
 | RX-301 | 1 | 0 | 0% |
 
-**Requisitos sin tareas:** ninguno ✅ · **Requisitos 100% Done:** 6/19 (RF-301, RF-302, RF-303, RF-304, RF-306, RF-309)
+**Requisitos sin tareas:** ninguno ✅ · **Requisitos 100% Done:** 11/19 (RF-301, RF-302, RF-303, RF-304, RF-305, RF-306, RF-307, RF-308, RF-309, RF-312, RNF-301)
 
 ## 8. Próximas acciones sugeridas
 
-1. Iniciar **TASK-UI-315** (5 pts, deps ✅): tests de render + interacción; cierra EP-UI-301.
-2. Tras ella, la ruta crítica sigue por `TASK-TEC-301`. En paralelo quedan TASK-UI-320/321 y el bloque EP-TEC-300.
+1. Iniciar **TASK-UI-320** (2 pts, deps ✅) y **TASK-UI-321** (2 pts, deps ✅): cierran EP-UI-302.
+2. La ruta crítica sigue por `TASK-TEC-301` (tras TASK-UI-315 ✅); le siguen TASK-TEC-300/302/303.
 
 ## 9. Historial de cambios (append-only)
 
@@ -185,3 +185,6 @@ Ninguno.
 | 2026-10-01 | TASK-UI-314 | 📥 → 🔨 | Anuncio accesible de la operación (crear/mover/borrar) |
 | 2026-10-01 | TASK-UI-314 | 🔨 → 👀 | Movida a revisión; árbol verde (442 tests, tsc/eslint OK) |
 | 2026-10-01 | TASK-UI-314 | 👀 → ✅ Done | DoD verificada sin problemas; autorización del usuario |
+| 2026-10-01 | TASK-UI-315 | 📥 → 🔨 | Tests de render/interacción + fix de `zeroRisk` (gap de spec) |
+| 2026-10-01 | TASK-UI-315 | 🔨 → 👀 | Movida a revisión; árbol verde (447 tests, tsc/eslint OK) |
+| 2026-10-01 | TASK-UI-315 | 👀 → ✅ Done | DoD verificada; EP-UI-301 cerrada; 11/19 requisitos 100%; autorización del usuario |

@@ -760,6 +760,32 @@ describe('ChartPane', () => {
     }
   });
 
+  it('previews and cancels an operation before the second click (TASK-UI-315)', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    const { container } = render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+    const host = screen.getByRole('img', { name: 'Gráfico de velas EURUSD 1h' });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Operación: 2 clics (Entrada, SL)' }));
+    emitChartClick(1_781_000_000, 5, 5);
+    emitCrosshairMove(1_781_003_600, 60, 80);
+    expect(container.querySelector('.chart-pane')?.getAttribute('data-shapes')).toBe('1');
+
+    fireEvent.keyDown(host, { key: 'Escape' });
+    expect(container.querySelector('.chart-pane')?.getAttribute('data-shapes')).toBe('0');
+  });
+
+  it('marks the operation tool as pressed when active (TASK-UI-315)', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+
+    const operation = screen.getByRole('button', { name: 'Operación: 2 clics (Entrada, SL)' });
+    fireEvent.click(operation);
+
+    expect(operation.getAttribute('aria-pressed')).toBe('true');
+  });
+
   it('erases a drawn shape with the erase tool', async () => {
     fetchMock.mockResolvedValue(createResponse(RESPONSE));
     const { container } = render(<ChartPane symbol="EURUSD" timeframe="1h" />);

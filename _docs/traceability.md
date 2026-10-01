@@ -15,7 +15,7 @@
 | RF-305 Recálculo de TP y dirección | Derivación pura por proyección; sin estado ni caché (ADR-022, RI-301) | TASK-301, TASK-UI-311, TASK-UI-314 | `operation-geometry.test.ts` (recalcula al mover el SL) · `ChartPane.test.tsx` (Shift en creación) | 🔵 |
 | RF-306 Un único dibujo | `kind:'operation'` propio; `hitTestFragment` por línea (ADR-022) | TASK-302, TASK-304, TASK-UI-311 | `drawings.test.ts` (unión y guarda aceptan la operación) · `overlay-geometry.test.ts` (hit-test de cualquiera de las 5) | 🔵 |
 | RF-307 Edición por handles | `'operation'` en `ResizableShape` (ADR-022); command stack heredado | TASK-302, TASK-UI-311, TASK-UI-315 | `drawing-edit.test.ts` (`isResizableShape`, handles, resize/move de la operación) | 🔵 |
-| RF-308 Etiquetas con precio a 5 decimales | `layoutOperationLabels` + `axis-format` (ADR-025) | TASK-UI-312, TASK-UI-313, TASK-UI-315 | `operation-geometry.test.ts` (layout) · `ChartPane.test.tsx` (chips con nombre y precio) | 🔵 |
+| RF-308 Etiquetas con precio a 5 decimales | `layoutOperationLabels` + `axis-format` (ADR-025) | TASK-UI-312, TASK-UI-313, TASK-UI-315 | `operation-geometry.test.ts` (layout) · `OverlayCanvas.test.tsx` (chips con precio exacto) · `ChartPane.test.tsx` | 🔵 |
 | RF-309 Colores por token de rol | `operationLevelColors` + `drawOpSl/Entry/Tp` (ADR-024) | TASK-302, TASK-UI-300, TASK-UI-313 | `tokens.test.ts` (reutiliza `up`/`down`/`text` + contraste) · `drawings.test.ts` (`colorForShape`) · `ChartPane.test.tsx` (render) | 🔵 |
 | RF-310 Disponible en Gráfico y Multigráfico | `ChartToolType` + `TOOL_DESCRIPTORS` (`ChartPane.tsx:77`) | TASK-UI-310, TASK-UI-321 | `ChartPane.test.tsx` (herramienta tras Fibonacci) · `DrawTool.test.tsx` (nombre accesible) | 🔵 |
 | RF-311 Persistencia sin campos nuevos | Ampliación aditiva en v1 (ADR-023) | TASK-302, TASK-UI-320 | `drawings.test.ts` (round-trip conserva la operación) · `chart-config.test.ts` (mixto) | 🔵 |
@@ -25,7 +25,7 @@
 
 | Requisito | Diseño (ADR/Componente) | Tarea | Prueba | Estado |
 |-----------|-------------------------|-------|--------|--------|
-| RNF-301 Etiquetas sin solape | Separación mínima + línea guía en `layoutOperationLabels` (ADR-025) | TASK-UI-312, TASK-UI-315 | `operation-geometry.test.ts` (`layoutOperationLabels`: niveles a ~14 px, desbordamiento) | 🔵 |
+| RNF-301 Etiquetas sin solape | Separación mínima + línea guía en `layoutOperationLabels` (ADR-025) | TASK-UI-312, TASK-UI-315 | `operation-geometry.test.ts` (layout) · `OverlayCanvas.test.tsx` (línea guía) | 🔵 |
 | RNF-302 60 FPS con la figura activa | `OverlayCanvas` + frame-batch (ADR-017); 5 niveles O(1) por frame (ADR-022) | TASK-TEC-300 | `ChartPane.test.tsx` (frame budget) | 🔵 |
 | RNF-303 0 regresiones | CI GitHub Actions (ADR-008) | TASK-TEC-302 | `vitest` completo (baseline 393) | 🔵 |
 | RNF-304 No perder dibujos previos | Sin bump de versión ni de clave; `isOverlayShape` aditivo (ADR-023, P-301) | TASK-302, TASK-UI-320 | `chart-config.test.ts` (doc v1 mixto) | 🔵 |
