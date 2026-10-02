@@ -29,10 +29,7 @@ describe('fetchAssets (TASK-UI-010)', () => {
     const result = await fetchAssets();
 
     expect(result).toEqual([ROW]);
-    expect(fetchMock).toHaveBeenCalledWith(
-      '/assets?scope=stored',
-      expect.objectContaining({}),
-    );
+    expect(fetchMock).toHaveBeenCalledWith('/assets?scope=stored', expect.objectContaining({}));
   });
 
   it('gets the full canonical catalog (scope=all, TASK-204)', async () => {

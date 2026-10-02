@@ -57,7 +57,7 @@
   /* Formato de ejes (RF-206, RF-207) */
   --axis-price-decimals: 5;
   --axis-price-side: right;
-  --axis-x-format: "{día} {HH:mm}";
+  --axis-x-format: '{día} {HH:mm}';
   --axis-x-tick: 15m;
 
   /* Offset de marcas compra/venta (RF-208) */

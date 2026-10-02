@@ -41,9 +41,7 @@ export interface DrawingHistory {
  * @param initialShapes Trazos iniciales.
  * @returns API del historial.
  */
-export function useDrawingHistory(
-  initialShapes: ReadonlyArray<OverlayShape>,
-): DrawingHistory {
+export function useDrawingHistory(initialShapes: ReadonlyArray<OverlayShape>): DrawingHistory {
   const [state, dispatch] = useReducer(
     drawingHistoryReducer,
     initialShapes,

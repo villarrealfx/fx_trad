@@ -47,12 +47,7 @@ export interface IndicatorFormProps {
  * existentes (MA/RSI/ATR). Al cerrarse (`✕`/`Escape`) solo se oculta: los
  * indicadores viven en el padre y persisten. Navegable por teclado.
  */
-export default function IndicatorForm({
-  open,
-  configs,
-  onChange,
-  onClose,
-}: IndicatorFormProps) {
+export default function IndicatorForm({ open, configs, onChange, onClose }: IndicatorFormProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [newKind, setNewKind] = useState<IndicatorKind>('MA');
   const [openId, setOpenId] = useState<string | null>(null);

@@ -25,11 +25,7 @@ export interface LiveRegionProps {
  * `assertive` se expone como `alert` (errores) y `polite` como `status`
  * (progreso, estados). El texto es el único contenido: no interactúa con foco.
  */
-export default function LiveRegion({
-  message,
-  tone = 'polite',
-  atomic = true,
-}: LiveRegionProps) {
+export default function LiveRegion({ message, tone = 'polite', atomic = true }: LiveRegionProps) {
   return (
     <div
       className="sr-only"

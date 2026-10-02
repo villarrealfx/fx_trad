@@ -51,10 +51,7 @@ describe('IndicatorForm (CMP-016)', () => {
 
     fireEvent.click(screen.getAllByLabelText('Mostrar')[1] as HTMLElement);
 
-    expect(onChange).toHaveBeenCalledWith([
-      CONFIGS[0],
-      { ...CONFIGS[1], visible: true },
-    ]);
+    expect(onChange).toHaveBeenCalledWith([CONFIGS[0], { ...CONFIGS[1], visible: true }]);
   });
 
   it('elimina un indicador', () => {

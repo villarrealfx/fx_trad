@@ -4,11 +4,7 @@
  * El panel maneja una lista de indicadores (añadir/quitar/reconfigurar/ocultar)
  * y la convierte a `IndicatorParameters` para que el ChartPane redibuje (RF-013).
  */
-import {
-  ATR_PERIOD_DEFAULT,
-  RSI_PERIOD_DEFAULT,
-  type IndicatorParameters,
-} from './indicators';
+import { ATR_PERIOD_DEFAULT, RSI_PERIOD_DEFAULT, type IndicatorParameters } from './indicators';
 
 /** Tipo de indicador del panel (CMP-010). */
 export type IndicatorKind = 'MA' | 'RSI' | 'ATR';

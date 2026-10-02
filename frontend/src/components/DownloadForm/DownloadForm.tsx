@@ -1,9 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
-import {
-  fetchCatalog,
-  type AssetRow,
-  type AssetType,
-} from '../../services/assets';
+import { fetchCatalog, type AssetRow, type AssetType } from '../../services/assets';
 import { requestDownload } from '../../services/downloads';
 import { endOfDayEpoch, isoDay, shiftDays, startOfDayEpoch } from '../../utils/dates';
 import Button from '../ui/Button';
@@ -67,10 +63,7 @@ export default function DownloadForm({
   const [catalogLoading, setCatalogLoading] = useState(true);
   const [catalogError, setCatalogError] = useState<string | null>(null);
   const [type, setType] = useState<AssetType>('forex');
-  const assets = useMemo(
-    () => catalog.filter((item) => item.type === type),
-    [catalog, type],
-  );
+  const assets = useMemo(() => catalog.filter((item) => item.type === type), [catalog, type]);
   const [asset, setAsset] = useState('');
   const [start, setStart] = useState('');
   const [end, setEnd] = useState('');

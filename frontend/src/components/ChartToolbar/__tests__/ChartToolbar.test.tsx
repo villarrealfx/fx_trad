@@ -41,12 +41,12 @@ describe('ChartToolbar (CMP-008)', () => {
       />,
     );
 
-    expect(
-      (screen.getByRole('button', { name: 'Deshacer' }) as HTMLButtonElement).disabled,
-    ).toBe(true);
-    expect(
-      (screen.getByRole('button', { name: 'Rehacer' }) as HTMLButtonElement).disabled,
-    ).toBe(true);
+    expect((screen.getByRole('button', { name: 'Deshacer' }) as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+    expect((screen.getByRole('button', { name: 'Rehacer' }) as HTMLButtonElement).disabled).toBe(
+      true,
+    );
   });
 
   it('invokes undo and redo when enabled', () => {
@@ -77,8 +77,8 @@ describe('ChartToolbar (CMP-008)', () => {
     expect((screen.getByRole('button', { name: 'Línea' }) as HTMLButtonElement).disabled).toBe(
       true,
     );
-    expect(
-      (screen.getByRole('button', { name: 'Deshacer' }) as HTMLButtonElement).disabled,
-    ).toBe(true);
+    expect((screen.getByRole('button', { name: 'Deshacer' }) as HTMLButtonElement).disabled).toBe(
+      true,
+    );
   });
 });

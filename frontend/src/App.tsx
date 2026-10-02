@@ -36,10 +36,12 @@ import { useChartConfig } from './state/use-chart-config';
 function ChartScreen({ selection }: { selection: ChartQuery }) {
   const { symbol, timeframe } = selection;
   // Configuración persistida por activo+timeframe (TASK-UI-241, RF-204).
-  const { indicators: configs, drawings, setIndicators, setDrawings } = useChartConfig(
-    symbol,
-    timeframe,
-  );
+  const {
+    indicators: configs,
+    drawings,
+    setIndicators,
+    setDrawings,
+  } = useChartConfig(symbol, timeframe);
   const paneRef = useRef<ChartPaneHandle>(null);
   const [exportOpen, setExportOpen] = useState(false);
   const [indicatorsOpen, setIndicatorsOpen] = useState(true);

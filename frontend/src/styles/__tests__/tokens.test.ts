@@ -99,7 +99,7 @@ describe('tokens del ciclo 03 (dibujos, ejes, marcas, íconos)', () => {
     const expected: ReadonlyArray<readonly [string, string]> = [
       ['--axis-price-decimals', String(AXIS_TOKENS.priceDecimals)],
       ['--axis-price-side', AXIS_TOKENS.priceSide],
-      ['--axis-x-format', `"${AXIS_TOKENS.xFormat}"`],
+      ['--axis-x-format', `'${AXIS_TOKENS.xFormat}'`],
       ['--axis-x-tick', AXIS_TOKENS.xTick],
       ['--marker-offset-pips', String(MARKER_TOKENS.offsetPips)],
       ['--marker-pip-value', String(MARKER_TOKENS.pipValue)],
