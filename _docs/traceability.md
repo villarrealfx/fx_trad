@@ -69,3 +69,4 @@
 - La tabla "Modificaciones a requisitos previos" no lleva columna de estado: las filas de `RF-209`/`RF-208` quedan resueltas por TASK-UI-300 (colores) y TASK-UI-310 (convivencia con el simulador), ambas ✅ Done.
 - Áreas sin épica: SCR-001, SCR-002, SCR-003, SCR-006 — heredadas sin cambios por `interaction-specs.md`.
 - Heredados: sin tareas nuevas salvo donde se extienden explícitamente (RF-307, RF-311).
+- **Métrica de tests unificada (DP-6, TECH-301):** `README.md` declara **458 tests frontend (55 archivos)**, verificado con `vitest` (backend 546 + 2 skip). Se cierra la deriva 389/392/393 señalada en `iterations/03-mejoras-ux/_cierre.md`.

@@ -1,6 +1,6 @@
 # Estado del Proyecto: Dibujo Referencia de Operación (Ciclo 04)
 
-> Última actualización: 2026-10-01 15:26
+> Última actualización: 2026-10-02 08:03
 > Fuente: `_docs/backlog.md`, `_docs/traceability.md`
 
 ## 1. Resumen ejecutivo
@@ -8,23 +8,21 @@
 | Métrica | Valor | Δ vs última sesión |
 |---------|-------|---------------------|
 | Tareas totales | 20 | — |
-| 📥 Backlog | 1 | -1 |
+| 📥 Backlog | 0 | -1 |
 | 🔨 Doing | 0 | — |
 | 👀 Review | 0 | — |
-| ✅ Done | 19 | +1 |
+| ✅ Done | 20 | +1 |
 | 🔴 Blocked | 0 | — |
-| % Completado | 95% (19/20 tareas · 55/56 pts) | +5% |
+| % Completado | 100% (20/20 tareas · 56/56 pts) | +5% |
 | Días sin movimiento | 0 | — |
 
-**Estado general:** 🟢 En curso
+**Estado general:** ✅ Ciclo 04 completado (20/20 tareas · 56/56 pts)
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (1)
+### 📥 Backlog (0)
 
-| ID | Tarea | Épica | Est. | Deps |
-|----|-------|-------|------|------|
-| TECH-301 | Corregir recuento de tests en README | EP-TEC-300 | 1 | TASK-TEC-302 |
+Sin tareas.
 
 ### 🔨 Doing (0)
 
@@ -34,7 +32,7 @@ Sin tareas.
 
 Sin tareas.
 
-### ✅ Done (19)
+### ✅ Done (20)
 
 | ID | Tarea | Épica | Completada | Prueba |
 |----|-------|-------|------------|--------|
@@ -57,6 +55,7 @@ Sin tareas.
 | TASK-TEC-300 | Frame budget con la operación activa | EP-TEC-300 | 2026-10-01 | `frontend/src/components/ChartPane/ChartPane.test.tsx` (60 FPS, 0 frames caídos) |
 | TASK-TEC-302 | Suite completa + revisión de previas | EP-TEC-300 | 2026-10-01 | `vitest` 55 archivos / 458 tests; tests de fib/line/rect/marker intactos |
 | TASK-TEC-303 | Sin dependencias nuevas + backend intacto | EP-TEC-300 | 2026-10-01 | `git diff 0422923..HEAD` de `frontend/package.json`, `package-lock.json` y `backend/`: vacío |
+| TECH-301 | Recuento de tests del frontend en README | EP-TEC-300 | 2026-10-02 | `README.md`: **458 tests · 55 archivos** = salida real de `vitest`; se cierra la deriva 389/392/393 (DP-6) |
 
 ### 🔴 Blocked (0)
 
@@ -75,6 +74,9 @@ graph LR
 ```
 
 **Avance de ruta crítica:** 7/7 tareas (100%) · 23/23 pts · **ETA estimada:** ruta crítica cerrada ✅ (sin velocidad medida)
+
+> `TECH-301` (1 pt) cuelga en paralelo de `TASK-TEC-302` con la misma longitud que
+> `TASK-TEC-303`; queda cerrada como segunda hoja final del ciclo.
 
 ## 4. Métricas
 
@@ -99,18 +101,21 @@ Ninguno.
 
 ### 🔴 Críticas
 
-- Ninguna.
+- **Job `frontend` de CI en ROJO: `npm run format:check` falla en 10 ficheros**, y `make lint-frontend` (que CI ejecuta) incluye `format:check`.
+- **Regresión del ciclo 04 (1 de los 10): `frontend/src/styles/tokens.css`.** Pasaba Prettier en `0422923` y ahora falla por `--axis-x-format: "{día} {HH:mm}"` (comillas dobles donde Prettier exige simples). Comprometer el requisito **RNF-303 "0 regresiones"**, marcado 🟢: la suite de tests está verde, pero el job de lint no.
+- Los otros **9 fallos son deuda preexistente de los ciclos 01–03** (verificados fichero a fichero contra `0422923`: ya fallaban antes de este ciclo): `App.tsx`, `use-drawing-history.ts`, `ChartToolbar.test.tsx`, `DownloadForm.tsx`, `IndicatorForm.test.tsx`, `IndicatorForm.tsx`, `LiveRegion.tsx`, `config.ts`, `assets.test.ts`.
 
 ### 🟡 Advertencias
 
 - **`zeroRisk` implementado en TASK-UI-315** (no en TASK-UI-313): gap de spec detectado al auditar el DoD; corregido en la tarea de test y anotado.
-- Deuda preexistente: `npm run format:check` falla en 12 ficheros de `master` (incl. `App.tsx`, `LiveRegion.tsx`, `use-drawing-history.ts` y una línea previa de `tokens.css`). Ajena a este ciclo.
+- La columna **Estado de `_docs/backlog.md`** sigue en `📥` para las 20 tareas + 2 SCR; no se ha mantenido durante el ciclo. `status.md` es la fuente de verdad; la desincronización está pendiente de decidir.
 
 ### 🟢 Informativas
 
-- `TASK-TEC-303` completada: `git diff 0422923..HEAD` de `frontend/package.json`, `frontend/package-lock.json` y `backend/` **vacío** → sin dependencias nuevas y backend intacto. **RX-301 a 100% → 19/19 requisitos.**
-- **Ruta crítica cerrada: 7/7 tareas · 23/23 pts.** No queda ninguna tarea funcional del ciclo 04.
-- Solo queda **TECH-301** (README, 1 pt), tarea documental sin requisito asociado.
+- `TECH-301` completada: `README.md` declara **458 tests frontend (55 archivos)**, verificado con `vitest` (backend 546 + 2 skip). Se cierra la deriva documental 389/392/393 (DP-6) y el **gap 2** diferido al cierre del ciclo 03.
+- `README.md` actualizado con el ciclo 04: sección propia, iteración 04 en la tabla, ADRs `ADR-001…025` y herramienta `◎` en SCR-004/005.
+- **Ciclo 04 cerrado: 20/20 tareas · 56/56 pts · 19/19 requisitos · ruta crítica 7/7.**
+- `TECH-302` (`drawLine` en 3.16:1) y `TECH-303` (entrada numérica para ruta por teclado) quedan diferidas a ciclo 05 (`Should`); no bloquean este cierre.
 
 ## 7. Trazabilidad — salud
 
@@ -140,8 +145,10 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. Iniciar **TECH-301** (README, 1 pt, deps ✅): corregir el recuento de tests frontend (392 → 458).
-2. Cerrar el ciclo 04 con el reporte final de cierre.
+1. **Corregir la regresión de `tokens.css`** (comillas dobles → simples) para sacar nuestra parte del fallo de CI. Es 1 línea.
+2. `/sdd-backlog` para registrar el saneado de los **9 ficheros** que ya violan Prettier (deuda de ciclos 01–03 que hoy mantiene el job `frontend` en rojo).
+3. Archivar el ciclo 04 (`_docs/iterations/04-referencia-operacion/`) con su `_cierre.md`, como se hizo con el 03.
+4. Ciclo 05: recoger `TECH-302` (contraste de `drawLine` en 3.16:1) y `TECH-303` (entrada numérica de Entrada/SL).
 
 ## 9. Historial de cambios (append-only)
 
@@ -205,3 +212,7 @@ Ninguno.
 | 2026-10-01 | TASK-TEC-303 | 📥 → 🔨 | Verificación de RX-301 contra el arranque de ciclo `0422923` |
 | 2026-10-01 | TASK-TEC-303 | 🔨 → 👀 | Movida a revisión; diff de manifiesto, lockfile y backend vacío |
 | 2026-10-01 | TASK-TEC-303 | 👀 → ✅ Done | DoD verificada (sin deps nuevas, backend intacto); RX-301 100% (19/19); ruta crítica 7/7; autorización del usuario |
+| 2026-10-02 | TECH-301 | 📥 → 🔨 | Actualización completa del README con el ciclo 04 (y cierre del gap 2/DP-6) |
+| 2026-10-02 | TECH-301 | 🔨 → 👀 | Movida a revisión; `vitest` re-ejecutado: 55 archivos / 458 tests |
+| 2026-10-02 | TECH-301 | 👀 → ✅ Done | DoD verificada (README = salida real de vitest); 20/20 tareas · 56/56 pts; autorización del usuario |
+| 2026-10-02 | — | 🔴 Alerta | CI `frontend` en rojo: `format:check` falla en 10 ficheros; 1 regresión del ciclo (`tokens.css`) + 9 deuda preexistente |

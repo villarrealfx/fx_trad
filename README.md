@@ -2,8 +2,9 @@
 
 Aplicación **personal y local** (RNF-005, RNF-006, RNF-007) para descargar datos
 históricos de Dukascopy, almacenarlos como Parquet + DuckDB, resamplearlos a
-timeframes de visualización y graficarlos como velas con indicadores, dibujos y
-exportación a imagen.
+timeframes de visualización y graficarlos como velas con indicadores, dibujos
+(línea, rectángulo, Fibonacci, simulación de compra/venta y **referencia de
+operación**) y exportación a imagen.
 
 - **Costo $0**: 100% software de código abierto (ver `_docs/iterations/02-optimizacion-descarga/license-audit.md`).
 - **Sin nube ni cuenta**: un único entorno local con Docker Compose.
@@ -16,17 +17,19 @@ exportación a imagen.
 |-----------|--------|---------------|--------|
 | 01 — MVP (plataforma + visualización) | 66 / 66 | 29 / 29 | ✅ Cerrada |
 | 02 — Optimización de descarga y base 1 m | 24 / 24 | 19 / 19 | ✅ Cerrada |
-| 03 — Mejoras UX | 32 / 35 | en curso | 🔄 Casi cerrada (`TASK-202` pendiente) |
+| 03 — Mejoras UX | 35 / 35 | 29 / 29 | ✅ Cerrada |
+| 04 — Referencia de operación | 20 / 20 | 19 / 19 | ✅ Cerrada |
 
 | Calidad | Valor |
 |---------|-------|
 | Backend | 546 tests ✅ + 2 skip · ruff · black · mypy |
-| Frontend | 392 tests ✅ · eslint · tsc · prettier · axe-core |
-| Rendimiento | descarga 1 año 1 m = **309,9 s** (≤900 s) · escritura Parquet 726k = **52,1 µs/vela** · UI pan/zoom y edición **≥60 FPS** (`benchmark-ui.md`) |
+| Frontend | 458 tests ✅ (55 archivos) · eslint · tsc · prettier · axe-core |
+| Rendimiento | descarga 1 año 1 m = **309,9 s** (≤900 s) · escritura Parquet 726k = **52,1 µs/vela** · UI pan/zoom y edición **≥60 FPS** (`benchmark-ui.md`; frame budget con la operación activa en RNF-302, 0 frames caídos) |
 
 Fuentes de verdad: `_docs/iterations/01-mvp/status.md`,
-`_docs/iterations/02-optimizacion-descarga/status.md` y `_docs/status.md`
-(ciclo 03 activo; backlog, trazabilidad y cierre en `_docs/`).
+`_docs/iterations/02-optimizacion-descarga/status.md`,
+`_docs/iterations/03-mejoras-ux/status.md` y `_docs/status.md`
+(ciclo 04 cerrado; backlog, trazabilidad y cierre en `_docs/`).
 
 ### Qué cambió en la iteración 02
 
@@ -57,6 +60,31 @@ análisis. El ciclo 03 rediseña el Gráfico, la Descarga y Abrir (`ADR-017…02
   (`ADR-021`).
 - **Ejes** con hora:minuto y **5 decimales**; **fullscreen** vertical; marcas de
   compra/venta fuera de la vela; contrato `Timeframe` **sin `1s`** (`ADR-020`).
+
+### Qué cambió en la iteración 04 (Referencia de operación)
+
+El ciclo 03 dejó los dibujos editables; el 04 añade el dibujo que faltaba para
+leer una operación de un vistazo: SL, Entrada y objetivos en **una sola figura**
+(`ADR-022…025`).
+
+- **Herramienta `◎` "Operación"** en el Gráfico y el Multigráfico: se crea con
+  **2 clics** (Entrada y SL) y la dirección (larga/corta) se deduce de las anclas
+  (`ADR-022`). `Shift` restringe el 2.º ancla a horizontal o vertical, como en la
+  herramienta de línea (RF-210).
+- **Cinco niveles derivados**: SL, Entrada y 3 objetivos (×1.382, ×1.5, ×2) con
+  precio a **5 decimales**. Los objetivos se **derivan por proyección**, nunca se
+  persisten; el nivel de cálculo 1:1 no se muestra (`ADR-022`).
+- **En riesgo nulo** (`Entrada == SL`) los tres objetivos se ocultarían sobre la
+  misma línea, así que el render muestra **solo SL y Entrada** y la región viva
+  avisa *"R = 0"* (`ADR-024`).
+- **Tokens propios** (`ADR-024`) con contraste verificado (5.61 / 16.56 / 6.53 : 1)
+  y layout de etiquetas sin solape con línea guía (`ADR-025`).
+- **Persistencia aditiva sin bump** (`ADR-023`): el documento v1 y su clave siguen
+  igual; la operación se guarda como `{ id, from, to }` y convive con los dibujos
+  previos, que se preservan.
+- **Accesibilidad y rendimiento**: la creación se anuncia por región viva; mover o
+  borrar también; el preview no se anuncia. 5 niveles O(1) por frame mantienen
+  **≥60 FPS** con la figura activa (`ADR-017`, RNF-302).
 
 ## Stack
 
@@ -110,13 +138,13 @@ fxtrad/
 ├── frontend/                 # SPA React 18 + Vite 5 + TS 5 + lightweight-charts
 │   ├── src/                  #   components · charting · export · indicators · services
 │   ├── Dockerfile            #   Vite dev con proxy a la API
-│   ├── package.json          #   eslint · prettier · tsc · vitest (392 tests)
+│   ├── package.json          #   eslint · prettier · tsc · vitest (458 tests)
 │   └── smoke-test.md         #   checklist de smoke de escritorio (RNF-005)
 ├── contracts/                # contrato OHLC canónico (JSON schema + md)
 ├── data/                     # Parquet + DuckDB locales (gitignored; volumen de compose)
 ├── docker-compose.yml        # 4 servicios: frontend, backend, worker, broker
 ├── docker-compose.worker.yml # RabbitMQ + worker (E2E de descarga)
-├── _docs/                    # SDD: ciclo 03 activo (plan/requirements/architecture/ux/backlog/status) · iterations/01-mvp · 02-optimizacion-descarga · 03-mejoras-ux · adr/ · glossary · logging-contract · license-audit
+├── _docs/                    # SDD: ciclo 04 cerrado (plan/requirements/architecture/ux/backlog/status/traceability) · iterations/01-mvp · 02-optimizacion-descarga · 03-mejoras-ux · adr/ (ADR-001…025) · glossary · logging-contract · license-audit
 ├── Makefile                  # lint · format · test · build · compose · benchmark
 └── .editorconfig
 ```
@@ -246,8 +274,8 @@ incluye `1s`** (`ADR-020`); una petición con `1s` se rechaza con **422**.
 | SCR-001 Biblioteca | `#/assets` | Activos guardados con cobertura/estado; Graficar → SCR-003, Actualizar → SCR-002 |
 | SCR-002 Descarga | `#/downloads` | Formulario de descarga (nota base **1 minuto UTC**) + progreso asíncrono + historial |
 | SCR-003 Abrir gráfico | `#/open` | Activo + periodo (validado contra la cobertura) + timeframe |
-| SCR-004 Gráfico | `#/chart` | Velas, indicadores (MA/RSI/ATR), dibujos, compra/venta, exportar |
-| SCR-005 Multigráfico | `#/multichart` | Hasta 3 paneles sincronizados |
+| SCR-004 Gráfico | `#/chart` | Velas, indicadores (MA/RSI/ATR), dibujos (línea, rectángulo, Fibonacci, compra/venta, **operación `◎`**), exportar |
+| SCR-005 Multigráfico | `#/multichart` | Hasta 3 paneles sincronizados (la herramienta `◎` opera pane a pane) |
 | SCR-006 Exportar | `#/export` | Exportación PNG/WebP del gráfico + dibujos |
 
 ## Tareas (Make)
@@ -320,10 +348,13 @@ paralelo, reutilizando el Makefile:
 - **Iteración 02 (Optimización y base 1 m):**
   `_docs/iterations/02-optimizacion-descarga/` (plan, requirements, architecture,
   adr/ADR-012…016, backlog, status, traceability, benchmark-download, license-audit, _cierre).
-- **Iteración 03 (Mejoras UX, activa):** raíz `_docs/` (plan, requirements,
-  architecture, adr/ADR-017…021, ux/, backlog, status, traceability,
-  `benchmark-ui.md`); histórico en `_docs/iterations/03-mejoras-ux/`.
-- **Transversal:** `_docs/adr/` (ADR-001…011) · `_docs/glossary.md` ·
+- **Iteración 03 (Mejoras UX, cerrada):** histórico en
+  `_docs/iterations/03-mejoras-ux/` (plan, requirements, architecture,
+  adr/ADR-017…021, ux/, backlog, status, traceability, `benchmark-ui.md`, _cierre).
+- **Iteración 04 (Referencia de operación, cerrada):** raíz `_docs/` (plan,
+  requirements, architecture, adr/ADR-022…025, ux/, backlog, backlog-graph.mmd,
+  status, traceability).
+- **Transversal:** `_docs/adr/` (ADR-001…025) · `_docs/glossary.md` ·
   `_docs/logging-contract.md` · `_docs/license-audit.md`.
 - **Smoke de escritorio:** `frontend/smoke-test.md`.
 
