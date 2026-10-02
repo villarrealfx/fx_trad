@@ -102,8 +102,9 @@ Ninguno.
 ### 🔴 Críticas
 
 - **Job `frontend` de CI en ROJO: `npm run format:check` falla en 10 ficheros**, y `make lint-frontend` (que CI ejecuta) incluye `format:check`.
-- **Regresión del ciclo 04 (1 de los 10): `frontend/src/styles/tokens.css`.** Pasaba Prettier en `0422923` y ahora falla por `--axis-x-format: "{día} {HH:mm}"` (comillas dobles donde Prettier exige simples). Comprometer el requisito **RNF-303 "0 regresiones"**, marcado 🟢: la suite de tests está verde, pero el job de lint no.
-- Los otros **9 fallos son deuda preexistente de los ciclos 01–03** (verificados fichero a fichero contra `0422923`: ya fallaban antes de este ciclo): `App.tsx`, `use-drawing-history.ts`, `ChartToolbar.test.tsx`, `DownloadForm.tsx`, `IndicatorForm.test.tsx`, `IndicatorForm.tsx`, `LiveRegion.tsx`, `config.ts`, `assets.test.ts`.
+- **Los 10 fallos son deuda preexistente, NO una regresión del ciclo 04.** Verificado fichero a fichero contra `0422923` (arranque del ciclo) **con el `.prettierrc` del repo** (`singleQuote: true`): los 10 ya fallaban entonces. `tokens.css` se rompió en el **ciclo 03**, en `cb0a6bd` (TASK-UI-200), al añadir `--axis-x-format: "{día} {HH:mm}"` con comillas dobles.
+- Los 9 restantes: `App.tsx`, `use-drawing-history.ts`, `ChartToolbar.test.tsx`, `DownloadForm.tsx`, `IndicatorForm.test.tsx`, `IndicatorForm.tsx`, `LiveRegion.tsx`, `config.ts`, `assets.test.ts`.
+- **RNF-303 "0 regresiones" no se ve afectado por esto**: la suite está verde (458 tests) y el ciclo 04 no añadió ninguna regresión. Lo que falla es un gate de estilo heredado, que debe abrirse como tarea de saneado (plantilla: `prettier --write` en los 10 + actualizar `tokens.test.ts:102`, que hoy exige comillas dobles y chocaría con el formato canónico).
 
 ### 🟡 Advertencias
 
@@ -216,3 +217,4 @@ Ninguno.
 | 2026-10-02 | TECH-301 | 🔨 → 👀 | Movida a revisión; `vitest` re-ejecutado: 55 archivos / 458 tests |
 | 2026-10-02 | TECH-301 | 👀 → ✅ Done | DoD verificada (README = salida real de vitest); 20/20 tareas · 56/56 pts; autorización del usuario |
 | 2026-10-02 | — | 🔴 Alerta | CI `frontend` en rojo: `format:check` falla en 10 ficheros; 1 regresión del ciclo (`tokens.css`) + 9 deuda preexistente |
+| 2026-10-02 | — | ⚠️ Corrección | Atribución errónea: `tokens.css` NO es regresión del ciclo 04; los 10 fallos de `format:check` ya existían en `0422923` (se rompieron en el ciclo 03, `cb0a6bd`). Verificado con el `.prettierrc` del repo |
