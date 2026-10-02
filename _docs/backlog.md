@@ -334,10 +334,31 @@ separa en tareas independientes.
 
 | ID | Descripción | Justificación | Prioridad |
 |----|-------------|---------------|-----------|
+| TECH-304 | Sanear `format:check`: formatear 10 ficheros del frontend y alinear el test anti-drift de tokens | `make lint-frontend` (= `eslint` + `tsc --noEmit` + `prettier --check`) falla, luego el job `frontend` de CI no puede ponerse verde. Deuda de los ciclos 01–03, **no** regresión del 04: los 10 ficheros ya fallaban en `0422923` y `tokens.css` se rompió en `cb0a6bd` (TASK-UI-200, ciclo 03) al añadir `--axis-x-format` con comillas dobles contra un `.prettierrc` con `singleQuote: true`. Sin impacto funcional: eslint, tsc, build y los 458 tests pasan | Must (ciclo 05) |
 | TECH-303 | Entrada numérica de Entrada/SL (formulario) para dar ruta por teclado y precio exacto al pip | **No hay RF que lo pida.** A zoom de 2 años (1,2 px/pip) no se puede colocar el SL en `1.09500` con precisión de pip. Requiere requisitos propios; documentado en `ux/user-journeys.md` §Brechas y `ux/design-system.md` §7 | Should (ciclo 05) |
 | TECH-302 | `drawLine` (`#4A6572`) está en **3.16:1**, por debajo de 4.5:1 | **Preexistente del ciclo 03**, no textual (se distingue por forma) y ajeno a este ciclo. Ya anotado en ADR-024 y `ux/design-system.md` §7 | Should (ciclo 05) |
 | RF-W-301 | Series de operaciones y métricas de estrategia | Fuera de alcance declarado (`plan.md` §3.2) | Won't |
 | RF-W-304 | Niveles de TP configurables | Fuera de alcance; los multiplicadores son fijos (S-6) | Won't |
+
+### DoD de TECH-304
+
+| Campo | Valor |
+|-------|-------|
+| Capa | `frontend` (formato) + `test` (1 aserción) |
+| Est. | 1 punto (XS) |
+| Requisito origen | Ninguno → `TECH-XXX` por regla 1 |
+| Deps | Ninguna |
+| Ficheros | `App.tsx`, `use-drawing-history.ts`, `ChartToolbar.test.tsx`, `DownloadForm.tsx`, `IndicatorForm.test.tsx`, `IndicatorForm.tsx`, `LiveRegion.tsx`, `config.ts`, `assets.test.ts`, `tokens.css`, `tokens.test.ts` |
+| ADRs | Ninguno nuevo (respeta ADR-008 / CI) |
+
+**Criterios de aceptación:**
+
+1. `npm run format:check` sale con código 0.
+2. `npm run lint` y `npm run typecheck` siguen en verde.
+3. `npm test` en verde, con el recuento real anotado (458 si no cambian los tests).
+4. `git diff -w` del commit solo muestra salto de línea y el cambio de comillas de
+   `--axis-x-format`; **cero cambios de lógica**.
+5. `make lint-frontend` completo en verde (equivalente al job `frontend` de CI).
 
 ## 9. Cobertura UX
 
@@ -382,6 +403,12 @@ propósito**, porque `_docs/ux/interaction-specs.md` las declara heredadas sin c
 - **DP-6:** `TECH-301` recoge el gap 2 que diferiste explícitamente al cierre del ciclo
   (README dice 392 tests frontend; la ejecución real da 393). Va al final porque su valor
   depende del recuento final.
+- **DP-7:** `TECH-304` (saneado de `format:check`) queda para el **ciclo 05** y **no altera
+  las métricas del ciclo 04**, que sigue cerrado en 20 tareas · 56 pts. Se prioriza como
+  **Must** de ciclo 05 pese a ser mecánica (1 punto), porque el job `frontend` de CI en rojo
+  destruye la señal: entrena al equipo a ignorar el gate y acaba enmascarando regresiones
+  reales. Al ejecutarla hay que realinear `tokens.test.ts` (compara el texto crudo con
+  `toContain`), o el fallo de lint se convierte en un fallo de tests.
 
 ## 11. Preguntas abiertas
 
