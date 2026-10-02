@@ -1,113 +1,57 @@
-# Handoff de Sesión `/sdd-brainstorm`
+# Handoff de Sesión
 
-**Iteración:** 04 — Dibujo Referencia de Operación (`dibujo-referencia-operacion`)
-**Fecha:** 1 de octubre de 2026
-**Insumo:** `mark_buy _sell.md`
-**Contexto heredado:** `_docs/iterations/03-mejoras-ux/_cierre.md`, `_docs/adr/` (21 ADRs vigentes), `_docs/glossary.md`, `_docs/logging-contract.md`
+> Estado al cierre del ciclo 04 y arranque del ciclo 05 — 2026-10-02
 
-## Resumen ejecutivo (5 líneas)
+## Dónde estamos
 
-El proyecto existe para el **backtesting manual** de estrategias, y el ciclo 03 resolvió la
-experiencia de análisis pero no la anotación de operaciones. Este ciclo añade una herramienta
-de dibujo que representa una **operación completa** — Entrada, SL y tres objetivos (1.382R,
-1.5R, 2R)— con la dirección deducida automáticamente y los precios calculados sobre
-`R = |Entrada − SL|`. Se reutiliza íntegramente la capa de dibujos del ciclo 03 (ADR-017):
-un `kind` nuevo, sin reescribir el overlay ni tocar las herramientas existentes. El alcance
-es deliberadamente estrecho: **solo anotar**; series de operaciones, métricas de estrategia,
-tamaño de posición y TP configurables quedan fuera.
+**Ciclo 04 cerrado y archivado** en
+`_docs/iterations/04-dibujo-referencia-operacion/`:
+20/20 tareas · 56/56 pts · 19/19 requisitos propios 🟢 · ruta crítica 7/7 · CI en verde.
 
-## Artefactos generados
+**Ciclo 05 abierto y vacío.** Solo arrastra la deuda que el ciclo 04 difirió
+(`TECH-302`, `TECH-303`). No hay plan, ni épicas, ni requisitos nuevos.
 
-- `_docs/plan.md`
-- `_docs/requirements.md`
-- `_docs/glossary.md` (compartido, ampliado con 6 términos + acronyms + entidad `Operación`)
-- `_docs/traceability.md`
-- `_docs/session-handoff.md`
+## Decisiones recientes que importan
 
-## Decisiones tomadas
+- **Alcance del proyecto:** backtesting **manual** (anotar operaciones sobre el precio
+  histórico). El automatizado —motor de ejecución, métricas de estrategia— sigue fuera de
+  alcance (`RF-W-205`).
+- **DP-7 (ciclo 04):** un gate rojo en CI se corrige aunque sea mecánica y cueste 1 punto.
+  Se entrena al equipo a ignorar el pipeline, y lo que hay debajo queda oculto.
+- **Regla que salió de aquel trabajo:** cuando un test falla solo en CI, **verificar contra
+  el runtime de destino**, no confiar en el verde local. Ya hay `.nvmrc` (20) y
+  `engines: >=20` para sellar la paridad.
+- **DP-6 (ciclo 04):** el número de tests del `README.md` sale de la ejecución real, nunca
+  de memoria.
 
-- **D-1:** El **backtesting manual** es el propósito del proyecto; el automatizado sigue OUT.
-  Esto invierte `RF-W-205` del ciclo 03 (plan.md §1.1).
-- **D-2:** Las dos anclas son **Entrada y SL** (no "SL y referencia 1:1"), aunque el flujo
-  manual actual del usuario requiera colocar el segundo punto donde la Entrada cae en 0.5.
-  La dirección se deduce de `Entrada` vs `SL`; la referencia 1:1 queda como nivel de cálculo.
-- **D-3:** Los TP son **múltiplos de R desde la Entrada** (`Entrada ± k·R`, k = 1.382, 1.5, 2),
-  no posiciones del eje Fibonacci. Consecuencia: el precio coincide con lo que dice la
-  etiqueta (`TP 1.382` = 1.382R). Descartada la alternativa del ratio lineal, que reutilizaba
-  `FIB_LEVELS` pero situaba `TP 1.382` a 1.764R.
-- **D-4:** El **desenlace** de la operación (¿tocó SL? ¿alcanzó TP?) es **legible** por el
-  usuario comparando el precio con las líneas marcadas. No es una función calculada ni un dato
-  persistido (`RF-W-302`). Cierra la causa raíz #2 por diseño, sin alcance adicional.
-- **D-5:** **Tres tokens de color** (`drawOpSl` `#EF5350`, `drawOpEntry` `#E6EDF3`,
-  `drawOpTp` `#26A69A`) que reutilizan valores ya validados del design system; los tres TP
-  comparten verde. Extienden la paleta mate sin romperla ni los tests de anti-drift.
-- **D-6:** Las **etiquetas se dibujan siempre** con separación vertical mínima y línea guía
-  (en vez de ocultarse o solaparse) porque a zoom de 2 años los niveles quedan a ~14 px.
-- **D-7:** La herramienta entra en la paleta de `ChartPane`, por lo que queda disponible
-  **también en Multigráfico** sin trabajo adicional.
-- **D-8:** Persistencia **sin campos nuevos**: dirección, `R`, niveles y etiquetas son
-  derivados de las dos anclas en el documento de dibujos.
+## Estado técnico
 
-## Preguntas abiertas / pendientes
+| Aspecto | Valor |
+|---------|-------|
+| Backend | FastAPI + Celery + DuckDB/Parquet, 546 tests + 2 skip |
+| Frontend | React + Vite + lightweight-charts, 458 tests (55 archivos) |
+| Dependencias | Sin nuevas desde el ciclo 03 (RX-301) |
+| CI | `make ci` replica los jobs en local; run #31 en `success` |
+| Node | `.nvmrc` = 20 (CI usa 20; el desarrollo local puede usar ≥20) |
 
-- **P-301 [stack]: RESUELTA en `/sdd-stack` → ADR-023.** Cambio **aditivo en v1**, sin
-  bumpar versión ni clave. Nota: la persistencia real es `state/chart-config.ts`
-  (`CHART_CONFIG_VERSION`, clave `fxtrad.chart.v1.{symbol}.{timeframe}`); los
-  `serializeDrawings`/`deserializeDrawings` de `drawings.ts` solo se usan en sus tests.
-  La estructura del documento no cambia, así que `RNF-304` se cumple sin migración.
-- **P-302 [backlog]: RESUELTA en `/sdd-ux`.** Herramienta **"Operación"** con ícono
-  `◎`, colocada **después de `Φ`**. Se descartó "Compra/Venta" (colisiona con ▲/▼ y la
-  dirección es automática) y "R:R" (el 1:1 no se dibuja).
-- **P-303 [ux]: RESUELTA en `/sdd-ux`.** Las 5 líneas se extienden **de extremo a extremo**
-  del chart. Motivo: las etiquetas van a la derecha del 2º ancla (plan.md §3.1-8) y RF-312
-  exige leer el desenlace de una vela 300 barras después; si la línea acabara en el SL no
-  habría nada que leer.
-- **P-304 [stack]: RESUELTA en `/sdd-stack` → ADR-024.** Contraste medido sobre
-  `#0A0C10`: `drawOpSl #EF5350` **5.61:1** · `drawOpEntry #E6EDF3` **16.56:1** ·
-  `drawOpTp #26A69A` **6.53:1**. Los tres superan 4.5:1 (líneas y texto). Nota colateral
-  fuera de alcance: `drawLine #4A6572` queda en 3.16:1 (preexistente del ciclo 03).
-- **P-305 [ux]: RESUELTA en `/sdd-ux`.** Etiqueta de **una línea** `TP 1.382  1.10691`
-  (nombre en `text-muted`, precio en el color del nivel). Dos líneas obligarían a separar
-  ~28 px en el peor zoom y empeorarían RNF-301.
-- **P-306 [backlog]:** confirmar que "criterios de persistencia adaptados" (insumo §10) se
-  cumple con el esquema vigente sin campos nuevos (hoy es un supuesto, S-4).
+## Brecha principal que deja el ciclo 04
 
-## Checklist de completitud
+**No hay series de operaciones.** Cada dibujo va suelto: para probar una estrategia hacen
+falta varias operaciones y hoy no hay forma de agruparlas ni de ver su resultado conjunto.
+Es la candidata más natural a propósito del ciclo 05.
 
-- [x] ¿Hay RNF definidos? (RNF-301…305 propios + heredados)
-- [x] ¿Hay fuera de alcance explícito? (§3.2 · `RF-W-301…307`)
-- [x] ¿Cada requisito tiene criterio de aceptación? (Dado/Cuando/Entonces)
-- [x] ¿Hay al menos un riesgo identificado? (R-301…R-305)
-- [x] ¿Hay stakeholders definidos? (usuario único + mantenedor)
-- [x] ¿Hay KPIs medibles? (KPI-301…305)
-- [x] ¿Las 10 validaciones del insumo están cubiertas? (RF-301…312)
+## Qué haría yo ahora
 
-## Cobertura del insumo
+1. `/sdd-brainstorm` sobre las **series de operaciones** (y decidir si `TECH-302`/`TECH-303`
+   entran con él).
+2. `/sdd-backlog` para promover la deuda a tareas con épica y requisito.
+3. `/sdd-plan` para el plan del ciclo 05. **Sin `plan.md` las skills `/sdd-implement` y
+   `/sdd-plan` no tienen con qué trabajar.**
 
-| Caso de validación (`mark_buy _sell.md` §Validación) | Requisito |
-|---|---|
-| 1. Creación correcta de una operación Long | RF-301, RF-302, RF-303 |
-| 2. Creación correcta de una operación Short | RF-302, RF-303, RF-305 |
-| 3. Cálculo correcto de 1.382, 1.5 y 2 | RF-303 |
-| 4. Actualización de niveles al modificar Entrada | RF-305 |
-| 5. Actualización de niveles al modificar SL | RF-305 |
-| 6. Desplazamiento conservando proporciones | RF-305, RF-307 |
-| 7. Precios correctos en las etiquetas | RF-308 |
-| 8. Un único dibujo | RF-306 |
-| 9. Integración en la pantalla Gráfico | RF-310 |
-| 10. Persistencia según criterios del proyecto | RF-311, RNF-304 |
+## Avisos
 
-## Notas de proceso (del insumo)
-
-- Reutilizar siempre la funcionalidad existente del dibujo Fibonacci antes de implementar
-  mecanismos equivalentes (insumo §Integración.7).
-- La incorporación **no debe modificar ni romper** las herramientas existentes (§Integración.8).
-- Cada tarea de UI terminada se valida visualmente levantando el sistema antes de aprobarse.
-
-## Próximo skill sugerido
-
-`/sdd-backlog` — Desglose en tareas de lo aprobado en `/sdd-stack` y `/sdd-ux`
-(`_docs/architecture.md` + ADR-022…025): módulo `charting/operation-geometry`, `kind`
-`'operation'` en `drawings`/`overlay-geometry`/`drawing-edit`, render en `OverlayCanvas`,
-herramienta en `ChartPane`, tokens `drawOp*` y sus tests. Pendientes de backlog: P-302
-(nombre e ícono en la paleta) y P-306 (confirmar la.persistence sin campos nuevos).
+- `requirements.md`, `architecture.md`, `adr/` y `ux/` de la raíz son **copias** de los del
+  ciclo 04: se copiaron porque son acumulativos y `/sdd-backlog` los lee desde la raíz. Al
+  abrir el ciclo 05, los que cambien se editan en la raíz (el archivo ya es el histórico).
+- `_cierre.md` del ciclo 04 tiene una sección "Qué se aprendió" que vale la pena leer antes
+  de arrancar: explica por qué el gate rojo del lint ocultaba un bug de coma flotante.

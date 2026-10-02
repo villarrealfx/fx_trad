@@ -1,7 +1,7 @@
 # Plan del Proyecto: Dibujo Referencia de Operación (Ciclo 04)
 
 **Iteración:** 04 — `dibujo-referencia-operacion`
-**Estado:** Aprobado en sesión (`/sdd-brainstorm`)
+**Estado:** Ejecutado — ciclo cerrado el 2 de octubre de 2026 (20/20 tareas ✅ · 56/56 pts)
 **Fecha:** 1 de octubre de 2026
 **Precede:** `_docs/iterations/03-mejoras-ux/`
 **Insumo:** `mark_buy _sell.md` (raíz del repo)

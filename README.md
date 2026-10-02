@@ -28,8 +28,9 @@ operación**) y exportación a imagen.
 
 Fuentes de verdad: `_docs/iterations/01-mvp/status.md`,
 `_docs/iterations/02-optimizacion-descarga/status.md`,
-`_docs/iterations/03-mejoras-ux/status.md` y `_docs/status.md`
-(ciclo 04 cerrado; backlog, trazabilidad y cierre en `_docs/`).
+`_docs/iterations/03-mejoras-ux/status.md` y `_docs/status.md` (ciclo 05 en curso;
+el cierre del ciclo 04, con su backlog y trazabilidad, en
+`_docs/iterations/04-dibujo-referencia-operacion/`).
 
 ### Qué cambió en la iteración 02
 
@@ -144,8 +145,8 @@ fxtrad/
 ├── data/                     # Parquet + DuckDB locales (gitignored; volumen de compose)
 ├── docker-compose.yml        # 4 servicios: frontend, backend, worker, broker
 ├── docker-compose.worker.yml # RabbitMQ + worker (E2E de descarga)
-├── _docs/                    # SDD: ciclo 04 cerrado (plan/requirements/architecture/ux/backlog/status/traceability) · iterations/01-mvp · 02-optimizacion-descarga · 03-mejoras-ux · adr/ (ADR-001…025) · glossary · logging-contract · license-audit
-├── Makefile                  # lint · format · test · build · compose · benchmark
+├── _docs/                    # SDD: ciclo 05 (backlog/status/traceability) · iterations/01-mvp · 02-optimizacion-descarga · 03-mejoras-ux · 04-dibujo-referencia-operacion (cerrado, con _cierre.md) · adr/ (ADR-001…025) · ux/ · glossary · logging-contract · license-audit
+├── Makefile                  # ci (replica GitHub Actions) · lint · format · test · build · compose · benchmark
 └── .editorconfig
 ```
 
@@ -351,10 +352,14 @@ paralelo, reutilizando el Makefile:
 - **Iteración 03 (Mejoras UX, cerrada):** histórico en
   `_docs/iterations/03-mejoras-ux/` (plan, requirements, architecture,
   adr/ADR-017…021, ux/, backlog, status, traceability, `benchmark-ui.md`, _cierre).
-- **Iteración 04 (Referencia de operación, cerrada):** raíz `_docs/` (plan,
-  requirements, architecture, adr/ADR-022…025, ux/, backlog, backlog-graph.mmd,
-  status, traceability).
-- **Transversal:** `_docs/adr/` (ADR-001…025) · `_docs/glossary.md` ·
+- **Iteración 04 (Referencia de operación, cerrada):**
+  `_docs/iterations/04-dibujo-referencia-operacion/` (plan, requirements,
+  architecture, adr/ADR-022…025, ux/, backlog, backlog-graph.mmd, status,
+  traceability, `_cierre.md`).
+- **Iteración 05 (en curso, sin planificar):** raíz `_docs/` (backlog, status,
+  traceability, session-handoff). Arrastra `TECH-302` y `TECH-303` del ciclo 04.
+- **Transversal:** `_docs/adr/` (ADR-001…025, acumulativo) · `_docs/ux/` ·
+  `_docs/requirements.md` · `_docs/architecture.md` · `_docs/glossary.md` ·
   `_docs/logging-contract.md` · `_docs/license-audit.md`.
 - **Smoke de escritorio:** `frontend/smoke-test.md`.
 
