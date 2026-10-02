@@ -25,5 +25,7 @@ export function formatAxisLabel(epochSeconds: number): string {
 export const PRICE_FORMAT = {
   type: 'price',
   precision: AXIS_TOKENS.priceDecimals,
-  minMove: 10 ** -AXIS_TOKENS.priceDecimals,
+  // 1 / 10 ** n y no 10 ** -n: V8 redondea mal el exponente entero negativo en
+  // versiones antiguas y minMove pasa a depender del runtime. La division es exacta.
+  minMove: 1 / 10 ** AXIS_TOKENS.priceDecimals,
 } as const;
