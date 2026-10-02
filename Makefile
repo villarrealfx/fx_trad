@@ -12,10 +12,13 @@ BACKEND := backend
 FRONTEND := frontend
 UV := uv run --extra dev
 
-.PHONY: help lint lint-backend lint-frontend format format-backend format-frontend test test-backend test-frontend build compose-up compose-down benchmark-parquet
+.PHONY: help lint lint-backend lint-frontend format format-backend format-frontend test test-backend test-frontend build ci ci-backend ci-frontend compose-up compose-down benchmark-parquet
 
 help:
 	@echo "Targets disponibles:"
+	@echo "  make ci          # replica local del pipeline de .github/workflows/ci.yml"
+	@echo "  make ci-backend  # solo el job Backend (ruff + black + mypy + pytest)"
+	@echo "  make ci-frontend # solo el job Frontend (eslint + tsc + prettier + vitest)"
 	@echo "  make lint    # ruff + black --check + mypy (backend) | eslint + tsc + prettier (frontend)"
 	@echo "  make format  # ruff --fix + black (backend) | prettier + eslint --fix (frontend)"
 	@echo "  make test    # pytest (backend) | vitest (frontend)"
@@ -23,6 +26,25 @@ help:
 	@echo "  make compose-up    # docker compose up --build (4 servicios + volumen data/)"
 	@echo "  make compose-down  # docker compose down"
 	@echo "  make benchmark-parquet  # benchmark de escritura Parquet (RNF-102, TASK-066)"
+
+# Replica local de los dos jobs de .github/workflows/ci.yml: mismos comandos,
+# mismo orden y mismo corte en el primer fallo. Sirve para no depender de la
+# red y ver el resultado del pipeline antes de pushear.
+ci: ci-backend ci-frontend
+	@echo ""
+	@echo "CI local: ambos jobs en verde (equivalente a GitHub Actions en success)"
+
+ci-backend:
+	@echo "── job Backend (lint + tests) ──────────────────────"
+	$(MAKE) lint-backend
+	$(MAKE) test-backend
+	@echo "✓ job Backend"
+
+ci-frontend:
+	@echo "── job Frontend (lint + tests) ─────────────────────"
+	$(MAKE) lint-frontend
+	$(MAKE) test-frontend
+	@echo "✓ job Frontend"
 
 lint: lint-backend lint-frontend
 

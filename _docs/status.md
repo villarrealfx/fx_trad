@@ -115,6 +115,7 @@ Ninguno.
 
 - **Job `frontend` de CI desbloqueado por `TECH-304`** (`8c71dcb`): `prettier --write` sobre los 10 ficheros + `tokens.test.ts` realineado a comillas simples. Lint en verde.
 - **Segundo fallo, no de estilo: `minMove` dependiente del runtime** (`f4f3c4e`). `10 ** -priceDecimals` redondea distinto según V8: en Node 20 da `0.000009999999999999999` (1 ULP bajo) y en Node 24 `0.00001`. El mismo código producía un valor distinto según dónde corriera, y el test de `ChartPane` (RF-206/RF-207) solo pasaba en local. Corregido en `axis-format.ts` con `1 / 10 ** n`, exacta en todos los runtimes; **el test no se relajó**, porque el valor correcto es el mismo en cualquier entorno. 458/458 en Node 20 y Node 24. Se añade `.nvmrc` (20) y `engines: >=20` para alinear desarrollo y CI.
+- **`make ci` disponible:** replica los dos jobs de `.github/workflows/ci.yml` en local (mismos comandos, mismo corte en el primer fallo), para reportar el estado del pipeline sin depender de la red. Ejecutado en verde el 2026-10-02.
 - **Verificado contra CI real:** run #31 en `success`, `Frontend` y `Backend` en verde. Es la **primera vez** que el job `frontend` pasa completo (lint + tests) en el repositorio.
 - `TECH-301` completada: `README.md` declara **458 tests frontend (55 archivos)**, verificado con `vitest` (backend 546 + 2 skip). Se cierra la deriva documental 389/392/393 (DP-6) y el **gap 2** diferido al cierre del ciclo 03.
 - `README.md` actualizado con el ciclo 04: sección propia, iteración 04 en la tabla, ADRs `ADR-001…025` y herramienta `◎` en SCR-004/005.
