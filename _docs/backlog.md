@@ -409,6 +409,10 @@ propósito**, porque `_docs/ux/interaction-specs.md` las declara heredadas sin c
   destruye la señal: entrena al equipo a ignorar el gate y acaba enmascarando regresiones
   reales. Al ejecutarla hay que realinear `tokens.test.ts` (compara el texto crudo con
   `toContain`), o el fallo de lint se convierte en un fallo de tests.
+  **Ejecutada el 2026-10-02 de forma anticipada** (commit `8c71dcb`, con el ciclo 04 ya
+  cerrado): desbloqueaba el gate de CI y no tocaba funcionalidad, así que no se esperó a
+  abrir el ciclo 05. Se registra en `status.md` §10 como trabajo de ciclo 05, **sin alterar
+  las métricas del ciclo 04** (20/20 · 56/56).
 
 ## 11. Preguntas abiertas
 

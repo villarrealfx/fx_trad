@@ -1,6 +1,6 @@
 # Estado del Proyecto: Dibujo Referencia de Operación (Ciclo 04)
 
-> Última actualización: 2026-10-02 08:03
+> Última actualización: 2026-10-02 09:10
 > Fuente: `_docs/backlog.md`, `_docs/traceability.md`
 
 ## 1. Resumen ejecutivo
@@ -17,6 +17,8 @@
 | Días sin movimiento | 0 | — |
 
 **Estado general:** ✅ Ciclo 04 completado (20/20 tareas · 56/56 pts)
+
+**Ciclo 05:** iniciado — 1 tarea en revisión (`TECH-304`). Ver §10.
 
 ## 2. Tablero Kanban
 
@@ -101,10 +103,7 @@ Ninguno.
 
 ### 🔴 Críticas
 
-- **Job `frontend` de CI en ROJO: `npm run format:check` falla en 10 ficheros**, y `make lint-frontend` (que CI ejecuta) incluye `format:check`.
-- **Los 10 fallos son deuda preexistente, NO una regresión del ciclo 04.** Verificado fichero a fichero contra `0422923` (arranque del ciclo) **con el `.prettierrc` del repo** (`singleQuote: true`): los 10 ya fallaban entonces. `tokens.css` se rompió en el **ciclo 03**, en `cb0a6bd` (TASK-UI-200), al añadir `--axis-x-format: "{día} {HH:mm}"` con comillas dobles.
-- Los 9 restantes: `App.tsx`, `use-drawing-history.ts`, `ChartToolbar.test.tsx`, `DownloadForm.tsx`, `IndicatorForm.test.tsx`, `IndicatorForm.tsx`, `LiveRegion.tsx`, `config.ts`, `assets.test.ts`.
-- **RNF-303 "0 regresiones" no se ve afectado por esto**: la suite está verde (458 tests) y el ciclo 04 no añadió ninguna regresión. Lo que falla es un gate de estilo heredado, que debe abrirse como tarea de saneado (plantilla: `prettier --write` en los 10 + actualizar `tokens.test.ts:102`, que hoy exige comillas dobles y chocaría con el formato canónico).
+- Ninguna. La alerta del job `frontend` de CI se cerró con `TECH-304` (§6 🟢).
 
 ### 🟡 Advertencias
 
@@ -113,6 +112,7 @@ Ninguno.
 
 ### 🟢 Informativas
 
+- **Job `frontend` de CI desbloqueado por `TECH-304`** (commit `8c71dcb`): `prettier --write` sobre los 10 ficheros + `tokens.test.ts` realineado a comillas simples. Verificado en local: `make lint-frontend` **EXIT=0**, `eslint` y `tsc` sin avisos, suite **458 tests** en verde. **Pendiente de confirmar el run real de GitHub Actions** (este entorno no tiene `gh`, así que el pipeline no se puede consultar).
 - `TECH-301` completada: `README.md` declara **458 tests frontend (55 archivos)**, verificado con `vitest` (backend 546 + 2 skip). Se cierra la deriva documental 389/392/393 (DP-6) y el **gap 2** diferido al cierre del ciclo 03.
 - `README.md` actualizado con el ciclo 04: sección propia, iteración 04 en la tabla, ADRs `ADR-001…025` y herramienta `◎` en SCR-004/005.
 - **Ciclo 04 cerrado: 20/20 tareas · 56/56 pts · 19/19 requisitos · ruta crítica 7/7.**
@@ -146,10 +146,9 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. **Corregir la regresión de `tokens.css`** (comillas dobles → simples) para sacar nuestra parte del fallo de CI. Es 1 línea.
-2. `/sdd-backlog` para registrar el saneado de los **9 ficheros** que ya violan Prettier (deuda de ciclos 01–03 que hoy mantiene el job `frontend` en rojo).
+1. Cerrar `TECH-304` a ✅ Done en cuanto se confirme el run de GitHub Actions en verde (§10).
+2. `/sdd-backlog` para el ciclo 05: recoger `TECH-302` (contraste de `drawLine` en 3.16:1) y `TECH-303` (entrada numérica de Entrada/SL).
 3. Archivar el ciclo 04 (`_docs/iterations/04-referencia-operacion/`) con su `_cierre.md`, como se hizo con el 03.
-4. Ciclo 05: recoger `TECH-302` (contraste de `drawLine` en 3.16:1) y `TECH-303` (entrada numérica de Entrada/SL).
 
 ## 9. Historial de cambios (append-only)
 
@@ -218,3 +217,22 @@ Ninguno.
 | 2026-10-02 | TECH-301 | 👀 → ✅ Done | DoD verificada (README = salida real de vitest); 20/20 tareas · 56/56 pts; autorización del usuario |
 | 2026-10-02 | — | 🔴 Alerta | CI `frontend` en rojo: `format:check` falla en 10 ficheros; 1 regresión del ciclo (`tokens.css`) + 9 deuda preexistente |
 | 2026-10-02 | — | ⚠️ Corrección | Atribución errónea: `tokens.css` NO es regresión del ciclo 04; los 10 fallos de `format:check` ya existían en `0422923` (se rompieron en el ciclo 03, `cb0a6bd`). Verificado con el `.prettierrc` del repo |
+| 2026-10-02 | TECH-304 | 📥 → 🔨 | Sanear `format:check` para desbloquear el job `frontend` de CI (10 ficheros) |
+| 2026-10-02 | TECH-304 | 🔨 → 👀 | `make lint-frontend` EXIT=0 · eslint/tsc OK · 458 tests · diff sin lógica (hash normalizado) |
+
+## 10. Ciclo 05 (abierto)
+
+> El ciclo 04 queda cerrado e inmutable en 20/20 tareas · 56/56 pts. Este bloque
+> registra el trabajo posterior, para no reabrir el tablero del ciclo 04.
+
+| ID | Tarea | Capa | Est. | Estado | Deps | Prueba |
+|----|-------|------|------|--------|------|--------|
+| TECH-304 | Sanear `format:check` y realinear el test anti-drift | frontend + test | 1 | 👀 Review | — | `make lint-frontend` EXIT=0 · eslint/tsc OK · 458 tests |
+| TECH-302 | Contraste de `drawLine` (`#4A6572`, 3.16:1 < 4.5:1) | frontend | — | 📥 Backlog | — | Pendiente (`backlog.md` §8) |
+| TECH-303 | Entrada numérica de Entrada/SL para precio exacto al pip | frontend | — | 📥 Backlog | — | Pendiente (`backlog.md` §8) |
+
+**Alcance del ciclo 05:** 1 tarea en revisión + 2 diferidas del backlog §8. Sin
+épicas, historias ni requisitos nuevos todavía: `TECH-304` no cubre ningún
+requisito y `TECH-302`/`TECH-303` siguen sin RF que los pida (`ux/user-journeys.md`
+§Brechas). Si el ciclo 05 crece, `/sdd-backlog` debe abrirlo formalmente con
+épicas y trazabilidad.
