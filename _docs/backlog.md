@@ -413,6 +413,11 @@ propósito**, porque `_docs/ux/interaction-specs.md` las declara heredadas sin c
   cerrado): desbloqueaba el gate de CI y no tocaba funcionalidad, así que no se esperó a
   abrir el ciclo 05. Se registra en `status.md` §10 como trabajo de ciclo 05, **sin alterar
   las métricas del ciclo 04** (20/20 · 56/56).
+  **Cerrada el 2026-10-02** (CI run #31 en `success`). Al destapar el gate de lint se
+  reveló un **segundo fallo que estaba enmascarado**: `minMove` dependía de la versión de
+  V8 (`10 ** -n` redondea distinto en Node 20), lo que rompía RF-206/RF-207 en CI.
+  Corregido en `f4f3c4e` con `1 / 10 ** n`. Lección: **un gate rojo puede estar ocultando
+  fallos de la capa siguiente**; el lint cortaba el job antes de ejecutar los tests.
 
 ## 11. Preguntas abiertas
 

@@ -1,6 +1,6 @@
 # Estado del Proyecto: Dibujo Referencia de Operación (Ciclo 04)
 
-> Última actualización: 2026-10-02 09:10
+> Última actualización: 2026-10-02 09:45
 > Fuente: `_docs/backlog.md`, `_docs/traceability.md`
 
 ## 1. Resumen ejecutivo
@@ -18,7 +18,7 @@
 
 **Estado general:** ✅ Ciclo 04 completado (20/20 tareas · 56/56 pts)
 
-**Ciclo 05:** iniciado — 1 tarea en revisión (`TECH-304`). Ver §10.
+**Ciclo 05:** abierto — `TECH-304` ✅ Done (CI run #31 en verde). Sin trabajo activo. Ver §10.
 
 ## 2. Tablero Kanban
 
@@ -103,16 +103,19 @@ Ninguno.
 
 ### 🔴 Críticas
 
-- Ninguna. La alerta del job `frontend` de CI se cerró con `TECH-304` (§6 🟢).
+- Ninguna. **CI en VERDE: run #31 (`f4f3c4e`), Frontend y Backend en `success`.**
 
 ### 🟡 Advertencias
 
+- **El paso de lint enmascaraba fallos de test.** Con `format:check` roto, `make lint-frontend` cortaba el job **antes** de ejecutar vitest, así que un segundo fallo llevaba tiempo oculto. Se detectó al destaparlo. Suele ocurrir cuando un gate se_training a ignorar.
 - **`zeroRisk` implementado en TASK-UI-315** (no en TASK-UI-313): gap de spec detectado al auditar el DoD; corregido en la tarea de test y anotado.
 - La columna **Estado de `_docs/backlog.md`** sigue en `📥` para las 20 tareas + 2 SCR; no se ha mantenido durante el ciclo. `status.md` es la fuente de verdad; la desincronización está pendiente de decidir.
 
 ### 🟢 Informativas
 
-- **Job `frontend` de CI desbloqueado por `TECH-304`** (commit `8c71dcb`): `prettier --write` sobre los 10 ficheros + `tokens.test.ts` realineado a comillas simples. Verificado en local: `make lint-frontend` **EXIT=0**, `eslint` y `tsc` sin avisos, suite **458 tests** en verde. **Pendiente de confirmar el run real de GitHub Actions** (este entorno no tiene `gh`, así que el pipeline no se puede consultar).
+- **Job `frontend` de CI desbloqueado por `TECH-304`** (`8c71dcb`): `prettier --write` sobre los 10 ficheros + `tokens.test.ts` realineado a comillas simples. Lint en verde.
+- **Segundo fallo, no de estilo: `minMove` dependiente del runtime** (`f4f3c4e`). `10 ** -priceDecimals` redondea distinto según V8: en Node 20 da `0.000009999999999999999` (1 ULP bajo) y en Node 24 `0.00001`. El mismo código producía un valor distinto según dónde corriera, y el test de `ChartPane` (RF-206/RF-207) solo pasaba en local. Corregido en `axis-format.ts` con `1 / 10 ** n`, exacta en todos los runtimes; **el test no se relajó**, porque el valor correcto es el mismo en cualquier entorno. 458/458 en Node 20 y Node 24. Se añade `.nvmrc` (20) y `engines: >=20` para alinear desarrollo y CI.
+- **Verificado contra CI real:** run #31 en `success`, `Frontend` y `Backend` en verde. Es la **primera vez** que el job `frontend` pasa completo (lint + tests) en el repositorio.
 - `TECH-301` completada: `README.md` declara **458 tests frontend (55 archivos)**, verificado con `vitest` (backend 546 + 2 skip). Se cierra la deriva documental 389/392/393 (DP-6) y el **gap 2** diferido al cierre del ciclo 03.
 - `README.md` actualizado con el ciclo 04: sección propia, iteración 04 en la tabla, ADRs `ADR-001…025` y herramienta `◎` en SCR-004/005.
 - **Ciclo 04 cerrado: 20/20 tareas · 56/56 pts · 19/19 requisitos · ruta crítica 7/7.**
@@ -146,8 +149,7 @@ Ninguno.
 
 ## 8. Próximas acciones sugeridas
 
-1. Cerrar `TECH-304` a ✅ Done en cuanto se confirme el run de GitHub Actions en verde (§10).
-2. `/sdd-backlog` para el ciclo 05: recoger `TECH-302` (contraste de `drawLine` en 3.16:1) y `TECH-303` (entrada numérica de Entrada/SL).
+1. `/sdd-backlog` para el ciclo 05: recoger `TECH-302` (contraste de `drawLine` en 3.16:1) y `TECH-303` (entrada numérica de Entrada/SL).
 3. Archivar el ciclo 04 (`_docs/iterations/04-referencia-operacion/`) con su `_cierre.md`, como se hizo con el 03.
 
 ## 9. Historial de cambios (append-only)
@@ -219,6 +221,10 @@ Ninguno.
 | 2026-10-02 | — | ⚠️ Corrección | Atribución errónea: `tokens.css` NO es regresión del ciclo 04; los 10 fallos de `format:check` ya existían en `0422923` (se rompieron en el ciclo 03, `cb0a6bd`). Verificado con el `.prettierrc` del repo |
 | 2026-10-02 | TECH-304 | 📥 → 🔨 | Sanear `format:check` para desbloquear el job `frontend` de CI (10 ficheros) |
 | 2026-10-02 | TECH-304 | 🔨 → 👀 | `make lint-frontend` EXIT=0 · eslint/tsc OK · 458 tests · diff sin lógica (hash normalizado) |
+| 2026-10-02 | TECH-304 | 👀 → ✅ Done | DoD 5/5 · CI run #31 `success` (Frontend+Backend) · segunda desviación revelada y corregida en `f4f3c4e` |
+| 2026-10-02 | — | 🔴 Alerta | Run #28 en rojo: lint verde (TECH-304 ok) pero 1 test fallaba. Fallo preexistente **enmascarado** por el lint, nunca ejecutado en CI |
+| 2026-10-02 | — | 🔴 Hallazgo | `minMove` (`10 ** -n`) dependía de la versión de V8: Node 20 → `0.000009999999999999999`, Node 24 → `0.00001`. Corregido con `1 / 10 ** n` (`f4f3c4e`) |
+| 2026-10-02 | — | ⚠️ Advertencia | `.nvmrc` (20) + `engines: >=20`: local Node 24 vs CI Node 20 permitían divergencias de coma flotante sin aviso |
 
 ## 10. Ciclo 05 (abierto)
 
@@ -227,11 +233,12 @@ Ninguno.
 
 | ID | Tarea | Capa | Est. | Estado | Deps | Prueba |
 |----|-------|------|------|--------|------|--------|
-| TECH-304 | Sanear `format:check` y realinear el test anti-drift | frontend + test | 1 | 👀 Review | — | `make lint-frontend` EXIT=0 · eslint/tsc OK · 458 tests |
+| TECH-304 | Sanear `format:check` y realinear el test anti-drift | frontend + test | 1 | ✅ Done | — | `8c71dcb` + `f4f3c4e` · CI run #31 `success` · 458/458 en Node 20 y 24 |
 | TECH-302 | Contraste de `drawLine` (`#4A6572`, 3.16:1 < 4.5:1) | frontend | — | 📥 Backlog | — | Pendiente (`backlog.md` §8) |
 | TECH-303 | Entrada numérica de Entrada/SL para precio exacto al pip | frontend | — | 📥 Backlog | — | Pendiente (`backlog.md` §8) |
 
-**Alcance del ciclo 05:** 1 tarea en revisión + 2 diferidas del backlog §8. Sin
+**Estado del ciclo 05:** 1 tarea ✅ Done · 2 diferidas del backlog §8. Sin tareas
+en curso: el ciclo quedó sin trabajo activo tras `TECH-304`. Sin
 épicas, historias ni requisitos nuevos todavía: `TECH-304` no cubre ningún
 requisito y `TECH-302`/`TECH-303` siguen sin RF que los pida (`ux/user-journeys.md`
 §Brechas). Si el ciclo 05 crece, `/sdd-backlog` debe abrirlo formalmente con
