@@ -10,11 +10,11 @@
 |---------|-------|----------------------|
 | Tareas totales | **26** | +24 |
 | 📥 Backlog | **10** | +8 |
-| 🔨 Doing | 0 | +1 |
+| 🔨 Doing | 2 | +3 |
 | 👀 Review | 0 | 0 |
-| ✅ Done | **16** | +16 |
+| ✅ Done | **14** | +14 |
 | 🔴 Blocked | 0 | 0 |
-| % Completado | **62 %** | — |
+| % Completado | **54 %** | — |
 | Esfuerzo planificado | **76 pts** | — |
 | Ruta crítica | **5/7 · 24 pts** | — |
 | Historias aceptadas | **0/9** | — |
@@ -46,15 +46,18 @@ El ciclo 04 quedó **cerrado y archivado** en `_docs/iterations/04-dibujo-refere
 | TASK-UI-417 | Evaluación de `Exportar` con decisión documentada | EP-UI-406 | Could | 2 | — |
 | TASK-TEC-402 | Accesibilidad (axe + teclado) de los componentes nuevos | EP-TEC-400 | **Must** | 2 | TASK-UI-409, TASK-UI-412 |
 
-### 🔨 Doing (0)
+### 🔨 Doing (2)
 
-Ninguna.
+| ID | Tarea | Épica | Prioridad | Est. | Deps |
+|----|-------|-------|-----------|------|------|
+| TASK-UI-413 | Diagnóstico y corrección de la condición de cobertura | EP-UI-405 | **Must** | 2 | — |
+| TASK-UI-414 | Tests de borde de la cobertura | EP-UI-405 | **Must** | 2 | TASK-UI-413 |
 
 ### 👀 Review (0)
 
 Ninguna.
 
-### ✅ Done (16)
+### ✅ Done (14)
 
 | ID | Tarea | Épica | Est. | Cerrada | Prueba |
 |----|-------|-------|------|---------|--------|
@@ -68,8 +71,6 @@ Ninguna.
 | TASK-UI-410 | `CMP-025 OperationNumericFields`: popover con dos campos, validación inline y foco gestionado | EP-UI-404 | 5 | 2026-10-06 | `components/OperationNumericFields/__tests__/OperationNumericFields.test.tsx` (14) + `charting/__tests__/operation-price-input.test.ts` (12) |
 | TASK-UI-411 | Integración de `CMP-025` con el command stack y `LiveRegion` | EP-UI-404 | 3 | 2026-10-06 | `components/ChartPane/ChartPane.test.tsx` (+7: botón «Precios» anclado, popover, mutación reversible, `Ctrl+Z`/`Ctrl+Y`, anuncio con los 5 valores y foco devuelto) |
 | TASK-UI-412 | Tests de aceptación del popover numérico | EP-UI-404 | 3 | 2026-10-06 | `components/ChartPane/ChartPane.test.tsx` (+5: `Enter` aplica y anuncia, `Escape` cancela sin mutar, no numérico bloquea `Aplicar`, `Ctrl+Z` restaura exacto, orden de foco Entrada→SL) |
-| TASK-UI-413 | Condición de cobertura honesta (`hasCoverageGap`) | EP-UI-405 | 2 | 2026-10-06 | `charting/__tests__/coverage.test.ts` (13) + `ChartPane.test.tsx` (hueco interno avisa; borde desfasado no) |
-| TASK-UI-414 | Tests de borde de la cobertura en pantalla | EP-UI-405 | 2 | 2026-10-06 | `components/ChartPane/ChartPane.test.tsx` (+3: cierre de fin de semana interno, `start` en fin de semana y cierre al final, sin aviso) |
 | TASK-UI-415 | Retirada de Multigráfico y de `chart-sync` (ADR-029) | EP-UI-406 | 3 | 2026-10-06 | `__tests__/app.test.tsx` (sin enlace «Multigráfico») + `grep` con 0 referencias en `src/`; −11 tests por retirada de código |
 | TASK-UI-416 | Limpieza de tests de la retirada y guardia de `ROUTES` | EP-UI-406 | 2 | 2026-10-06 | `app/__tests__/routes.test.ts` (+2: sin `/multichart`/`SCR-005`; `routeFor('/multichart')` → `/chart`); 6 mocks huérfanos retirados; 548/548 |
 | TASK-TEC-401 | Suite completa + medición del cambio de TF + gate | EP-TEC-400 | 3 | 2026-10-06 | Backend 546/546 + 2 skip; frontend 549/549 en 58 archivos; `coverage/tf-switch-measurement.json` (medición client-side); `quality_gate --level gate` PASS |
@@ -130,19 +131,24 @@ Ninguna.
 
 ### 🟡 Advertencias
 
+- **Defecto reproducido en `RF-402`** (`TASK-UI-413`/`TASK-UI-414` **reabiertas**): con
+  `data/EURUSD.1h.parquet`, la condición actual avisa en **103/103** rangos `Lun→Vie`, **103/103**
+  días viernes y **79/79** domingos (188/594 días) por el cierre real del viernes 20:00/21:00 y la
+  apertura del domingo 21:00. `endOfDayEpoch` (23:59:59) sigue marcando el borde.
 - **El ciclo planifica 76 pts frente a los 56 del ciclo 04.** Si el plazo de 2 semanas (RNF-007)
   aprieta, el orden de recorte lo fija `DP-3`: primero `RF-411` (Could, `TASK-UI-417`) y después los
   Should de UI pura (eje, menú contextual, precios numéricos, retirada).
 - **Deuda fuera del ciclo 05** (`D-8`): `TECH-305` (motivos de waiver imprecisos), `TECH-306`
   (límites de tamaño: 8 funciones >50 líneas, `ChartPane.tsx` 874) y `TECH-307` (contrato de
   logging autocontradictorio). Provienen de la auditoría `CR-002`, en CHANGES_REQUESTED.
-- **Preguntas abiertas que condicionan tareas**: `PA-1` **resuelta** en `TASK-UI-413` (el aviso era
-  un falso positivo de borde: desfase de bucket y cierre de fin de semana) · `PA-2` **resuelta**
-  antes de `TASK-UI-415` (se confirma la retirada: la decisión D-3/ADR-029 no dependía de `RF-401`)
-  · `PA-3` (criterio de viabilidad de `Exportar`, `TASK-UI-417`) · `PA-4` (quién verifica los 12
-  frentes del insumo y con qué guion).
-- **1 commit local sin empujar** (el cierre de `TASK-TEC-403`): el push es manual por política
-  (`_docs/git-profile.toml`); los 7 cierres anteriores ya están en `origin/master`.
+- **Preguntas abiertas que condicionan tareas**: `PA-1` **reabierta** (defecto reproducido; la
+  corrección de borde de `TASK-UI-413` no cubría viernes/domingo) · `PA-2` **resuelta** antes de
+  `TASK-UI-415` (se confirma la retirada: la decisión D-3/ADR-029 no dependía de `RF-401`) · `PA-3`
+  (criterio de viabilidad de `Exportar`, `TASK-UI-417`) · `PA-4` (quién verifica los 12 frentes del
+  insumo y con qué guion).
+- **2 commits locales sin empujar** (cierre de `TASK-TEC-403` y reapertura de `EP-UI-405`): el push
+  es manual por política (`_docs/git-profile.toml`); los 7 cierres anteriores ya están en
+  `origin/master`.
 
 ### 🟢 Informativas
 
@@ -172,15 +178,12 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 
 ## 8. Próximas acciones sugeridas
 
-1. **`/sdd-cycle`** para tomar **`TASK-405`** (*Tests de precedencia y de ida y vuelta*, `EP-402`,
-   **Must**, 2 pts, deps `TASK-404` ✅): fuera de ruta crítica; gana a `TASK-403` por el criterio
-   determinista de FASE 5 (Must y menor estimación: 2 < 3).
-2. `TASK-403` (tests de migración y contrato v2, Must, 3 pts) es la siguiente Must de la cola.
+1. **`/sdd-cycle TASK-UI-413`** (**reabierta**, Must): corregir `hasCoverageGap` para eximir el hueco
+   que cae en la ventana semanal de cierre `[viernes 19:00, lunes 00:00)` y añadir los casos de
+   viernes/domingo; después **`TASK-UI-414`** (tests de borde) y `PA-1` queda cerrada.
+2. Después, `TASK-405` (Must, 2 pts) y `TASK-403` (Must, 3 pts), ya con sus dependencias ✅.
 3. `TASK-UI-400`, `TASK-UI-408` y `TASK-UI-417` pueden empezar sin dependencias.
-2. **Antes de `TASK-UI-415`**, resolver `PA-2`: si el dolor de Multigráfico lo causaba el bug de
-   selección (`RF-401`), reconsiderar la retirada.
-3. **Antes de `TASK-UI-413`**, cerrar el diagnóstico de `PA-1` (bucket del TF vs hueco de mercado).
-4. **`git push origin master`** cuando se quiera publicar el commit local de este cierre (manual).
+4. **`git push origin master`** cuando se quiera publicar los commits locales (manual).
 
 ## 9. Historial de cambios (append-only)
 
@@ -237,3 +240,5 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 | 2026-10-06 | TASK-TEC-403 | 📥 → 🔨 | Inicio de desarrollo (verificación de «sin dependencias nuevas», RX-401) |
 | 2026-10-06 | TASK-TEC-403 | 🔨 → 👀 | Evidencia recogida: `git diff --exit-code e67ba78..HEAD -- frontend/package.json frontend/package-lock.json backend/` = exit 0 y 0 archivos · `quality_gate --level gate` PASS |
 | 2026-10-06 | TASK-TEC-403 | 👀 → ✅ | DoD verificada: el diff de los manifiestos y de `backend/` es **vacío** (ninguna dependencia nueva en el ciclo). RX-401 🟢. **Ruta crítica completa 7/7** |
+| 2026-10-06 | TASK-UI-413 | ✅ Done → 🔨 Doing | **Reapertura** por defecto reproducido (`RF-402`): la condición avisa en 103/103 rangos `Lun→Vie`, 103/103 viernes y 79/79 domingos (188/594 días) con `data/EURUSD.1h.parquet`; el cierre real del viernes (20:00/21:00) y la apertura del domingo (21:00) no son «desfase de bucket». Evidencia en el commit |
+| 2026-10-06 | TASK-UI-414 | ✅ Done → 🔨 Doing | **Reapertura** arrastrada: sus tests de borde no cubrían viernes/domingo y el DoD «fin de semana → sin aviso» no se cumple con datos reales |

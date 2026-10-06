@@ -290,8 +290,8 @@ de RNF-007 asumiendo que el MoSCoW (DP-3) define el orden de recorte si el plazo
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-UI-413 | Diagnóstico y corrección de la condición `partialCoverage` (`ChartPane.tsx:413`) | frontend | 2 | — | El aviso solo se dispara con velas ausentes **dentro** del rango; el desfase de bucket y el fin de semana no lo disparan; el diagnóstico (bucket vs hueco) queda escrito en el AUDIT LOG de la tarea | ✅ |
-| TASK-UI-414 | Tests de borde de la cobertura | test | 2 | TASK-UI-413 | Borde desfasado por bucket → sin aviso; velas ausentes dentro → con aviso; fin de semana → sin aviso; los tests heredados del ciclo 04 se actualizan o sustituyen con criterio explícito | ✅ |
+| TASK-UI-413 | Diagnóstico y corrección de la condición `partialCoverage` (`ChartPane.tsx:413`) | frontend | 2 | — | El aviso solo se dispara con velas ausentes **dentro** del rango; el desfase de bucket y el fin de semana no lo disparan; el diagnóstico (bucket vs hueco) queda escrito en el AUDIT LOG de la tarea | 🔨 |
+| TASK-UI-414 | Tests de borde de la cobertura | test | 2 | TASK-UI-413 | Borde desfasado por bucket → sin aviso; velas ausentes dentro → con aviso; fin de semana → sin aviso; los tests heredados del ciclo 04 se actualizan o sustituyen con criterio explícito | 🔨 |
 
 ### EP-UI-406: Reducción de superficie (retirada y evaluación)
 
