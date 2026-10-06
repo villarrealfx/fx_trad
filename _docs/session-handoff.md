@@ -1,81 +1,104 @@
 # Handoff de Sesión
 
-> Estado al cerrar el brainstorm del **ciclo 05** — 2026-10-06
+> Estado con el **ciclo 05 en ejecución** (4/26 tareas) — 2026-10-06
+> Punto de continuación exacto: **`/sdd-cycle TASK-UI-403`**
 
 ## Dónde estamos
 
-**Ciclo 04 cerrado y archivado** en `_docs/iterations/04-dibujo-referencia-operacion/`
-(20/20 tareas · 19/19 requisitos propios 🟢 · CI en verde).
+**Ciclo 05 (`mejoras-ux-grafico`) en ejecución.** La planificación está cerrada —`plan.md`,
+`requirements.md` (19 requisitos `4xx`), `glossary.md`, `architecture.md` con ADR-027/028/029/030,
+9 contratos en `_docs/ux/` y el backlog con 10 épicas, 9 historias y 26 tareas (76 pts)— y el
+tablero está inicializado.
 
-**Ciclo 05 abierto y planificado en alcance.** El brainstorm cerró `plan.md`,
-`requirements.md`, `glossary.md`, `traceability.md` y este handoff a partir del insumo
-`cycle_05.md`. Los 13 requisitos del ciclo (`4xx`) están en 🟡 pendiente: falta el diseño
-(`/sdd-stack`) y el backlog.
+| Métrica | Valor |
+|---------|-------|
+| Tareas cerradas | **4/26** (15 %) |
+| Cerradas | `TASK-401`, `TASK-402`, `TASK-UI-402`, `TASK-404` |
+| Ruta crítica | **2/7 · 24 pts** (`TASK-401`, `TASK-402` ✅) |
+| Historias aceptadas | 0/9 (exigen QA `PASS` y `/sdd-track accept`) |
+| Commits locales sin empujar | **4** (`ef5181e`, `595d1de`, `5d1f721`, `70d98cb`) |
+| Gates | `quality_gate --level gate` = **PASS** · 490/490 tests frontend |
 
-**Insumo:** `cycle_05.md` (raíz del repo) — mejoras de la pantalla `Gráfico` y cierre de la
-deuda diferida del ciclo 04.
+## Punto exacto de continuación
+
+**`TASK-UI-403`** — *Integración del selector + estados `switching-tf`/`tf-ready`/`tf-error`*
+(`EP-UI-401`, **Must**, 5 pts, capa `frontend`, nodo **3 de 7** de la ruta crítica).
+Sus tres dependencias están ✅: `TASK-UI-402`, `TASK-402`, `TASK-404`.
+
+Lo que queda por hacer en esa tarea (del contrato UX, no improvisar):
+
+1. Montar `CMP-023 TimeframeSelector` en `ChartHeader`, **a la izquierda** del botón de Indicadores.
+2. Implementar los estados `switching-tf` → `tf-ready` → `tf-error` de `ux/interaction-specs.md`:
+   skeleton durante la carga, **los dibujos permanecen** en pantalla y **no se animan** al
+   reproyectarse, un fallo del TF destino mantiene el anterior y **no** actualiza la selección.
+3. Persistir la selección al cambiar de TF (URL + `selection` del documento v2 + puntero
+   `fxtrad.chart.last`, todos ya disponibles) y anunciar el TF en `LiveRegion`.
+4. Tests: 1h→15m→1h conserva dibujos y selección, indicadores recalculados, `aria-checked`,
+   frame budget con la operación activa y el camino de error.
+
+Después, la ruta crítica sigue por `TASK-UI-404` → `TASK-UI-405` → `TASK-TEC-401` → `TASK-TEC-403`.
+Fuera de ruta crítica quedan `TASK-403`, `TASK-405` y las tareas de `TASK-UI-400`…`TASK-UI-417`.
 
 ## Decisiones de sesión (D-X)
 
-- **D-1 — Los dibujos son del activo.** Un dibujo pertenece al activo y se muestra en todos sus
-  timeframes, anclado a sus precios y tiempos (RF-404). Hoy la clave es
-  `fxtrad.chart.v1.{activo}.{timeframe}`, así que un Fibonacci de 1 h no existe en 15 m.
-- **D-2 — Documento v2 por activo con migración aditiva al leer.** `chart-config` pasa a v2
-  (`drawings` compartidos + indicadores del activo); al abrir un activo se consolidan sus
-  documentos v1 y **no se borran** las claves antiguas (RI-401, RNF-401). Modifica RI-201 y
-  ADR-018/ADR-023 ⇒ exige **ADR nuevo**, que decide `/sdd-stack`.
-- **D-3 — Se retira Multigráfico.** Se borran ruta `/multichart`, pantalla `MultiChart` y sus
-  tests; RF-310 del ciclo 04 se modifica a «Operación disponible solo en Gráfico» (RF-409).
-- **D-4 — `Exportar` se evalúa en el ciclo**, no se elimina a ciegas: la decisión (mantener o
-  retirar) se documenta con evidencia al cierre (RF-411).
-- **D-5 — RNF heredados, sin umbral nuevo.** Se mantienen 60 FPS (RNF-403) y 0 regresiones
-  (RNF-402); el tiempo de cambio de TF **se mide y se registra** (RNF-404) pero no bloquea.
-- **D-6 — El TF `30 m` no existe.** Se retira del glosario; los TF reales son
-  `1m, 5m, 15m, 1h, 4h, 1d` (los de `TIMEFRAMES` y la base 1 m).
-- **D-7 — Un solo ciclo con MoSCoW.** Must: 2.a, 2.b, 2.c.1/2.c.4 y 2.c.2/2.c.3. Should: 2.c.5,
-  2.c.6, TECH-302, 2.d. Could: 2.e, RF-410 (TECH-303).
-- **D-8 — La deuda de la auditoría `CR-002` queda fuera del ciclo 05** (refactores de tamaño,
-  contrato de logging y motivos de waiver). Sigue en el backlog para `/sdd-backlog`.
-- **D-9 — Los dos bugs se diagnostican antes de tocar.** El aviso de cobertura (RF-402) puede no
-  ser un falso positivo; si la condición es correcta, se conserva con texto más claro.
+Las del brainstorm siguen vigentes; se añaden las tomadas al ejecutar.
+
+- **D-1:** los dibujos son del **activo** (compartidos entre timeframes).
+- **D-2:** documento **v2 por activo** con migración aditiva al leer.
+- **D-3:** se retira Multigráfico (ruta, pantalla, `chart-sync` y props `sync`).
+- **D-4:** `Exportar` se evalúa dentro del ciclo, con decisión documentada.
+- **D-5:** RNF heredados (60 FPS, 0 regresiones); el cambio de TF se mide sin umbral bloqueante.
+- **D-6:** el TF `30 m` se retira del glosario.
+- **D-7:** un solo ciclo con MoSCoW (76 pts).
+- **D-8:** la deuda de la auditoría `CR-002` queda **fuera** del ciclo (`TECH-305…307`).
+- **D-9:** los dos bugs se diagnostican antes de tocar (el aviso de cobertura puede no ser falso
+  positivo).
+- **D-10 *(ejecución)*:** el puntero **`fxtrad.chart.last`** es la pieza que hace recuperable la
+  última selección **con su activo**; el `selection` por activo no bastaba. Formalizado en
+  **ADR-030** y descartadas las alternativas (solo activo, última URL, inferir de las claves).
+- **D-11 *(ejecución)*:** se trabaja **en `master`**, sin ramas por tarea: el ciclo no propuso
+  `feature/*` y `TASK-401→403` forman una cadena de esquema.
+- **D-12 *(ejecución)*:** el contrato UX citaba WCAG **2.5.5** (44×44, que es **AAA**); el nivel
+  declarado es **AA**, cuyo criterio es **2.5.8** (≥24×24). Corregido en `components.md` y en el
+  wireframe de SCR-004; el selector mide ≥44×32 px.
 
 ## Preguntas abiertas (PA-X)
 
-- **PA-1:** ¿El aviso de cobertura (RF-402) es realmente un falso positivo? Diagnóstico
-  pendiente antes de modificar la condición (`ChartPane.tsx:413`).
-- **PA-2:** ¿Desaparece el dolor de Multigráfico al arreglar RF-401? Si la causa era el mismo
-  bug de selección, reconsiderar la retirada antes de ejecutarla.
-- **PA-3:** Criterio de aceptación de la evaluación de `Exportar`: ¿qué la hace «viable»?
-- **PA-4 — resuelta en `/sdd-stack`:** las citas `plan.md` de ADR-022 y ADR-025 se cualificaron a
-  `_docs/iterations/04-dibujo-referencia-operacion/plan.md` (decisiones del ciclo 04) y
-  `architecture.md` §11 documenta que `_docs/plan.md` es siempre el plan del ciclo vigente.
-- **PA-5:** ¿Quién verifica los 12 frentes (KPI-401) y con qué guion de prueba manual?
+- **PA-1:** ¿el aviso de cobertura (`RF-402`) es realmente un falso positivo? Se resuelve en
+  `TASK-UI-413`.
+- **PA-2:** ¿desaparece el dolor de Multigráfico al arreglar `RF-401`? Comprobar **antes** de
+  `TASK-UI-415`.
+- **PA-3:** criterio de viabilidad de `Exportar` (`TASK-UI-417`).
+- **PA-4 *(resuelta)*:** las citas `plan.md` de ADR-022/ADR-025 se cualificaron al plan archivado
+  del ciclo 04 y `architecture.md` §11 documenta la regla.
+- **PA-5:** ¿quién verifica los 12 frentes del insumo (KPI-401) y con qué guion manual?
 
 ## Estado técnico
 
 | Aspecto | Valor |
 |---------|-------|
-| Backend | FastAPI + Celery + DuckDB/Parquet, 546 tests + 2 skip — **sin cambios en este ciclo** |
-| Frontend | React + Vite + lightweight-charts, 458 tests (55 archivos) |
-| Persistencia | `localStorage` con clave `fxtrad.chart.v1.{activo}.{TF}` → pasa a v2 por activo (D-2) |
-| Timeframes | `1m, 5m, 15m, 1h, 4h, 1d` (`contracts/ohlc.ts`); `30 m` retirado del glosario (D-6) |
-| Calidad | `_docs/quality-profile.toml` presente · gate **PASS** (0 incumplidos, 25 waivers) |
-| Versionado | `_docs/git-profile.toml` presente · rama `master`, árbol limpio al cerrar el brainstorm |
-| Auditoría | `CR-002` en CHANGES_REQUESTED (4 WARNING, 0 CRITICAL) — deuda fuera del 05 (D-8) |
+| Persistencia | **v2 por activo** (`fxtrad.chart.v2.{symbol}`) + migración desde v1 + puntero `fxtrad.chart.last` |
+| Migración | `state/migrate-chart-config.ts` puro: unión deduplicada por `id`, solo lee, nunca borra v1 |
+| Selección | `parseChartQuery(params, fallback?)` con precedencia URL > persistido > defecto; `replaceRoute` enriquece sin historial |
+| Selector de TF | `components/TimeframeSelector` (CMP-023) listo, **aún sin montar** en `ChartHeader` |
+| Backend | intacto (546 tests + 2 skip) — el ciclo es 100 % frontend |
+| Frontend | 490 tests en 57 archivos · typecheck, eslint y prettier en verde |
+| Calidad | `_docs/quality-profile.toml` · gate **PASS** (0 incumplidos, 25 waivers) |
+| Versionado | `_docs/git-profile.toml` · rama `master` · árbol limpio · **4 commits locales** sin `push` |
 
 ## Qué haría yo ahora
 
-1. **`/sdd-stack`** — diseñar la v2 del documento (ADR nuevo de persistencia y migración), la
-   retirada de Multigráfico y el menú contextual; actualizar `traceability.md` con el diseño.
-2. **`/sdd-ux`** si el cambio de eje, el menú contextual y el selector de TF necesitan contrato
-   UX propio (probable: SCR-004 cambia).
-3. **`/sdd-backlog`** para las tareas del ciclo (debe arrastrar `TECH-302`/`TECH-303`, que el
-   insumo mete en el alcance) y **`/sdd-track`** para inicializar el tablero del 05.
+1. **`/sdd-cycle TASK-UI-403`** (arriba, «Punto exacto de continuación»).
+2. Tras cerrarla, `TASK-UI-404` (indicadores por TF) y `TASK-UI-405` (tests de la épica) completan
+   `EP-UI-401`, que es el corazón del ciclo.
+3. `git push origin master` cuando quieras publicar los 4 commits.
 
 ## Avisos
 
-- `_docs/backlog.md` y `_docs/status.md` siguen describiendo el ciclo 05 **antes** del brainstorm
-  (2 entradas de deuda en 📥, sin épicas ni tareas). Los actualizan `/sdd-backlog` y `/sdd-track`.
-- `_docs/architecture.md` y `_docs/adr/` de la raíz son todavía los del ciclo 04: `/sdd-stack`
-  los actualiza (conservando el histórico acumulativo).
-- El commit del brainstorm queda pendiente; el cierre de `/sdd-cycle` no lo hará por ti.
+- **`TASK-403` y `TASK-405` están fuera de la ruta crítica** y siguen en 📥: son los tests de
+  aceptación de `EP-401` y `EP-402` (v1 mixto con 5 tipos en 3 TF, 0 pérdidas/0 duplicados, v3
+  rechazado; y la precedencia de la selección). La FASE 5 los tomará cuando no haya nodo de ruta
+  crítica listo, así que **no se pierden**: verifícalos antes de dar por cerradas sus épicas.
+- La deuda `TECH-305…307` (auditoría `CR-002`, en CHANGES_REQUESTED) sigue **fuera** del ciclo 05.
+- `_docs/ux/` de `SCR-005` ya está marcado como retirado; los artefactos de `SCR-006` siguen
+  vigentes hasta la evaluación de `TASK-UI-417`.
