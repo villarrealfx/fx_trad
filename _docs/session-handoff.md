@@ -1,52 +1,40 @@
 # Handoff de Sesión
 
-> Estado con el **ciclo 05 en ejecución** (7/26 tareas) — 2026-10-06
-> Punto de continuación exacto: **`/sdd-cycle TASK-UI-410`**
+> Estado con el **ciclo 05 en ejecución** (16/26 tareas) — 2026-10-06
+> **Ruta crítica completa (7/7).** Punto de continuación exacto: **`/sdd-cycle TASK-405`**
 
 ## Dónde estamos
 
-**Ciclo 05 (`mejoras-ux-grafico`) en ejecución.** La planificación está cerrada —`plan.md`,
-`requirements.md` (19 requisitos `4xx`), `glossary.md`, `architecture.md` con ADR-027/028/029/030,
-9 contratos en `_docs/ux/` y el backlog con 10 épicas, 9 historias y 26 tareas (76 pts)— y el
-tablero avanza por la ruta crítica.
+**Ciclo 05 (`mejoras-ux-grafico`) con la ruta crítica cerrada.** La planificación está cerrada
+—`plan.md`, `requirements.md` (19 requisitos `4xx`), `glossary.md`, `architecture.md` con
+ADR-027/028/029/030, 9 contratos en `_docs/ux/` y el backlog con 10 épicas, 9 historias y 26 tareas
+(76 pts)— y el tablero avanza por las tareas fuera de ruta crítica.
 
 | Métrica | Valor |
 |---------|-------|
-| Tareas cerradas | **7/26** (27 %) |
-| Cerradas | `TASK-401`, `TASK-402`, `TASK-UI-402`, `TASK-UI-403`, `TASK-UI-404`\*, `TASK-UI-405`, `TASK-404` |
-| Ruta crítica | **5/7 · 24 pts** (`TASK-401` → `TASK-402` → `TASK-UI-403` → `TASK-UI-404` → `TASK-UI-405` ✅) |
-| Épicas cerradas | **`EP-UI-401`** (cambio de escala) · `EP-402` (salvo `TASK-405`) · `EP-401` (salvo `TASK-403`) |
+| Tareas cerradas | **16/26** (62 %) |
+| Cerradas | `TASK-401`, `TASK-402`, `TASK-UI-402`, `TASK-UI-403`, `TASK-UI-404`\*, `TASK-UI-405`, `TASK-404`, `TASK-UI-410`, `TASK-UI-411`, `TASK-UI-412`, `TASK-UI-413`, `TASK-UI-414`, `TASK-UI-415`, `TASK-UI-416`, `TASK-TEC-401`, `TASK-TEC-403` |
+| Ruta crítica | **7/7 · 26 pts — completa** |
+| Épicas cerradas | `EP-UI-401`, `EP-UI-404`, `EP-UI-405` y la retirada de `EP-UI-406` |
 | Historias aceptadas | 0/9 (exigen QA `PASS` y `/sdd-track accept`) |
-| Commits locales sin empujar | **3** (`29866b4`, `50ceb62`, `6a31718`) |
-| Gates | `quality_gate --level gate` = **PASS** · **502/502** tests frontend |
+| Commits locales sin empujar | **1** (el cierre de `TASK-TEC-403`); los 7 anteriores ya están en `origin/master` |
+| Gates | `quality_gate --level gate` = **PASS** · backend **546/546 + 2 skip** · frontend **549/549** en 58 archivos |
 
-\* `TASK-UI-404` se cerró **sin código**: RF-405 ya estaba cubierto por `TASK-401`/`TASK-UI-403`
-(ver **DP-7** en `backlog.md` §10); sus 2 pts pasaron a `TASK-UI-405`.
+\* `TASK-UI-404` se cerró **sin código** (RF-405 ya estaba cubierto, DP-7); sus 2 pts pasaron a
+`TASK-UI-405`.
 
 ## Punto exacto de continuación
 
-**`TASK-UI-410`** — *`CMP-025 OperationNumericFields`* (`EP-UI-404`, Should, 5 pts, `frontend`).
+**`TASK-405`** — *Tests de precedencia y de ida y vuelta* (`EP-402`, **Must**, 2 pts, `test`,
+deps `TASK-404` ✅). Fuera de ruta crítica: FASE 5 la elige antes que `TASK-403` por el criterio
+determinista (ambas `Must`; menor estimación: 2 < 3).
 
-**Por qué esta y no el nodo 6:** la FASE 5 toma el primer nodo no ✅ de la ruta crítica, que es
-`TASK-TEC-401`, pero sus `Deps` (`TASK-UI-412`, `TASK-UI-414`, `TASK-UI-416`) siguen en 📥. La
-primera de ellas, `TASK-UI-412`, exige `TASK-UI-411`, que exige `TASK-UI-410`: esa es la primera
-tarea **lista** de la cadena.
-
-Lo que pide el contrato UX (`ux/components.md` §CMP-025, `ux/wireframes/SCR-004`):
-
-1. Popover **anclado a la figura seleccionada** (botón «Precios» o doble clic en la etiqueta de un
-   nivel), con dos campos: `Entrada` y `Stop Loss`.
-2. `label` **visible** (nunca solo placeholder), `inputMode` decimal y la precisión del activo
-   (5 decimales).
-3. Validación **inline** con `role="alert"` asociado al campo; `Aplicar` deshabilitado si el valor
-   no es numérico o si `Entrada == SL` (`R = 0`).
-4. `Tab` pasa de Entrada a SL, `Enter` aplica, `Escape` cancela y **devuelve el foco a la figura**.
-5. La mutación pasa por el **command stack** (`Ctrl+Z` la revierte) y se anuncia en `LiveRegion`
-   con el mismo formato que las mutaciones del canvas.
-
-Después: `TASK-UI-411` (command stack + `LiveRegion`) → `TASK-UI-412` (tests) → y entonces el nodo 6
-(`TASK-TEC-401`) tendrá sus dependencias de UI resueltas; le seguirán `TASK-UI-414` y `TASK-UI-416`
-con sus cadenas.
+Después:
+- `TASK-403` (tests de migración y de contrato v2, Must, 3) — la otra `Must` ya lista.
+- `TASK-UI-400` (tokens del eje, Should, 2) y su cadena `TASK-UI-401`/`TASK-UI-406`/`TASK-UI-407`.
+- `TASK-UI-408` → `TASK-UI-409` → **`TASK-TEC-402`** (accesibilidad, Must; hoy bloqueada por
+  `TASK-UI-409`).
+- `TASK-UI-417` (evaluación de `Exportar`, Could, 2).
 
 ## Decisiones de sesión (D-X)
 
@@ -54,7 +42,7 @@ con sus cadenas.
 - **D-2:** documento **v2 por activo** con migración aditiva al leer.
 - **D-3:** se retira Multigráfico (ruta, pantalla, `chart-sync` y props `sync`).
 - **D-4:** `Exportar` se evalúa dentro del ciclo, con decisión documentada.
-- **D-5:** RNF heredados (60 FPS, 0 regresiones); el cambio de TF se mide sin umbral bloqueante.
+- **D-5:** RNF heredados (60 FPS, 0 regresiones); el cambio de TF se mide **sin umbral bloqueante**.
 - **D-6:** el TF `30 m` se retira del glosario.
 - **D-7:** un solo ciclo con MoSCoW (76 pts).
 - **D-8:** la deuda de la auditoría `CR-002` queda **fuera** del ciclo (`TECH-305…307`).
@@ -64,18 +52,19 @@ con sus cadenas.
 - **D-11:** se trabaja **en `master`**, sin ramas por tarea.
 - **D-12:** el contrato UX citaba WCAG 2.5.5 (AAA, 44×44); el nivel declarado es **AA** y el
   criterio aplicable es **2.5.8** (≥24×24). Corregido en `components.md` y en SCR-004.
-- **D-13 *(ejecución)*:** `TASK-UI-404` se cierra **sin código** al comprobar que RF-405 ya se
-  cumple (DP-7); no se escribe código para justificar puntos.
+- **D-13:** `TASK-UI-404` se cierra **sin código** al comprobar que RF-405 ya se cumple (DP-7).
+- **D-14 *(esta corrida)*:** `PA-2` resuelta — se **confirma la retirada** de Multigráfico: la
+  decisión D-3/ADR-029 no dependía de `RF-401`.
+- **D-15 *(esta corrida)*:** la medición de RNF-404 es **client-side** (jsdom, `fetch` mockeado) y
+  su comparación estricta no es fiable ahí; queda pendiente en navegador real, sin bloquear (D-5).
 
 ## Preguntas abiertas (PA-X)
 
-- **PA-1:** ¿el aviso de cobertura (`RF-402`) es realmente un falso positivo? Se resuelve en
-  `TASK-UI-413`.
-- **PA-2:** ¿desaparece el dolor de Multigráfico al arreglar `RF-401`? Comprobar **antes** de
-  `TASK-UI-415`.
+- **PA-1 *(resuelta)***: el aviso de cobertura era un **falso positivo de borde** (desfase de
+  bucket + cierre de fin de semana). Corregido y probado en `TASK-UI-413`/`TASK-UI-414`.
+- **PA-2 *(resuelta)***: se confirma la retirada de Multigráfico (D-14).
 - **PA-3:** criterio de viabilidad de `Exportar` (`TASK-UI-417`).
-- **PA-4 *(resuelta)*:** citas `plan.md` de ADR-022/ADR-025 cualificadas.
-- **PA-5:** ¿quién verifica los 12 frentes del insumo (KPI-401) y con qué guion manual?
+- **PA-4**: ¿quién verifica los 12 frentes del insumo (KPI-401) y con qué guion manual?
 
 ## Estado técnico
 
@@ -83,29 +72,29 @@ con sus cadenas.
 |---------|-------|
 | Persistencia | **v2 por activo** (`fxtrad.chart.v2.{symbol}`) + migración desde v1 + puntero `fxtrad.chart.last` |
 | Migración | `state/migrate-chart-config.ts` puro: unión deduplicada por `id`, solo lee, nunca borra v1 |
-| Selección | `parseChartQuery(params, fallback?)` con precedencia URL > persistido > defecto; `replaceRoute` enriquece sin historial |
-| Cambio de escala | `CMP-023` en `ChartHeader` + estados `switching-tf`/`tf-ready`/`tf-error` con **reversión** al TF anterior y anuncio en `LiveRegion` |
-| Indicadores | una lista por activo, recalculada por `ChartPane` sobre las velas del TF visible (probado en `TASK-UI-405`) |
-| Pendiente de UI | `CMP-024` (menú contextual de vela, `TASK-UI-408`), `CMP-025` (precios numéricos, `TASK-UI-410`), eje en dos filas (`TASK-UI-406`) y la retirada de Multigráfico (`TASK-UI-415`) |
+| Selección | `parseChartQuery(params, fallback?)`; precedencia URL > persistido > defecto; `replaceRoute` sin historial |
+| Cambio de escala | `CMP-023` en `ChartHeader` + estados `switching-tf`/`tf-ready`/`tf-error` con **reversión** y anuncio |
+| Cobertura | `charting/coverage.ts` (`hasCoverageGap`): avisa solo por huecos reales (bucket/weekend excluidos) |
+| Precios numéricos | `CMP-025` integrado: botón «Precios» anclado, `Aplicar`/`Enter` por el command stack, anuncio en `LiveRegion` |
+| Multigráfico | **retirado** (ADR-029): sin ruta, sin `MultiChart`, sin `chart-sync`, sin props `sync` |
+| Fuera de alcance | `TECH-305` (waivers), `TECH-306` (límites de tamaño), `TECH-307` (logging) — auditoría `CR-002` |
 | Backend | intacto (546 tests + 2 skip) — el ciclo es 100 % frontend |
-| Frontend | **502 tests** en 57 archivos · typecheck, eslint y prettier en verde |
+| Frontend | **549 tests** en 58 archivos · typecheck, eslint y prettier en verde |
 | Calidad | `_docs/quality-profile.toml` · gate **PASS** (0 incumplidos, 25 waivers) |
-| Versionado | `_docs/git-profile.toml` · rama `master` · árbol limpio · **3 commits locales** sin `push` |
+| Versionado | `_docs/git-profile.toml` · rama `master` · árbol limpio · **1 commit local** sin `push` |
 
 ## Qué haría yo ahora
 
-1. **`/sdd-cycle TASK-UI-410`** (arriba, «Punto exacto de continuación»).
-2. Al cerrar la cadena `TASK-UI-410 → 411 → 412`, el nodo 6 (`TASK-TEC-401`) quedará a un paso;
-   sus otras dos dependencias son `TASK-UI-414` (tests de cobertura) y `TASK-UI-416` (limpieza de
-   la retirada de Multigráfico).
-3. `git push origin master` cuando quieras publicar los 3 commits.
+1. **`/sdd-cycle TASK-405`** (arriba).
+2. Al cerrar `TASK-403`, quedarán las cadenas de UI (`TASK-UI-400` → eje/menú) y `TASK-TEC-402`.
+3. `git push origin master` cuando quieras publicar el commit de `TASK-TEC-403`.
 
 ## Avisos
 
-- **`TASK-403` y `TASK-405` siguen en 📥 y fuera de la ruta crítica**: son los tests de aceptación
-  de `EP-401` y `EP-402` (v1 mixto con 5 tipos en 3 TF con 0 pérdidas/0 duplicados y rechazo de un
-  v3; precedencia de la selección). La FASE 5 los tomará cuando no haya nodo de ruta crítica listo,
-  pero **deben estar verdes antes de dar por cerradas esas épicas**.
-- La deuda `TECH-305…307` (auditoría `CR-002`, en CHANGES_REQUESTED) sigue **fuera** del ciclo 05.
-- `_docs/ux/` de `SCR-005` está marcado como retirado; los de `SCR-006` siguen vigentes hasta la
+- **Ninguna tarea está bloqueada**; `TASK-TEC-402` **espera** a `TASK-UI-409` (menú contextual).
+- `RF-411` (`TASK-UI-417`, `Exportar`) es la única `Could` del ciclo: primer candidato a recorte
+  (`DP-3`).
+- Deuda menor declarada, **sin tarea**: verificación de RNF-404 en navegador real y el doble clic
+  sobre la etiqueta de nivel de `CMP-025` (canvas, no verificable en jsdom).
+- `_docs/ux/` de `SCR-005` está marcado como **retirado**; los de `SCR-006` siguen vigentes hasta la
   evaluación de `TASK-UI-417`.

@@ -9,28 +9,29 @@
 | Métrica | Valor | Δ vs estado anterior |
 |---------|-------|----------------------|
 | Tareas totales | **26** | +24 |
-| 📥 Backlog | **11** | +9 |
+| 📥 Backlog | **10** | +8 |
 | 🔨 Doing | 0 | +1 |
 | 👀 Review | 0 | 0 |
-| ✅ Done | **15** | +15 |
+| ✅ Done | **16** | +16 |
 | 🔴 Blocked | 0 | 0 |
-| % Completado | **58 %** | — |
+| % Completado | **62 %** | — |
 | Esfuerzo planificado | **76 pts** | — |
 | Ruta crítica | **5/7 · 24 pts** | — |
 | Historias aceptadas | **0/9** | — |
 | Días sin movimiento | 0 | — |
 
-**Estado general:** 🟢 **Ciclo 05 en ejecución.** 15/26 tareas cerradas; la ruta crítica avanza
-**6/7** (`TASK-401`, `TASK-402`, `TASK-UI-403`, `TASK-UI-404`, `TASK-UI-405`, `TASK-TEC-401` ✅).
-`EP-UI-404`, `EP-UI-405` y la retirada de `EP-UI-406` quedan **completas**; solo falta el nodo 7
-(`TASK-TEC-403`, sin dependencias nuevas) y las tareas de UI fuera de ruta crítica.
+**Estado general:** 🟢 **Ciclo 05 en ejecución.** 16/26 tareas cerradas; la ruta crítica queda
+**completa (7/7)**: `TASK-401`, `TASK-402`, `TASK-UI-403`, `TASK-UI-404`, `TASK-UI-405`,
+`TASK-TEC-401` y `TASK-TEC-403` ✅. `EP-UI-404`, `EP-UI-405` y la retirada de `EP-UI-406` están
+cerradas; queda UI fuera de ruta crítica (eje X, menú contextual, tokens y la evaluación de
+`Exportar`).
 
 El ciclo 04 quedó **cerrado y archivado** en `_docs/iterations/04-dibujo-referencia-operacion/`
 (20/20 tareas · 56/56 pts · 19/19 requisitos propios 🟢 · CI en verde).
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (11)
+### 📥 Backlog (10)
 
 | ID | Tarea | Épica | Prioridad | Est. | Deps |
 |----|-------|-------|-----------|------|------|
@@ -44,7 +45,6 @@ El ciclo 04 quedó **cerrado y archivado** en `_docs/iterations/04-dibujo-refere
 | TASK-UI-409 | Tests y accesibilidad del menú contextual | EP-UI-403 | Should | 3 | TASK-UI-408 |
 | TASK-UI-417 | Evaluación de `Exportar` con decisión documentada | EP-UI-406 | Could | 2 | — |
 | TASK-TEC-402 | Accesibilidad (axe + teclado) de los componentes nuevos | EP-TEC-400 | **Must** | 2 | TASK-UI-409, TASK-UI-412 |
-| TASK-TEC-403 | Verificación de «sin dependencias nuevas» | EP-TEC-400 | **Must** | 1 | TASK-TEC-401 |
 
 ### 🔨 Doing (0)
 
@@ -54,7 +54,7 @@ Ninguna.
 
 Ninguna.
 
-### ✅ Done (15)
+### ✅ Done (16)
 
 | ID | Tarea | Épica | Est. | Cerrada | Prueba |
 |----|-------|-------|------|---------|--------|
@@ -73,6 +73,7 @@ Ninguna.
 | TASK-UI-415 | Retirada de Multigráfico y de `chart-sync` (ADR-029) | EP-UI-406 | 3 | 2026-10-06 | `__tests__/app.test.tsx` (sin enlace «Multigráfico») + `grep` con 0 referencias en `src/`; −11 tests por retirada de código |
 | TASK-UI-416 | Limpieza de tests de la retirada y guardia de `ROUTES` | EP-UI-406 | 2 | 2026-10-06 | `app/__tests__/routes.test.ts` (+2: sin `/multichart`/`SCR-005`; `routeFor('/multichart')` → `/chart`); 6 mocks huérfanos retirados; 548/548 |
 | TASK-TEC-401 | Suite completa + medición del cambio de TF + gate | EP-TEC-400 | 3 | 2026-10-06 | Backend 546/546 + 2 skip; frontend 549/549 en 58 archivos; `coverage/tf-switch-measurement.json` (medición client-side); `quality_gate --level gate` PASS |
+| TASK-TEC-403 | Sin dependencias nuevas: diff de manifiestos y `backend/` vacío | EP-TEC-400 | 1 | 2026-10-06 | `git diff --exit-code e67ba78..HEAD -- frontend/package.json frontend/package-lock.json backend/` → exit 0 y 0 archivos |
 
 ### 🔴 Blocked (0)
 
@@ -87,15 +88,15 @@ graph LR
   UI403 --> UI404["TASK-UI-404<br/>✅ 2"]
   UI404 --> UI405["TASK-UI-405<br/>✅ 5"]
   UI405 --> TEC401["TASK-TEC-401<br/>✅ 3"]
-  TEC401 --> TEC403["TASK-TEC-403<br/>📥 1"]
+  TEC401 --> TEC403["TASK-TEC-403<br/>✅ 1"]
 ```
 
-**Avance de ruta crítica:** **6/7 · 27 pts.** Solo queda el nodo 7 (`TASK-TEC-403`). El tramo que
-dominó el ciclo fue `TASK-401 → TASK-402 → TASK-UI-403` (tres tareas de 5 puntos encadenadas:
-contrato v2, migración e integración del cambio de escala).
+**Avance de ruta crítica:** **7/7 · 26 pts — completa** (los 2 pts que `TASK-UI-404` traspasó a
+`TASK-UI-405` incluidos). El tramo que dominó el ciclo fue `TASK-401 → TASK-402 → TASK-UI-403`
+(tres tareas de 5 puntos encadenadas: contrato v2, migración e integración del cambio de escala).
 
-**Pueden empezar en paralelo** (sin dependencias): `TASK-UI-400`, `TASK-UI-408`, `TASK-UI-417` y
-`TASK-TEC-403`.
+**Pueden empezar en paralelo** (sin dependencias): `TASK-UI-400`, `TASK-UI-408` y `TASK-UI-417`;
+`TASK-405` y `TASK-403` ya tienen sus dependencias ✅.
 
 ## 4. Métricas
 
@@ -105,11 +106,12 @@ contrato v2, migración e integración del cambio de escala).
 |-------|-------------|----------|
 | 03 — Mejoras UX | 35 | 121 pts |
 | 04 — Dibujo Referencia de Operación | 20 | 56 pts |
-| **05 — en ejecución** | **15/26 · 42 pts** | **76 pts** |
+| **05 — en ejecución** | **16/26 · 50 pts** | **76 pts** |
 
 ### 4.2 Burn-down
 
-15 de 26 tareas cerradas (**58 %**), 42 de 76 pts; 11 tareas en 📥 (34 pts), 0 bloqueadas.
+16 de 26 tareas cerradas (**62 %**), 50 de 76 pts; 10 tareas en 📥 (26 pts), 0 bloqueadas. La
+**ruta crítica está completa (7/7)**.
 
 ### 4.3 Lead time / cycle time
 
@@ -139,8 +141,8 @@ Ninguna.
   antes de `TASK-UI-415` (se confirma la retirada: la decisión D-3/ADR-029 no dependía de `RF-401`)
   · `PA-3` (criterio de viabilidad de `Exportar`, `TASK-UI-417`) · `PA-4` (quién verifica los 12
   frentes del insumo y con qué guion).
-- **7 commits locales sin empujar** (cierres de `TASK-UI-411`…`TASK-TEC-401`): el push es manual por
-  política (`_docs/git-profile.toml`); el remoto está declarado.
+- **1 commit local sin empujar** (el cierre de `TASK-TEC-403`): el push es manual por política
+  (`_docs/git-profile.toml`); los 7 cierres anteriores ya están en `origin/master`.
 
 ### 🟢 Informativas
 
@@ -170,9 +172,11 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 
 ## 8. Próximas acciones sugeridas
 
-1. **`/sdd-cycle`** para tomar **`TASK-TEC-403`** (**nodo 7 de 7**, cierre de la ruta crítica):
-   verifica que `git diff` de `frontend/package.json`, `frontend/package-lock.json` y `backend/`
-   respecto a `e67ba78` está vacío (RX-401). Ya no tiene dependencias pendientes.
+1. **`/sdd-cycle`** para tomar **`TASK-405`** (*Tests de precedencia y de ida y vuelta*, `EP-402`,
+   **Must**, 2 pts, deps `TASK-404` ✅): fuera de ruta crítica; gana a `TASK-403` por el criterio
+   determinista de FASE 5 (Must y menor estimación: 2 < 3).
+2. `TASK-403` (tests de migración y contrato v2, Must, 3 pts) es la siguiente Must de la cola.
+3. `TASK-UI-400`, `TASK-UI-408` y `TASK-UI-417` pueden empezar sin dependencias.
 2. **Antes de `TASK-UI-415`**, resolver `PA-2`: si el dolor de Multigráfico lo causaba el bug de
    selección (`RF-401`), reconsiderar la retirada.
 3. **Antes de `TASK-UI-413`**, cerrar el diagnóstico de `PA-1` (bucket del TF vs hueco de mercado).
@@ -230,3 +234,6 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 | 2026-10-06 | TASK-TEC-401 | 📥 → 🔨 | Inicio de desarrollo (suite completa + medición del cambio de TF + gate, RNF-402/403/404) |
 | 2026-10-06 | TASK-TEC-401 | 🔨 → 👀 | Suites verdes: backend 546/546 + 2 skip · frontend 549/549 en 58 archivos · typecheck, eslint y prettier en verde · `quality_gate --level gate` PASS |
 | 2026-10-06 | TASK-TEC-401 | 👀 → ✅ | DoD verificada: recuentos reales de ambas suites anotados, gate PASS pegado en el AUDIT LOG y medición del cambio de TF registrada en `coverage/tf-switch-measurement.json`. RNF-402 🟢; RNF-404 medido y registrado, con la comparación client-side marcada como no concluyente (D-5, sin umbral bloqueante). Ruta crítica 6/7 |
+| 2026-10-06 | TASK-TEC-403 | 📥 → 🔨 | Inicio de desarrollo (verificación de «sin dependencias nuevas», RX-401) |
+| 2026-10-06 | TASK-TEC-403 | 🔨 → 👀 | Evidencia recogida: `git diff --exit-code e67ba78..HEAD -- frontend/package.json frontend/package-lock.json backend/` = exit 0 y 0 archivos · `quality_gate --level gate` PASS |
+| 2026-10-06 | TASK-TEC-403 | 👀 → ✅ | DoD verificada: el diff de los manifiestos y de `backend/` es **vacío** (ninguna dependencia nueva en el ciclo). RX-401 🟢. **Ruta crítica completa 7/7** |

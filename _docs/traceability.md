@@ -50,7 +50,7 @@ El histórico vivo de los ciclos 01–04 (35 requisitos, con su prueba y su comm
 
 | Requisito | Diseño (ADR/Componente) | Tarea | Prueba | Estado |
 |-----------|-------------------------|-------|--------|--------|
-| RX-401 Sin dependencias nuevas | Verificación de `package.json`, `package-lock.json` y `backend/` (RX-301 del ciclo 04) | TASK-TEC-403 | — | 🔵 |
+| RX-401 Sin dependencias nuevas | Verificación de `package.json`, `package-lock.json` y `backend/` (RX-301 del ciclo 04) | TASK-TEC-403 | TASK-TEC-403 ✅: `git diff --exit-code e67ba78..HEAD -- frontend/package.json frontend/package-lock.json backend/` → **exit 0 y 0 archivos** (diff vacío); ninguna dependencia nueva en todo el ciclo | 🟢 |
 
 ## 6. Modificaciones a requisitos previos
 

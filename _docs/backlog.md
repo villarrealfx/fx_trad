@@ -337,7 +337,7 @@ de RNF-007 asumiendo que el MoSCoW (DP-3) define el orden de recorte si el plazo
 |----|-------|------|------|------|-----|--------|
 | TASK-TEC-401 | Suite completa + medición del cambio de TF + gate de calidad | test | 3 | TASK-UI-405, TASK-UI-412, TASK-UI-414, TASK-UI-416 | Frontend y backend en verde con el recuento real anotado; `quality_gate.py --level gate` **PASS** pegado en el AUDIT LOG; el tiempo de cambio de TF en caliente se mide y se registra (RNF-404) | ✅ |
 | TASK-TEC-402 | Accesibilidad de los tres componentes nuevos | test | 2 | TASK-UI-409, TASK-UI-412 | axe-core sin violaciones en SCR-004 con la operación, el menú y el popover abiertos; recorrido completo **solo con teclado** con foco devuelto; contraste verificado a zoom 200 % (RNF-403) | 📥 |
-| TASK-TEC-403 | Verificación de «sin dependencias nuevas» | test | 1 | TASK-TEC-401 | `git diff` de `frontend/package.json`, `frontend/package-lock.json` y `backend/` respecto a `e67ba78` **vacío** (RX-401) | 📥 |
+| TASK-TEC-403 | Verificación de «sin dependencias nuevas» | test | 1 | TASK-TEC-401 | `git diff` de `frontend/package.json`, `frontend/package-lock.json` y `backend/` respecto a `e67ba78` **vacío** (RX-401) | ✅ |
 
 ## 6. Grafo de dependencias
 
@@ -376,18 +376,18 @@ graph TD
 ## 7. Ruta crítica
 
 ```
-TASK-401 (5) ─▶ TASK-402 (5) ─▶ TASK-UI-403 (5) ─▶ TASK-UI-404 (2) ─▶ TASK-UI-405 (3) ─▶ TASK-TEC-401 (3) ─▶ TASK-TEC-403 (1)
+TASK-401 (5) ─▶ TASK-402 (5) ─▶ TASK-UI-403 (5) ─▶ TASK-UI-404 (2) ─▶ TASK-UI-405 (5) ─▶ TASK-TEC-401 (3) ─▶ TASK-TEC-403 (1)
                      ▲                  ▲
                      │                  └── TASK-404 (3) ─▶ TASK-405 (2)
                      └── TASK-UI-402 (3)
 ```
 
-**7 tareas · 24 puntos.** El tramo que domina el ciclo es `TASK-401 → TASK-402 → TASK-UI-403`:
-tres tareas de **5 puntos** encadenadas (contrato, migración e integración del cambio de escala).
-Es ahí donde conviene descomponer durante la implementación.
+**7 tareas · 26 puntos** (TASK-UI-405 absorbió los 2 pts de TASK-UI-404, cerrada sin código). El
+tramo que dominó el ciclo fue `TASK-401 → TASK-402 → TASK-UI-403`: tres tareas de **5 puntos**
+encadenadas (contrato, migración e integración del cambio de escala).
 
-**Pueden empezar hoy en paralelo** (sin dependencias): `TASK-401`, `TASK-UI-400`, `TASK-UI-402`,
-`TASK-UI-408`, `TASK-UI-413`, `TASK-UI-415` y `TASK-UI-417`.
+**Pueden empezar hoy en paralelo** (sin dependencias): `TASK-UI-400`, `TASK-UI-408` y `TASK-UI-417`;
+`TASK-405` y `TASK-403` ya tienen sus dependencias ✅.
 
 ## 8. Deuda técnica
 
