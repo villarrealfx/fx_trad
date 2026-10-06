@@ -90,7 +90,7 @@ undo/redo y persistencia (RF-307, RF-311). Es exactamente el requisito 7 del ins
 
 ## Referencias
 
-- `_docs/plan.md` — D-3, D-5
+- `_docs/iterations/04-dibujo-referencia-operacion/plan.md` — D-3, D-5 (decisiones del ciclo 04)
 - `_docs/requirements.md` — RF-301…RF-308, RF-311, RNF-301, RNF-302
 - `frontend/src/charting/drawings.ts` (`DRAWING_KINDS`, `OverlayShape`)
 - `frontend/src/charting/overlay-geometry.ts` (`projectShape`, `FIB_LEVELS`)

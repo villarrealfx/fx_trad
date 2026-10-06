@@ -11,7 +11,7 @@
 |---------|------------|-----------|
 | Análisis técnico | Estudio de movimientos de precios con datos históricos para anticipar posibles estrategias | Análisis chartista |
 | Vela japonesa | Representación OHLC (open, high, low, close) en un intervalo temporal, con cuerpo y mechas | Candlestick |
-| Timeframe | Intervalo temporal que agrega cada vela (1 m, 5 m, 15 m, 30 m, 1 h, 4 h, 1 d) | Marco temporal |
+| Timeframe | Intervalo temporal que agrega cada vela (1 m, 5 m, 15 m, 1 h, 4 h, 1 d) | Marco temporal |
 | Base 1m | Serie canónica de velas OHLC de 1 minuto desde la que se derivan los timeframes superiores | Serie base, timeframe base |
 | Resampling | Reagrupación de la base 1 m a timeframes superiores (agregación OHLC) | Remuestreo, downsampling |
 | BID | Precio de compra del mercado; única serie de precios de la base 1 m | Bid price |
@@ -37,6 +37,11 @@
 | Dirección de la operación | Compra (Long) si `Entrada > SL`; Venta (Short) si `Entrada < SL`. Se deduce automáticamente de las anclas | Long/Short, sentido |
 | Referencia 1:1 | Nivel de cálculo `Entrada + R` (o `Entrada − R` en Venta) que representa riesgo y beneficio iguales. **No se dibuja** | Nivel 1.0 |
 | Backtesting manual | Evaluación de una estrategia sobre precio histórico anotando operaciones en el gráfico y leyendo su desenlace. Es el propósito del proyecto desde el ciclo 04 | Simulación manual, paper trading |
+| Selección de gráfico *(nueva en ciclo 05)* | Combinación de activo, timeframe y rango que el usuario está analizando; es estado persistido y recuperable al volver a la pantalla `Gráfico` | Contexto de análisis, sesión de gráfico |
+| Dibujo compartido *(nueva en ciclo 05)* | Dibujo que pertenece al **activo** y se muestra en todos sus timeframes, anclado a sus precios y tiempos | Figura transversal |
+| Cobertura parcial *(nueva en ciclo 05)* | Situación en la que la serie servida no cubre por completo el rango solicitado; es la única que justifica el aviso de cobertura | Rango incompleto |
+| Menú contextual de vela *(nueva en ciclo 05)* | Panel que se abre con clic derecho sobre una vela y muestra su fecha, hora y OHLC | Inspección de vela |
+| Migración v1→v2 *(nueva en ciclo 05)* | Paso del documento de configuración con clave activo+timeframe (v1) al documento por activo (v2), aditivo al leer y sin borrar las claves v1 | Cambio de esquema de configuración |
 
 **Términos obsoletos**
 
@@ -44,6 +49,7 @@
 |---------|--------|
 | Base 1s | Sustituida por la base 1 m (ciclo 02, RNF-102) |
 | Timeframes sub-minuto (30 s, 15 s) | Fuera del dominio de estudio (OUT) |
+| Timeframe 30 m | Nunca existió en el contrato `TIMEFRAMES` ni en la base 1 m; error del glosario corregido en el ciclo 05 (D-6) |
 
 ## Acrónimos
 
@@ -133,8 +139,18 @@
 - **Descripción:** dibujo del overlay que representa una operación de trading con su riesgo y sus objetivos.
 - **Atributos clave:** `id`, `kind`, ancla Entrada (`{time, price}`), ancla SL (`{time, price}`); versión de esquema del documento.
 - **Derivados (no se persisten):** dirección (Compra/Venta), `R`, niveles SL/Entrada/TP 1.382/TP 1.5/TP 2 y sus etiquetas con precio.
-- **Relaciones:** 1..N con Activo por combinación activo+timeframe (vive en la Configuración de gráfico); 0..1 por figura en el Multigráfico.
+- **Relaciones:** 1..N con Activo por combinación activo+timeframe (vive en la Configuración de gráfico); 0..1 por figura en el Multigráfico *(pantalla retirada en el ciclo 05, RF-409)*.
 - **Sensibilidad:** interna (almacenamiento local del navegador, sin PII).
 - **Volumen estimado:** bajo (decenas de operaciones por activo+timeframe).
 - **Retención:** local del navegador; puede limpiarse por el usuario.
 - **Persistencia:** `localStorage` vía `state/chart-config` (ADR-018). El desenlace (cumplido/invalidado) **no se persiste**: se lee del precio.
+
+### Documento de configuración de gráfico v2 *(nuevo en ciclo 05)*
+
+- **Descripción:** estado persistido **por activo** que reúne los dibujos compartidos del activo y su lista de indicadores, con migración aditiva desde los documentos v1 por activo+timeframe.
+- **Atributos clave:** `version: 2`, `symbol`, `drawings` (formas del activo: `line`, `rect`, `fib`, `marker`, `operation`), `indicators` (tipo, parámetros, visibilidad) y la última `selection` (timeframe y rango).
+- **Relaciones:** 1..1 con Activo; contiene N dibujos y N indicadores.
+- **Sensibilidad:** interna (almacenamiento local del navegador, sin PII).
+- **Volumen estimado:** bajo (una entrada por activo; antes una por activo+timeframe).
+- **Retención:** local del navegador; puede limpiarse por el usuario.
+- **Persistencia:** `localStorage` vía `state/chart-config` (ADR-018). Sustituye el modelo por activo+timeframe de RI-201 (decisión D-2); el ADR que lo formaliza se decide en `/sdd-stack`. Los documentos v1 **se conservan** como respaldo de la migración (RNF-401).

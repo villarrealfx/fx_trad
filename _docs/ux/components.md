@@ -1,117 +1,119 @@
-# Inventario de Componentes — Ciclo 04 (Dibujo Referencia de Operación)
+# Inventario de Componentes — Ciclo 05 (Mejoras UX del Gráfico y Cierre de Deuda)
 
 > Nombres en inglés, labels visibles en español. Base:
-> `_docs/iterations/03-mejoras-ux/ux/components.md` (CMP-001…020) e
-> `_docs/iterations/01-mvp/ux/components.md`.
-> **Este ciclo no modifica ningún componente existente**: reutiliza CMP-009 (con una
-> variante más), CMP-018, CMP-019 y CMP-020, y añade dos nuevos.
+> `_docs/iterations/04-dibujo-referencia-operacion/ux/components.md`.
+> Este ciclo **añade tres componentes** (CMP-023…025), **retira una variante** (CMP-007 `sync`) y
+> deja uno sin uso en producción (CMP-011 Tab). Los CMP-021/022 de la operación no cambian.
 
-## Componentes heredados (sin cambios)
+## Componentes heredados
 
 | ID | Componente | Variantes | Nota en este ciclo |
 |----|------------|-----------|--------------------|
-| CMP-001 | Button | primary, ghost, icon | sin cambios |
-| CMP-002 | Input | text, date | sin cambios |
+| CMP-001 | Button | primary, ghost, icon | sin cambios; `Aplicar`/`Cancelar` del popover y `Precios` |
+| CMP-002 | Input | text, date | **ampliado**: variante numérica (`inputMode="decimal"`, 5 decimales) dentro de CMP-025 |
 | CMP-003 | Select | — | sin cambios |
-| CMP-004 | RadioGroup | inline | sin cambios |
+| CMP-004 | RadioGroup | inline | sin cambios; patrón que sigue CMP-023 |
 | CMP-005 | DateRange | — | sin cambios |
 | CMP-006 | AssetList | — | sin cambios |
-| CMP-007 | ChartPane | single, sync | sin cambios (dentro vive el overlay) |
-| CMP-008 | ChartToolbar | — | sin cambios; recibe una herramienta más |
-| CMP-009 | DrawTool | **+ operación** | **única extensión**: una variante y su descriptor |
+| CMP-007 | ChartPane | single ~~, sync~~ | **se retira la variante `sync`** con las props `sync`/`syncId` (ADR-029) |
+| CMP-008 | ChartToolbar | — | sin cambios |
+| CMP-009 | DrawTool | + operación | sin cambios |
 | CMP-010 | IndicatorItem | overlay, panel | sin cambios |
-| CMP-011 | Tab | — | sin cambios |
-| CMP-012 | StatusBanner | success, error, warning | sin cambios |
+| CMP-011 | Tab | — | **pierde su uso en producción** al retirarse SCR-005; se conserva como componente del kit (con tests) |
+| CMP-012 | StatusBanner | success, error, warning | sin cambios; **cambia la condición** que dispara el aviso de cobertura (RF-402), no el componente |
 | CMP-013 | ProgressBar | determinate | sin cambios |
-| CMP-014 | Modal | export, confirm | sin cambios |
+| CMP-014 | Modal | export, confirm | sin cambios; **bajo evaluación** con SCR-006 (RF-411) |
 | CMP-015 | Toast | success, error | sin cambios |
 | CMP-016 | IndicatorForm | popover | sin cambios |
-| CMP-017 | ChartHeader | — | sin cambios |
-| CMP-018 | DrawingHandle | endpoint, midpoint | **reutilizado**: los 2 handles de la operación son endpoints |
-| CMP-019 | EditableDrawing | + operación | **reutilizado**: misma edición, command stack y persistencia |
-| CMP-020 | LiveRegion | polite, assertive | **reutilizado**: es quien anuncia los valores de la operación |
+| CMP-017 | ChartHeader | — | **ampliado**: aloja CMP-023 a la izquierda del botón de Indicadores |
+| CMP-018 | DrawingHandle | endpoint, midpoint | sin cambios |
+| CMP-019 | EditableDrawing | + operación | sin cambios |
+| CMP-020 | LiveRegion | polite, assertive | sin cambios; **anuncia también** los cambios hechos por CMP-025 |
+| CMP-021 | OperationDrawing | buy, sell, zeroRisk | sin cambios |
+| CMP-022 | OperationLabels | anchored, displaced | sin cambios; deja de tener uso en Multigráfico (retirada) |
 
 ## Componentes nuevos
 
 | ID | Componente | Variantes | Props clave | Estados | Usado en |
 |----|------------|-----------|-------------|---------|----------|
-| **CMP-021** | **OperationDrawing** | `buy`, `sell`, `zeroRisk` | `from` (PrecioTimePoint), `to` (PrecioTimePoint), `selected`, `preview`, `onChange`, `onSelect` | default, selected, preview, zeroRisk, dragging | SCR-004, SCR-005 |
-| **CMP-022** | **OperationLabels** | `anchored`, `displaced` | `levels` (5 derivados), `mapper` (precio→y), `minGap`, `offset` | default, displaced (con guía), hidden (zeroRisk) | SCR-004, SCR-005 |
+| **CMP-023** | **TimeframeSelector** | `segmented` | `value: Timeframe`, `options: Timeframe[]`, `disabled`, `onChange` | default, hover, focus, active, disabled | SCR-004 |
+| **CMP-024** | **CandleContextMenu** | `candle` | `candle: Candle`, `anchor: {x, y}`, `onClose` | open, closing, repositioned, closed | SCR-004 |
+| **CMP-025** | **OperationNumericFields** | `popover` | `entry: number`, `stopLoss: number`, `decimals = 5`, `onApply`, `onCancel` | idle, editing, invalid, committed | SCR-004 |
 
-### CMP-021 · OperationDrawing
+### CMP-023 · TimeframeSelector
 
-Dibuja la figura completa: 5 líneas horizontales con el color de su nivel, 5 etiquetas vía
-`OperationLabels`, y los 2 handles vía `DrawingHandle` cuando está seleccionada.
+Control segmentado con **un solo TF activo** a la vez (RF-406).
 
-- **Props de contrato:**
-  - `from` / `to`: `PriceTimePoint` — `from` es **Entrada**, `to` es **SL**. Es el único
-    estado propio de la figura; todo lo demás es derivado (ADR-022, RI-301).
-  - `selected`: activa handles y contorno.
-  - `preview`: dibuja la figura en construcción; **solo render**, nunca seleccionable ni
-    persistido.
-  - `zeroRisk`: `from.price === to.price` → solo se dibujan SL y Entrada (que coinciden) y
-    **se ocultan los 3 TP**. Sin marca persistida (ADR-023).
-- **Deriva internamente** (función pura, en `operation-geometry`): `direction`, `risk`,
-  `levels[5]`, `levelColors`.
-- **Hereda de CMP-019:** edición por arrastre, `Shift` H/V, target ≥24 px, command stack de
-  undo/redo, serialización para persistencia.
+- **Opciones:** exactamente `TIMEFRAMES` (`1m, 5m, 15m, 1h, 4h, 1d`); no se inventan TF. `30 m`
+  queda fuera del glosario (D-6).
+- **Contrato de accesibilidad:** `role="radiogroup"` + `aria-label="Timeframe"`; cada opción es un
+  `radio` con `aria-checked`; flechas ←/→ y `Home`/`End` mueven la selección; target mínimo 44×44 px.
+- **Estado `disabled`:** mientras el gráfico está en `loading` o `switching-tf`, para no encadenar
+  cambios de serie.
+- **No confirma ni descarta:** el cambio es reversible y no destructivo (los dibujos pertenecen al
+  activo, ADR-027).
 
-### CMP-022 · OperationLabels
+### CMP-024 · CandleContextMenu
 
-Fija las 5 etiquetas y resuelve su solape (ADR-025, RNF-301).
+Panel flotante con el dato exacto de una vela (RF-408).
 
-- **Algoritmo (contrato, ver ADR-025):** cada etiqueta arranca en la `y` proyectada de su
-  línea; de arriba abajo se empuja cada una lo necesario para respetar `minGap` (20 px); si
-  la última se sale por debajo, el reparto se corrige desde el final. Toda etiqueta cuya
-  `y` final difiera de la de su línea dibuja **línea guía** de `opLeaderWidth`.
-- **Chip:** fondo `color-surface` opaco, `radius-sm`, padding `2px 4px`, sin borde;
-  nombre en `color-text-muted`, precio en el color del nivel con `font-num` tabular,
-  a 5 decimales.
-- **Contrato de datos:** `mapper` de precio a píxel **por pane**, para que la separación
-  mínima se cumpla pane a pane en Multigráfico.
+- **Contenido:** cabecera `fecha · hora` y las cuatro cifras OHLC en dos columnas, a 5 decimales
+  con `font-num` tabular (misma fuente de formato que el eje y la leyenda).
+- **Apertura:** clic derecho sobre una vela. **No sustituye** la leyenda inferior `🎯`: la leyenda
+  sigue al cursor; el menú **fija** una vela.
+- **Cierre:** `Escape`, clic fuera o al cambiar de TF; el foco vuelve al gráfico.
+- **Reposicionamiento:** si el panel no cabe en el viewport se desplaza (estado `repositioned`);
+  **nunca** recorta el dato.
+- **Rendimiento:** fondo y sombra estáticos, sin desenfoque (`backdrop-filter`), para no
+  comprometer los 60 FPS (RNF-403).
 
-## Tokens que consumen los componentes nuevos
+### CMP-025 · OperationNumericFields
 
-| Token | Origen | Dónde se usa |
-|-------|--------|--------------|
-| `drawOpSl` / `drawOpEntry` / `drawOpTp` | `COLOR_TOKENS` (tokens.ts + tokens.css) | Color de línea y de precio de etiqueta, según nivel |
-| `opLabelMinGap` / `opLabelOffset` / `opLabelPadX` / `opLabelPadY` / `opLabelRadius` | `OPERATION_TOKENS` | Geometría del chip |
-| `opHitRadius` | `OPERATION_TOKENS` | Radio de hit-test por línea |
-| `opLeaderWidth` | `OPERATION_TOKENS` | Línea guía |
-| `opTPMultipliers` | `OPERATION_TOKENS` | `[1.382, 1.5, 2]` |
-| `font-small` / `font-num` | `TYPOGRAPHY_TOKENS` | Nombre y precio de etiqueta |
-| `color-surface` / `color-text-muted` / `color-text` | `COLOR_TOKENS` | Fondo y texto del chip |
+Popover anclado a la figura seleccionada con Entrada y SL por teclado (RF-410).
 
-`OPERATION_TOKENS` sigue el patrón ya establecido por `AXIS_TOKENS` (RF-206/207) y
-`MARKER_TOKENS` (RF-208): **los tokens de formato también viven en `tokens.ts`**, porque el
-canvas no puede leer `var()` de CSS.
+- **Apertura:** botón «Precios» con la figura seleccionada, o doble clic sobre la etiqueta de un
+  nivel. Se ancla a la figura, no a la pantalla.
+- **Campos:** dos `Input` numéricos con **label visible** (`Entrada`, `Stop Loss`), `inputMode`
+  decimal y la precisión del activo (5 decimales; admite el separador local).
+- **Validación:** valor no numérico o `Entrada == SL` con `R = 0` → error **inline** asociado al
+  campo (`role="alert"`), botón `Aplicar` deshabilitado. Nunca un alert del navegador.
+- **Aplicar:** `Enter` confirma, `Tab` pasa de Entrada a SL, `Escape` cancela y devuelve el foco a
+  la figura. La mutación pasa por el command stack (`Ctrl+Z` la revierte) y se anuncia en
+  `LiveRegion` con el mismo formato que el resto de mutaciones (CMP-020).
+- **Por qué un popover y no campos fijos:** no roba alto al gráfico (RNF-403 y eficiencia de
+  pantalla) y mantiene el foco donde está el trabajo.
 
 ## Reglas de composición
 
-Se heredan todas las del ciclo 03, y se añaden:
+Se heredan todas las del ciclo 04 y se añaden:
 
-- **Una etiqueta de nivel nunca se dibuja sin su línea guía** si ha sido desplazada: sin
-  guía, la asociación etiqueta↔nivel es ambigua.
-- **El color nunca es el único portador de información**: los tres TP comparten verde y se
-  distinguen por el nombre de su etiqueta.
-- **Toda mutación de una operación anuncia sus valores** en `LiveRegion`; el texto sale de
-  la misma función pura que dibuja los niveles, así que no puede desincronizarse.
-- `OperationDrawing` **no** implementa hit-testing propio: usa el de `overlay-geometry` con
-  `opHitRadius` por línea, igual que `fib`.
-- Ningún color se escribe literal en el componente: todo pasa por tokens (RNF-204/305).
+- **Ningún `Button` sin label visible o `aria-label`**; ningún `Input` solo con placeholder: los
+  campos de CMP-025 llevan `label` visible.
+- **Errores inline, nunca en `alert`**: el popover numérico marca el campo y asocia el mensaje.
+- **Todo panel flotante atrapa el foco al abrir y lo devuelve al cerrar** (CMP-024 y CMP-025), y
+  se cierra con `Escape`.
+- **El color nunca es el único portador de información** (heredada): el TF activo se marca con
+  color **y** con `aria-checked`/forma; los niveles con su etiqueta.
+- **Ningún color se escribe literal en el componente**: todo pasa por tokens (RNF-204/305),
+  incluida la línea de eje corregida (`color-draw-line`).
 
 ## Contratos de datos que estos componentes consumen
 
-- `PriceTimePoint` (`{time, price}`) — `time` en segundos UTC (RNF-004).
-- `CoordinateMapper` del pane (precio→píxel) — el mismo que consume `fib`.
-- `localStorage` `fxtrad.chart.v{n}.{symbol}.{timeframe}` → `{version, indicators, drawings}`;
-  la operación entra en `drawings` **sin campos nuevos** (ADR-023).
+- `Candle` (`{time, open, high, low, close}`) — `time` en segundos UTC (RNF-004): lo consume
+  CMP-024.
+- `Timeframe` = los valores de `TIMEFRAMES` (`contracts/ohlc.ts`): los consume CMP-023.
+- `PriceTimePoint` (`{time, price}`) — ancla de los dibujos; es lo que permite verlos en cualquier
+  TF (ADR-027).
+- **Documento v2** en `localStorage`, clave `fxtrad.chart.v2.{symbol}`:
+  `{version: 2, symbol, drawings, indicators, selection}` (ADR-027). Sustituye al documento por
+  activo+TF del ciclo 04.
+- **Selección** `{timeframe, start?, end?}` dentro del documento v2 (ADR-028); precedencia
+  URL > persistido > defecto.
 
 ## Componentes pendientes de definir
 
-- **Entrada numérica de Entrada/SL** (formulario): daría ruta por teclado y precio exacto al
-  pip. **Fuera de alcance de este ciclo** — ningún RF lo pide; requiere requisitos propios.
-  Registrado en `user-journeys.md` §Brechas y `design-system.md` §7.
-- **Leyenda / panel de resumen de la operación**: los valores ya salen por `LiveRegion`
-  (accesibilidad), pero no hay equivalente visual para usuario sin lector de pantalla.
-  Descartado en este ciclo por OE-3 (no tocar lo existente) y RNF-007.
+- **Panel visual de resumen de la operación:** los valores salen por `LiveRegion` y por las
+  etiquetas del canvas, pero no hay equivalente visual permanente. **Fuera de alcance**: ningún RF
+  lo pide (`design-system.md` §7).
+- **Sustituta de Multigráfico:** no se define; volver a tener comparación multi-activo exige un
+  requisito nuevo (`RF-W-404`).

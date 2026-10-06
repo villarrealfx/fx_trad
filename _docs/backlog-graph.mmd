@@ -1,22 +1,52 @@
-graph LR
-  subgraph cerrado["Ciclo 04 — cerrado y archivado"]
+graph TD
+  subgraph c04["Ciclo 04 — cerrado y archivado"]
+    direction LR
     T301[TASK-301] --> T303[TASK-303]
     T302[TASK-302] --> T303
-    T301 --> T304[TASK-304]
-    T304 --> T305[TASK-305]
+    T301 --> T304[TASK-304] --> T305[TASK-305]
     UI300[TASK-UI-300] --> UI301[TASK-UI-301]
-    UI300 --> UI311[TASK-UI-311]
-    UI311 --> UI312[TASK-UI-312]
-    UI311 --> UI313[TASK-UI-313]
-    UI313 --> UI314[TASK-UI-314]
-    UI314 --> UI315[TASK-UI-315]
+    UI300 --> UI311[TASK-UI-311] --> UI312[TASK-UI-312]
+    UI311 --> UI313[TASK-UI-313] --> UI314[TASK-UI-314] --> UI315[TASK-UI-315]
     UI311 --> UI321[TASK-UI-321]
     TEC300[TASK-TEC-300] --> TEC301[TASK-TEC-301]
   end
 
-  subgraph c05["Ciclo 05 — abierto"]
-    T302d[TECH-302<br/>contraste drawLine]:::debt
-    T303d[TECH-303<br/>entrada numérica]:::debt
+  subgraph c05["Ciclo 05 — mejoras UX del gráfico y cierre de deuda"]
+    direction LR
+    UI400[TASK-UI-400<br/>tokens drawLine + eje] --> UI406[TASK-UI-406<br/>eje dos filas]
+    UI400 --> UI401[TASK-UI-401<br/>tests tokens]
+    UI406 --> UI407[TASK-UI-407<br/>tests eje]
+
+    T401[TASK-401<br/>contrato v2] --> T402[TASK-402<br/>migracion]
+    T401 --> T404[TASK-404<br/>seleccion]
+    T401 --> UI410[TASK-UI-410<br/>popover numerico]
+    T402 --> T403[TASK-403<br/>tests migracion]
+    T402 --> UI403[TASK-UI-403<br/>integracion TF]
+    T404 --> T405[TASK-405<br/>tests seleccion]
+    T404 --> UI403
+    UI402[TASK-UI-402<br/>selector TF] --> UI403
+    UI403 --> UI404[TASK-UI-404<br/>indicadores por TF] --> UI405[TASK-UI-405<br/>tests escala]
+
+    UI408[TASK-UI-408<br/>menu contextual] --> UI409[TASK-UI-409<br/>tests menu]
+    UI410 --> UI411[TASK-UI-411<br/>undo + LiveRegion] --> UI412[TASK-UI-412<br/>tests popover]
+
+    UI413[TASK-UI-413<br/>condicion cobertura] --> UI414[TASK-UI-414<br/>tests cobertura]
+    UI415[TASK-UI-415<br/>retirada Multigrafico] --> UI416[TASK-UI-416<br/>limpieza tests]
+    UI417[TASK-UI-417<br/>evaluar Exportar]
+
+    UI405 --> TEC401[TASK-TEC-401<br/>suite + medicion]
+    UI412 --> TEC401
+    UI414 --> TEC401
+    UI416 --> TEC401
+    TEC401 --> TEC403[TASK-TEC-403<br/>sin dependencias]
+    UI409 --> TEC402[TASK-TEC-402<br/>a11y + teclado]
+    UI412 --> TEC402
+  end
+
+  subgraph debt["Deuda fuera del ciclo 05"]
+    TECH305[TECH-305<br/>motivos de waiver]:::debt
+    TECH306[TECH-306<br/>límites de tamaño]:::debt
+    TECH307[TECH-307<br/>contrato de logging]:::debt
   end
 
   classDef debt fill:#1f6feb22,stroke:#1f6feb,color:#e6edf3

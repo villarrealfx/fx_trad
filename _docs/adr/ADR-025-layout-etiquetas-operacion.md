@@ -90,7 +90,7 @@ introduce ningún valor tipográfico ni cromático nuevo.**
 
 ## Referencias
 
-- `_docs/plan.md` — D-4, D-5, D-7
+- `_docs/iterations/04-dibujo-referencia-operacion/plan.md` — D-4, D-5, D-7 (decisiones del ciclo 04)
 - `_docs/requirements.md` — RF-308, RF-309, RNF-301
 - `frontend/src/charting/operation-geometry.ts` (nuevo) — `layoutOperationLabels`
 - `frontend/src/charting/overlay-geometry.ts` — `projectShape`, mapeo de precio a `y`

@@ -1,67 +1,39 @@
-# SCR-005: Multigráfico sincronizado
+# SCR-005: Multigráfico — **PANTALLA RETIRADA**
 
-- **Persona:** P-001
-- **RF:** RF-310 (la operación está disponible en cada pane) + los RF heredados de SCR-004
-- **Journey:** J-010, y extensión de J-005
-- **Prioridad:** Should
-- **Cambio en el ciclo 04:** **ninguna pantalla nueva**; cada pane hereda la herramienta y
-  el contrato visual de SCR-004 sin trabajo adicional (mismo componente `ChartPane`).
+- **Estado:** ❌ **Retirada en el ciclo 05** por RF-409 y ADR-029.
+- **Fecha de retirada:** 2026-10-06
+- **Decisión:** `_docs/adr/ADR-029-retirada-multigrafico.md` (D-3 de `_docs/session-handoff.md`)
+- **Requisito modificado:** `RF-310` (ciclo 04) pasa de «la Operación está disponible en Gráfico
+  **y** en Multigráfico» a «la Operación está disponible en **Gráfico**».
 
-## Wireframe (ASCII)
+## Qué se retira
 
-```
-┌────────────────────────────────────────────────────────────────────────────┐
-│ EUR/USD · 1h  [◆ Indicadores] [⤓ Exportar]                                │
-│ [✏️][▭][Φ][◎][▲][▼][🗑][↶][↷]      ← la misma paleta en CADA pane           │
-├─────────────────────────────────────┬──────────────────────────────────────┤
-│ ┌ pane 1 · 1h ────────────────────┐ │ ┌ pane 2 · 4h ────────────────────┐  │
-│ │                        ┌──────┐│ │ │                        ┌──────┐│  │
-│ │                        │TP 2  ││ │ │                        │TP 2  ││  │
-│ │              ┌─────────┴──────┘│ │ │              ┌─────────┴──────┘│  │
-│ │              │ ┌──────────────┐│ │ │              │ ┌──────────────┐│  │
-│ │              │ │TP 1.5        ││ │ │              │ │TP 1.5        ││  │
-│ │              │ └──────┬───────┘│ │ │              │ └──────┬───────┘│  │
-│ │              │ ┌──────┴───────┐│ │ │              │ ┌──────┴───────┐│  │
-│ │              │ │TP 1.382      ││ │ │              │ │TP 1.382      ││  │
-│ │              │ └──────┬───────┘│ │ │              │ └──────┬───────┘│  │
-│ │              │        ┌┴───────┐│ │ │              │        ┌┴───────┐│  │
-│ │              │ │Entrada 1.10000││ │ │              │ │Entrada 1.10000││  │
-│ │              │ └──────────────┘│ │ │              │ └──────────────┘│  │
-│ │              │        ┌────────┐│ │ │              │        ┌────────┐│  │
-│ │              │ │SL     1.09500││ │ │              │ │SL     1.09500││  │
-│ │              │ └──────────────┘│ │ │              │ └──────────────┘│  │
-│ │  ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈ │ │  ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈ │  │
-│ │  1 00:00     00:15    00:30   │ │  1 00:00     00:15    00:30     │  │
-│ └──────────────────────────────┘ │ └──────────────────────────────┘  │
-├─────────────────────────────────────┴──────────────────────────────────────┤
-│ [ + Añadir gráfico ]                                                       │
-└────────────────────────────────────────────────────────────────────────────┘
-```
+| Elemento | Acción |
+|----------|--------|
+| Ruta `/multichart` y `SCR-005` del tipo `ScreenId` | Se eliminan de `frontend/src/app/routes.ts` |
+| Entrada «Multigráfico» de la navegación | Se elimina de `AppShell` (vía `ROUTES`) |
+| `components/MultiChart/` (`.tsx`, `.css`, `__tests__/`) | Se elimina la carpeta |
+| `charting/chart-sync.ts` y su test | Se eliminan: `MultiChart` era su **único** consumidor de producción |
+| Props `sync` / `syncId` de `ChartPane` | Se eliminan con su efecto asociado y sus 2 tests |
+| `CMP-011 Tab` | **Pierde su uso en producción**; se conserva como componente del kit (con tests) |
 
-- Cada pane es un `ChartPane` con su propia barra de herramientas: la herramienta
-  `◎` está en todas (RF-310, D-7 de `plan.md`).
-- Las etiquetas de un pane se posicionan con **su propio** mapeo de precio→píxel, así que
-  la separación mínima (20 px) se cumple pane a pane, no de forma global.
-- La figura es una por pane; la configuración persiste por activo+timeframe, así que cada
-  pane conserva la suya al cambiar de hoja (RF-311).
+## Por qué se retira
 
-## Estados
+La pantalla no aportaba una experiencia cómoda y dificultaba el análisis (`cycle_05.md` §2.d). El
+diseño alternativo (consolidar los dibujos en un documento por activo, ADR-027) hace innecesario
+comparar escalas en paneles sincronizados: el mismo dibujo está en todos los timeframes del activo
+con un solo gráfico.
 
-Idénticos a SCR-004 por pane (loading, empty, error, success, partial, `pending`,
-`zeroRisk`, `selected`), más los propios del multigráfico heredados:
+**Nota de riesgo (PA-2):** parte del malestar podía venir del bug de selección (RF-401). Si al
+arreglarlo cambiara el juicio, la retirada debe reconsiderarse **antes** de ejecutar la tarea.
 
-- **loading:** panes en skeleton; "añadir" deshabilitado hasta el primer pane.
-- **error:** retry **individual** por pane; los demás siguen operativos.
-- **partial:** pane con cobertura reducida → operativo + aviso de cobertura.
+## Histórico
 
-## Componentes usados
+El boceto completo de la pantalla, sus estados y sus notas de accesibilidad están archivados en
+`_docs/iterations/04-dibujo-referencia-operacion/ux/wireframes/SCR-005-multigrafico.md` y no se
+mantienen aquí: una pantalla retirada no debe seguir describiéndose como vigente (S-12).
 
-Tab, ChartHeader, ChartToolbar, DrawTool (**+ `operación`**), ChartPane (variante `sync`),
-OverlayCanvas (**+ `OperationDrawing`**, **+ `OperationLabels`**), DrawingHandle, LiveRegion.
+## Sustituta
 
-## Notas de accesibilidad
-
-- Igual que SCR-004: `aria-pressed` en la herramienta, `LiveRegion` anuncia los valores de
-  cada mutación, colores acompañados de etiqueta.
-- El pane con la figura tiene un nombre accesible propio en el `tablist`, para que el
-  lector de pantalla distinga de qué pane se trata el anuncio.
+**Ninguna.** El análisis multi-activo, si vuelve a hacer falta, será un requisito nuevo
+(`RF-W-404`).

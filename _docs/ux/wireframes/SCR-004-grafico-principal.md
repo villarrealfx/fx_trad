@@ -1,97 +1,145 @@
 # SCR-004: Gráfico principal
 
 - **Persona:** P-001
-- **RF:** RF-301, RF-302, RF-303, RF-304, RF-305, RF-306, RF-307, RF-308, RF-309, RF-310,
-  RF-311, RF-312 (+ RF-209 extendido por los colores semánticos)
-- **Journey:** J-008, J-009, J-010 (extiende J-003, J-005)
+- **RF:** RF-401, RF-402, RF-403, RF-404, RF-405, RF-406, RF-407, RF-408, RF-410
+  (+ RF-301…312 heredados del ciclo 04)
+- **Journey:** J-011, J-012, J-013 (+ J-002 y J-009 extendidos; J-008, J-010 vigentes)
 - **Prioridad:** Must
-- **Cambio en el ciclo 04:** nueva herramienta "Operación" y su figura de 5 niveles.
-  El resto de la pantalla **no cambia** (heredado del ciclo 03).
+- **Cambio en el ciclo 05:** el gráfico deja de resetear la selección y de ser una jaula por
+  timeframe. Se añaden el **selector de TF**, el **eje X en dos filas**, el **menú contextual de
+  vela** y el **popover numérico** de Entrada/SL. La paleta de dibujo y la figura Operación **no
+  cambian** (heredadas del ciclo 04).
 
-## Wireframe (ASCII)
+## Wireframe (ASCII) — estado normal
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────┐
-│ EUR/USD · 1h  [◆ Indicadores] [⤓ Exportar] [⟲ Ajustar]                    │
-│ [✏️][▭][Φ][◎][▲][▼][🗑][↶][↷]      ← "Operación" tras Fibonacci          │
+│ EUR/USD   [1m][5m][◉15m][1h][4h][1d]   [◆ Indicadores] [⤓ Exportar] [⟲]    │
+│ [✏️][▭][Φ][◎][▲][▼][🗑][↶][↷]      ← paleta heredada; "Operación" tras Φ    │
 ├────────────────────────────────────────────────────────────────────────────┤
-│  ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈ │
 │                                          ╎┌──────────────────────┐        │
 │                                          ╎│ TP 2      1.11000   │        │
 │                                          ╎└───────────┬──────────┘        │
-│                                          ╎      ┌─────┘                  │
 │                                          ╎┌─────┴──────────────────┐      │
 │                                          ╎│ TP 1.5    1.10750     │      │
 │                                          ╎└───────────┬──────────┘      │
-│ ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈ │
 │                                          ╎┌───────────┴────────────────┐  │
 │                                          ╎│ TP 1.382   1.10691        │  │
 │                                          ╎└───────────┬────────────────┘  │
-│                                          ╎      ┌─────┘                   │
-│ ● Entrada ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┌┴──────────────────────┐ │
-│          ╎                              │ Entrada  1.10000          │ │
-│   ◆ handle SL                          └────────────────────────────┘ │
-│ ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈ │
-│                                          ╎                             │
+│ ● Entrada ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┌┴──────────────────────┐ │
+│   ◆ handle SL                            │ Entrada  1.10000          │ │
+│                                          └────────────────────────────┘ │
 │                                          ╎┌───────────────────────────┐ │
 │                                          ╎│ SL        1.09500        │ │
 │                                          ╎└───────────────────────────┘ │
 │         └───┬──────┬──────┬──────┬──────┬──────┬──────┬──────────┬──     │
-│     1 00:00  00:15  00:30  00:45  24:00  24:45  2 00:00                │
-│ 🎯 05-03 14:00 UTC  O 1.10000  H 1.10300  L 1.09850  C 1.10120          │
+│          18-nov-25   18-nov-25   18-nov-25   18-nov-25   18-nov-25  ← fila fecha
+│           00:00        00:15       00:30       00:45       01:00    ← fila hora
+│ 🎯 18-nov-25 00:15 UTC  O 1.10000  H 1.10300  L 1.09850  C 1.10120      │
 └────────────────────────────────────────────────────────────────────────────┘
 ```
 
-- **Las 5 líneas van de extremo a extremo** (decisión D-2): son niveles de precio, y para
-  leer el desenlace (RF-312) tienen que cruzar toda la vista.
-- **Etiquetas** a la derecha del 2º ancla, con separación mínima y **línea guía** (`╎┬┴┌┘`)
-  en las desplazadas. En el caso peor (zoom de 2 años) los niveles caen a ~14 px y sin
-  guía no se sabría qué etiqueta va con qué línea.
-- **Orden de las etiquetas:** por precio de mayor a menor (TP 2, TP 1.5, TP 1.382, Entrada, SL).
-- **Colores:** SL `#EF5350`, Entrada `#E6EDF3`, TP `#26A69A` (los tres TP comparten verde).
-- **Handles:** ● Entrada y ◆ SL, target ≥24 px, `Shift` restringe H/V.
+## Wireframe (ASCII) — menú contextual de vela (CMP-024)
+
+```
+┌────────────────────────────────────────────────────────────────────────────┐
+│ EUR/USD   [1m][5m][◉15m][1h][4h][1d]   [◆ Indicadores] [⤓ Exportar] [⟲]    │
+├────────────────────────────────────────────────────────────────────────────┤
+│                        ┌──────────────────────────────┐                    │
+│                        │ 18-nov-25 · 00:15            │  ← foco atrapado   │
+│   ┈┈┈┈┈┈┈┈ Entrada ┈┈┈ │ O 1.10000    H 1.10300       │                    │
+│   ┈┈┈┈┈┈┈┈ SL ┈┈┈┈┈┈┈ │ L 1.09850    C 1.10120       │                    │
+│                        └──────────────────────────────┘                    │
+│         └───┬──────┬──────┬──────┬──────┬──────┬──────┬──────────┬──       │
+│          18-nov-25   18-nov-25   18-nov-25   18-nov-25   18-nov-25         │
+│           00:00        00:15       00:30       00:45       01:00           │
+│ 🎯 18-nov-25 00:15 UTC  O 1.10000  H 1.10300  L 1.09850  C 1.10120         │
+└────────────────────────────────────────────────────────────────────────────┘
+```
+
+## Wireframe (ASCII) — popover numérico de Entrada/SL (CMP-025)
+
+```
+┌────────────────────────────────────────────────────────────────────────────┐
+│ EUR/USD   [1m][5m][◉15m][1h][4h][1d]   [◆ Indicadores] [⤓ Exportar] [⟲]    │
+├────────────────────────────────────────────────────────────────────────────┤
+│                     ┌───────────────────────────────┐                      │
+│   ● Entrada ┈┈┈┈┈┈┈┈│ Precios de la operación       │  ← anclado a la      │
+│                     │ Entrada [1.10000        ]     │    figura seleccionada│
+│   ◆ SL ┈┈┈┈┈┈┈┈┈┈┈┈│ Stop Loss [1.09500      ]     │                      │
+│                     │ [ Aplicar ]  [ Cancelar ]     │                      │
+│                     └───────────────────────────────┘                      │
+│         └───┬──────┬──────┬──────┬──────┬──────┬──────┬──────────┬──       │
+│          18-nov-25   18-nov-25   18-nov-25   18-nov-25   18-nov-25         │
+│           00:00        00:15       00:30       00:45       01:00           │
+│ 🎯 18-nov-25 00:15 UTC  O 1.10000  H 1.10300  L 1.09850  C 1.10120         │
+└────────────────────────────────────────────────────────────────────────────┘
+```
+
+- **Selector de TF (`CMP-023`)** en `ChartHeader`, a la izquierda de Indicadores: `radiogroup`
+  con un único TF activo, valores de `TIMEFRAMES` (`1m, 5m, 15m, 1h, 4h, 1d`).
+- **Eje X en dos filas (`RF-407`)**: fila superior `dd-mmm-aa`, fila inferior `hh:mm`
+  (`AXIS_TOKENS.xFormatTop` / `xFormatBottom`, `axisRowGap` = 12 px). La franja del eje crece de
+  28 px a ~40 px y el canvas cede ese alto; no hay scroll ni solape.
+- **Menú contextual (`CMP-024`)**: clic derecho sobre una vela. **No sustituye** la leyenda
+  inferior `🎯`: la leyenda sigue la posición del cursor, el menú **fija** una vela.
+- **Popover numérico (`CMP-025`)**: con una figura seleccionada, botón «Precios» (o doble clic
+  sobre la etiqueta de un nivel). Dos campos con la precisión del activo (5 decimales).
+- **Los dibujos no se mueven al cambiar de TF**: su ancla es `(tiempo, precio)` (ADR-027).
 
 ## Estados
 
-- **loading:** *(heredado)* skeleton de velas; toolbar deshabilitada.
+- **loading:** *(heredado)* skeleton de velas; toolbar y selector de TF deshabilitados.
 - **empty:** *(heredado)* sin datos en el rango → overlay "Sin datos en este periodo".
-- **error:** *(heredado)* fallo de serie → banner + "Reintentar"; la figura y la selección
-  se conservan intactas.
-- **success:** *(heredado)* velas + ejes (X `{día} {HH:mm}`, Y 5 decimales a la derecha);
-  operación con 5 niveles y etiquetas legibles; 60 FPS.
-- **partial:** *(heredado)* gaps legítimos removidos; aviso de cobertura recortada.
-- **`pending` (nuevo):** tras el 1er clic, preview en vivo de los 5 niveles siguiendo al
-  ratón; solo-render (no seleccionable, no persistido). `Escape` anula.
-- **`zeroRisk` (nuevo):** si `Entrada == SL` (R = 0), solo se dibujan SL y Entrada, se
-  ocultan los 3 TP y la etiqueta indica `R = 0`. Sin marca persistida.
-- **`selected` (nuevo):** figura seleccionada → handles visibles + contorno; `Delete` borra
-  la figura completa; `Ctrl+Z` deshace.
+- **error:** *(heredado)* fallo de serie → banner + "Reintentar"; la figura y la selección se
+  conservan intactas.
+- **success:** *(heredado)* velas + ejes. **Cambia en el ciclo 05:** el eje X se dibuja en dos
+  filas y el TF activo aparece marcado en el selector.
+- **partial:** *(modificado, RF-402)* el aviso «La cobertura disponible es menor al rango
+  solicitado» aparece **solo** si faltan velas dentro del rango pedido; si el desfase es el
+  redondeo al bucket del TF o un hueco de mercado fuera del rango, **no hay aviso**.
+- **`switching-tf` (nuevo):** cambio de TF en curso → skeleton de velas conservando los dibujos
+  en pantalla; el selector marca el TF destino y queda deshabilitado hasta terminar.
+- **`pending` / `zeroRisk` / `selected`:** *(heredados del ciclo 04, sin cambios)* preview en
+  vivo, riesgo nulo y figura seleccionada con handles y contorno.
+- **`context-open` (nuevo):** menú de vela abierto → foco dentro del panel; `Escape` o clic fuera
+  lo cierran y devuelven el foco al gráfico.
+- **`editing-prices` (nuevo):** popover numérico abierto → primer campo enfocado; valores
+  inválidos marcan el campo en rojo **inline** (nunca en alert) y bloquean «Aplicar».
 
 ## Interacciones críticas
 
-- **Crear:** elegir `◎` → clic 1 (Entrada) → preview → clic 2 (SL). `Escape` cancela.
-- **Dirección:** automática; los TP quedan siempre al lado correcto respecto a la Entrada.
-- **Seleccionar:** clic sobre **cualquiera** de las 5 líneas selecciona la figura entera
-  (radio por línea de 6 px, alineado con `fib`).
-- **Editar:** arrastrar `●` o `◆` recalcula `R`, dirección y los 3 TP manteniendo la
-  proporción. Arrastrar el cuerpo mueve la figura.
-- **Deshacer/rehacer:** `Ctrl+Z` / `Ctrl+Shift+Z`, igual que el resto de dibujos.
-- **Persistencia:** automática por activo+timeframe; sin campos nuevos (ADR-023).
+- **Cambiar de TF:** clic en `CMP-023` → serie nueva + indicadores recalculados + selección
+  persistida. Los dibujos permanecen; `Escape` no aplica (no es destructivo).
+- **Retomar la sesión:** al entrar en `/chart` sin query, se hidrata la selección persistida
+  (ADR-028); un query explícito gana siempre.
+- **Menú de vela:** clic derecho sobre una vela; flechas ↑/↓ no aplican (una sola vela);
+  `Escape`/clic fuera cierran.
+- **Precios numéricos:** `Enter` aplica, `Escape` cancela, `Tab` pasa de Entrada a SL; la
+  mutación pasa por el command stack (`Ctrl+Z` la revierte) y se anuncia en `LiveRegion`.
+- **Crear/seleccionar/editar la operación:** sin cambios respecto al ciclo 04.
+- **Persistencia:** automática en el **documento v2 del activo**; sin campos nuevos por TF
+  (ADR-027, ADR-028).
 
 ## Componentes usados
 
-ChartHeader, ChartToolbar, DrawTool (**+ variante `operación`**), ChartPane,
-OverlayCanvas (**+ `OperationDrawing`**, **+ `OperationLabels`**), DrawingHandle,
-EditableDrawing, LiveRegion, Button.
+ChartHeader (**+ CMP-023 TimeframeSelector**), ChartToolbar, DrawTool (`operación`), ChartPane
+(variante `single`; **se retira `sync`**), OverlayCanvas (`OperationDrawing`, `OperationLabels`),
+DrawingHandle, EditableDrawing, LiveRegion, Button, Input (**+ CMP-025**),
+**CMP-024 CandleContextMenu**.
 
 ## Notas de accesibilidad
 
-- La herramienta se anuncia como **"Operación: 2 clics (Entrada, SL)"** en `aria-label` y
-  `title`; `aria-pressed` cuando está activa.
-- El canvas es `aria-hidden`, así que las 5 etiquetas no las lee el lector de pantalla:
-  **cada mutación se anuncia en `LiveRegion`** con los valores, p. ej.
-  *"Operación compra. Entrada 1.10000, SL 1.09500, TP 1.382 1.10691, TP 1.5 1.10750, TP 2 1.11000"*.
-- El estado `zeroRisk` se anuncia: *"Atención: entrada y SL coinciden; R = 0."*
-- Los colores van **siempre** acompañados de etiqueta de texto: la información no depende
-  solo del color (los tres TP comparten verde y se distinguen por su nombre).
-- La creación exacta requiere ratón (limitación conocida, ver Brechas en `user-journeys.md`).
+- Las heredadas del ciclo 04 se mantienen: `aria-pressed` en la herramienta, valores anunciados en
+  `LiveRegion`, color nunca como único portador de información.
+- **Selector de TF:** `role="radiogroup"` con `aria-label="Timeframe"`; cada opción es un
+  `radio` con `aria-checked`; se recorre con flechas ←/→ y `Home`/`End`.
+- **Menú contextual:** `role="dialog"` con `aria-label="Datos de la vela"`; foco al abrir, foco
+  devuelto al gráfico al cerrar, `Escape` cierra.
+- **Popover numérico:** dos `input` con `label` visible (no solo placeholder) y `inputMode`
+  decimal; error inline con `role="alert"` asociado al campo; el foco vuelve a la figura al
+  cerrar.
+- **Eje en dos filas:** al ser canvas (`aria-hidden`), la fecha y la hora siguen disponibles por
+  la leyenda inferior y por el menú contextual de vela.
+- **Targets:** el selector de TF y las opciones del menú respetan el mínimo de 44×44 px (WCAG
+  2.5.5) con padding; los handles mantienen ≥24 px (heredado).

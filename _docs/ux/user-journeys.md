@@ -1,133 +1,146 @@
-# Journeys — Ciclo 04 (Dibujo Referencia de Operación)
+# Journeys — Ciclo 05 (Mejoras UX del Gráfico y Cierre de Deuda)
 
 > Todos los journeys se rastrean a ≥1 RF de `_docs/requirements.md`.
-> Persona única: P-001. Base: `_docs/iterations/03-mejoras-ux/ux/user-journeys.md`.
-> Los journeys J-001, J-002, J-004, J-006, J-007 del ciclo 03 se heredan **sin cambios**.
+> Persona única: P-001. Base: `_docs/iterations/04-dibujo-referencia-operacion/ux/user-journeys.md`.
+> Los journeys J-001…J-007 del ciclo 03 y J-008…J-010 del ciclo 04 se heredan **vigentes**;
+> este ciclo añade J-011, J-012 y J-013, y **extiende** J-002 y J-009.
 
-## J-008: Crear una operación
+## J-011: Cambiar de timeframe sin perder el trabajo
 
 - **Persona:** P-001
-- **Objetivo:** Marcar una operación con Entrada, SL y tres objetivos, **sin calcular nada**,
-  viendo el resultado antes de confirmar.
-- **RF cubiertos:** RF-301, RF-302, RF-303, RF-304, RF-306, RF-309, RF-310
-- **Precondiciones:** Gráfico cargado con datos (J-002); el usuario tiene un par y una
-  entrada/salida hipotéticas en mente.
-- **Postcondiciones:** Una figura con 5 niveles etiquetados, persistida por activo+timeframe.
+- **Objetivo:** Pasar de `1h` a `15m` (y volver) **sin salir del gráfico**, conservando los
+  dibujos, los indicadores y el activo.
+- **RF cubiertos:** RF-403, RF-404, RF-405, RF-406
+- **Precondiciones:** Gráfico cargado con datos (J-002) y, opcionalmente, con dibujos hechos en
+  el TF actual (J-008).
+- **Postcondiciones:** El gráfico muestra el nuevo TF, con los mismos dibujos y los indicadores
+  recalculados; la selección queda persistida (J-012).
 
 ```mermaid
 graph LR
-  A[SCR-004 Paleta] --> B[Herramienta Operación]
-  B --> C[1er clic = Entrada]
-  C --> D[Preview en vivo: 5 niveles]
-  D --> E[2º clic = SL]
-  E --> F[Figura fija + etiquetas]
-  F --> G[Dirección deducida]
-  G --> H[Persistencia automática]
+  A[SCR-004 con dibujos en 1h] --> B[CMP-023: clic en 15m]
+  B --> C[Se recarga la serie de 15m]
+  C --> D[Dibujos siguen: ancla tiempo+precio]
+  D --> E[Indicadores recalculados con velas de 15m]
+  E --> F[Seleccion registrada en el documento v2]
 ```
 
 ### Puntos de dolor que resuelve
 
-- **Calcula a mano** (`plan.md` §1.2-1): los 5 precios salen de dos clics.
-- **No sabe en qué sentido va la operación**: el preview del paso D ya muestra los TP al
-  lado correcto; si el usuario cruza el precio sobre la Entrada, ve la dirección "voltear".
-- **Distinguir un nivel de otro de un vistazo**: el color de rol lo resuelve (rojo = SL,
-  blanco = Entrada, verde = TP) sin ambigüedad, y los tres TP comparten verde pero llevan
-  nombre distinto (RF-309), así que la información nunca depende solo del color.
+- **"El timeframe es una jaula"** (frustración 2): el dibujo ya no pertenece a la escala en que
+  se trazó; comparar escalas deja de exigir redibujar (RF-404, ADR-027).
+- **Salir al formulario para cambiar de TF**: el selector vive en la cabecera del gráfico
+  (RF-406), junto a Indicadores, sin cambiar de pantalla.
 
 ### Decisiones de UX en este flujo
 
 | Paso | Decisión | Origen |
 |------|----------|--------|
-| B | Herramienta "Operación" con icono `◎`, colocada **después de `Φ`** (agrupa figuras multi-nivel) | D-1 |
-| C→E | Dirección **automática**: `Entrada > SL` → Compra, `Entrada < SL` → Venta. Sin control manual | RF-302 |
-| D | **Preview en vivo**: los 5 niveles y etiquetas siguen al ratón; solo-render, no seleccionable ni persistido | D-4 |
-| E | Si `Entrada == SL` → estado `zeroRisk`: se ocultan los TP y la etiqueta indica `R = 0` | D-5 |
-| E | `Escape` anula el trazo en curso (comportamiento heredado) | D-6 |
-| F | 5 niveles **de extremo a extremo**, etiquetas a la derecha del 2º ancla | D-2 |
-| F | Cada nivel con su **color de rol** (SL rojo, Entrada blanco, TP verde); los 3 TP comparten color y se distinguen por etiqueta | RF-309 |
+| B | `TimeframeSelector` (CMP-023) en `ChartHeader`, **a la izquierda** de Indicadores; `radiogroup` con un solo TF activo | RF-406 |
+| B | El cambio de TF **no** pide confirmación ni descarta nada: es reversible y no destructivo | RNF-401 |
+| C | Mientras carga el nuevo TF: skeleton de velas; los dibujos **permanecen** dibujados (no dependen de la serie) | RNF-403 |
+| D | Los dibujos se re-proyectan con el nuevo eje temporal; su ancla es `(tiempo, precio)`, así que **no se mueven** | ADR-027 |
+| E | Los indicadores muestran los mismos tipos y parámetros, recalculados con las velas del TF visible | RF-405 |
+| F | La selección se guarda en el documento v2 del activo y en la URL | ADR-028 |
 
-## J-009: Ajustar la operación y leer el desenlace
+## J-012: Retomar la sesión de análisis donde se dejó
 
 - **Persona:** P-001
-- **Objetivo:** Corregir Entrada o SL después de crear la figura, y leer si se cumplió o se
-  invalidó.
-- **RF cubiertos:** RF-305, RF-307, RF-308, RF-312
-- **Precondiciones:** Operación creada (J-008).
-- **Postcondiciones:** Figura con niveles recalculados sobre el nuevo `R`, y reversible.
+- **Objetivo:** Ir a otra hoja (Biblioteca, Descarga, Abrir) y **volver a `Gráfico`** con el mismo
+  activo, timeframe y rango; y que eso valga también al recargar la app.
+- **RF cubiertos:** RF-401, RI-402
+- **Precondiciones:** Una selección usada al menos una vez.
+- **Postcondiciones:** La hoja `Gráfico` se abre con la última selección; la URL queda enriquecida.
 
 ```mermaid
 graph LR
-  A[SCR-004 Figura] --> B[Seleccionar por cualquier línea]
-  B --> C[Arrastrar handle Entrada o SL]
-  C --> D[R, dirección y TP recalculados]
-  D --> E[Leer precio contra niveles]
-  E --> F[Undo/Redo si la corrección no era la buscada]
+  A[SCR-004 GBPUSD 15m] --> B[Navegar a SCR-001]
+  B --> C[Volver a Grafico]
+  C --> D{URL con query?}
+  D -->|Si, explicita| E[Se respeta la URL]
+  D -->|No| F[Se lee la seleccion persistida del activo]
+  F --> G[SCR-004 GBPUSD 15m]
 ```
 
 ### Puntos de dolor que resuelve
 
-- **No puede leer el desenlace** (`plan.md` §1.2-2): los niveles están marcados, así que la
-  vela que cruza el SL o alcanza un TP es legible directamente (RF-312).
-- **Editar no obliga a recrear**: mover/redimensionar conserva la proporción sobre `R`
-  (RF-305), con los dos handles y `Shift` heredados, y todo es reversible.
+- **"La selección se resetea"** (frustración 1): la memoria vive en el documento v2, no en el
+  enlace de navegación (ADR-028).
+- **Un enlace explícito manda**: `/chart?symbol=GBPJPY` carga GBPJPY aunque la memoria diga otra
+  cosa, así que compartir o marcar una URL sigue funcionando.
 
 ### Puntos de fricción conocidos
 
-- A zoom amplio (~1,2 px/pip) colocar el SL con precisión de pip es difícil: hay que hacer
-  zoom antes de crear o ajustar. **No hay ruta por teclado ni entrada numérica** (ver §
-  Brechas, abajo).
-- Seleccionar arrastrando sobre una línea puede mover la figura entera (R-303); mitigado con
-  radio por línea alineado con `fib`.
+- Si no hay ninguna selección previa, se aplican los valores por defecto (`EURUSD`, `1h`, rango
+  del ciclo anterior): el usuario nuevo no ve una pantalla vacía, pero tampoco un aviso de que son
+  valores de ejemplo.
 
-## J-010: Conservar la operación entre sesiones
+## J-013: Consultar el dato exacto de una vela
 
 - **Persona:** P-001
-- **Objetivo:** Volver al gráfico y encontrar la operación **y** sus dibujos anteriores
-  intactos.
-- **RF cubiertos:** RF-311, RNF-304, RI-301 (+ KPI-305)
-- **Precondiciones:** Configuración de gráfico con figuras.
-- **Postcondiciones:** Todo restaurado por activo+timeframe; **0 dibujos previos perdidos**.
+- **Objetivo:** Saber fecha, hora y OHLC de **una vela concreta** sin tener que apuntar con el
+  ratón al píxel exacto y leer la leyenda inferior.
+- **RF cubiertos:** RF-408, RF-407
+- **Precondiciones:** Gráfico con datos en `success`.
+- **Postcondiciones:** Panel con los valores de la vela; se cierra con clic fuera o `Escape`; la
+  leyenda inferior queda como estaba.
 
 ```mermaid
 graph LR
-  A[SCR-004 con operaciones] --> B[Cambiar de hoja o recargar]
-  B --> C[SCR-004 de nuevo]
-  C --> D[Figuras restauradas con 5 niveles derivados]
+  A[SCR-004 velas] --> B[Clic derecho sobre una vela]
+  B --> C[CMP-024 con fecha, hora y OHLC]
+  C --> D[Clic fuera o Escape]
+  D --> E[Panel cerrado, foco devuelto al canvas]
 ```
 
-### Decisión de UX heredada del diseño
+### Puntos de dolor que resuelve
 
-- La operación persiste **solo 2 puntos** (Entrada, SL); dirección, `R` y los 5 niveles se
-  **recalculan** al deserializar (`RI-301`, ADR-023). Para el usuario es indistinguible: lo
-  que ve es la misma figura.
-- Garantía visible: ampliar el catálogo de dibujos **no descarta** nada previo
-  (ampliación aditiva en v1; `RNF-304`, KPI-305).
+- **Leer cifras del eje es indirecto**: el menú da el OHLC exacto (5 decimales, `font-num`) en el
+  punto señalado, sin depender de la posición del cursor.
+- **El eje pasa a dos filas** (RF-407): la fecha y la hora se leen sin apelotonarse, lo que hace
+  el eje útil para situar la vela antes de abrir el menú.
+
+### Decisión de UX
+
+| Paso | Decisión | Origen |
+|------|----------|--------|
+| B | Clic derecho (ratón de escritorio, RNF-005). El menú **no sustituye** la leyenda `🎯`: la leyenda sigue al cursor, el menú **fija** una vela | RF-408 |
+| C | Se reposiciona si no cabe en el viewport; nunca recorta el dato | CMP-024 |
+| D | `Escape` y clic fuera cierran; el foco vuelve al elemento que lo abrió (accesibilidad) | WCAG 2.1 AA |
 
 ## Extensión de journeys heredados
 
-| Journey heredado | Cambio en el ciclo 04 |
+| Journey heredado | Cambio en el ciclo 05 |
 |------------------|------------------------|
-| **J-003** Dibujar, marcar y editar | La operación se dibuja, edita y deshace **igual** que las demás figuras; `RF-307` y `RF-308` se suman a su cobertura. `RF-209` se **extiende**: la operación usa colores semánticos, no la paleta mate. |
-| **J-005** Comparar timeframes sincronizados | Cada pane recibe la herramienta (`RF-310`), sin trabajo adicional: la figura vive en la configuración del activo+timeframe de ese pane. |
+| **J-002** Cargar el gráfico | El eje X pasa a **dos filas** (fecha / hora, RF-407) y el aviso de cobertura solo aparece cuando la serie no cubre el rango (RF-402). |
+| **J-009** Ajustar la operación y leer el desenlace | Se cierra la brecha de precisión: con la figura seleccionada, el popover numérico (CMP-025) permite fijar Entrada y SL por teclado con 5 decimales y deshacer (RF-410). |
+| **J-010** Conservar la operación entre sesiones | La persistencia deja de ser por activo+TF: pasa a un **documento v2 por activo** con migración aditiva desde v1 (RI-401, RNF-401). |
 
 ## Brechas de UX que este ciclo NO cubre
 
 Se reportan para un ciclo posterior; **ningún RF las pide**, así que no entran en alcance.
 
-1. **Sin ruta por teclado ni entrada numérica para crear una operación.** A zoom de 2 años
-   (1,2 px/pip) no se puede colocar el SL en `1.09500` con precisión de pip. El ciclo 03 ya
-   asume la manipulación directa como "operación asistida" documentada, pero aquí el
-   contenido **son 5 números exactos**, así que la limitación pesa más. Un formulario
-   numérico (Entrada + SL) lo resolvería y además daría teclado; requiere requisitos propios.
-2. **Sin series de operaciones ni vista de resultados** (`RF-W-301`): el backtesting manual
-   sigue siendo "leer el gráfico", sin win rate ni curva de resultados.
+1. **Sin series de operaciones ni vista de resultados** (`RF-W-401`): el backtesting manual sigue
+   siendo "leer el gráfico", sin win rate ni curva de resultados.
+2. **Sin soporte táctil** (`RF-W-407`): el menú contextual y los handles son de ratón.
+3. **Sin panel visual de resumen de la operación**: los valores siguen saliendo por `LiveRegion`
+   (accesibilidad) y por las etiquetas del canvas.
+
+> La brecha del ciclo 04 «sin ruta por teclado ni entrada numérica» **queda cerrada** por RF-410.
 
 ## Cobertura RF ↔ journey
 
 | RF | Journey |
 |----|---------|
-| RF-301, 302, 303, 304, 306, 309, 310 | J-008 |
-| RF-305, 307, 308, 312 | J-009 |
-| RF-311 | J-010 |
-| RNF-301, 302, 305 · RI-301 · RX-301 | Atributos de SCR-004 (ver `interaction-specs.md`) |
-| RNF-303, RNF-304 | J-010 (RNF-304) · transversal (RNF-303) |
+| RF-401, RI-402 | J-012 |
+| RF-402 | J-002 (extendido) · estado `partial` de SCR-004 |
+| RF-403, RF-404, RF-405, RF-406 | J-011 |
+| RF-407 | J-002 (extendido) · J-013 |
+| RF-408 | J-013 |
+| RF-409 | Retirada de SCR-005 (no es un journey; ver ADR-029) |
+| RF-410 | J-009 (extendido) |
+| RF-411 | Evaluación de SCR-006 (decisión de cierre, no un journey) |
+| RNF-401, RI-401 | J-010 (extendido) |
+| RNF-402, RNF-403, RNF-404 | Transversales (ver `interaction-specs.md`) |
+| RNF-405 | Atributo de SCR-004: `color-draw-line` en `design-system.md` §2 |
+| RX-401 | Transversal (sin dependencias nuevas) |

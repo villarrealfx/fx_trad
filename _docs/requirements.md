@@ -1,77 +1,72 @@
-# Requisitos — Ciclo 04 (Dibujo Referencia de Operación)
+# Requisitos — Ciclo 05 (Mejoras UX del Gráfico y Cierre de Deuda)
 
 > Prioridad MoSCoW: **M**ust / **S**hould / **C**ould / **W**on't
 > Tipos: **RF** (Funcional), **RNF** (No funcional), **RI** (Información), **RX** (Integración)
-> Numeración: los IDs `3xx` son propios de este ciclo; los `0xx`/`1xx`/`2xx` heredan de
-> `_docs/iterations/01-mvp/`, `02-optimizacion-descarga/` y `03-mejoras-ux/`.
-> Las modificaciones a requisitos previos se marcan explícitamente.
+> Numeración: los IDs `4xx` son propios de este ciclo; los `0xx`/`1xx`/`2xx`/`3xx` heredan de
+> `_docs/iterations/01-mvp/`, `02-optimizacion-descarga/`, `03-mejoras-ux/` y
+> `04-dibujo-referencia-operacion/`.
+> Las modificaciones a requisitos previos se marcan explícitamente al final.
 
 ## Requisitos funcionales
 
-### Herramienta de dibujo «Operación»
+### Sesión de análisis (pantalla `Gráfico`)
 
 | ID | Tipo | Descripción | Prioridad | Criterio de aceptación | Fuente |
 |----|------|-------------|-----------|------------------------|--------|
-| RF-301 | RF | Definir la operación mediante dos anclas: la primera es la **Entrada** y la segunda el **Stop Loss** | M | Dada la herramienta activa, cuando se hacen dos clics, entonces la figura queda definida por los precios de Entrada y SL | mark_buy _sell.md §Unidad de dibujo |
-| RF-302 | RF | Determinar la **dirección automáticamente**: `Entrada > SL` → Compra (Long); `Entrada < SL` → Venta (Short), sin selección manual | M | Dada una operación, cuando se comparan Entrada y SL, entonces la dirección se deduce sola y los TP quedan al lado correcto | mark_buy _sell.md §Unidad de dibujo |
-| RF-303 | RF | Dibujar **cinco niveles visibles**: SL, Entrada, TP 1.382, TP 1.5 y TP 2, con `R = \|Entrada − SL\|` y precios `SL = Entrada ∓ R`, `TP = Entrada ± k·R` (k = 1.382, 1.5, 2) | M | Dada una operación con Entrada 1.10000 y SL 1.09500 (R = 50 pips), cuando se proyecta, entonces los niveles quedan en 1.09500, 1.10000, 1.10691, 1.10750 y 1.11000 | Sesión §Eje 4 · mark_buy _sell.md §Similitud |
-| RF-304 | RF | **No mostrar** los niveles de cálculo 0 (SL), 0.5 (Entrada) y 1.0 (referencia 1:1) como líneas independientes del conjunto visible | M | Dada una operación proyectada, cuando se inspecciona el gráfico, entonces solo aparecen las 5 líneas de RF-303 | mark_buy _sell.md §Similitud |
-| RF-305 | RF | Generar los TP **por encima de la Entrada** en Long y **por debajo** en Short, recalculándolos al modificar cualquier ancla y manteniendo su proporción sobre `R` | M | Dada una operación, cuando se mueve el SL, entonces la dirección, los niveles y sus precios se recalculan manteniendo la proporción | mark_buy _sell.md §Edición/Comportamiento |
-| RF-306 | RF | Comportar la operación como **un único dibujo** en creación, selección, edición, desplazamiento y eliminación | M | Dada una operación, cuando se pulsa sobre cualquiera de sus líneas, entonces se selecciona y se mueve o se borra la figura completa | mark_buy _sell.md §Unidad/Integración |
-| RF-307 | RF | Editar la figura mediante sus **dos handles** (Entrada y SL), heredando mover, redimensionar/ajustar, `Shift` H/V, target ≥24 px y undo/redo del ciclo 03 | M | Dada una operación, cuando se arrastra cualquiera de sus dos handles, entonces la figura se actualiza y la acción es reversible | mark_buy _sell.md §Edición · [extiende RF-212/RF-213 del ciclo 03] |
-| RF-308 | RF | Etiquetar cada nivel con su nombre y su **precio real a 5 decimales** (`SL`, `Entrada`, `TP 1.382`, `TP 1.5`, `TP 2`), a la derecha del segundo ancla | M | Dada una operación, cuando se inspecciona el gráfico, entonces cada nivel muestra nombre y precio correspondiente al del nivel | mark_buy _sell.md §Representación visual |
-| RF-309 | RF | Asignar color **por token de rol**: SL `drawOpSl` `#EF5350`, Entrada `drawOpEntry` `#E6EDF3`, TP `drawOpTp` `#26A69A`, con los tres TP compartiendo color | M | Dada una operación, cuando se inspecciona el gráfico, entonces cada nivel usa el color definido y los tres TP son del mismo verde | mark_buy _sell.md §Representación visual · Sesión §Eje 4 |
-| RF-310 | RF | Exponer la herramienta en la paleta de dibujo del gráfico, disponible en Gráfico y en Multigráfico | M | Dado el gráfico, cuando se abre la paleta, entonces la herramienta está disponible junto a las demás; en Multigráfico, en cada panel | mark_buy _sell.md §Validación.9 · Sesión §Eje 4 |
-| RF-311 | RF | Persistir la operación en el **documento de dibujos** del navegador (clave activo+timeframe) sin campos nuevos: SL, dirección, `R` y niveles son derivados | M | Dada una operación guardada, cuando se cambia de hoja y se vuelve, cuando se recarga la app y cuando se serializa el documento, entonces la operación se conserva íntegra | mark_buy _sell.md §Validación.10 · [extiende RI-201 del ciclo 03] |
-| RF-312 | RF | Permitir **leer el desenlace** de la operación comparando el precio con las líneas marcadas (¿toca el SL? ¿alcanza un TP?), sin calcular ni persistir un resultado | M | Dada una operación, cuando el precio la recorre, entonces el usuario puede determinar si se cumplió o se invalidó leyendo los niveles marcados | Sesión §Eje 1 · mark_buy _sell.md §Validación |
+| RF-401 | RF | Al cambiar de hoja y volver a `Gráfico`, se conserva la **última selección** del gráfico (activo, timeframe y rango) | M | Dada una sesión en `Gráfico` con GBPUSD 15 m, cuando se navega a `Biblioteca` y se vuelve por el enlace «Gráfico», entonces el gráfico muestra GBPUSD 15 m y no el activo por defecto | `cycle_05.md` §2 nota |
+| RF-402 | RF | El aviso «La cobertura disponible es menor al rango solicitado» aparece **solo** cuando la serie servida no cubre realmente el rango pedido | M | Dado un rango pedido cuyos bordes caen fuera de la cobertura por el redondeo al bucket del TF, cuando se carga la serie, entonces no hay aviso; cuando faltan velas dentro del rango, entonces sí aparece | `cycle_05.md` §2 |
+| RF-403 | RF | Cambiar el **timeframe** del activo desde `Gráfico`, sin salir de la pantalla | M | Dado GBPUSD en 1 h, cuando se elige 15 m en el selector del gráfico, entonces la serie se recarga en 15 m manteniendo el activo y el rango | `cycle_05.md` §2.c.1 |
+| RF-404 | RF | Los dibujos pertenecen al **activo** y se muestran en **todos** sus timeframes, anclados a sus precios y tiempos | M | Dado un Fibonacci dibujado en GBPUSD 1 h, cuando se cambia a 15 m, entonces la figura sigue visible y en las mismas coordenadas; al volver a 1 h no se duplica | `cycle_05.md` §2.c.2 |
+| RF-405 | RF | Los indicadores son del **activo** y se recalculan con las velas del timeframe visible | M | Dados MA/RSI/ATR visibles en 1 h con sus parámetros, cuando se cambia a 15 m, entonces se recalculan sobre las velas de 15 m conservando tipo, parámetros y visibilidad | `cycle_05.md` §2.c.3 |
+| RF-406 | RF | Selector de timeframe en la parte superior del gráfico, junto al botón de indicadores, con los seis TF del contrato | M | Dada la pantalla `Gráfico`, cuando se abre, entonces `1m, 5m, 15m, 1h, 4h, 1d` son seleccionables arriba junto a Indicadores y el TF activo está marcado | `cycle_05.md` §2.c.4 |
+| RF-407 | RF | Eje X en **dos filas**: fecha arriba y `hh:mm` abajo | S | Dado el eje temporal a cualquier zoom, cuando se renderiza, entonces la fecha (`dd-mmm-aa`) va en la fila superior y la hora (`hh:mm`) en la inferior, sin solaparse a zoom de 2 años | `cycle_05.md` §2.c.5 |
+| RF-408 | RF | Clic derecho sobre una vela muestra su información: fecha, hora y OHLC | S | Dada una vela, cuando se hace clic derecho sobre ella, entonces aparece un panel con fecha, hora, apertura, máximo, mínimo y cierre del activo, y se cierra con clic fuera o `Escape` | `cycle_05.md` §2.c.6 |
+| RF-409 | RF | Se **retira** la pantalla `Multigráfico`: ruta, pantalla y navegación | S | Dada la navegación de la app, cuando se abre, entonces no existe la entrada «Multigráfico» ni la ruta `/multichart`, y la herramienta Operación sigue disponible en `Gráfico` | `cycle_05.md` §2.d · [modifica RF-310 del ciclo 04] |
+| RF-410 | RF | Entrada **numérica** de Entrada y SL de una operación por teclado, con la precisión del activo | S | Dada una operación seleccionada, cuando se edita su Entrada o SL por teclado, entonces el precio se aplica con 5 decimales, se recalcula la figura y la acción es reversible con undo/redo | `cycle_05.md` §1 · TECH-303 |
+| RF-411 | RF | **Evaluación** de la pantalla `Exportar` (SCR-006) con decisión documentada: mantenerla o retirarla | C | Dada SCR-006, cuando se evalúa con el criterio acordado, entonces el cierre del ciclo registra la decisión, su evidencia y, si procede, el requisito que se modifica | `cycle_05.md` §2.e |
 
 ## Requisitos no funcionales
 
 | ID | Tipo | Descripción | Prioridad | Criterio de aceptación | Fuente |
 |----|------|-------------|-----------|------------------------|--------|
-| RNF-301 | RNF | Las 5 etiquetas se dibujan **siempre**, ordenadas por precio, con una separación vertical mínima y línea guía en las que se desplacen | M | Dada una operación cuyos niveles quedan a ~14 px de distancia (zoom de 2 años), cuando se renderiza, entonces las 5 etiquetas son legibles y ninguna se solapa | Sesión §Eje 6 |
-| RNF-302 | RNF | Mantener 60 FPS con la figura activa durante pan/zoom y arrastre de handles o desplazamiento | M | Dada una operación, cuando se hace pan/zoom o se arrastra, entonces la interacción se mantiene a 60 FPS sin frames caídos | Sesión · RNF-202 / RNF-001 |
-| RNF-303 | RNF | El ciclo no debe introducir regresiones en las suites existentes | M | Dado el cierre del ciclo, cuando se ejecutan las suites, entonces frontend (y backend) quedan en verde | Sesión · RNF-203 (03) |
-| RNF-304 | RNF | **No perder** ningún dibujo ya persistido en el navegador al añadir el nuevo tipo | M | Dado un documento de dibujos existente, cuando se abre la app con la nueva versión, entonces todas las formas anteriores siguen presentes | Sesión · KPI-305 |
-| RNF-305 | RNF | Los colores de la herramienta deben cumplir contraste suficiente sobre el fondo del gráfico y estar definidos como tokens en `tokens.ts` y `tokens.css` | M | Dados los tres tokens, cuando se mide el contraste sobre `#0A0C10`, entonces es suficiente y el test de anti-drift pasa | Sesión · RNF-204 (03) |
-| RNF-202 | RNF | La edición de dibujos debe mantener 60 FPS | M | Heredado 03-mejoras-ux | 03-mejoras-ux |
-| RNF-201 | RNF | La configuración persistida en el navegador debe ser robusta y versionada | M | Heredado 03-mejoras-ux | 03-mejoras-ux |
-| RNF-204 | RNF | Tokens de diseño como fuente única (con anti-drift) | M | Heredado 03-mejoras-ux | 03-mejoras-ux |
-| RNF-001 | RNF | Latencia de interfaz objetivo 60 FPS | M | Heredado 01-mvp | 01-mvp |
-| RNF-004 | RNF | Uso exclusivo de UTC en timestamps | M | Heredado 01-mvp | 01-mvp |
-| RNF-005 | RNF | Funciona en navegadores de escritorio modernos | M | Heredado 01-mvp | 01-mvp |
-| RNF-006 | RNF | Costo total $0 (solo OSS) | M | Heredado 01-mvp | 01-mvp |
-| RNF-007 | RNF | Iteración entregable en 2 semanas (plazo negociable) | M | Heredado 01-mvp | 01-mvp |
-| ACC-201 | RNF | Accesibilidad validada con axe-core | M | Heredado ADR-011 | ADR-011 |
+| RNF-401 | RNF | **No perder** ningún dibujo ya persistido al migrar el documento a v2 | M | Dado un documento v1 con `line`, `rect`, `fib`, `marker` y `operation`, cuando se abre la app con la versión nueva, entonces todos los dibujos siguen presentes y la migración no borra las claves v1 | RNF-304 (04) · ADR-023 |
+| RNF-402 | RNF | El ciclo **no introduce regresiones** en las suites existentes | M | Dado el cierre del ciclo, cuando se ejecutan las suites, entonces frontend (458 pruebas) y backend (546 pruebas) quedan en verde | RNF-303 (04) · RNF-203 (03) |
+| RNF-403 | RNF | Mantener **60 FPS** con la figura activa durante pan/zoom, arrastre y cambio de TF | M | Dada una operación activa, cuando se hace pan/zoom, se arrastra un handle o se cambia de TF, entonces no hay frames caídos por debajo del presupuesto | RNF-302 (04) · RNF-001 (01) |
+| RNF-404 | RNF | El **cambio de TF se mide**: el tiempo de recarga de la serie al cambiar de timeframe se registra en el cierre | S | Dado un cambio de TF en caliente, cuando se mide, entonces el valor queda en el AUDIT LOG del cierre y no supera el de la carga inicial del mismo TF | decisión D-5 |
+| RNF-405 | RNF | La línea de eje `drawLine` cumple contraste **≥4.5:1** sobre el fondo del gráfico `#0A0C10` | S | Dado el token `drawLine`, cuando se mide su contraste, entonces es ≥4.5:1 y el test de anti-drift sigue pasando | TECH-302 · RNF-204 (03) · RNF-305 (04) |
 
 ## Requisitos de información
 
 | ID | Tipo | Descripción | Prioridad | Criterio de aceptación | Fuente |
 |----|------|-------------|-----------|------------------------|--------|
-| RI-301 | RI | Modelar la **Operación** como un único dibujo del documento: `id`, `kind`, ancla Entrada y ancla SL; la dirección, `R`, los cinco niveles y sus etiquetas se derivan | M | Dada una operación serializada, cuando se deserializa, entonces se recuperan las dos anclas y todos los derivados se recalculan idénticos | Sesión §Eje 10 |
-| RI-201 | RI | Configuración de gráfico persistida (activo, timeframe, indicadores, dibujos) con clave activo+timeframe y esquema versionado | M | Heredado 03-mejoras-ux | 03-mejoras-ux |
-| RI-003 | RI | Los dibujos no se almacenan en el backend | M | **Modificado:** el ciclo 03 los persiste en el navegador (RI-201) | 01-mvp |
-| RI-001 | RI | OHLC con `time` único en segundos UTC | M | Heredado 01-mvp | 01-mvp |
-| RI-002 | RI | Metadatos de descarga | M | Heredado 01-mvp | 01-mvp |
+| RI-401 | RI | El documento de configuración pasa a **v2 por activo**: dibujos compartidos del activo e indicadores del activo; migración **aditiva al leer** desde v1 | M | Dada una clave `fxtrad.chart.v1.{activo}.{TF}`, cuando se abre el activo, entonces sus dibujos se consolidan en el documento v2 del activo y las claves v1 se conservan íntegras | [modifica RI-201 del ciclo 03] · ADR-018/023 |
+| RI-402 | RI | La última **selección** de gráfico (activo, timeframe y rango) es estado persistido y recuperable al volver a la pantalla | M | Dada una selección usada, cuando se abandona y se retorna a `Gráfico`, entonces se recupera la última selección | RF-401 · RI-201 (03) |
 
 ## Requisitos de integración
 
 | ID | Tipo | Descripción | Prioridad | Criterio de aceptación | Fuente |
 |----|------|-------------|-----------|------------------------|--------|
-| RX-301 | RX | La herramienta debe integrarse en el sistema de dibujos existente sin nuevas dependencias externas | M | Dado el build, cuando se instalan dependencias, entonces no se añade ningún paquete nuevo | mark_buy _sell.md §Integración · RNF-006 |
-| RX-001 | RX | Integración con Dukascopy (reintentos, backoff) | M | Heredado 01-mvp | 01-mvp |
+| RX-401 | RX | El ciclo se implementa **sin dependencias nuevas** | M | Dado el build, cuando se instalan dependencias, entonces `package.json`, `package-lock.json` y `backend/` no cambian | RX-301 (04) · RNF-006 |
 
 ## No incluidos (Won't — para trazabilidad)
 
 | ID | Tipo | Descripción | Prioridad |
 |----|------|-------------|-----------|
-| RF-W-301 | RF | Series de operaciones y métricas de estrategia (win rate, R total, curva de resultados) | W |
-| RF-W-302 | RF | Resultado de la operación persistido (alcanzado / invalidado) como dato | W |
-| RF-W-303 | RF | Tamaño de posición, % de riesgo y R en dinero o pips | W |
-| RF-W-304 | RF | Niveles de TP configurables por el usuario | W |
-| RF-W-305 | RF | Alertas o avisos al cruzar un nivel | W |
-| RF-W-306 | RF | Motor de backtesting automático y ejecución de estrategias | W |
-| RF-W-307 | RF | Soporte táctil de las herramientas de dibujo | W |
-| RF-W-201 | RF | Persistir dibujos/configuración en backend o sincronizar entre dispositivos | W (03) |
-| RF-W-205 | RF | Tiempo real y trading en vivo | W (03) · **nota:** el backtesting **manual** pasa a ser propósito del proyecto (plan.md §1.1) |
-| RF-W-206 | RF | Fuentes de datos distintas de Dukascopy | W (03) |
+| RF-W-401 | RF | Series de operaciones y métricas de estrategia (win rate, R total, curva de resultados) | W |
+| RF-W-402 | RF | Motor de backtesting automático y ejecución de estrategias (`RF-W-306` del ciclo 03) | W |
+| RF-W-403 | RF | Timeframe `30 m` (nunca estuvo en el contrato ni en la base 1 m; ver D-6) | W |
+| RF-W-404 | RF | Mejora o sustituta del Multigráfico (se retira, no se arregla) | W |
+| RF-W-405 | RF | Persistencia de dibujos/configuración en backend o sincronización entre dispositivos (`RF-W-201` del ciclo 03) | W |
+| RF-W-406 | RF | Deuda de la auditoría `CR-002`: refactores de tamaño, contrato de logging y motivos de waiver (D-8) | W |
+| RF-W-407 | RF | Soporte táctil de las herramientas de dibujo (`RF-W-307` del ciclo 03) | W |
+| RF-W-408 | RF | Resultado de la operación persistido como dato (`RF-W-302` del ciclo 04) | W |
+
+## Modificaciones a requisitos previos
+
+| Requisito previo | Modificado por | Nota |
+|------------------|----------------|------|
+| `RF-310` (04): la herramienta Operación está disponible en Gráfico **y** en Multigráfico | RF-409 | Multigráfico se retira; la herramienta queda disponible **solo** en Gráfico |
+| `RI-201` (03): configuración persistida con clave activo+timeframe (activo, timeframe, indicadores, dibujos) | RI-401 | El documento pasa a v2 **por activo**: dibujos compartidos e indicadores del activo; migración aditiva desde v1 |
+| `RNF-304` (04): no perder ningún dibujo al añadir un tipo nuevo | RNF-401 | La garantía se extiende a la migración de esquema v1→v2 |
+| `RNF-204` (03) / `RNF-305` (04): contraste de tokens del design system | RNF-405 | El contraste se exige también a `drawLine`, la línea de eje (cierra TECH-302) |
+| `ADR-023` (04): ampliación **aditiva** del documento en v1 | RI-401 | El cambio de alcance de los dibujos (por activo) sí exige v2 y migración: se decide en `/sdd-stack` (ADR nuevo) |
