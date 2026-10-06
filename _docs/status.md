@@ -9,27 +9,27 @@
 | Métrica | Valor | Δ vs estado anterior |
 |---------|-------|----------------------|
 | Tareas totales | **26** | +24 |
-| 📥 Backlog | **17** | +15 |
+| 📥 Backlog | **16** | +14 |
 | 🔨 Doing | 0 | +1 |
 | 👀 Review | 0 | 0 |
-| ✅ Done | **9** | +9 |
+| ✅ Done | **10** | +10 |
 | 🔴 Blocked | 0 | 0 |
-| % Completado | **35 %** | — |
+| % Completado | **38 %** | — |
 | Esfuerzo planificado | **76 pts** | — |
 | Ruta crítica | **5/7 · 24 pts** | — |
 | Historias aceptadas | **0/9** | — |
 | Días sin movimiento | 0 | — |
 
-**Estado general:** 🟢 **Ciclo 05 en ejecución.** 9/26 tareas cerradas; la ruta crítica avanza **5/7**
+**Estado general:** 🟢 **Ciclo 05 en ejecución.** 10/26 tareas cerradas; la ruta crítica avanza **5/7**
 (`TASK-401`, `TASK-402`, `TASK-UI-403`, `TASK-UI-404`, `TASK-UI-405` ✅). `EP-UI-401` (cambio de
-escala) queda **cerrada**; `EP-UI-404` (precios numéricos) avanza con `CMP-025` integrado.
+escala) queda **cerrada**; `EP-UI-404` (precios numéricos) queda **completa** (RF-410 🟢).
 
 El ciclo 04 quedó **cerrado y archivado** en `_docs/iterations/04-dibujo-referencia-operacion/`
 (20/20 tareas · 56/56 pts · 19/19 requisitos propios 🟢 · CI en verde).
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (17)
+### 📥 Backlog (16)
 
 | ID | Tarea | Épica | Prioridad | Est. | Deps |
 |----|-------|-------|-----------|------|------|
@@ -41,7 +41,6 @@ El ciclo 04 quedó **cerrado y archivado** en `_docs/iterations/04-dibujo-refere
 | TASK-UI-407 | Tests del eje | EP-UI-402 | Should | 2 | TASK-UI-406 |
 | TASK-UI-408 | `CMP-024 CandleContextMenu` | EP-UI-403 | Should | 5 | — |
 | TASK-UI-409 | Tests y accesibilidad del menú contextual | EP-UI-403 | Should | 3 | TASK-UI-408 |
-| TASK-UI-412 | Tests del popover numérico | EP-UI-404 | Should | 3 | TASK-UI-411 |
 | TASK-UI-413 | Diagnóstico y corrección de la condición de cobertura | EP-UI-405 | **Must** | 2 | — |
 | TASK-UI-414 | Tests de borde de la cobertura | EP-UI-405 | **Must** | 2 | TASK-UI-413 |
 | TASK-UI-415 | Retirada de Multigráfico (ruta, pantalla, `chart-sync`, props `sync`) | EP-UI-406 | Should | 3 | — |
@@ -59,7 +58,7 @@ Ninguna.
 
 Ninguna.
 
-### ✅ Done (9)
+### ✅ Done (10)
 
 | ID | Tarea | Épica | Est. | Cerrada | Prueba |
 |----|-------|-------|------|---------|--------|
@@ -72,6 +71,7 @@ Ninguna.
 | TASK-UI-405 | Tests de la épica de escala (indicadores recalculados, serie corta, ida y vuelta, frame budget) | EP-UI-401 | 5 | 2026-10-06 | `ChartPane.test.tsx` (+3: recálculo con las velas del TF nuevo, sin `NaN` y frame budget) + `ChartHeader.test.tsx` (+1: `aria-checked` sigue al TF) + `app.test.tsx` (+1: ida y vuelta conserva dibujos e indicadores) |
 | TASK-UI-410 | `CMP-025 OperationNumericFields`: popover con dos campos, validación inline y foco gestionado | EP-UI-404 | 5 | 2026-10-06 | `components/OperationNumericFields/__tests__/OperationNumericFields.test.tsx` (14) + `charting/__tests__/operation-price-input.test.ts` (12) |
 | TASK-UI-411 | Integración de `CMP-025` con el command stack y `LiveRegion` | EP-UI-404 | 3 | 2026-10-06 | `components/ChartPane/ChartPane.test.tsx` (+7: botón «Precios» anclado, popover, mutación reversible, `Ctrl+Z`/`Ctrl+Y`, anuncio con los 5 valores y foco devuelto) |
+| TASK-UI-412 | Tests de aceptación del popover numérico | EP-UI-404 | 3 | 2026-10-06 | `components/ChartPane/ChartPane.test.tsx` (+5: `Enter` aplica y anuncia, `Escape` cancela sin mutar, no numérico bloquea `Aplicar`, `Ctrl+Z` restaura exacto, orden de foco Entrada→SL) |
 
 ### 🔴 Blocked (0)
 
@@ -136,8 +136,8 @@ Ninguna.
   se resuelve **dentro** de `TASK-UI-413`) · `PA-2` (¿desaparece el dolor de Multigráfico al
   arreglar `RF-401`? comprobar **antes** de `TASK-UI-415`) · `PA-3` (criterio de viabilidad de
   `Exportar`, `TASK-UI-417`) · `PA-4` (quién verifica los 12 frentes del insumo y con qué guion).
-- **1 commit local sin empujar** (el cierre de `TASK-UI-411`): el push es manual por política
-  (`_docs/git-profile.toml`); el remoto está declarado.
+- **2 commits locales sin empujar** (cierres de `TASK-UI-411` y `TASK-UI-412`): el push es manual
+  por política (`_docs/git-profile.toml`); el remoto está declarado.
 
 ### 🟢 Informativas
 
@@ -167,9 +167,9 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 
 ## 8. Próximas acciones sugeridas
 
-1. **`/sdd-cycle`** para tomar **`TASK-UI-412`** (*Tests del popover numérico*, `EP-UI-404`): cierra
-   la cadena de la épica con `Tab`/`Enter`/`Escape`, error inline, `Ctrl+Z` y el anuncio de los 5
-   valores. Desbloquea `TASK-TEC-401` por ese lado.
+1. **`/sdd-cycle`** para tomar **`TASK-UI-413`** (*Diagnóstico y corrección de la condición de
+   cobertura*, `EP-UI-405`, **Must**): resuelve `PA-1` y abre la última cadena que le falta a
+   `TASK-TEC-401` por el lado de `TASK-UI-414`.
 2. **Antes de `TASK-UI-415`**, resolver `PA-2`: si el dolor de Multigráfico lo causaba el bug de
    selección (`RF-401`), reconsiderar la retirada.
 3. **Antes de `TASK-UI-413`**, cerrar el diagnóstico de `PA-1` (bucket del TF vs hueco de mercado).
@@ -209,3 +209,6 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 | 2026-10-06 | TASK-UI-411 | 📥 → 🔨 | Inicio de desarrollo (integración de CMP-025 con el command stack y `LiveRegion`, RF-410) |
 | 2026-10-06 | TASK-UI-411 | 🔨 → 👀 | Tests verdes: 535/535 frontend (+7 de integración) · typecheck, eslint y prettier en verde · `quality_gate --level gate` PASS |
 | 2026-10-06 | TASK-UI-411 | 👀 → ✅ | DoD verificada: botón «Precios» anclado a la figura seleccionada, `Aplicar`/`Enter` mutan por `history.update` (un paso reversible: `Ctrl+Z` revierte y `Ctrl+Y` rehace), dirección/`R`/TP se derivan de las anclas y el anuncio reusa `operationAnnouncement`; prueba en `traceability.md` |
+| 2026-10-06 | TASK-UI-412 | 📥 → 🔨 | Inicio de desarrollo (tests de aceptación del popover numérico, RF-410) |
+| 2026-10-06 | TASK-UI-412 | 🔨 → 👀 | Tests verdes: 540/540 frontend (+5 de aceptación) · typecheck, eslint y prettier en verde · `quality_gate --level gate` PASS |
+| 2026-10-06 | TASK-UI-412 | 👀 → ✅ | DoD verificada: `Enter` aplica y el anuncio lleva los 5 valores, `Escape` cancela sin mutar, valor no numérico bloquea `Aplicar` y asocia el error al campo, `Ctrl+Z` restaura la figura exactamente y el orden de foco es Entrada→SL; sin regresión en los tests de la operación. RF-410 🟢 |

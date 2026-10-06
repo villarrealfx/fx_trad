@@ -1491,5 +1491,82 @@ describe('ChartPane', () => {
       expect(screen.queryByRole('dialog', { name: 'Precios de la operación' })).toBeNull();
       expect(document.activeElement).toBe(host);
     });
+
+    it('aplica con Enter desde Entrada y anuncia los cinco valores (TASK-UI-412)', async () => {
+      const { container, onDrawingsChange } = await renderOpenPopover();
+
+      fireEvent.change(screen.getByLabelText('Entrada'), { target: { value: '1.60000' } });
+      fireEvent.change(screen.getByLabelText('Stop Loss'), { target: { value: '1.20000' } });
+      fireEvent.keyDown(screen.getByLabelText('Entrada'), { key: 'Enter' });
+
+      await waitFor(() => {
+        const shapes = onDrawingsChange.mock.calls.at(-1)?.[0] as OverlayShape[];
+        expect(shapes[0]).toMatchObject({ from: { price: 1.6 }, to: { price: 1.2 } });
+      });
+      expect(container.querySelector('.sr-only[data-tone="polite"]')?.textContent).toContain(
+        'TP 2 2.40000',
+      );
+    });
+
+    it('cancela con Escape sin mutar la figura (TASK-UI-412)', async () => {
+      const { onDrawingsChange } = await renderOpenPopover();
+
+      fireEvent.change(screen.getByLabelText('Entrada'), { target: { value: '1.90000' } });
+      fireEvent.keyDown(screen.getByLabelText('Entrada'), { key: 'Escape' });
+
+      expect(screen.queryByRole('dialog', { name: 'Precios de la operación' })).toBeNull();
+      const shapes = onDrawingsChange.mock.calls.at(-1)?.[0] as OverlayShape[];
+      expect(shapes[0]).toMatchObject({ from: { price: 1.5 }, to: { price: 1.4 } });
+    });
+
+    it('bloquea Aplicar con un valor no numérico (TASK-UI-412)', async () => {
+      const { onDrawingsChange } = await renderOpenPopover();
+      const callsBefore = onDrawingsChange.mock.calls.length;
+
+      fireEvent.change(screen.getByLabelText('Entrada'), { target: { value: 'abc' } });
+
+      const alert = screen.getByRole('alert');
+      expect(alert.textContent).toBe('Introduce un número válido');
+      expect(screen.getByLabelText('Entrada').getAttribute('aria-describedby')).toBe(alert.id);
+      const apply = screen.getByRole('button', { name: 'Aplicar' }) as HTMLButtonElement;
+      expect(apply.disabled).toBe(true);
+
+      fireEvent.click(apply);
+      expect(onDrawingsChange.mock.calls.length).toBe(callsBefore);
+    });
+
+    it('restaura la figura exactamente con Ctrl+Z (TASK-UI-412)', async () => {
+      const { host, onDrawingsChange } = await renderOpenPopover();
+
+      fireEvent.change(screen.getByLabelText('Entrada'), { target: { value: '1.60000' } });
+      fireEvent.change(screen.getByLabelText('Stop Loss'), { target: { value: '1.20000' } });
+      fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
+      await waitFor(() => {
+        const shapes = onDrawingsChange.mock.calls.at(-1)?.[0] as OverlayShape[];
+        expect(shapes[0]).toMatchObject({ from: { price: 1.6 } });
+      });
+
+      fireEvent.keyDown(host, { key: 'z', ctrlKey: true });
+
+      await waitFor(() => {
+        const shapes = onDrawingsChange.mock.calls.at(-1)?.[0] as OverlayShape[];
+        expect(shapes[0]).toEqual(OPERATION);
+      });
+    });
+
+    it('ordena el foco Entrada → Stop Loss (TASK-UI-412)', async () => {
+      await renderOpenPopover();
+
+      const dialog = screen.getByRole('dialog', { name: 'Precios de la operación' });
+      const inputs = within(dialog).getAllByRole('textbox');
+      expect(inputs[0]).toBe(screen.getByLabelText('Entrada'));
+      expect(inputs[1]).toBe(screen.getByLabelText('Stop Loss'));
+
+      fireEvent.change(screen.getByLabelText('Entrada'), { target: { value: 'abc' } });
+
+      expect((screen.getByRole('button', { name: 'Aplicar' }) as HTMLButtonElement).disabled).toBe(
+        true,
+      );
+    });
   });
 });
