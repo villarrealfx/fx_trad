@@ -93,7 +93,7 @@ const MAIN_SCALE_MARGINS = { top: 0.12, bottom: 0.34 };
 const RSI_SCALE_MARGINS = { top: 0.72, bottom: 0.02 };
 
 /** Estados de carga del panel (interaction-specs SCR-004, CMP-007). */
-type ChartStatus = 'loading' | 'empty' | 'error' | 'success';
+export type ChartStatus = 'loading' | 'empty' | 'error' | 'success';
 
 export interface ChartPaneProps {
   /** Símbolo del activo, p. ej. EURUSD. */
@@ -124,6 +124,15 @@ export interface ChartPaneProps {
   onOpenIndicators?: () => void;
   /** Dispara la exportación de la captura (CMP-017, RF-205). */
   onExport?: () => void;
+  /**
+   * Notifica el estado de carga del panel (TASK-UI-403).
+   *
+   * Permite a la pantalla distinguir `switching-tf` (loading), `tf-ready`
+   * (success), `tf-error` (error) y `empty` sin duplicar la petición de serie.
+   */
+  onStatusChange?: (status: ChartStatus) => void;
+  /** Notifica el cambio de timeframe elegido en el header (RF-406, TASK-UI-403). */
+  onChangeTimeframe?: (timeframe: Timeframe) => void;
 }
 
 /** Handle imperativo del panel para el export PNG (TASK-035, RF-015). */
@@ -167,6 +176,8 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
     indicatorsOpen = false,
     onOpenIndicators,
     onExport,
+    onStatusChange,
+    onChangeTimeframe,
   },
   ref,
 ) {
@@ -178,6 +189,14 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
   const lastRef = useRef<Candle | null>(null);
   const legendBatcherRef = useRef<FrameBatcher | null>(null);
   const [status, setStatus] = useState<ChartStatus>('loading');
+  /** Se notifica solo cuando el estado cambia, no en cada render del padre. */
+  const onStatusChangeRef = useRef(onStatusChange);
+  onStatusChangeRef.current = onStatusChange;
+
+  // Notifica cada cambio de estado del panel (TASK-UI-403).
+  useEffect(() => {
+    onStatusChangeRef.current?.(status);
+  }, [status]);
   const [errorMessage, setErrorMessage] = useState('');
   const [partialCoverage, setPartialCoverage] = useState(false);
   const [legendBar, setLegendBar] = useState<Candle | null>(null);
@@ -769,6 +788,7 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
         onExport={onExport ?? (() => {})}
         onFit={() => chartRef.current?.timeScale().fitContent()}
         disabled={status !== 'success'}
+        onChangeTimeframe={onChangeTimeframe}
       />
       <ChartToolbar
         tools={TOOL_DESCRIPTORS}

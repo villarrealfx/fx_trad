@@ -75,3 +75,29 @@ describe('ChartHeader (CMP-017)', () => {
     }
   });
 });
+
+describe('ChartHeader · selector de timeframe (TASK-UI-403, RF-406)', () => {
+  afterEach(cleanup);
+
+  it('no muestra el selector si no se puede cambiar de escala', () => {
+    renderHeader();
+
+    expect(screen.queryByRole('radiogroup', { name: 'Timeframe' })).toBeNull();
+  });
+
+  it('aloja el selector y notifica el timeframe elegido', () => {
+    const onChangeTimeframe = vi.fn();
+    renderHeader({ onChangeTimeframe });
+
+    fireEvent.click(screen.getByRole('radio', { name: '15m' }));
+
+    expect(onChangeTimeframe).toHaveBeenCalledWith('15m');
+    expect(screen.getByRole('radio', { name: '1h' }).getAttribute('aria-checked')).toBe('true');
+  });
+
+  it('deshabilita el selector mientras el gráfico no está listo', () => {
+    renderHeader({ onChangeTimeframe: vi.fn(), disabled: true });
+
+    expect((screen.getByRole('radio', { name: '15m' }) as HTMLButtonElement).disabled).toBe(true);
+  });
+});

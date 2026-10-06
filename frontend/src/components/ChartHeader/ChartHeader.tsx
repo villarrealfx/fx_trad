@@ -1,3 +1,5 @@
+import type { Timeframe } from '../../contracts/ohlc';
+import TimeframeSelector from '../TimeframeSelector/TimeframeSelector';
 import './ChartHeader.css';
 
 /** Props del header del gráfico (CMP-017, `components.md`). */
@@ -5,7 +7,7 @@ export interface ChartHeaderProps {
   /** Símbolo del activo (p. ej. EURUSD). */
   symbol: string;
   /** Timeframe activo (p. ej. 1h). */
-  timeframe: string;
+  timeframe: Timeframe;
   /** Estado abierto del formulario de indicadores (RF-203). */
   indicatorsOpen: boolean;
   /** Abre/cierra el formulario de indicadores (RF-203). */
@@ -16,15 +18,22 @@ export interface ChartHeaderProps {
   onFit: () => void;
   /** Deshabilita las acciones (p. ej. mientras carga). */
   disabled?: boolean;
+  /**
+   * Notifica el cambio de timeframe (RF-406, TASK-UI-403).
+   *
+   * Si se omite, el header no muestra el selector: los usos que no cambian de
+   * escala (p. ej. el multigráfico) siguen funcionando igual.
+   */
+  onChangeTimeframe?: (timeframe: Timeframe) => void;
 }
 
 /**
  * Header del gráfico (CMP-017, SCR-004/005).
  *
- * Agrupa el título `símbolo · timeframe` y las acciones principales:
- * indicadores (con texto visible y `aria-expanded`), exportar y ajustar vista
- * (icon-only con `aria-label` + tooltip). Sustituye al botón de export suelto
- * y al "Ajustar" de la toolbar (ADR-019).
+ * Agrupa el título `símbolo · timeframe`, el selector de timeframe (CMP-023, a
+ * la izquierda de Indicadores, RF-406) y las acciones principales: indicadores
+ * (con texto visible y `aria-expanded`), exportar y ajustar vista (icon-only con
+ * `aria-label` + tooltip).
  */
 export default function ChartHeader({
   symbol,
@@ -34,12 +43,18 @@ export default function ChartHeader({
   onExport,
   onFit,
   disabled = false,
+  onChangeTimeframe,
 }: ChartHeaderProps) {
   return (
     <header className="chart-header">
-      <span className="chart-header__title">
-        {symbol} · {timeframe}
-      </span>
+      <div className="chart-header__left">
+        <span className="chart-header__title">
+          {symbol} · {timeframe}
+        </span>
+        {onChangeTimeframe !== undefined && (
+          <TimeframeSelector value={timeframe} onChange={onChangeTimeframe} disabled={disabled} />
+        )}
+      </div>
       <div className="chart-header__actions">
         <button
           type="button"

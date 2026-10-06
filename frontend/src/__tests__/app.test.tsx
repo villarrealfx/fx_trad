@@ -14,7 +14,11 @@ vi.mock('../components/ChartPane/ChartPane', async () => {
   const React = await import('react');
   return {
     default: React.forwardRef(function MockChartPane(
-      props: { onExport?: () => void },
+      props: {
+        onExport?: () => void;
+        onChangeTimeframe?: (timeframe: string) => void;
+        onStatusChange?: (status: string) => void;
+      },
       ref: unknown,
     ) {
       React.useImperativeHandle(ref as never, () => ({
@@ -25,6 +29,15 @@ vi.mock('../components/ChartPane/ChartPane', async () => {
           <div data-testid="chart-pane" aria-hidden="true" />
           <button type="button" onClick={props.onExport}>
             Exportar
+          </button>
+          <button type="button" onClick={() => props.onChangeTimeframe?.('15m')}>
+            cambiar-tf
+          </button>
+          <button type="button" onClick={() => props.onStatusChange?.('success')}>
+            tf-success
+          </button>
+          <button type="button" onClick={() => props.onStatusChange?.('error')}>
+            tf-error
           </button>
         </div>
       );
@@ -116,6 +129,39 @@ describe('App', () => {
     await waitFor(() => expect(window.location.hash).toContain('symbol=GBPUSD'));
 
     expect(window.location.hash).toContain('timeframe=15m');
+  });
+
+  it('cambia de timeframe sin salir del gráfico y lo anuncia (TASK-UI-403, RF-403)', async () => {
+    render(<App />);
+    window.location.hash = '/chart?symbol=GBPUSD&timeframe=1h';
+    await screen.findByRole('button', { name: 'Exportar' });
+
+    fireEvent.click(screen.getByRole('button', { name: 'cambiar-tf' }));
+
+    await waitFor(() => expect(window.location.hash).toContain('timeframe=15m'));
+    // La selección efectiva queda recordada (RI-402).
+    await waitFor(() =>
+      expect(localStorage.getItem('fxtrad.chart.last')).toContain('"timeframe":"15m"'),
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'tf-success' }));
+
+    expect(await screen.findByText('Timeframe 15 minutos.')).toBeTruthy();
+  });
+
+  it('revierte al timeframe anterior si el destino falla (TASK-UI-403)', async () => {
+    render(<App />);
+    window.location.hash = '/chart?symbol=GBPUSD&timeframe=1h';
+    await screen.findByRole('button', { name: 'Exportar' });
+
+    fireEvent.click(screen.getByRole('button', { name: 'cambiar-tf' }));
+    await waitFor(() => expect(window.location.hash).toContain('timeframe=15m'));
+
+    fireEvent.click(screen.getByRole('button', { name: 'tf-error' }));
+
+    await waitFor(() => expect(window.location.hash).toContain('timeframe=1h'));
+    // Sin anuncio de éxito: el cambio no llegó a cuajar.
+    expect(screen.queryByText('Timeframe 15 minutos.')).toBeNull();
   });
 
   it('lets the chart fill the vertical space without a fixed height (RF-202)', async () => {

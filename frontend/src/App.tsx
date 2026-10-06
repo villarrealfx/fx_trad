@@ -22,18 +22,30 @@ import { navigate, replaceRoute, useHashRoute } from './app/useHashRoute';
 import AppShell from './components/AppShell/AppShell';
 import AssetLibraryScreen from './components/AssetLibraryScreen/AssetLibraryScreen';
 import ChartPane from './components/ChartPane/ChartPane';
-import type { ChartPaneHandle } from './components/ChartPane/ChartPane';
+import type { ChartPaneHandle, ChartStatus } from './components/ChartPane/ChartPane';
 import ChartSelector from './components/ChartSelector/ChartSelector';
 import DownloadScreen from './components/DownloadScreen/DownloadScreen';
 import ExportModal from './components/ExportModal/ExportModal';
 import IndicatorForm from './components/IndicatorForm/IndicatorForm';
 import MultiChart from './components/MultiChart/MultiChart';
 import Toast from './components/ui/Toast';
+import LiveRegion from './components/ui/LiveRegion';
+import type { Timeframe } from './contracts/ohlc';
 import type { ExportScale } from './export';
 import { toIndicatorParameters } from './indicators/config';
 import { endOfDayEpoch, startOfDayEpoch } from './utils/dates';
 import { createChartConfigStore } from './state/chart-config';
 import { useChartConfig } from './state/use-chart-config';
+
+/** Etiqueta hablada de cada timeframe para el anuncio de cambio de escala (RF-403). */
+const TIMEFRAME_LABELS: Record<Timeframe, string> = {
+  '1m': '1 minuto',
+  '5m': '5 minutos',
+  '15m': '15 minutos',
+  '1h': '1 hora',
+  '4h': '4 horas',
+  '1d': '1 día',
+};
 
 /** Pantalla SCR-004: gráfico de la selección + indicadores + export. */
 function ChartScreen({
@@ -45,6 +57,8 @@ function ChartScreen({
   hydrateUrl: boolean;
 }) {
   const { symbol, timeframe } = selection;
+  const selectionStart = selection.start;
+  const selectionEnd = selection.end;
   // Documento v2 por activo: dibujos compartidos + indicadores + selección (TASK-401, ADR-027).
   const {
     indicators: configs,
@@ -60,10 +74,58 @@ function ChartScreen({
   const start = selection.start !== undefined ? startOfDayEpoch(selection.start) : undefined;
   const end = selection.end !== undefined ? endOfDayEpoch(selection.end) : undefined;
 
+  /** URL del gráfico para un timeframe, conservando activo y rango (RF-403). */
+  const chartUrlFor = useCallback(
+    (next: Timeframe) =>
+      buildChartUrl({ symbol, timeframe: next, start: selectionStart, end: selectionEnd }),
+    [symbol, selectionStart, selectionEnd],
+  );
+
+  // Cambio de escala (TASK-UI-403): la URL sigue siendo la fuente de la selección.
+  const [pendingTimeframe, setPendingTimeframe] = useState<Timeframe | null>(null);
+  const [announcement, setAnnouncement] = useState('');
+  const previousTimeframeRef = useRef<Timeframe | null>(null);
+
+  /** Cambia de timeframe navegando; el panel se remonta por su `key`. */
+  const handleChangeTimeframe = useCallback(
+    (next: Timeframe) => {
+      if (next === timeframe) return;
+      previousTimeframeRef.current = timeframe;
+      setPendingTimeframe(next);
+      navigate(chartUrlFor(next));
+    },
+    [timeframe, chartUrlFor],
+  );
+
+  /**
+   * Estados `switching-tf` / `tf-ready` / `tf-error` de `interaction-specs.md`.
+   *
+   * - `loading` con un cambio pendiente ⇒ `switching-tf` (skeleton, dibujos en pantalla).
+   * - `success` ⇒ `tf-ready`: se anuncia el timeframe y se olvida el pendiente.
+   * - `error` ⇒ `tf-error`: se **vuelve al timeframe anterior** conservando su serie y
+   *   sin que la selección recordada quede en el destino fallido.
+   */
+  const handleStatusChange = useCallback(
+    (status: ChartStatus) => {
+      if (pendingTimeframe === null) return;
+      if (status === 'success') {
+        setAnnouncement(`Timeframe ${TIMEFRAME_LABELS[pendingTimeframe]}.`);
+        setPendingTimeframe(null);
+        return;
+      }
+      if (status === 'error') {
+        const previous = previousTimeframeRef.current;
+        setPendingTimeframe(null);
+        if (previous !== null) {
+          navigate(chartUrlFor(previous));
+        }
+      }
+    },
+    [pendingTimeframe, chartUrlFor],
+  );
+
   // Recuerda la última selección usada y enriquece la URL si vino sin query
   // (RI-402, ADR-030). `replaceRoute` no apila historial ni dispara `hashchange`.
-  const selectionStart = selection.start;
-  const selectionEnd = selection.end;
   useEffect(() => {
     createChartConfigStore().saveLastSelection({
       symbol,
@@ -102,8 +164,11 @@ function ChartScreen({
           indicatorsOpen={indicatorsOpen}
           onOpenIndicators={() => setIndicatorsOpen((value) => !value)}
           onExport={() => setExportOpen(true)}
+          onChangeTimeframe={handleChangeTimeframe}
+          onStatusChange={handleStatusChange}
         />
       </div>
+      {announcement !== '' && <LiveRegion message={announcement} />}
       <ExportModal
         open={exportOpen}
         onClose={() => setExportOpen(false)}

@@ -9,27 +9,26 @@
 | Métrica | Valor | Δ vs estado anterior |
 |---------|-------|----------------------|
 | Tareas totales | **26** | +24 |
-| 📥 Backlog | **22** | +20 |
+| 📥 Backlog | **21** | +19 |
 | 🔨 Doing | 0 | 0 |
 | 👀 Review | 0 | 0 |
-| ✅ Done | **4** | +4 |
+| ✅ Done | **5** | +5 |
 | 🔴 Blocked | 0 | 0 |
-| % Completado | **15 %** | — |
+| % Completado | **19 %** | — |
 | Esfuerzo planificado | **76 pts** | — |
-| Ruta crítica | **2/7 · 24 pts** | — |
+| Ruta crítica | **3/7 · 24 pts** | — |
 | Historias aceptadas | **0/9** | — |
 | Días sin movimiento | 0 | — |
 
-**Estado general:** 🟢 **Ciclo 05 en ejecución.** 4/26 tareas cerradas (`TASK-401`, `TASK-402`,
-`TASK-UI-402`, `TASK-404`); la ruta crítica avanza 2/7 y el nodo 3 (`TASK-UI-403`) ya tiene todas
-sus dependencias ✅.
+**Estado general:** 🟢 **Ciclo 05 en ejecución.** 5/26 tareas cerradas; la ruta crítica avanza **3/7**
+(`TASK-401`, `TASK-402`, `TASK-UI-403` ✅).
 
 El ciclo 04 quedó **cerrado y archivado** en `_docs/iterations/04-dibujo-referencia-operacion/`
 (20/20 tareas · 56/56 pts · 19/19 requisitos propios 🟢 · CI en verde).
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (22)
+### 📥 Backlog (21)
 
 | ID | Tarea | Épica | Prioridad | Est. | Deps |
 |----|-------|-------|-----------|------|------|
@@ -37,7 +36,6 @@ El ciclo 04 quedó **cerrado y archivado** en `_docs/iterations/04-dibujo-refere
 | TASK-405 | Tests de precedencia y de ida y vuelta | EP-402 | **Must** | 2 | TASK-404 |
 | TASK-UI-400 | Tokens: `color-draw-line` `#7D8590` + `AXIS_TOKENS` en dos filas | EP-UI-400 | Should | 2 | — |
 | TASK-UI-401 | Tests de contraste y de formato del eje | EP-UI-400 | Should | 2 | TASK-UI-400 |
-| TASK-UI-403 | Integración del selector + estados `switching-tf`/`tf-ready`/`tf-error` | EP-UI-401 | **Must** | 5 | TASK-UI-402, TASK-402, TASK-404 |
 | TASK-UI-404 | Indicadores del activo recalculados por TF | EP-UI-401 | **Must** | 2 | TASK-UI-403 |
 | TASK-UI-405 | Tests de la épica de escala + frame budget | EP-UI-401 | **Must** | 3 | TASK-UI-404 |
 | TASK-UI-406 | Render del eje X en dos filas | EP-UI-402 | Should | 3 | TASK-UI-400 |
@@ -64,7 +62,7 @@ Ninguna.
 
 Ninguna.
 
-### ✅ Done (1)
+### ✅ Done (5)
 
 | ID | Tarea | Épica | Est. | Cerrada | Prueba |
 |----|-------|-------|------|---------|--------|
@@ -72,6 +70,7 @@ Ninguna.
 | TASK-402 | Migración v1→v2 pura y aditiva (unión deduplicada por `id`, indicadores del TF preferido, sin borrar v1) | EP-401 | 5 | 2026-10-06 | `state/__tests__/migrate-chart-config.test.ts` (12) + `state/__tests__/chart-config.test.ts` (22, incluye el cableado en `load`) |
 | TASK-UI-402 | `CMP-023 TimeframeSelector` (radiogroup, roving tabindex, flechas y `Home`/`End`, `disabled`) | EP-UI-401 | 3 | 2026-10-06 | `components/TimeframeSelector/__tests__/TimeframeSelector.test.tsx` (8) |
 | TASK-404 | Resolución de la selección (URL > persistido > defecto) + puntero `fxtrad.chart.last` (ADR-030) | EP-402 | 3 | 2026-10-06 | `app/__tests__/routes.test.ts` (12) + `state/__tests__/chart-config.test.ts` (26) + `__tests__/app.test.tsx` (7, ida y vuelta) |
+| TASK-UI-403 | Selector en `ChartHeader` + estados `switching-tf`/`tf-ready`/`tf-error` con reversión por error | EP-UI-401 | 5 | 2026-10-06 | `components/ChartHeader/__tests__` (8) + `components/ChartPane/__tests__` (60, +2 de `onStatusChange`) + `__tests__/app.test.tsx` (9, cambio de TF, anuncio y reversión) |
 
 ### 🔴 Blocked (0)
 
@@ -82,14 +81,14 @@ Ninguna.
 ```mermaid
 graph LR
   T401["TASK-401<br/>✅ 5"] --> T402["TASK-402<br/>✅ 5"]
-  T402 --> UI403["TASK-UI-403<br/>📥 5"]
+  T402 --> UI403["TASK-UI-403<br/>✅ 5"]
   UI403 --> UI404["TASK-UI-404<br/>📥 2"]
   UI404 --> UI405["TASK-UI-405<br/>📥 3"]
   UI405 --> TEC401["TASK-TEC-401<br/>📥 3"]
   TEC401 --> TEC403["TASK-TEC-403<br/>📥 1"]
 ```
 
-**Avance de ruta crítica:** **2/7 · 24 pts.** El tramo que domina el ciclo es
+**Avance de ruta crítica:** **3/7 · 24 pts.** El tramo que domina el ciclo es
 `TASK-401 → TASK-402 → TASK-UI-403` (tres tareas de 5 puntos encadenadas: contrato v2, migración e
 integración del cambio de escala).
 
@@ -167,8 +166,8 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 
 ## 8. Próximas acciones sugeridas
 
-1. **`/sdd-cycle`** para tomar **`TASK-UI-403`** (nodo **3 de 7** de la ruta crítica): ya tiene sus
-   tres dependencias ✅ (`TASK-UI-402`, `TASK-402`, `TASK-404`).
+1. **`/sdd-cycle`** para tomar **`TASK-UI-404`** (nodo **4 de 7** de la ruta crítica): indicadores del
+   activo recalculados con las velas del TF visible.
 2. **Antes de `TASK-UI-415`**, resolver `PA-2`: si el dolor de Multigráfico lo causaba el bug de
    selección (`RF-401`), reconsiderar la retirada.
 3. **Antes de `TASK-UI-413`**, cerrar el diagnóstico de `PA-1` (bucket del TF vs hueco de mercado).
@@ -193,3 +192,6 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 | 2026-10-06 | TASK-404 | 📥 → 🔨 | Inicio de desarrollo (resolución de la selección + puntero `fxtrad.chart.last`, ADR-030) |
 | 2026-10-06 | TASK-404 | 🔨 → 👀 | Tests verdes: 490/490 frontend · typecheck, eslint y prettier en verde · `quality_gate --level gate` PASS |
 | 2026-10-06 | TASK-404 | 👀 → ✅ | DoD verificada: precedencia URL > persistido > defecto, un query explícito nunca se pisa, URL enriquecida con `replaceState` (sin historial) y puntero validado al leer; prueba en `traceability.md`. Nuevo ADR-030 |
+| 2026-10-06 | TASK-UI-403 | 📥 → 🔨 | Inicio de desarrollo (selector en `ChartHeader` + estados de cambio de escala, RF-403/405/406) |
+| 2026-10-06 | TASK-UI-403 | 🔨 → 👀 | Tests verdes: 497/497 frontend · typecheck, eslint y prettier en verde · `quality_gate --level gate` PASS |
+| 2026-10-06 | TASK-UI-403 | 👀 → ✅ | DoD verificada: selector a la izquierda de Indicadores, estados `switching-tf`/`tf-ready`/`tf-error` con **reversión al TF anterior**, anuncio en `LiveRegion` y selección persistida; prueba en `traceability.md` |

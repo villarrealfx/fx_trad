@@ -243,6 +243,23 @@ describe('ChartPane', () => {
     expect(screen.getByLabelText('Leyenda OHLC')).toBeTruthy();
   });
 
+  it('notifica el estado de carga al contenedor (TASK-UI-403)', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    const onStatusChange = vi.fn();
+    render(<ChartPane symbol="EURUSD" timeframe="1h" onStatusChange={onStatusChange} />);
+
+    expect(onStatusChange).toHaveBeenCalledWith('loading');
+    await waitFor(() => expect(onStatusChange).toHaveBeenCalledWith('success'));
+  });
+
+  it('notifica error cuando la serie no carga (TASK-UI-403)', async () => {
+    fetchMock.mockRejectedValue(new TypeError('Failed to fetch'));
+    const onStatusChange = vi.fn();
+    render(<ChartPane symbol="EURUSD" timeframe="1h" onStatusChange={onStatusChange} />);
+
+    await waitFor(() => expect(onStatusChange).toHaveBeenCalledWith('error'));
+  });
+
   it('shows the empty state when the series has no candles', async () => {
     fetchMock.mockResolvedValue(createResponse({ ...RESPONSE, candles: [] }));
     render(<ChartPane symbol="EURUSD" timeframe="1h" />);
