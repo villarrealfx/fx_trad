@@ -9,28 +9,27 @@
 | Métrica | Valor | Δ vs estado anterior |
 |---------|-------|----------------------|
 | Tareas totales | **26** | +24 |
-| 📥 Backlog | **15** | +13 |
+| 📥 Backlog | **14** | +12 |
 | 🔨 Doing | 0 | +1 |
 | 👀 Review | 0 | 0 |
-| ✅ Done | **11** | +11 |
+| ✅ Done | **12** | +12 |
 | 🔴 Blocked | 0 | 0 |
-| % Completado | **42 %** | — |
+| % Completado | **46 %** | — |
 | Esfuerzo planificado | **76 pts** | — |
 | Ruta crítica | **5/7 · 24 pts** | — |
 | Historias aceptadas | **0/9** | — |
 | Días sin movimiento | 0 | — |
 
-**Estado general:** 🟢 **Ciclo 05 en ejecución.** 11/26 tareas cerradas; la ruta crítica avanza **5/7**
+**Estado general:** 🟢 **Ciclo 05 en ejecución.** 12/26 tareas cerradas; la ruta crítica avanza **5/7**
 (`TASK-401`, `TASK-402`, `TASK-UI-403`, `TASK-UI-404`, `TASK-UI-405` ✅). `EP-UI-404` (precios
-numéricos) queda **completa** (RF-410 🟢); `EP-UI-405` (cobertura honesta) abre con la condición
-corregida.
+numéricos) y `EP-UI-405` (cobertura honesta) quedan **completas** (RF-410 y RF-402 🟢).
 
 El ciclo 04 quedó **cerrado y archivado** en `_docs/iterations/04-dibujo-referencia-operacion/`
 (20/20 tareas · 56/56 pts · 19/19 requisitos propios 🟢 · CI en verde).
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (15)
+### 📥 Backlog (14)
 
 | ID | Tarea | Épica | Prioridad | Est. | Deps |
 |----|-------|-------|-----------|------|------|
@@ -42,7 +41,6 @@ El ciclo 04 quedó **cerrado y archivado** en `_docs/iterations/04-dibujo-refere
 | TASK-UI-407 | Tests del eje | EP-UI-402 | Should | 2 | TASK-UI-406 |
 | TASK-UI-408 | `CMP-024 CandleContextMenu` | EP-UI-403 | Should | 5 | — |
 | TASK-UI-409 | Tests y accesibilidad del menú contextual | EP-UI-403 | Should | 3 | TASK-UI-408 |
-| TASK-UI-414 | Tests de borde de la cobertura | EP-UI-405 | **Must** | 2 | TASK-UI-413 |
 | TASK-UI-415 | Retirada de Multigráfico (ruta, pantalla, `chart-sync`, props `sync`) | EP-UI-406 | Should | 3 | — |
 | TASK-UI-416 | Limpieza de tests de la retirada | EP-UI-406 | Should | 2 | TASK-UI-415 |
 | TASK-UI-417 | Evaluación de `Exportar` con decisión documentada | EP-UI-406 | Could | 2 | — |
@@ -58,7 +56,7 @@ Ninguna.
 
 Ninguna.
 
-### ✅ Done (11)
+### ✅ Done (12)
 
 | ID | Tarea | Épica | Est. | Cerrada | Prueba |
 |----|-------|-------|------|---------|--------|
@@ -73,6 +71,7 @@ Ninguna.
 | TASK-UI-411 | Integración de `CMP-025` con el command stack y `LiveRegion` | EP-UI-404 | 3 | 2026-10-06 | `components/ChartPane/ChartPane.test.tsx` (+7: botón «Precios» anclado, popover, mutación reversible, `Ctrl+Z`/`Ctrl+Y`, anuncio con los 5 valores y foco devuelto) |
 | TASK-UI-412 | Tests de aceptación del popover numérico | EP-UI-404 | 3 | 2026-10-06 | `components/ChartPane/ChartPane.test.tsx` (+5: `Enter` aplica y anuncia, `Escape` cancela sin mutar, no numérico bloquea `Aplicar`, `Ctrl+Z` restaura exacto, orden de foco Entrada→SL) |
 | TASK-UI-413 | Condición de cobertura honesta (`hasCoverageGap`) | EP-UI-405 | 2 | 2026-10-06 | `charting/__tests__/coverage.test.ts` (13) + `ChartPane.test.tsx` (hueco interno avisa; borde desfasado no) |
+| TASK-UI-414 | Tests de borde de la cobertura en pantalla | EP-UI-405 | 2 | 2026-10-06 | `components/ChartPane/ChartPane.test.tsx` (+3: cierre de fin de semana interno, `start` en fin de semana y cierre al final, sin aviso) |
 
 ### 🔴 Blocked (0)
 
@@ -138,8 +137,8 @@ Ninguna.
   dolor de Multigráfico al arreglar `RF-401`? comprobar **antes** de `TASK-UI-415`) · `PA-3`
   (criterio de viabilidad de `Exportar`, `TASK-UI-417`) · `PA-4` (quién verifica los 12 frentes del
   insumo y con qué guion).
-- **3 commits locales sin empujar** (cierres de `TASK-UI-411`, `TASK-UI-412` y `TASK-UI-413`): el
-  push es manual por política (`_docs/git-profile.toml`); el remoto está declarado.
+- **4 commits locales sin empujar** (cierres de `TASK-UI-411`…`TASK-UI-414`): el push es manual por
+  política (`_docs/git-profile.toml`); el remoto está declarado.
 
 ### 🟢 Informativas
 
@@ -169,9 +168,10 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 
 ## 8. Próximas acciones sugeridas
 
-1. **`/sdd-cycle`** para tomar **`TASK-UI-414`** (*Tests de borde de la cobertura*, `EP-UI-405`,
-   **Must**): consolida los bordes (bucket, hueco interno y fin de semana) sobre la condición nueva
-   y cierra `RF-402`.
+1. **`/sdd-cycle`** para tomar **`TASK-UI-415`** (*Retirada de Multigráfico*, `EP-UI-406`, Should):
+   abre la última cadena que le falta a `TASK-TEC-401` (`TASK-UI-415` → `TASK-UI-416`).
+   **Antes**, resolver `PA-2` (si el dolor de Multigráfico lo causaba el bug de selección ya
+   arreglado en `RF-401`, reconsiderar la retirada).
 2. **Antes de `TASK-UI-415`**, resolver `PA-2`: si el dolor de Multigráfico lo causaba el bug de
    selección (`RF-401`), reconsiderar la retirada.
 3. **Antes de `TASK-UI-413`**, cerrar el diagnóstico de `PA-1` (bucket del TF vs hueco de mercado).
@@ -217,3 +217,6 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 | 2026-10-06 | TASK-UI-413 | 📥 → 🔨 | Inicio de desarrollo (diagnóstico y corrección de la condición de cobertura, RF-402) |
 | 2026-10-06 | TASK-UI-413 | 🔨 → 👀 | Tests verdes: 554/554 frontend (+14: 13 de `coverage` y 1 de `ChartPane`) · typecheck, eslint y prettier en verde · `quality_gate --level gate` PASS |
 | 2026-10-06 | TASK-UI-413 | 👀 → ✅ | Diagnóstico (bucket vs hueco) en el AUDIT LOG; DoD verificada: `hasCoverageGap` avisa solo si falta ≥1 bucket que no sea cierre de fin de semana; el desfase de bucket en los bordes y el weekend no disparan; prueba en `traceability.md` |
+| 2026-10-06 | TASK-UI-414 | 📥 → 🔨 | Inicio de desarrollo (tests de borde de la cobertura, RF-402) |
+| 2026-10-06 | TASK-UI-414 | 🔨 → 👀 | Tests verdes: 557/557 frontend (+3 de borde) · typecheck, eslint y prettier en verde · `quality_gate --level gate` PASS |
+| 2026-10-06 | TASK-UI-414 | 👀 → ✅ | DoD verificada: cierre de fin de semana (interno, al inicio y al final del rango) **sin** aviso; hueco interno real **con** aviso y borde desfasado por bucket **sin** aviso (casos de TASK-UI-413); el test heredado del ciclo 04 quedó sustituido con criterio explícito. RF-402 🟢 y `EP-UI-405` cerrada |

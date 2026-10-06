@@ -1587,4 +1587,53 @@ describe('ChartPane', () => {
       );
     });
   });
+
+  describe('cobertura de borde (TASK-UI-414)', () => {
+    /** Viernes 2026-06-12 21:00 UTC (último bucket antes del cierre). */
+    const FRI_21 = 1_781_298_000;
+    /** Sábado 2026-06-13 10:00 UTC. */
+    const SAT_10 = 1_781_344_800;
+    /** Lunes 2026-06-15 00:00 UTC (reapertura). */
+    const MON_00 = 1_781_481_600;
+    const WARNING = 'La cobertura disponible es menor al rango solicitado';
+
+    /** Respuesta con las velas indicadas (cierre = último valor). */
+    function series(times: number[]): Response {
+      return createResponse({
+        symbol: 'EURUSD',
+        timeframe: '1h',
+        candles: times.map((time, index) => ({
+          time,
+          open: 1.08 + index / 100,
+          high: 1.09 + index / 100,
+          low: 1.07 + index / 100,
+          close: 1.085 + index / 100,
+        })),
+      });
+    }
+
+    it('no avisa cuando el hueco del rango es un cierre de fin de semana', async () => {
+      fetchMock.mockResolvedValue(series([FRI_21, MON_00]));
+      render(<ChartPane symbol="EURUSD" timeframe="1h" start={FRI_21} end={MON_00} />);
+      await waitFor(() => expect(screen.getByText('C 1.09500')).toBeTruthy());
+
+      expect(screen.queryByText(WARNING)).toBeNull();
+    });
+
+    it('no avisa cuando el rango empieza en fin de semana', async () => {
+      fetchMock.mockResolvedValue(series([MON_00]));
+      render(<ChartPane symbol="EURUSD" timeframe="1h" start={SAT_10} end={MON_00} />);
+      await waitFor(() => expect(screen.getByText('C 1.08500')).toBeTruthy());
+
+      expect(screen.queryByText(WARNING)).toBeNull();
+    });
+
+    it('no avisa cuando el rango termina tras un fin de semana', async () => {
+      fetchMock.mockResolvedValue(series([FRI_21]));
+      render(<ChartPane symbol="EURUSD" timeframe="1h" start={FRI_21} end={MON_00} />);
+      await waitFor(() => expect(screen.getByText('C 1.08500')).toBeTruthy());
+
+      expect(screen.queryByText(WARNING)).toBeNull();
+    });
+  });
 });
