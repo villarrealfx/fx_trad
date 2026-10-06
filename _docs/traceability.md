@@ -22,7 +22,7 @@ El histórico vivo de los ciclos 01–04 (35 requisitos, con su prueba y su comm
 | RF-403 Cambio de timeframe desde el gráfico | `components/ChartPane` (selector) + `App.tsx` (escribe el documento) (ADR-028) | TASK-UI-403 | — | 🔵 |
 | RF-404 Dibujos compartidos por activo entre timeframes | `charting/drawings` (anclas `PriceTimePoint`) + `state/chart-config` v2 (ADR-027) | TASK-402, TASK-UI-403 | — | 🔵 |
 | RF-405 Indicadores del activo recalculados por timeframe | `state/chart-config` v2 + `indicators/indicators` (ADR-027) | TASK-UI-404 | — | 🔵 |
-| RF-406 Selector de timeframe junto a Indicadores | `components/ChartPane` / `ChartHeader` (patrón de `ChartSelector`) | TASK-UI-402, TASK-UI-403 | — | 🔵 |
+| RF-406 Selector de timeframe junto a Indicadores | `components/TimeframeSelector` (CMP-023) + `ChartHeader` (integración) | TASK-UI-402, TASK-UI-403 | TASK-UI-402 ✅: `components/TimeframeSelector/__tests__/TimeframeSelector.test.tsx` (8: radiogroup etiquetado, `aria-checked`, roving tabindex, flechas y `Home`/`End`, `disabled`) — pendiente la integración de TASK-UI-403 | 🔵 |
 | RF-407 Eje X en dos filas (fecha / hora) | `charting/axis-format` + `AXIS_TOKENS` + `components/ChartPane` | TASK-UI-400, TASK-UI-406, TASK-UI-407 | — | 🔵 |
 | RF-408 Clic derecho sobre la vela → OHLC | `components/CandleContextMenu` (CMP-024) | TASK-UI-408, TASK-UI-409 | — | 🔵 |
 | RF-409 Retirada de la pantalla Multigráfico | `app/routes.ts` + `App.tsx` + borrado de `components/MultiChart` y `charting/chart-sync` (ADR-029) | TASK-UI-415, TASK-UI-416 | — | 🔵 |

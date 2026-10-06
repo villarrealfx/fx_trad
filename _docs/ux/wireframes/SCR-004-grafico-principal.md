@@ -141,5 +141,6 @@ DrawingHandle, EditableDrawing, LiveRegion, Button, Input (**+ CMP-025**),
   cerrar.
 - **Eje en dos filas:** al ser canvas (`aria-hidden`), la fecha y la hora siguen disponibles por
   la leyenda inferior y por el menú contextual de vela.
-- **Targets:** el selector de TF y las opciones del menú respetan el mínimo de 44×44 px (WCAG
-  2.5.5) con padding; los handles mantienen ≥24 px (heredado).
+- **Targets:** el selector de TF mide **≥44×32 px** y las opciones del menú mantienen un alto de
+  fila ≥24 px. El criterio aplicable al nivel **AA** es WCAG 2.5.8 (≥24×24); 2.5.5 (44×44) es
+  **AAA** y no aplica (corrección en TASK-UI-402); los handles mantienen ≥24 px (heredado).

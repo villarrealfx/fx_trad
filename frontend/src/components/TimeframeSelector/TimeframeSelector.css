@@ -1,0 +1,46 @@
+/*
+ * Selector de timeframe del gráfico (CMP-023, TASK-UI-402, RF-406).
+ * Solo tokens del design system: ningún color literal (RNF-204).
+ */
+.timeframe-selector {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.timeframe-selector__option {
+  min-width: 44px;
+  min-height: 32px;
+  padding: 0 var(--space-sm);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-family: var(--font-family);
+  font-size: var(--font-small-size);
+  font-weight: var(--font-small-weight);
+  cursor: pointer;
+}
+
+.timeframe-selector__option:hover:not(:disabled) {
+  color: var(--color-text);
+}
+
+.timeframe-selector__option[data-active='true'] {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.timeframe-selector__option:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 1px;
+}
+
+.timeframe-selector__option:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

@@ -47,7 +47,8 @@ Control segmentado con **un solo TF activo** a la vez (RF-406).
 - **Opciones:** exactamente `TIMEFRAMES` (`1m, 5m, 15m, 1h, 4h, 1d`); no se inventan TF. `30 m`
   queda fuera del glosario (D-6).
 - **Contrato de accesibilidad:** `role="radiogroup"` + `aria-label="Timeframe"`; cada opción es un
-  `radio` con `aria-checked`; flechas ←/→ y `Home`/`End` mueven la selección; target mínimo 44×44 px.
+  `radio` con `aria-checked`; flechas ←/→ y `Home`/`End` mueven la selección; target ≥44×32 px (el
+  criterio **AA** aplicable es WCAG 2.5.8, ≥24×24; 2.5.5 son 44×44 y es **AAA**).
 - **Estado `disabled`:** mientras el gráfico está en `loading` o `switching-tf`, para no encadenar
   cambios de serie.
 - **No confirma ni descarta:** el cambio es reversible y no destructivo (los dibujos pertenecen al
