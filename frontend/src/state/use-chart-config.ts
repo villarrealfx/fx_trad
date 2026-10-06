@@ -42,8 +42,12 @@ export interface UseChartConfigResult {
 }
 
 /** Carga la configuración guardada del activo o los valores por defecto. */
-function loadState(store: ChartConfigStore, symbol: string): Omit<ChartConfigState, 'symbol'> {
-  const config = store.load(symbol);
+function loadState(
+  store: ChartConfigStore,
+  symbol: string,
+  preferredTimeframe: ChartSelection['timeframe'],
+): Omit<ChartConfigState, 'symbol'> {
+  const config = store.load(symbol, preferredTimeframe);
   return {
     indicators: config?.indicators ?? [...DEFAULT_INDICATOR_CONFIGS],
     drawings: config?.drawings ?? [],
@@ -68,17 +72,20 @@ export function useChartConfig(
   /** Solo se persiste tras una mutación, nunca al cargar. */
   const dirtyRef = useRef(false);
 
+  const { timeframe, start, end } = selection;
+
   const [state, setState] = useState<ChartConfigState>(() => ({
     symbol,
-    ...loadState(storeRef.current as ChartConfigStore, symbol),
+    ...loadState(storeRef.current as ChartConfigStore, symbol, timeframe),
   }));
 
   // Cambio de activo: recarga antes del commit (ajuste de estado).
   if (state.symbol !== symbol) {
-    setState({ symbol, ...loadState(storeRef.current as ChartConfigStore, symbol) });
+    setState({
+      symbol,
+      ...loadState(storeRef.current as ChartConfigStore, symbol, timeframe),
+    });
   }
-
-  const { timeframe, start, end } = selection;
 
   // Persiste ante cualquier cambio real de indicadores o dibujos.
   useEffect(() => {

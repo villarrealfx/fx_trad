@@ -16,13 +16,11 @@
 import { isOverlayShape } from '../charting/drawings';
 import type { OverlayShape } from '../charting/overlay-geometry';
 import { TIMEFRAMES, type Timeframe } from '../contracts/ohlc';
-import type { IndicatorConfig, IndicatorKind } from '../indicators/config';
+import { isIndicatorConfig, type IndicatorConfig } from '../indicators/config';
+import { migrateFromV1 } from './migrate-chart-config';
 
 /** Versión del esquema del documento de configuración (ADR-027). */
 export const CHART_CONFIG_VERSION = 2;
-
-/** Tipos de indicador válidos al deserializar. */
-const INDICATOR_KINDS: readonly IndicatorKind[] = ['MA', 'RSI', 'ATR'];
 
 /** Última selección de gráfico recordada para el activo (RI-402). */
 export interface ChartSelection {
@@ -63,18 +61,6 @@ export interface ChartConfigInput {
 /** Clave de almacenamiento por activo y versión de esquema. */
 export function chartConfigKey(symbol: string): string {
   return `fxtrad.chart.v${CHART_CONFIG_VERSION}.${symbol}`;
-}
-
-/** Comprueba que un valor sea un `IndicatorConfig` válido. */
-function isIndicatorConfig(value: unknown): value is IndicatorConfig {
-  if (typeof value !== 'object' || value === null) return false;
-  const config = value as Partial<IndicatorConfig>;
-  return (
-    typeof config.id === 'string' &&
-    INDICATOR_KINDS.includes(config.kind as IndicatorKind) &&
-    typeof config.period === 'number' &&
-    typeof config.visible === 'boolean'
-  );
 }
 
 /** Comprueba que un valor sea una `ChartSelection` válida. */
@@ -134,8 +120,14 @@ export function deserializeChartConfig(
 export interface ChartConfigStore {
   /** Guarda el documento de un activo. */
   save(symbol: string, input: ChartConfigInput): void;
-  /** Carga el documento del activo, o `null` si no hay o es inválido. */
-  load(symbol: string): DrawingDocument | null;
+  /**
+   * Carga el documento del activo, o `null` si no hay.
+   *
+   * Si no existe el v2, intenta la **migración aditiva** desde los documentos v1
+   * (TASK-402, RNF-401), persiste el resultado y lo devuelve. El timeframe
+   * preferido decide de qué documento v1 se toman los indicadores.
+   */
+  load(symbol: string, preferredTimeframe?: Timeframe): DrawingDocument | null;
   /** Elimina el documento de un activo. */
   clear(symbol: string): void;
 }
@@ -154,18 +146,31 @@ function defaultStorage(): Storage | null {
 export function createChartConfigStore(
   storage: Storage | null = defaultStorage(),
 ): ChartConfigStore {
+  function saveDocument(symbol: string, input: ChartConfigInput): void {
+    if (storage === null) return;
+    try {
+      storage.setItem(chartConfigKey(symbol), serializeChartConfig(symbol, input));
+    } catch {
+      // Cuota excedida u otro fallo del almacenamiento: se ignora.
+    }
+  }
+
   return {
-    save(symbol, input) {
-      if (storage === null) return;
-      try {
-        storage.setItem(chartConfigKey(symbol), serializeChartConfig(symbol, input));
-      } catch {
-        // Cuota excedida u otro fallo del almacenamiento: se ignora.
-      }
-    },
-    load(symbol) {
+    save: saveDocument,
+    load(symbol, preferredTimeframe) {
       if (storage === null) return null;
-      return deserializeChartConfig(symbol, storage.getItem(chartConfigKey(symbol)));
+      const current = deserializeChartConfig(symbol, storage.getItem(chartConfigKey(symbol)));
+      if (current !== null) return current;
+      const migrated = migrateFromV1(storage, symbol, preferredTimeframe);
+      if (migrated === null) return null;
+      saveDocument(symbol, migrated);
+      return {
+        version: CHART_CONFIG_VERSION,
+        symbol,
+        drawings: [...migrated.drawings],
+        indicators: [...migrated.indicators],
+        selection: migrated.selection,
+      };
     },
     clear(symbol) {
       storage?.removeItem(chartConfigKey(symbol));

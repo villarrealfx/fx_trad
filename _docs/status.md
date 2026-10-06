@@ -9,30 +9,29 @@
 | Métrica | Valor | Δ vs estado anterior |
 |---------|-------|----------------------|
 | Tareas totales | **26** | +24 |
-| 📥 Backlog | **25** | +23 |
+| 📥 Backlog | **24** | +22 |
 | 🔨 Doing | 0 | 0 |
 | 👀 Review | 0 | 0 |
-| ✅ Done | **1** | +1 |
+| ✅ Done | **2** | +2 |
 | 🔴 Blocked | 0 | 0 |
-| % Completado | **4 %** | — |
+| % Completado | **8 %** | — |
 | Esfuerzo planificado | **76 pts** | — |
-| Ruta crítica | **1/7 · 24 pts** | — |
+| Ruta crítica | **2/7 · 24 pts** | — |
 | Historias aceptadas | **0/9** | — |
 | Días sin movimiento | 0 | — |
 
-**Estado general:** 🟢 **Ciclo 05 en ejecución.** 1/26 tareas cerradas (`TASK-401`, contrato v2); la
-ruta crítica avanza 1/7.
+**Estado general:** 🟢 **Ciclo 05 en ejecución.** 2/26 tareas cerradas (`TASK-401`, `TASK-402`); la
+ruta crítica avanza 2/7.
 
 El ciclo 04 quedó **cerrado y archivado** en `_docs/iterations/04-dibujo-referencia-operacion/`
 (20/20 tareas · 56/56 pts · 19/19 requisitos propios 🟢 · CI en verde).
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (25)
+### 📥 Backlog (24)
 
 | ID | Tarea | Épica | Prioridad | Est. | Deps |
 |----|-------|-------|-----------|------|------|
-| TASK-402 | `state/migrate-chart-config.ts` (migración v1→v2 pura) | EP-401 | **Must** | 5 | TASK-401 |
 | TASK-403 | Tests de migración y de contrato v2 | EP-401 | **Must** | 3 | TASK-402 |
 | TASK-404 | Resolución de la selección (URL > persistido > defecto) | EP-402 | **Must** | 3 | TASK-401 |
 | TASK-405 | Tests de precedencia y de ida y vuelta | EP-402 | **Must** | 2 | TASK-404 |
@@ -71,6 +70,7 @@ Ninguna.
 | ID | Tarea | Épica | Est. | Cerrada | Prueba |
 |----|-------|-------|------|---------|--------|
 | TASK-401 | Contrato único del documento v2 por activo (clave sin TF, `selection`, `charting/` cede el contrato) | EP-401 | 5 | 2026-10-06 | `state/__tests__/chart-config.test.ts` (17) + `state/__tests__/use-chart-config.test.tsx` (8) + `charting/__tests__/drawings.test.ts` (7) |
+| TASK-402 | Migración v1→v2 pura y aditiva (unión deduplicada por `id`, indicadores del TF preferido, sin borrar v1) | EP-401 | 5 | 2026-10-06 | `state/__tests__/migrate-chart-config.test.ts` (12) + `state/__tests__/chart-config.test.ts` (22, incluye el cableado en `load`) |
 
 ### 🔴 Blocked (0)
 
@@ -80,7 +80,7 @@ Ninguna.
 
 ```mermaid
 graph LR
-  T401["TASK-401<br/>✅ 5"] --> T402["TASK-402<br/>📥 5"]
+  T401["TASK-401<br/>✅ 5"] --> T402["TASK-402<br/>✅ 5"]
   T402 --> UI403["TASK-UI-403<br/>📥 5"]
   UI403 --> UI404["TASK-UI-404<br/>📥 2"]
   UI404 --> UI405["TASK-UI-405<br/>📥 3"]
@@ -88,7 +88,7 @@ graph LR
   TEC401 --> TEC403["TASK-TEC-403<br/>📥 1"]
 ```
 
-**Avance de ruta crítica:** **1/7 · 24 pts.** El tramo que domina el ciclo es
+**Avance de ruta crítica:** **2/7 · 24 pts.** El tramo que domina el ciclo es
 `TASK-401 → TASK-402 → TASK-UI-403` (tres tareas de 5 puntos encadenadas: contrato v2, migración e
 integración del cambio de escala).
 
@@ -166,8 +166,8 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 
 ## 8. Próximas acciones sugeridas
 
-1. **`/sdd-cycle`** para tomar **`TASK-402`** (migración v1→v2, nodo 2 de la ruta crítica); cablea la
-   migración dentro de `load(symbol)` de `state/chart-config`.
+1. **`/sdd-cycle`** para tomar **`TASK-403`** (tests de aceptación de la migración: v1 mixto con los 5
+   tipos en 3 timeframes, 0 pérdidas y 0 duplicados, y rechazo de un documento v3).
 2. **Antes de `TASK-UI-415`**, resolver `PA-2`: si el dolor de Multigráfico lo causaba el bug de
    selección (`RF-401`), reconsiderar la retirada.
 3. **Antes de `TASK-UI-413`**, cerrar el diagnóstico de `PA-1` (bucket del TF vs hueco de mercado).
@@ -183,3 +183,6 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 | 2026-10-06 | TASK-401 | 📥 → 🔨 | Inicio de desarrollo (contrato único del documento v2, ADR-027) |
 | 2026-10-06 | TASK-401 | 🔨 → 👀 | Tests verdes: 455/455 frontend (32 de los archivos tocados) · typecheck, eslint y prettier en verde · `quality_gate --level gate` PASS |
 | 2026-10-06 | TASK-401 | 👀 → ✅ | DoD verificada: `CHART_CONFIG_VERSION = 2`, clave por activo sin TF, `deserializeChartConfig` → null ante versión desconocida, `charting/` sin dependencia de `indicators/`; prueba en `traceability.md` |
+| 2026-10-06 | TASK-402 | 📥 → 🔨 | Inicio de desarrollo (migración v1→v2 aditiva, ADR-027) |
+| 2026-10-06 | TASK-402 | 🔨 → 👀 | Tests verdes: 472/472 frontend (42 en `state/`) · typecheck, eslint y prettier en verde · `quality_gate --level gate` PASS |
+| 2026-10-06 | TASK-402 | 👀 → ✅ | DoD verificada: módulo puro con `Storage` inyectable, dedupe por `id`, idempotente (el v2 manda), ninguna clave v1 borrada; prueba en `traceability.md` |

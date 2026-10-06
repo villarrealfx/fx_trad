@@ -19,12 +19,33 @@ export interface IndicatorConfig {
   visible: boolean;
 }
 
+/** Tipos de indicador válidos al deserializar un documento persistido. */
+const INDICATOR_KINDS: readonly IndicatorKind[] = ['MA', 'RSI', 'ATR'];
+
+/**
+ * Comprueba que un valor sea un `IndicatorConfig` válido.
+ *
+ * Vive junto al contrato porque lo consumen tanto el documento v2
+ * (`state/chart-config`) como la migración desde los documentos v1
+ * (`state/migrate-chart-config`, TASK-402).
+ */
+export function isIndicatorConfig(value: unknown): value is IndicatorConfig {
+  if (typeof value !== 'object' || value === null) return false;
+  const config = value as Partial<IndicatorConfig>;
+  return (
+    typeof config.id === 'string' &&
+    INDICATOR_KINDS.includes(config.kind as IndicatorKind) &&
+    typeof config.period === 'number' &&
+    typeof config.visible === 'boolean'
+  );
+}
+
 /**
  * Indicadores iniciales: **ninguno** (RF-201).
  *
  * El gráfico abre sin indicadores; el usuario los agrega a petición desde el
- * formulario flotante (ADR-019). La lista se persiste por activo+timeframe
- * (RI-201).
+ * formulario flotante (ADR-019). La lista se persiste **por activo** (RI-401,
+ * ADR-027).
  */
 export const DEFAULT_INDICATOR_CONFIGS: ReadonlyArray<IndicatorConfig> = [];
 

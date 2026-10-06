@@ -17,6 +17,7 @@ import {
   serializeChartConfig,
   type ChartSelection,
 } from '../chart-config';
+import { legacyChartConfigKey } from '../migrate-chart-config';
 
 const SELECTION: ChartSelection = { timeframe: '1h', start: '2026-01-02', end: '2026-03-04' };
 
@@ -282,17 +283,94 @@ describe('createChartConfigStore (TASK-401)', () => {
     ).not.toThrow();
   });
 
-  it('ignora entradas guardadas bajo la clave v1 de un timeframe', () => {
+  it('da prioridad al documento v2 sobre los documentos v1 (ADR-027)', () => {
     const storage = new MemoryStorage();
     storage.setItem(
       'fxtrad.chart.v1.EURUSD.1h',
       JSON.stringify({ version: 1, indicators: INDICATORS, drawings: DRAWINGS }),
     );
-
     const store = createChartConfigStore(storage);
+    store.save('EURUSD', { indicators: [], drawings: [], selection: { timeframe: '4h' } });
 
-    expect(store.load('EURUSD')).toBeNull();
+    const loaded = store.load('EURUSD', '1h');
+
+    expect(loaded?.drawings).toEqual([]);
+    expect(loaded?.selection).toEqual({ timeframe: '4h' });
     // La clave v1 sigue intacta: la migración es aditiva y no borra (RNF-401).
     expect(storage.getItem('fxtrad.chart.v1.EURUSD.1h')).not.toBeNull();
+  });
+});
+
+describe('migración aditiva v1→v2 en load() (TASK-402, RNF-401)', () => {
+  /** Escribe un documento v1 como lo hacía el ciclo 04. */
+  function writeLegacy(
+    storage: MemoryStorage,
+    timeframe: string,
+    drawings: OverlayShape[],
+    indicators: IndicatorConfig[] = [],
+  ): void {
+    storage.setItem(
+      legacyChartConfigKey('EURUSD', timeframe as ChartSelection['timeframe']),
+      JSON.stringify({ version: 1, indicators, drawings }),
+    );
+  }
+
+  it('migra desde v1, persiste el v2 y devuelve el documento', () => {
+    const storage = new MemoryStorage();
+    writeLegacy(storage, '1h', MIXED_DRAWINGS, INDICATORS);
+    writeLegacy(storage, '15m', [MIXED_DRAWINGS[0]]);
+    const store = createChartConfigStore(storage);
+
+    const loaded = store.load('EURUSD', '1h');
+
+    expect(loaded?.version).toBe(CHART_CONFIG_VERSION);
+    expect(loaded?.symbol).toBe('EURUSD');
+    expect(loaded?.drawings).toHaveLength(5);
+    expect(loaded?.indicators).toEqual(INDICATORS);
+    expect(loaded?.selection).toEqual({ timeframe: '1h' });
+    // El v2 queda persistido: la siguiente carga no vuelve a migrar.
+    expect(storage.getItem(chartConfigKey('EURUSD'))).not.toBeNull();
+  });
+
+  it('toma los indicadores del timeframe preferido', () => {
+    const storage = new MemoryStorage();
+    writeLegacy(storage, '1h', [], INDICATORS);
+    writeLegacy(storage, '15m', [], [{ id: 'rsi-9', kind: 'RSI', period: 9, visible: true }]);
+    const store = createChartConfigStore(storage);
+
+    expect(store.load('EURUSD', '15m')?.indicators).toEqual([
+      { id: 'rsi-9', kind: 'RSI', period: 9, visible: true },
+    ]);
+  });
+
+  it('es idempotente: no re-migra si el v2 ya existe', () => {
+    const storage = new MemoryStorage();
+    writeLegacy(storage, '1h', DRAWINGS, INDICATORS);
+    const store = createChartConfigStore(storage);
+    store.load('EURUSD', '1h');
+
+    store.save('EURUSD', { indicators: [], drawings: [], selection: { timeframe: '4h' } });
+    const reloaded = store.load('EURUSD', '1h');
+
+    expect(reloaded?.drawings).toEqual([]);
+    expect(reloaded?.selection).toEqual({ timeframe: '4h' });
+  });
+
+  it('no borra ninguna clave v1 al migrar (RNF-401)', () => {
+    const storage = new MemoryStorage();
+    writeLegacy(storage, '1h', DRAWINGS, INDICATORS);
+    writeLegacy(storage, '4h', DRAWINGS);
+    const store = createChartConfigStore(storage);
+
+    store.load('EURUSD', '1h');
+
+    expect(storage.getItem('fxtrad.chart.v1.EURUSD.1h')).not.toBeNull();
+    expect(storage.getItem('fxtrad.chart.v1.EURUSD.4h')).not.toBeNull();
+  });
+
+  it('devuelve null sin v2 ni v1', () => {
+    const store = createChartConfigStore(new MemoryStorage());
+
+    expect(store.load('EURUSD')).toBeNull();
   });
 });
