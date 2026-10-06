@@ -371,13 +371,31 @@ describe('ChartPane', () => {
     expect(status.querySelectorAll('.chart-pane__skeleton-bar')).toHaveLength(14);
   });
 
-  it('warns when the requested range exceeds the available coverage (partial)', async () => {
-    fetchMock.mockResolvedValue(createResponse(RESPONSE));
-    render(<ChartPane symbol="EURUSD" timeframe="1h" start={1_780_999_000} end={1_781_004_000} />);
+  it('warns when candles are missing inside the requested range (partial)', async () => {
+    // Martes 2026-06-09: falta el bucket de las 12:00 entre dos velas servidas.
+    fetchMock.mockResolvedValue(
+      createResponse({
+        symbol: 'EURUSD',
+        timeframe: '1h',
+        candles: [
+          { time: 1_780_999_200, open: 1.08, high: 1.09, low: 1.07, close: 1.085 },
+          { time: 1_781_010_000, open: 1.085, high: 1.1, low: 1.08, close: 1.095 },
+        ],
+      }),
+    );
+    render(<ChartPane symbol="EURUSD" timeframe="1h" start={1_780_999_200} end={1_781_010_000} />);
 
     expect(
       await screen.findByText('La cobertura disponible es menor al rango solicitado'),
     ).toBeTruthy();
+  });
+
+  it('does not warn when a range edge is only a bucket offset (RF-402)', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    render(<ChartPane symbol="EURUSD" timeframe="1h" start={1_780_999_000} end={1_781_004_000} />);
+    await waitFor(() => expect(screen.getByText('C 1.09500')).toBeTruthy());
+
+    expect(screen.queryByText('La cobertura disponible es menor al rango solicitado')).toBeNull();
   });
 
   it('does not warn about partial coverage for a full range', async () => {

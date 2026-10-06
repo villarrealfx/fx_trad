@@ -21,6 +21,7 @@ import type { Candle, Timeframe } from '../../contracts/ohlc';
 import { PRICE_FORMAT, formatAxisLabel } from '../../charting/axis-format';
 import { createOverlayBinding, type OverlayBinding } from '../../charting/chart-binding';
 import type { ChartSyncController } from '../../charting/chart-sync';
+import { hasCoverageGap } from '../../charting/coverage';
 import { constrainToAxis } from '../../charting/drawing-edit';
 import { markerAnchorPrice } from '../../charting/markers';
 import { operationAnnouncement } from '../../charting/operation-geometry';
@@ -426,15 +427,14 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
           return;
         }
         const last = response.candles[response.candles.length - 1];
-        const first = response.candles[0];
         lastRef.current = last;
         candlesRef.current = response.candles;
         setLegendBar(last);
         seriesRef.current?.setData(response.candles as CandlestickData[]);
         chartRef.current?.timeScale().fitContent();
-        setPartialCoverage(
-          (start !== undefined && first.time > start) || (end !== undefined && last.time < end),
-        );
+        // El aviso solo si faltan velas dentro del rango (RF-402, TASK-UI-413):
+        // el desfase de bucket y los cierres de fin de semana no cuentan.
+        setPartialCoverage(hasCoverageGap(response.candles, { start, end }, timeframe));
         setStatus('success');
       })
       .catch((error: unknown) => {
