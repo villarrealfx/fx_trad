@@ -45,12 +45,6 @@ const chartMocks = vi.hoisted(() => {
   });
   const unsubscribeClick = vi.fn();
   const remove = vi.fn();
-  const getVisibleRange = vi.fn(() => ({ from: 1_781_000_000, to: 1_781_003_600 }));
-  const setVisibleRange = vi.fn();
-  const subscribeVisibleTimeRangeChange = vi.fn();
-  const unsubscribeVisibleTimeRangeChange = vi.fn();
-  const setCrosshairPosition = vi.fn();
-  const clearCrosshairPosition = vi.fn();
   const takeScreenshot = vi.fn<() => HTMLCanvasElement>(
     () => ({ width: 800, height: 400 }) as unknown as HTMLCanvasElement,
   );
@@ -74,10 +68,6 @@ const chartMocks = vi.hoisted(() => {
     subscribeSizeChange,
     unsubscribeVisibleLogicalRangeChange,
     unsubscribeSizeChange,
-    getVisibleRange,
-    setVisibleRange,
-    subscribeVisibleTimeRangeChange,
-    unsubscribeVisibleTimeRangeChange,
   }));
   const createChart = vi.fn<(...args: unknown[]) => unknown>(() => ({
     addCandlestickSeries,
@@ -90,8 +80,6 @@ const chartMocks = vi.hoisted(() => {
     unsubscribeClick,
     remove,
     takeScreenshot,
-    setCrosshairPosition,
-    clearCrosshairPosition,
   }));
   return {
     setData,
@@ -121,12 +109,6 @@ const chartMocks = vi.hoisted(() => {
     unsubscribeClick,
     clickListeners,
     crosshairListeners,
-    getVisibleRange,
-    setVisibleRange,
-    subscribeVisibleTimeRangeChange,
-    unsubscribeVisibleTimeRangeChange,
-    setCrosshairPosition,
-    clearCrosshairPosition,
   };
 });
 

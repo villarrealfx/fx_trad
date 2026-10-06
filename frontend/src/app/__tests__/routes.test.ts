@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { buildChartUrl, hasExplicitChartQuery, parseChartQuery, parseLocation } from '../routes';
+import {
+  ROUTES,
+  buildChartUrl,
+  hasExplicitChartQuery,
+  parseChartQuery,
+  parseLocation,
+  routeFor,
+} from '../routes';
 
 describe('parseLocation (TASK-026)', () => {
   it('splits the path and the query', () => {
@@ -106,5 +113,16 @@ describe('buildChartUrl (TASK-026)', () => {
         end: '2026-02-01',
       }),
     ).toBe('/chart?symbol=EURUSD&timeframe=1h&start=2026-01-01&end=2026-02-01');
+  });
+});
+
+describe('ROUTES sin Multigráfico (TASK-UI-416, RF-409)', () => {
+  it('no expone la ruta ni la pantalla retiradas', () => {
+    expect(ROUTES.some((route) => route.path === '/multichart')).toBe(false);
+    expect(ROUTES.some((route) => (route.screen as string) === 'SCR-005')).toBe(false);
+  });
+
+  it('cae en Gráfico para la ruta retirada', () => {
+    expect(routeFor('/multichart').path).toBe('/chart');
   });
 });

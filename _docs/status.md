@@ -9,28 +9,28 @@
 | Métrica | Valor | Δ vs estado anterior |
 |---------|-------|----------------------|
 | Tareas totales | **26** | +24 |
-| 📥 Backlog | **13** | +11 |
+| 📥 Backlog | **12** | +10 |
 | 🔨 Doing | 0 | +1 |
 | 👀 Review | 0 | 0 |
-| ✅ Done | **13** | +13 |
+| ✅ Done | **14** | +14 |
 | 🔴 Blocked | 0 | 0 |
-| % Completado | **50 %** | — |
+| % Completado | **54 %** | — |
 | Esfuerzo planificado | **76 pts** | — |
 | Ruta crítica | **5/7 · 24 pts** | — |
 | Historias aceptadas | **0/9** | — |
 | Días sin movimiento | 0 | — |
 
-**Estado general:** 🟢 **Ciclo 05 en ejecución.** 13/26 tareas cerradas; la ruta crítica avanza **5/7**
-(`TASK-401`, `TASK-402`, `TASK-UI-403`, `TASK-UI-404`, `TASK-UI-405` ✅). `EP-UI-404` (precios
-numéricos), `EP-UI-405` (cobertura honesta) y la retirada de Multigráfico quedan hechas; solo falta
-la limpieza de tests de la retirada.
+**Estado general:** 🟢 **Ciclo 05 en ejecución.** 14/26 tareas cerradas; la ruta crítica avanza **5/7**
+(`TASK-401`, `TASK-402`, `TASK-UI-403`, `TASK-UI-404`, `TASK-UI-405` ✅). `EP-UI-404`, `EP-UI-405` y
+la retirada de `EP-UI-406` quedan **completas**; `TASK-TEC-401` ya tiene **todas** sus dependencias
+✅ y es el siguiente nodo.
 
 El ciclo 04 quedó **cerrado y archivado** en `_docs/iterations/04-dibujo-referencia-operacion/`
 (20/20 tareas · 56/56 pts · 19/19 requisitos propios 🟢 · CI en verde).
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (13)
+### 📥 Backlog (12)
 
 | ID | Tarea | Épica | Prioridad | Est. | Deps |
 |----|-------|-------|-----------|------|------|
@@ -42,7 +42,6 @@ El ciclo 04 quedó **cerrado y archivado** en `_docs/iterations/04-dibujo-refere
 | TASK-UI-407 | Tests del eje | EP-UI-402 | Should | 2 | TASK-UI-406 |
 | TASK-UI-408 | `CMP-024 CandleContextMenu` | EP-UI-403 | Should | 5 | — |
 | TASK-UI-409 | Tests y accesibilidad del menú contextual | EP-UI-403 | Should | 3 | TASK-UI-408 |
-| TASK-UI-416 | Limpieza de tests de la retirada | EP-UI-406 | Should | 2 | TASK-UI-415 |
 | TASK-UI-417 | Evaluación de `Exportar` con decisión documentada | EP-UI-406 | Could | 2 | — |
 | TASK-TEC-401 | Suite completa + medición del cambio de TF + gate de calidad | EP-TEC-400 | **Must** | 3 | TASK-UI-405, TASK-UI-412, TASK-UI-414, TASK-UI-416 |
 | TASK-TEC-402 | Accesibilidad (axe + teclado) de los componentes nuevos | EP-TEC-400 | **Must** | 2 | TASK-UI-409, TASK-UI-412 |
@@ -56,7 +55,7 @@ Ninguna.
 
 Ninguna.
 
-### ✅ Done (13)
+### ✅ Done (14)
 
 | ID | Tarea | Épica | Est. | Cerrada | Prueba |
 |----|-------|-------|------|---------|--------|
@@ -73,6 +72,7 @@ Ninguna.
 | TASK-UI-413 | Condición de cobertura honesta (`hasCoverageGap`) | EP-UI-405 | 2 | 2026-10-06 | `charting/__tests__/coverage.test.ts` (13) + `ChartPane.test.tsx` (hueco interno avisa; borde desfasado no) |
 | TASK-UI-414 | Tests de borde de la cobertura en pantalla | EP-UI-405 | 2 | 2026-10-06 | `components/ChartPane/ChartPane.test.tsx` (+3: cierre de fin de semana interno, `start` en fin de semana y cierre al final, sin aviso) |
 | TASK-UI-415 | Retirada de Multigráfico y de `chart-sync` (ADR-029) | EP-UI-406 | 3 | 2026-10-06 | `__tests__/app.test.tsx` (sin enlace «Multigráfico») + `grep` con 0 referencias en `src/`; −11 tests por retirada de código |
+| TASK-UI-416 | Limpieza de tests de la retirada y guardia de `ROUTES` | EP-UI-406 | 2 | 2026-10-06 | `app/__tests__/routes.test.ts` (+2: sin `/multichart`/`SCR-005`; `routeFor('/multichart')` → `/chart`); 6 mocks huérfanos retirados; 548/548 |
 
 ### 🔴 Blocked (0)
 
@@ -138,7 +138,7 @@ Ninguna.
   antes de `TASK-UI-415` (se confirma la retirada: la decisión D-3/ADR-029 no dependía de `RF-401`)
   · `PA-3` (criterio de viabilidad de `Exportar`, `TASK-UI-417`) · `PA-4` (quién verifica los 12
   frentes del insumo y con qué guion).
-- **5 commits locales sin empujar** (cierres de `TASK-UI-411`…`TASK-UI-415`): el push es manual por
+- **6 commits locales sin empujar** (cierres de `TASK-UI-411`…`TASK-UI-416`): el push es manual por
   política (`_docs/git-profile.toml`); el remoto está declarado.
 
 ### 🟢 Informativas
@@ -169,9 +169,10 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 
 ## 8. Próximas acciones sugeridas
 
-1. **`/sdd-cycle`** para tomar **`TASK-UI-416`** (*Limpieza de tests de la retirada*, `EP-UI-406`,
-   Should): auditoría de mocks huérfanos (`ChartPane.test.tsx`), directorios vacíos, `skip` sueltos y
-   recuento final. Es la **última dependencia** que le falta a `TASK-TEC-401` (nodo 6).
+1. **`/sdd-cycle`** para tomar **`TASK-TEC-401`** (nodo **6 de 7** de la ruta crítica, **Must**):
+   suite frontend + backend en verde con el recuento real anotado, medición del cambio de TF en
+   caliente registrada (RNF-404) y `quality_gate --level gate` pegado en el AUDIT LOG. **Todas sus
+   dependencias están ✅.**
 2. **Antes de `TASK-UI-415`**, resolver `PA-2`: si el dolor de Multigráfico lo causaba el bug de
    selección (`RF-401`), reconsiderar la retirada.
 3. **Antes de `TASK-UI-413`**, cerrar el diagnóstico de `PA-1` (bucket del TF vs hueco de mercado).
@@ -223,3 +224,6 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 | 2026-10-06 | TASK-UI-415 | 📥 → 🔨 | PA-2 resuelta (se confirma la retirada); inicio de desarrollo (RF-409, ADR-029) |
 | 2026-10-06 | TASK-UI-415 | 🔨 → 👀 | Tests verdes: 546/546 frontend en 58 archivos (−11 tests retirados con su código) · typecheck, eslint y prettier en verde · `quality_gate --level gate` PASS |
 | 2026-10-06 | TASK-UI-415 | 👀 → ✅ | DoD verificada: `SCR-005` fuera de `ScreenId` y `/multichart` fuera de `ROUTES`; sin rama en `App.tsx`; borrados `components/MultiChart/` y `charting/chart-sync.ts`; `sync`/`syncId` fuera de `ChartPane`; `grep` con **0** referencias en `src/`; la Operación sigue en `Gráfico`; prueba en `traceability.md` |
+| 2026-10-06 | TASK-UI-416 | 📥 → 🔨 | Inicio de desarrollo (limpieza de tests de la retirada, RF-409) |
+| 2026-10-06 | TASK-UI-416 | 🔨 → 👀 | Tests verdes: 548/548 frontend en 58 archivos (+2 de guardia) · typecheck, eslint y prettier en verde · `quality_gate --level gate` PASS |
+| 2026-10-06 | TASK-UI-416 | 👀 → ✅ | DoD verificada: los 11 tests de `MultiChart`/`chart-sync`/`sync` quedaron borrados en TASK-UI-415; se retiran 6 mocks de sincronización huérfanos del arnés, se añade la guardia de `ROUTES` (`/multichart` y `SCR-005` fuera; `routeFor` cae en `/chart`) y el recuento real (548/58) queda anotado; sin `skip` ni directorios vacíos. RF-409 🟢 |
