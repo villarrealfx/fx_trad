@@ -68,6 +68,24 @@ reconsidera antes de ejecutar la tarea.
 - El backend no participa; ninguna API cambia.
 - Sin dependencias nuevas (RX-401): se retira código, no se añade.
 
+## Evaluación de PA-2 (2026-10-06, tras ejecutar la retirada)
+
+`PA-2` preguntaba si el dolor de Multigráfico lo causaba el bug de selección (`RF-401`) y, por
+tanto, si al arreglarlo procedía reconsiderar la retirada. Evaluación **posterior** con el código
+retirado recuperado de git (`2c244c7^`):
+
+| Alegación | Evidencia | Conclusión |
+|---|---|---|
+| Era una comparación de activos | `MultiChart` recibía **un solo** `symbol` y cada panel solo cambiaba de `timeframe` | Nunca fue multi-activo: no sostenía su nombre |
+| El andamiaje era prescindible | `chart-sync` (`ChartSyncController`) tenía como **único** consumidor de producción a `MultiChart` | Coste de mantenimiento duplicado, ajeno a `RF-401` |
+| El bug de selección era la causa | `RF-401` reseteaba a `EURUSD 1h` al volver a `Gráfico` y **agrava** la percepción | Factor **contribuyente**, no causa |
+| El caso de uso sigue haciendo falta | `CMP-023` cambia de TF en el sitio y el documento v2 por activo mantiene dibujos e indicadores al cambiar de escala | El flujo «ver el mismo activo en otro TF» es ahora un clic |
+| La retirada era reversible con poco coste | Decisión del usuario (D-3) y retirada en bloque (`TASK-UI-415`/`416`) | Sin telemetría (app local) el contrafactual no es medible |
+
+**Resultado:** la retirada se mantiene. `RF-401` no era la causa del dolor; arreglarlo **redujo** la
+necesidad de la pantalla. Si vuelve a hacer falta comparación multi-activo, exige requisito y diseño
+nuevos (`RF-W-404`). Confianza en la decisión: alta; en que `RF-401` fuera la causa: baja.
+
 ## Referencias
 
 - `_docs/requirements.md` RF-409, RF-W-404 · `_docs/plan.md` §7 R-402

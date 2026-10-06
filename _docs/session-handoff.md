@@ -60,9 +60,14 @@ Después:
 
 ## Preguntas abiertas (PA-X)
 
-- **PA-1 *(resuelta)***: el aviso de cobertura era un **falso positivo de borde** (desfase de
-  bucket + cierre de fin de semana). Corregido y probado en `TASK-UI-413`/`TASK-UI-414`.
-- **PA-2 *(resuelta)***: se confirma la retirada de Multigráfico (D-14).
+- **PA-1 *(resuelta, con reapertura)***: el aviso era un **falso positivo**. La primera corrección
+  (`TASK-UI-413`) no cubría el cierre real del viernes (20:00/21:00 UTC) ni la apertura del domingo
+  (21:00); con `data/EURUSD.1h.parquet` avisaba en **103/103** `Lun→Vie`, 103/103 viernes y 79/79
+  domingos. **Reabiertas** `TASK-UI-413`/`414` y corregidas con la ventana semanal
+  `[viernes 19:00, lunes 00:00)` UTC; bordes de viernes/domingo probados. Límite: festivos en día
+  laborable (6/594 días del histórico).
+- **PA-2 *(resuelta)***: se confirma la retirada de Multigráfico (D-14); evaluación con el código
+  retirado en `ADR-029` → «Evaluación de PA-2» (era multi-TF, no multi-activo).
 - **PA-3:** criterio de viabilidad de `Exportar` (`TASK-UI-417`).
 - **PA-4**: ¿quién verifica los 12 frentes del insumo (KPI-401) y con qué guion manual?
 
