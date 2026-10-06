@@ -11,11 +11,15 @@ import type { OverlayShape } from '../../charting/overlay-geometry';
 import type { IndicatorConfig } from '../../indicators/config';
 import {
   CHART_CONFIG_VERSION,
+  LAST_CHART_SELECTION_KEY,
   chartConfigKey,
   createChartConfigStore,
   deserializeChartConfig,
+  deserializeLastSelection,
   serializeChartConfig,
+  serializeLastSelection,
   type ChartSelection,
+  type LastChartSelection,
 } from '../chart-config';
 import { legacyChartConfigKey } from '../migrate-chart-config';
 
@@ -372,5 +376,57 @@ describe('migración aditiva v1→v2 en load() (TASK-402, RNF-401)', () => {
     const store = createChartConfigStore(new MemoryStorage());
 
     expect(store.load('EURUSD')).toBeNull();
+  });
+});
+
+describe('puntero de la última selección (TASK-404, RI-402, ADR-030)', () => {
+  const LAST: LastChartSelection = {
+    symbol: 'GBPUSD',
+    timeframe: '15m',
+    start: '2026-01-02',
+    end: '2026-03-04',
+  };
+
+  it('hace round-trip del puntero con su activo', () => {
+    expect(deserializeLastSelection(serializeLastSelection(LAST))).toEqual(LAST);
+  });
+
+  it('devuelve null ante ausencia, corrupción o forma inválida', () => {
+    expect(deserializeLastSelection(null)).toBeNull();
+    expect(deserializeLastSelection('')).toBeNull();
+    expect(deserializeLastSelection('{no-json')).toBeNull();
+    expect(deserializeLastSelection(JSON.stringify({ timeframe: '1h' }))).toBeNull();
+    expect(
+      deserializeLastSelection(JSON.stringify({ symbol: 'EURUSD', timeframe: '30m' })),
+    ).toBeNull();
+  });
+
+  it('guarda y carga el puntero en su propia clave', () => {
+    const storage = new MemoryStorage();
+    const store = createChartConfigStore(storage);
+
+    store.saveLastSelection(LAST);
+
+    expect(store.loadLastSelection()).toEqual(LAST);
+    expect(storage.getItem(LAST_CHART_SELECTION_KEY)).not.toBeNull();
+    // El puntero no crea ni pisa el documento de ningún activo.
+    expect(store.load('GBPUSD')).toBeNull();
+  });
+
+  it('es un no-op sin almacenamiento o si la escritura falla (cuota)', () => {
+    expect(createChartConfigStore(null).loadLastSelection()).toBeNull();
+    expect(() => createChartConfigStore(null).saveLastSelection(LAST)).not.toThrow();
+
+    const rejecting: Storage = {
+      length: 0,
+      clear: () => {},
+      getItem: () => null,
+      key: () => null,
+      removeItem: () => {},
+      setItem: () => {
+        throw new Error('QuotaExceededError');
+      },
+    };
+    expect(() => createChartConfigStore(rejecting).saveLastSelection(LAST)).not.toThrow();
   });
 });

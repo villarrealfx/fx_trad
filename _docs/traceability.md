@@ -17,7 +17,7 @@ El histórico vivo de los ciclos 01–04 (35 requisitos, con su prueba y su comm
 
 | Requisito | Diseño (ADR/Componente) | Tarea | Prueba | Estado |
 |-----------|-------------------------|-------|--------|--------|
-| RF-401 Conservar la última selección al volver a `Gráfico` | `App.tsx` + `app/routes.ts` (`parseChartQuery` con fallback) + `state/use-chart-config` (ADR-028) | TASK-404, TASK-405, TASK-UI-403 | — | 🔵 |
+| RF-401 Conservar la última selección al volver a `Gráfico` | `App.tsx` + `app/routes.ts` (`parseChartQuery` con fallback) + `state/chart-config` (`selection` y puntero `fxtrad.chart.last`) (ADR-028/ADR-030) | TASK-404, TASK-405, TASK-UI-403 | TASK-404 ✅: `app/__tests__/routes.test.ts` (precedencia URL > fallback > defecto; un query explícito no se pisa) + `__tests__/app.test.tsx` (ida y vuelta a `/chart` sin query, URL enriquecida) — pendiente TASK-405 y la integración de TASK-UI-403 | 🔵 |
 | RF-402 Aviso de cobertura solo cuando es real | `components/ChartPane` (condición de `partialCoverage`) | TASK-UI-413, TASK-UI-414 | — | 🔵 |
 | RF-403 Cambio de timeframe desde el gráfico | `components/ChartPane` (selector) + `App.tsx` (escribe el documento) (ADR-028) | TASK-UI-403 | — | 🔵 |
 | RF-404 Dibujos compartidos por activo entre timeframes | `charting/drawings` (anclas `PriceTimePoint`) + `state/chart-config` v2 (ADR-027) | TASK-402, TASK-UI-403 | — | 🔵 |
@@ -44,7 +44,7 @@ El histórico vivo de los ciclos 01–04 (35 requisitos, con su prueba y su comm
 | Requisito | Diseño (ADR/Componente) | Tarea | Prueba | Estado |
 |-----------|-------------------------|-------|--------|--------|
 | RI-401 Documento v2 por activo con migración aditiva desde v1 | `state/chart-config` v2 (`DrawingDocument` reutilizado) + `state/migrate-chart-config` (ADR-027) | TASK-401, TASK-402, TASK-403 | TASK-401 ✅: `state/__tests__/chart-config.test.ts` (17: round-trip v2, clave sin TF) + `state/__tests__/use-chart-config.test.tsx` (8) · TASK-402 ✅: `state/__tests__/migrate-chart-config.test.ts` (12: unión multi-TF, indicadores del TF preferido, idempotencia por prioridad del v2) — pendiente la evidencia de aceptación de TASK-403 | 🔵 |
-| RI-402 La última selección es estado persistido y recuperable | `state/chart-config` (`selection`) + `app/routes.ts` (precedencia URL > persistido > defecto) (ADR-028) | TASK-404, TASK-405 | — | 🔵 |
+| RI-402 La última selección es estado persistido y recuperable | `state/chart-config` (`selection` por activo + puntero `fxtrad.chart.last`) + `app/routes.ts` (precedencia) (ADR-028/ADR-030) | TASK-404, TASK-405 | TASK-404 ✅: `state/__tests__/chart-config.test.ts` (round-trip del puntero, validación al leer, no-op sin almacenamiento) + `app/__tests__/routes.test.ts` — pendiente TASK-405 | 🔵 |
 
 ## 5. Requisitos de integración
 

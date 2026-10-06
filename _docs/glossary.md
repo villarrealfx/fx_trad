@@ -153,4 +153,4 @@
 - **Sensibilidad:** interna (almacenamiento local del navegador, sin PII).
 - **Volumen estimado:** bajo (una entrada por activo; antes una por activo+timeframe).
 - **Retención:** local del navegador; puede limpiarse por el usuario.
-- **Persistencia:** `localStorage` vía `state/chart-config` (ADR-018). Sustituye el modelo por activo+timeframe de RI-201 (decisión D-2); el ADR que lo formaliza se decide en `/sdd-stack`. Los documentos v1 **se conservan** como respaldo de la migración (RNF-401).
+- **Persistencia:** `localStorage` vía `state/chart-config` (ADR-018). Sustituye el modelo por activo+timeframe de RI-201 (decisión D-2); el ADR que lo formaliza se decide en `/sdd-stack`. Los documentos v1 **se conservan** como respaldo de la migración (RNF-401). La **última selección** usada se recuerda además en el puntero `fxtrad.chart.last` (ADR-030): el `selection` de este documento es por activo y no dice cuál fue el último.

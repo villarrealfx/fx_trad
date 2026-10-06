@@ -70,6 +70,7 @@ describe('App', () => {
     cleanup();
     vi.clearAllMocks();
     window.location.hash = '';
+    localStorage.clear();
   });
 
   it('renders the app heading', () => {
@@ -100,6 +101,21 @@ describe('App', () => {
     fireEvent.click(await screen.findByRole('button', { name: 'Abrir gráfico' }));
 
     expect(await screen.findByRole('button', { name: 'Exportar' })).toBeTruthy();
+  });
+
+  it('retoma la última selección al volver a Gráfico sin query (TASK-404, RF-401)', async () => {
+    render(<App />);
+
+    // 1) Selección explícita en la URL: queda recordada como la última.
+    window.location.hash = '/chart?symbol=GBPUSD&timeframe=15m';
+    await waitFor(() => expect(window.location.hash).toContain('symbol=GBPUSD'));
+
+    // 2) Volver a Gráfico sin query: se hidrata del puntero persistido y la URL
+    //    se enriquece con la selección efectiva (sin apilar historial).
+    window.location.hash = '/chart';
+    await waitFor(() => expect(window.location.hash).toContain('symbol=GBPUSD'));
+
+    expect(window.location.hash).toContain('timeframe=15m');
   });
 
   it('lets the chart fill the vertical space without a fixed height (RF-202)', async () => {

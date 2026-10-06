@@ -163,6 +163,7 @@ erDiagram
 | METADATA_DESCARGA | tabla DuckDB | interna | 1 registro/tanda | Indefinida |
 | **DOCUMENTO_V2** | `localStorage`, clave `fxtrad.chart.v2.{symbol}` | interna (sin PII) | 1 entrada por activo (antes 1 por activo+TF) | Local del navegador |
 | **SELECCION** | dentro de DOCUMENTO_V2 | interna (sin PII) | 1 por activo | Local del navegador |
+| **ÚLTIMA SELECCIÓN (puntero)** | `localStorage`, clave `fxtrad.chart.last` | interna (sin PII) | 1 global | Local del navegador |
 | DOCUMENTO_V1 | `localStorage`, `fxtrad.chart.v1.{symbol}.{TF}` | interna (sin PII) | 6 por activo | **Se conserva** como respaldo (RNF-401) |
 
 ## 6. Vista de integración
@@ -241,9 +242,11 @@ graph LR
 | **ADR-027** | Documento de configuración **v2 por activo** (dibujos compartidos) con migración aditiva desde v1 | Aceptado |
 | **ADR-028** | La **selección de gráfico** es estado persistido, con la URL como fuente preferente | Aceptado |
 | **ADR-029** | **Retirada de Multigráfico** y concentración en un único panel de gráfico | Aceptado |
+| **ADR-030** | **Puntero de la última selección** de gráfico (`fxtrad.chart.last`) | Aceptado |
 
 ADRs heredados vigentes: ADR-001…026 (ver `_docs/adr/`). ADR-027 **modifica** ADR-018/ADR-023 y
-ADR-029 **modifica** RF-310 (ciclo 04); ninguno se deroga.
+ADR-029 **modifica** RF-310 (ciclo 04); ADR-030 **complementa** ADR-028 con el puntero de la última
+selección; ninguno se deroga.
 
 **Sobre las citas a `plan.md` (resuelve PA-4):** `_docs/plan.md` es siempre el plan del **ciclo
 vigente** (hoy el 05). Las referencias `_docs/plan.md` de ADR-001…026 corresponden al plan del

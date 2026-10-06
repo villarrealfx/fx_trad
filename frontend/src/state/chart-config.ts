@@ -63,6 +63,45 @@ export function chartConfigKey(symbol: string): string {
   return `fxtrad.chart.v${CHART_CONFIG_VERSION}.${symbol}`;
 }
 
+/** Clave del puntero de la última selección de gráfico (RI-402, ADR-030). */
+export const LAST_CHART_SELECTION_KEY = 'fxtrad.chart.last';
+
+/**
+ * Última selección de gráfico usada, **con su activo** (RI-402, ADR-030).
+ *
+ * El `selection` del documento v2 es por activo, así que no basta para saber qué
+ * activo abrir en `/chart` sin query: este puntero añade el símbolo.
+ */
+export interface LastChartSelection extends ChartSelection {
+  symbol: string;
+}
+
+/** Comprueba que un valor sea una `LastChartSelection` válida. */
+function isLastChartSelection(value: unknown): value is LastChartSelection {
+  if (typeof value !== 'object' || value === null) return false;
+  const selection = value as Partial<LastChartSelection>;
+  return typeof selection.symbol === 'string' && isChartSelection(selection);
+}
+
+/** Serializa el puntero de la última selección (ADR-030). */
+export function serializeLastSelection(selection: LastChartSelection): string {
+  return JSON.stringify(selection);
+}
+
+/** Deserializa el puntero; `null` si falta, está corrupto o no es válido. */
+export function deserializeLastSelection(
+  raw: string | null | undefined,
+): LastChartSelection | null {
+  if (raw === null || raw === undefined || raw === '') return null;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return null;
+  }
+  return isLastChartSelection(parsed) ? parsed : null;
+}
+
 /** Comprueba que un valor sea una `ChartSelection` válida. */
 function isChartSelection(value: unknown): value is ChartSelection {
   if (typeof value !== 'object' || value === null) return false;
@@ -130,6 +169,10 @@ export interface ChartConfigStore {
   load(symbol: string, preferredTimeframe?: Timeframe): DrawingDocument | null;
   /** Elimina el documento de un activo. */
   clear(symbol: string): void;
+  /** Guarda el puntero de la última selección de gráfico (RI-402, ADR-030). */
+  saveLastSelection(selection: LastChartSelection): void;
+  /** Lee el puntero de la última selección; `null` si no hay o no es válido. */
+  loadLastSelection(): LastChartSelection | null;
 }
 
 /** Almacenamiento por defecto (navegador); `null` si no está disponible. */
@@ -174,6 +217,18 @@ export function createChartConfigStore(
     },
     clear(symbol) {
       storage?.removeItem(chartConfigKey(symbol));
+    },
+    saveLastSelection(selection) {
+      if (storage === null) return;
+      try {
+        storage.setItem(LAST_CHART_SELECTION_KEY, serializeLastSelection(selection));
+      } catch {
+        // Cuota excedida u otro fallo del almacenamiento: se ignora.
+      }
+    },
+    loadLastSelection() {
+      if (storage === null) return null;
+      return deserializeLastSelection(storage.getItem(LAST_CHART_SELECTION_KEY));
     },
   };
 }

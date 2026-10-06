@@ -5,6 +5,16 @@ export function navigate(path: string): void {
   window.location.hash = path;
 }
 
+/**
+ * Reemplaza el hash actual **sin** apilar una entrada en el historial (ADR-030).
+ *
+ * `history.replaceState` no dispara `hashchange`, así que enriquecer la URL con
+ * la selección efectiva no provoca un re-render ni un bucle de navegación.
+ */
+export function replaceRoute(path: string): void {
+  window.history.replaceState(null, '', `#${path}`);
+}
+
 /** Lee el path del hash actual; `null` si el hash no es una ruta (`/…`). */
 function readRouteHash(): string | null {
   const hash = window.location.hash.replace(/^#/, '');

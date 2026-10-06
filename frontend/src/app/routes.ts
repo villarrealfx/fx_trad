@@ -5,6 +5,7 @@
  * un single-window de escritorio (RNF-005), por lo que basta un mapa de rutas.
  */
 import { TIMEFRAMES, type Timeframe } from '../contracts/ohlc';
+import type { LastChartSelection } from '../state/chart-config';
 
 /** Identificador de pantalla del wireframe. */
 export type ScreenId = 'SCR-001' | 'SCR-002' | 'SCR-003' | 'SCR-004' | 'SCR-005' | 'SCR-006';
@@ -69,15 +70,35 @@ export interface ChartQuery {
 /** Activo por defecto del scaffold. */
 export const DEFAULT_SYMBOL = 'EURUSD';
 
-/** Lee la selección del gráfico de los parámetros de la URL. */
-export function parseChartQuery(params: URLSearchParams): ChartQuery {
-  const symbol = params.get('symbol') ?? DEFAULT_SYMBOL;
-  const rawTimeframe = params.get('timeframe');
-  const timeframe = TIMEFRAMES.includes(rawTimeframe as Timeframe)
-    ? (rawTimeframe as Timeframe)
-    : DEFAULT_TIMEFRAME;
-  const start = params.get('start') ?? undefined;
-  const end = params.get('end') ?? undefined;
+/** ¿La URL trae una selección de gráfico explícita? (ADR-028/ADR-030). */
+export function hasExplicitChartQuery(params: URLSearchParams): boolean {
+  return params.has('symbol') || params.has('timeframe');
+}
+
+/** Devuelve el timeframe si pertenece al contrato; `null` si no es canónico. */
+function canonicalTimeframe(value: string | null | undefined): Timeframe | null {
+  return TIMEFRAMES.includes(value as Timeframe) ? (value as Timeframe) : null;
+}
+
+/**
+ * Lee la selección del gráfico de los parámetros de la URL.
+ *
+ * Precedencia **estricta** (ADR-028/ADR-030): un parámetro explícito nunca se
+ * sobrescribe; si falta, se rellena con el puntero persistido (`fallback`) y, en
+ * último término, con los valores por defecto. El timeframe se valida contra el
+ * contrato en las dos fuentes.
+ */
+export function parseChartQuery(
+  params: URLSearchParams,
+  fallback?: LastChartSelection | null,
+): ChartQuery {
+  const symbol = params.get('symbol') ?? fallback?.symbol ?? DEFAULT_SYMBOL;
+  const timeframe =
+    canonicalTimeframe(params.get('timeframe')) ??
+    canonicalTimeframe(fallback?.timeframe) ??
+    DEFAULT_TIMEFRAME;
+  const start = params.get('start') ?? fallback?.start ?? undefined;
+  const end = params.get('end') ?? fallback?.end ?? undefined;
   return { symbol, timeframe, start, end };
 }
 

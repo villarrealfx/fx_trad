@@ -6,17 +6,19 @@
  * activo/rango/timeframe (TASK-026) y SCR-002 el formulario de descarga. El
  * resto muestra un placeholder hasta que sus tareas de pantalla se implementen.
  */
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   DEFAULT_ROUTE,
   ROUTES,
+  buildChartUrl,
+  hasExplicitChartQuery,
   parseChartQuery,
   parseLocation,
   routeFor,
   type AppRoute,
   type ChartQuery,
 } from './app/routes';
-import { navigate, useHashRoute } from './app/useHashRoute';
+import { navigate, replaceRoute, useHashRoute } from './app/useHashRoute';
 import AppShell from './components/AppShell/AppShell';
 import AssetLibraryScreen from './components/AssetLibraryScreen/AssetLibraryScreen';
 import ChartPane from './components/ChartPane/ChartPane';
@@ -30,10 +32,18 @@ import Toast from './components/ui/Toast';
 import type { ExportScale } from './export';
 import { toIndicatorParameters } from './indicators/config';
 import { endOfDayEpoch, startOfDayEpoch } from './utils/dates';
+import { createChartConfigStore } from './state/chart-config';
 import { useChartConfig } from './state/use-chart-config';
 
 /** Pantalla SCR-004: gráfico de la selección + indicadores + export. */
-function ChartScreen({ selection }: { selection: ChartQuery }) {
+function ChartScreen({
+  selection,
+  hydrateUrl,
+}: {
+  selection: ChartQuery;
+  /** La URL llegó sin query: hay que enriquecerla con la selección efectiva. */
+  hydrateUrl: boolean;
+}) {
   const { symbol, timeframe } = selection;
   // Documento v2 por activo: dibujos compartidos + indicadores + selección (TASK-401, ADR-027).
   const {
@@ -49,6 +59,22 @@ function ChartScreen({ selection }: { selection: ChartQuery }) {
 
   const start = selection.start !== undefined ? startOfDayEpoch(selection.start) : undefined;
   const end = selection.end !== undefined ? endOfDayEpoch(selection.end) : undefined;
+
+  // Recuerda la última selección usada y enriquece la URL si vino sin query
+  // (RI-402, ADR-030). `replaceRoute` no apila historial ni dispara `hashchange`.
+  const selectionStart = selection.start;
+  const selectionEnd = selection.end;
+  useEffect(() => {
+    createChartConfigStore().saveLastSelection({
+      symbol,
+      timeframe,
+      start: selectionStart,
+      end: selectionEnd,
+    });
+    if (hydrateUrl) {
+      replaceRoute(buildChartUrl({ symbol, timeframe, start: selectionStart, end: selectionEnd }));
+    }
+  }, [symbol, timeframe, selectionStart, selectionEnd, hydrateUrl]);
 
   /** Compone el lienzo del ChartPane a la escala pedida (RF-015). */
   const compose = useCallback((scale: ExportScale) => paneRef.current?.compose(scale) ?? null, []);
@@ -125,7 +151,10 @@ export default function App() {
 
   function renderScreen() {
     if (route.screen === 'SCR-004') {
-      return <ChartScreen selection={parseChartQuery(params)} />;
+      // Precedencia: URL explícita > último seleccionado > defecto (ADR-028/ADR-030).
+      const explicit = hasExplicitChartQuery(params);
+      const fallback = explicit ? null : createChartConfigStore().loadLastSelection();
+      return <ChartScreen selection={parseChartQuery(params, fallback)} hydrateUrl={!explicit} />;
     }
     if (route.screen === 'SCR-005') {
       return <MultiChart symbol={parseChartQuery(params).symbol} />;
