@@ -11,6 +11,8 @@ export interface InputProps {
   onChange: (value: string) => void;
   /** Tipo de input (texto o fecha). */
   type?: 'text' | 'date';
+  /** Modo de teclado (variante numérica de CMP-025, RF-410). */
+  inputMode?: 'text' | 'decimal' | 'numeric';
   /** Mensaje de error inline; marca `aria-invalid` y `role="alert"`. */
   error?: string;
   /** Deshabilita el campo. */
@@ -38,6 +40,7 @@ export default function Input({
   value,
   onChange,
   type = 'text',
+  inputMode,
   error,
   disabled = false,
   id,
@@ -60,6 +63,7 @@ export default function Input({
         name={name}
         className={`field__input${hasError ? ' field__input--error' : ''}`}
         type={type}
+        inputMode={inputMode}
         value={value}
         min={min}
         max={max}

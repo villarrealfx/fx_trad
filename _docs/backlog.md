@@ -259,7 +259,7 @@ de RNF-007 asumiendo que el MoSCoW (DP-3) define el orden de recorte si el plazo
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-UI-410 | `CMP-025 OperationNumericFields`: popover anclado a la figura con dos campos y validación | frontend | 5 | TASK-401 | Labels visibles `Entrada`/`Stop Loss`; `inputMode` decimal; validación inline `role="alert"`; `Aplicar` deshabilitado si no es numérico o `Entrada == SL`; `Escape` cierra y devuelve el foco | 📥 |
+| TASK-UI-410 | `CMP-025 OperationNumericFields`: popover anclado a la figura con dos campos y validación | frontend | 5 | TASK-401 | Labels visibles `Entrada`/`Stop Loss`; `inputMode` decimal; validación inline `role="alert"`; `Aplicar` deshabilitado si no es numérico o `Entrada == SL`; `Escape` cierra y devuelve el foco | 🔨 |
 | TASK-UI-411 | Integración con el command stack y `LiveRegion` | frontend | 3 | TASK-UI-410 | `Enter`/`Aplicar` mutan la figura por el command stack (`undo`/`redo` funcionan); se recalculan dirección, `R` y TP; el anuncio usa el mismo formato que las mutaciones del canvas | 📥 |
 | TASK-UI-412 | Tests del popover numérico | test | 3 | TASK-UI-411 | `Tab` Entrada→SL, `Enter` aplica, `Escape` cancela; error inline asociado al campo; `Ctrl+Z` revierte; el anuncio contiene los 5 valores; sin regresión en los tests de la operación | 📥 |
 
