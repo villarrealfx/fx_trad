@@ -9,28 +9,28 @@
 | Métrica | Valor | Δ vs estado anterior |
 |---------|-------|----------------------|
 | Tareas totales | **26** | +24 |
-| 📥 Backlog | **12** | +10 |
+| 📥 Backlog | **11** | +9 |
 | 🔨 Doing | 0 | +1 |
 | 👀 Review | 0 | 0 |
-| ✅ Done | **14** | +14 |
+| ✅ Done | **15** | +15 |
 | 🔴 Blocked | 0 | 0 |
-| % Completado | **54 %** | — |
+| % Completado | **58 %** | — |
 | Esfuerzo planificado | **76 pts** | — |
 | Ruta crítica | **5/7 · 24 pts** | — |
 | Historias aceptadas | **0/9** | — |
 | Días sin movimiento | 0 | — |
 
-**Estado general:** 🟢 **Ciclo 05 en ejecución.** 14/26 tareas cerradas; la ruta crítica avanza **5/7**
-(`TASK-401`, `TASK-402`, `TASK-UI-403`, `TASK-UI-404`, `TASK-UI-405` ✅). `EP-UI-404`, `EP-UI-405` y
-la retirada de `EP-UI-406` quedan **completas**; `TASK-TEC-401` ya tiene **todas** sus dependencias
-✅ y es el siguiente nodo.
+**Estado general:** 🟢 **Ciclo 05 en ejecución.** 15/26 tareas cerradas; la ruta crítica avanza
+**6/7** (`TASK-401`, `TASK-402`, `TASK-UI-403`, `TASK-UI-404`, `TASK-UI-405`, `TASK-TEC-401` ✅).
+`EP-UI-404`, `EP-UI-405` y la retirada de `EP-UI-406` quedan **completas**; solo falta el nodo 7
+(`TASK-TEC-403`, sin dependencias nuevas) y las tareas de UI fuera de ruta crítica.
 
 El ciclo 04 quedó **cerrado y archivado** en `_docs/iterations/04-dibujo-referencia-operacion/`
 (20/20 tareas · 56/56 pts · 19/19 requisitos propios 🟢 · CI en verde).
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (12)
+### 📥 Backlog (11)
 
 | ID | Tarea | Épica | Prioridad | Est. | Deps |
 |----|-------|-------|-----------|------|------|
@@ -43,7 +43,6 @@ El ciclo 04 quedó **cerrado y archivado** en `_docs/iterations/04-dibujo-refere
 | TASK-UI-408 | `CMP-024 CandleContextMenu` | EP-UI-403 | Should | 5 | — |
 | TASK-UI-409 | Tests y accesibilidad del menú contextual | EP-UI-403 | Should | 3 | TASK-UI-408 |
 | TASK-UI-417 | Evaluación de `Exportar` con decisión documentada | EP-UI-406 | Could | 2 | — |
-| TASK-TEC-401 | Suite completa + medición del cambio de TF + gate de calidad | EP-TEC-400 | **Must** | 3 | TASK-UI-405, TASK-UI-412, TASK-UI-414, TASK-UI-416 |
 | TASK-TEC-402 | Accesibilidad (axe + teclado) de los componentes nuevos | EP-TEC-400 | **Must** | 2 | TASK-UI-409, TASK-UI-412 |
 | TASK-TEC-403 | Verificación de «sin dependencias nuevas» | EP-TEC-400 | **Must** | 1 | TASK-TEC-401 |
 
@@ -55,7 +54,7 @@ Ninguna.
 
 Ninguna.
 
-### ✅ Done (14)
+### ✅ Done (15)
 
 | ID | Tarea | Épica | Est. | Cerrada | Prueba |
 |----|-------|-------|------|---------|--------|
@@ -73,6 +72,7 @@ Ninguna.
 | TASK-UI-414 | Tests de borde de la cobertura en pantalla | EP-UI-405 | 2 | 2026-10-06 | `components/ChartPane/ChartPane.test.tsx` (+3: cierre de fin de semana interno, `start` en fin de semana y cierre al final, sin aviso) |
 | TASK-UI-415 | Retirada de Multigráfico y de `chart-sync` (ADR-029) | EP-UI-406 | 3 | 2026-10-06 | `__tests__/app.test.tsx` (sin enlace «Multigráfico») + `grep` con 0 referencias en `src/`; −11 tests por retirada de código |
 | TASK-UI-416 | Limpieza de tests de la retirada y guardia de `ROUTES` | EP-UI-406 | 2 | 2026-10-06 | `app/__tests__/routes.test.ts` (+2: sin `/multichart`/`SCR-005`; `routeFor('/multichart')` → `/chart`); 6 mocks huérfanos retirados; 548/548 |
+| TASK-TEC-401 | Suite completa + medición del cambio de TF + gate | EP-TEC-400 | 3 | 2026-10-06 | Backend 546/546 + 2 skip; frontend 549/549 en 58 archivos; `coverage/tf-switch-measurement.json` (medición client-side); `quality_gate --level gate` PASS |
 
 ### 🔴 Blocked (0)
 
@@ -86,16 +86,16 @@ graph LR
   T402 --> UI403["TASK-UI-403<br/>✅ 5"]
   UI403 --> UI404["TASK-UI-404<br/>✅ 2"]
   UI404 --> UI405["TASK-UI-405<br/>✅ 5"]
-  UI405 --> TEC401["TASK-TEC-401<br/>📥 3"]
+  UI405 --> TEC401["TASK-TEC-401<br/>✅ 3"]
   TEC401 --> TEC403["TASK-TEC-403<br/>📥 1"]
 ```
 
-**Avance de ruta crítica:** **5/7 · 24 pts.** El tramo que domina el ciclo es
-`TASK-401 → TASK-402 → TASK-UI-403` (tres tareas de 5 puntos encadenadas: contrato v2, migración e
-integración del cambio de escala).
+**Avance de ruta crítica:** **6/7 · 27 pts.** Solo queda el nodo 7 (`TASK-TEC-403`). El tramo que
+dominó el ciclo fue `TASK-401 → TASK-402 → TASK-UI-403` (tres tareas de 5 puntos encadenadas:
+contrato v2, migración e integración del cambio de escala).
 
-**Pueden empezar en paralelo** (sin dependencias): `TASK-UI-400`, `TASK-UI-408`,
-`TASK-UI-413`, `TASK-UI-415` y `TASK-UI-417`.
+**Pueden empezar en paralelo** (sin dependencias): `TASK-UI-400`, `TASK-UI-408`, `TASK-UI-417` y
+`TASK-TEC-403`.
 
 ## 4. Métricas
 
@@ -105,15 +105,16 @@ integración del cambio de escala).
 |-------|-------------|----------|
 | 03 — Mejoras UX | 35 | 121 pts |
 | 04 — Dibujo Referencia de Operación | 20 | 56 pts |
-| **05 — planificado** | **0/26** | **76 pts** |
+| **05 — en ejecución** | **15/26 · 42 pts** | **76 pts** |
 
 ### 4.2 Burn-down
 
-No aplica: el ciclo no ha empezado (0 tareas en 🔨).
+15 de 26 tareas cerradas (**58 %**), 42 de 76 pts; 11 tareas en 📥 (34 pts), 0 bloqueadas.
 
 ### 4.3 Lead time / cycle time
 
-No medidos. Se registrarán con el primer cierre de tarea del ciclo.
+No medidos; todas las tareas del ciclo se cerraron el mismo día (2026-10-06), así que el lead time
+no es informativo. El ciclo 05 mantiene la ruta crítica en **6/7**.
 
 ## 5. Bloqueos activos
 
@@ -138,7 +139,7 @@ Ninguna.
   antes de `TASK-UI-415` (se confirma la retirada: la decisión D-3/ADR-029 no dependía de `RF-401`)
   · `PA-3` (criterio de viabilidad de `Exportar`, `TASK-UI-417`) · `PA-4` (quién verifica los 12
   frentes del insumo y con qué guion).
-- **6 commits locales sin empujar** (cierres de `TASK-UI-411`…`TASK-UI-416`): el push es manual por
+- **7 commits locales sin empujar** (cierres de `TASK-UI-411`…`TASK-TEC-401`): el push es manual por
   política (`_docs/git-profile.toml`); el remoto está declarado.
 
 ### 🟢 Informativas
@@ -169,10 +170,9 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 
 ## 8. Próximas acciones sugeridas
 
-1. **`/sdd-cycle`** para tomar **`TASK-TEC-401`** (nodo **6 de 7** de la ruta crítica, **Must**):
-   suite frontend + backend en verde con el recuento real anotado, medición del cambio de TF en
-   caliente registrada (RNF-404) y `quality_gate --level gate` pegado en el AUDIT LOG. **Todas sus
-   dependencias están ✅.**
+1. **`/sdd-cycle`** para tomar **`TASK-TEC-403`** (**nodo 7 de 7**, cierre de la ruta crítica):
+   verifica que `git diff` de `frontend/package.json`, `frontend/package-lock.json` y `backend/`
+   respecto a `e67ba78` está vacío (RX-401). Ya no tiene dependencias pendientes.
 2. **Antes de `TASK-UI-415`**, resolver `PA-2`: si el dolor de Multigráfico lo causaba el bug de
    selección (`RF-401`), reconsiderar la retirada.
 3. **Antes de `TASK-UI-413`**, cerrar el diagnóstico de `PA-1` (bucket del TF vs hueco de mercado).
@@ -227,3 +227,6 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 | 2026-10-06 | TASK-UI-416 | 📥 → 🔨 | Inicio de desarrollo (limpieza de tests de la retirada, RF-409) |
 | 2026-10-06 | TASK-UI-416 | 🔨 → 👀 | Tests verdes: 548/548 frontend en 58 archivos (+2 de guardia) · typecheck, eslint y prettier en verde · `quality_gate --level gate` PASS |
 | 2026-10-06 | TASK-UI-416 | 👀 → ✅ | DoD verificada: los 11 tests de `MultiChart`/`chart-sync`/`sync` quedaron borrados en TASK-UI-415; se retiran 6 mocks de sincronización huérfanos del arnés, se añade la guardia de `ROUTES` (`/multichart` y `SCR-005` fuera; `routeFor` cae en `/chart`) y el recuento real (548/58) queda anotado; sin `skip` ni directorios vacíos. RF-409 🟢 |
+| 2026-10-06 | TASK-TEC-401 | 📥 → 🔨 | Inicio de desarrollo (suite completa + medición del cambio de TF + gate, RNF-402/403/404) |
+| 2026-10-06 | TASK-TEC-401 | 🔨 → 👀 | Suites verdes: backend 546/546 + 2 skip · frontend 549/549 en 58 archivos · typecheck, eslint y prettier en verde · `quality_gate --level gate` PASS |
+| 2026-10-06 | TASK-TEC-401 | 👀 → ✅ | DoD verificada: recuentos reales de ambas suites anotados, gate PASS pegado en el AUDIT LOG y medición del cambio de TF registrada en `coverage/tf-switch-measurement.json`. RNF-402 🟢; RNF-404 medido y registrado, con la comparación client-side marcada como no concluyente (D-5, sin umbral bloqueante). Ruta crítica 6/7 |

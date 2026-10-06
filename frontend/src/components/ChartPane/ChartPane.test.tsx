@@ -1,5 +1,6 @@
 import axe from 'axe-core';
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { createRef } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
@@ -9,6 +10,7 @@ import {
 } from '../../performance/frame-rate';
 import { installCanvas2DContextMock } from '../../testing/canvas-2d';
 import type { OverlayShape } from '../../charting/overlay-geometry';
+import type { Timeframe } from '../../contracts/ohlc';
 import { DEFAULT_INDICATOR_PARAMETERS } from '../../indicators/indicators';
 import ChartPane from './ChartPane';
 import type { ChartPaneHandle } from './ChartPane';
@@ -1572,6 +1574,66 @@ describe('ChartPane', () => {
       await waitFor(() => expect(screen.getByText('C 1.08500')).toBeTruthy());
 
       expect(screen.queryByText(WARNING)).toBeNull();
+    });
+  });
+
+  describe('medición del cambio de TF en caliente (TASK-TEC-401, RNF-404)', () => {
+    /** Escribe el resultado en `coverage/` (ignorado por git) para el AUDIT LOG. */
+    function recordMeasurement(payload: Record<string, unknown>): void {
+      mkdirSync('coverage', { recursive: true });
+      writeFileSync('coverage/tf-switch-measurement.json', `${JSON.stringify(payload, null, 2)}\n`);
+    }
+
+    it('mide cada cambio en caliente frente a la carga inicial de su TF (RNF-404)', async () => {
+      fetchMock.mockResolvedValue(createResponse(RESPONSE));
+
+      /** Carga inicial (montaje) de un TF, medida hasta el `setData` de la serie. */
+      async function coldLoad(timeframe: Timeframe): Promise<number> {
+        chartMocks.setData.mockClear();
+        const view = render(<ChartPane key={timeframe} symbol="EURUSD" timeframe={timeframe} />);
+        const start = performance.now();
+        await waitFor(() => expect(chartMocks.setData).toHaveBeenCalled(), { interval: 1 });
+        const elapsed = performance.now() - start;
+        view.unmount();
+        return elapsed;
+      }
+
+      // Calentamiento (JIT/mocks) para que la primera medida no cargue con el arranque.
+      await coldLoad('1d');
+
+      const chain = ['15m', '5m', '1m'] as const;
+      const coldLoadMs: Record<string, number> = {};
+      for (const timeframe of chain) {
+        coldLoadMs[timeframe] = Number((await coldLoad(timeframe)).toFixed(2));
+      }
+
+      const { rerender } = render(<ChartPane key="1h" symbol="EURUSD" timeframe="1h" />);
+      await waitFor(() => expect(chartMocks.setData).toHaveBeenCalled(), { interval: 1 });
+
+      const hotSwitchMs: { timeframe: string; ms: number }[] = [];
+      for (const timeframe of chain) {
+        chartMocks.setData.mockClear();
+        const start = performance.now();
+        rerender(<ChartPane key={timeframe} symbol="EURUSD" timeframe={timeframe} />);
+        await waitFor(() => expect(chartMocks.setData).toHaveBeenCalled(), { interval: 1 });
+        hotSwitchMs.push({ timeframe, ms: Number((performance.now() - start).toFixed(2)) });
+      }
+
+      recordMeasurement({
+        note: 'Client-side en jsdom con fetch mockeado; no incluye latencia de red.',
+        coldLoadMs,
+        hotSwitchMs,
+        comparison: hotSwitchMs.map(({ timeframe, ms }) => ({
+          timeframe,
+          hotMs: ms,
+          coldMs: coldLoadMs[timeframe],
+          hotWithinCold: ms <= (coldLoadMs[timeframe] as number),
+        })),
+      });
+
+      // D-5: sin umbral bloqueante; el entregable es el valor medido y su comparación.
+      expect(hotSwitchMs).toHaveLength(3);
+      expect(hotSwitchMs.every(({ ms }) => Number.isFinite(ms))).toBe(true);
     });
   });
 });
