@@ -9,26 +9,27 @@
 | Métrica | Valor | Δ vs estado anterior |
 |---------|-------|----------------------|
 | Tareas totales | **26** | +24 |
-| 📥 Backlog | **21** | +19 |
+| 📥 Backlog | **20** | +18 |
 | 🔨 Doing | 0 | 0 |
 | 👀 Review | 0 | 0 |
-| ✅ Done | **5** | +5 |
+| ✅ Done | **6** | +6 |
 | 🔴 Blocked | 0 | 0 |
-| % Completado | **19 %** | — |
+| % Completado | **23 %** | — |
 | Esfuerzo planificado | **76 pts** | — |
-| Ruta crítica | **3/7 · 24 pts** | — |
+| Ruta crítica | **4/7 · 24 pts** | — |
 | Historias aceptadas | **0/9** | — |
 | Días sin movimiento | 0 | — |
 
-**Estado general:** 🟢 **Ciclo 05 en ejecución.** 5/26 tareas cerradas; la ruta crítica avanza **3/7**
-(`TASK-401`, `TASK-402`, `TASK-UI-403` ✅).
+**Estado general:** 🟢 **Ciclo 05 en ejecución.** 6/26 tareas cerradas; la ruta crítica avanza **4/7**
+(`TASK-401`, `TASK-402`, `TASK-UI-403`, `TASK-UI-404` ✅). `TASK-UI-404` se cerró **sin código**
+como ya cubierta por `TASK-401`/`TASK-UI-403` (DP-7); sus 2 pts pasan a `TASK-UI-405`.
 
 El ciclo 04 quedó **cerrado y archivado** en `_docs/iterations/04-dibujo-referencia-operacion/`
 (20/20 tareas · 56/56 pts · 19/19 requisitos propios 🟢 · CI en verde).
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (21)
+### 📥 Backlog (20)
 
 | ID | Tarea | Épica | Prioridad | Est. | Deps |
 |----|-------|-------|-----------|------|------|
@@ -36,8 +37,7 @@ El ciclo 04 quedó **cerrado y archivado** en `_docs/iterations/04-dibujo-refere
 | TASK-405 | Tests de precedencia y de ida y vuelta | EP-402 | **Must** | 2 | TASK-404 |
 | TASK-UI-400 | Tokens: `color-draw-line` `#7D8590` + `AXIS_TOKENS` en dos filas | EP-UI-400 | Should | 2 | — |
 | TASK-UI-401 | Tests de contraste y de formato del eje | EP-UI-400 | Should | 2 | TASK-UI-400 |
-| TASK-UI-404 | Indicadores del activo recalculados por TF | EP-UI-401 | **Must** | 2 | TASK-UI-403 |
-| TASK-UI-405 | Tests de la épica de escala + frame budget | EP-UI-401 | **Must** | 3 | TASK-UI-404 |
+| TASK-UI-405 | Tests de la épica de escala + frame budget | EP-UI-401 | **Must** | 5 | TASK-UI-404 |
 | TASK-UI-406 | Render del eje X en dos filas | EP-UI-402 | Should | 3 | TASK-UI-400 |
 | TASK-UI-407 | Tests del eje | EP-UI-402 | Should | 2 | TASK-UI-406 |
 | TASK-UI-408 | `CMP-024 CandleContextMenu` | EP-UI-403 | Should | 5 | — |
@@ -62,7 +62,7 @@ Ninguna.
 
 Ninguna.
 
-### ✅ Done (5)
+### ✅ Done (6)
 
 | ID | Tarea | Épica | Est. | Cerrada | Prueba |
 |----|-------|-------|------|---------|--------|
@@ -71,6 +71,7 @@ Ninguna.
 | TASK-UI-402 | `CMP-023 TimeframeSelector` (radiogroup, roving tabindex, flechas y `Home`/`End`, `disabled`) | EP-UI-401 | 3 | 2026-10-06 | `components/TimeframeSelector/__tests__/TimeframeSelector.test.tsx` (8) |
 | TASK-404 | Resolución de la selección (URL > persistido > defecto) + puntero `fxtrad.chart.last` (ADR-030) | EP-402 | 3 | 2026-10-06 | `app/__tests__/routes.test.ts` (12) + `state/__tests__/chart-config.test.ts` (26) + `__tests__/app.test.tsx` (7, ida y vuelta) |
 | TASK-UI-403 | Selector en `ChartHeader` + estados `switching-tf`/`tf-ready`/`tf-error` con reversión por error | EP-UI-401 | 5 | 2026-10-06 | `components/ChartHeader/__tests__` (8) + `components/ChartPane/__tests__` (60, +2 de `onStatusChange`) + `__tests__/app.test.tsx` (9, cambio de TF, anuncio y reversión) |
+| TASK-UI-404 | Indicadores del activo recalculados por TF — **cerrada sin código: ya cubierta** | EP-UI-401 | — | 2026-10-06 | Evidencia en `traceability.md` RF-405: `ChartPane.tsx:500` (deps `[status, indicators]`) + remonte por `key` en `App.tsx`. Prueba explícita en `TASK-UI-405` (DP-7) |
 
 ### 🔴 Blocked (0)
 
@@ -82,13 +83,13 @@ Ninguna.
 graph LR
   T401["TASK-401<br/>✅ 5"] --> T402["TASK-402<br/>✅ 5"]
   T402 --> UI403["TASK-UI-403<br/>✅ 5"]
-  UI403 --> UI404["TASK-UI-404<br/>📥 2"]
-  UI404 --> UI405["TASK-UI-405<br/>📥 3"]
+  UI403 --> UI404["TASK-UI-404<br/>✅ 2"]
+  UI404 --> UI405["TASK-UI-405<br/>📥 5"]
   UI405 --> TEC401["TASK-TEC-401<br/>📥 3"]
   TEC401 --> TEC403["TASK-TEC-403<br/>📥 1"]
 ```
 
-**Avance de ruta crítica:** **3/7 · 24 pts.** El tramo que domina el ciclo es
+**Avance de ruta crítica:** **4/7 · 24 pts.** El tramo que domina el ciclo es
 `TASK-401 → TASK-402 → TASK-UI-403` (tres tareas de 5 puntos encadenadas: contrato v2, migración e
 integración del cambio de escala).
 
@@ -166,8 +167,9 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 
 ## 8. Próximas acciones sugeridas
 
-1. **`/sdd-cycle`** para tomar **`TASK-UI-404`** (nodo **4 de 7** de la ruta crítica): indicadores del
-   activo recalculados con las velas del TF visible.
+1. **`/sdd-cycle`** para tomar **`TASK-UI-405`** (nodo **5 de 7** de la ruta crítica): prueba la épica de
+   escala (1h→15m→1h conserva dibujos y selección, indicadores recalculados, `aria-checked` y frame
+   budget). Asume los 2 pts de `TASK-UI-404` (DP-7).
 2. **Antes de `TASK-UI-415`**, resolver `PA-2`: si el dolor de Multigráfico lo causaba el bug de
    selección (`RF-401`), reconsiderar la retirada.
 3. **Antes de `TASK-UI-413`**, cerrar el diagnóstico de `PA-1` (bucket del TF vs hueco de mercado).
@@ -195,3 +197,6 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 | 2026-10-06 | TASK-UI-403 | 📥 → 🔨 | Inicio de desarrollo (selector en `ChartHeader` + estados de cambio de escala, RF-403/405/406) |
 | 2026-10-06 | TASK-UI-403 | 🔨 → 👀 | Tests verdes: 497/497 frontend · typecheck, eslint y prettier en verde · `quality_gate --level gate` PASS |
 | 2026-10-06 | TASK-UI-403 | 👀 → ✅ | DoD verificada: selector a la izquierda de Indicadores, estados `switching-tf`/`tf-ready`/`tf-error` con **reversión al TF anterior**, anuncio en `LiveRegion` y selección persistida; prueba en `traceability.md` |
+| 2026-10-06 | TASK-UI-404 | 📥 → 🔨 | Verificación de cobertura de RF-405 **antes** de escribir código (regla: no inventar trabajo) |
+| 2026-10-06 | TASK-UI-404 | 🔨 → 👀 | Verificado: RF-405 ya se cumple — `ChartPane.tsx:500` recalcula con las velas cargadas y `App.tsx` remonta el panel por `key` al cambiar de TF |
+| 2026-10-06 | TASK-UI-404 | 👀 → ✅ | Cerrada **sin código** como ya cubierta por TASK-401/TASK-UI-403 (DP-7); evidencia en `traceability.md` y 2 pts traspasados a TASK-UI-405 (3 → 5) |

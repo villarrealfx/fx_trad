@@ -168,8 +168,8 @@ de RNF-007 asumiendo que el MoSCoW (DP-3) define el orden de recorte si el plazo
 |----|-------|------|------|------|-----|--------|
 | TASK-UI-402 | `CMP-023 TimeframeSelector`: control segmentado con las opciones de `TIMEFRAMES` | frontend | 3 | — | `role="radiogroup"` + `aria-label="Timeframe"`; `aria-checked` en el activo; flechas/`Home`/`End`; estado `disabled`; target ≥44 px; sin colores literales | ✅ |
 | TASK-UI-403 | Integración del selector en `ChartHeader` + recarga de serie y estados `switching-tf`/`tf-ready`/`tf-error`; persistencia de la selección (URL + v2) y anuncio en `LiveRegion` | frontend | 5 | TASK-UI-402, TASK-402, TASK-404 | Selector a la izquierda de Indicadores; los dibujos siguen visibles durante la carga y no se mueven al re-proyectarse; el fallo del TF destino mantiene el anterior y no actualiza la selección; `LiveRegion` anuncia el TF | ✅ |
-| TASK-UI-404 | Indicadores del activo recalculados con las velas del TF visible | frontend | 2 | TASK-UI-403 | Conserva tipo, parámetros y visibilidad; no se guarda una lista por TF; sin `NaN` con series cortas | 📥 |
-| TASK-UI-405 | Tests de la épica | test | 3 | TASK-UI-404 | 1h→15m→1h conserva dibujos y selección; indicadores recalculados; `aria-checked` correcto; frame budget con la operación activa (0 frames caídos); camino de error del TF | 📥 |
+| TASK-UI-404 | Indicadores del activo recalculados con las velas del TF visible — **cerrada sin código: ya cubierta por TASK-401/TASK-UI-403** (DP-7) | frontend | — | TASK-UI-403 | Conserva tipo, parámetros y visibilidad; no se guarda una lista por TF; sin `NaN` con series cortas | ✅ |
+| TASK-UI-405 | Tests de la épica | test | 5 | TASK-UI-404 | 1h→15m→1h conserva dibujos y selección; indicadores recalculados; `aria-checked` correcto; frame budget con la operación activa (0 frames caídos); camino de error del TF | 📥 |
 
 ### EP-UI-402: Eje X en dos filas (SCR-004)
 
@@ -444,6 +444,11 @@ J-009 extendido → HU-UI-404 · J-002 extendido → HU-UI-402 y HU-UI-405 · J-
   registra en §8 para el ciclo siguiente.
 - **DP-6:** el orden «backend antes que frontend» **no aplica**: el ciclo no tiene tareas de
   backend; la única capa de datos es `localStorage` y va en F2.
+- **DP-7 *(ciclo 05, ejecución)*:** `TASK-UI-404` se cierra **sin código** como **ya cubierta** por
+  `TASK-401` + `TASK-UI-403`: RF-405 ya se cumple porque `ChartPane` recalcula los indicadores con
+  las velas cargadas (efecto con deps `[status, indicators]`, `ChartPane.tsx:500`) y el panel se
+  remonta por `key={symbol:timeframe}` al cambiar de escala. Sus 2 pts pasan a `TASK-UI-405`
+  (3 → 5), que es la tarea que **prueba** la épica.
 
 ## 11. Preguntas abiertas (PA-*)
 
