@@ -110,8 +110,8 @@ describe('App', () => {
     fireEvent.click(screen.getByRole('link', { name: 'Gráfico' }));
     expect(await screen.findByRole('button', { name: 'Exportar' })).toBeTruthy();
 
-    fireEvent.click(screen.getByRole('link', { name: 'Multigráfico' }));
-    await waitFor(() => expect(screen.getAllByTestId('chart-pane')).toHaveLength(2));
+    // Multigráfico se retiró (RF-409, TASK-UI-415): ni ruta ni enlace de navegación.
+    expect(screen.queryByRole('link', { name: 'Multigráfico' })).toBeNull();
   });
 
   it('opens the chart from the selector with the chosen query (TASK-026)', async () => {

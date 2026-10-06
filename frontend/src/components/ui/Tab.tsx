@@ -29,7 +29,7 @@ export interface TabProps {
 }
 
 /**
- * Barra de pestañas accesible (CMP-011, SCR-005).
+ * Barra de pestañas accesible (CMP-011, kit).
  *
  * Sigue el patrón WAI-ARIA `tablist`/`tab` con navegación por flechas
  * (Home/End incluidos) y `aria-selected`; admite añadir/cerrar pestañas.

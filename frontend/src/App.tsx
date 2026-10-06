@@ -27,7 +27,6 @@ import ChartSelector from './components/ChartSelector/ChartSelector';
 import DownloadScreen from './components/DownloadScreen/DownloadScreen';
 import ExportModal from './components/ExportModal/ExportModal';
 import IndicatorForm from './components/IndicatorForm/IndicatorForm';
-import MultiChart from './components/MultiChart/MultiChart';
 import Toast from './components/ui/Toast';
 import LiveRegion from './components/ui/LiveRegion';
 import type { Timeframe } from './contracts/ohlc';
@@ -220,9 +219,6 @@ export default function App() {
       const explicit = hasExplicitChartQuery(params);
       const fallback = explicit ? null : createChartConfigStore().loadLastSelection();
       return <ChartScreen selection={parseChartQuery(params, fallback)} hydrateUrl={!explicit} />;
-    }
-    if (route.screen === 'SCR-005') {
-      return <MultiChart symbol={parseChartQuery(params).symbol} />;
     }
     if (route.screen === 'SCR-003') {
       return <OpenChartScreen symbol={params.get('symbol') ?? undefined} />;

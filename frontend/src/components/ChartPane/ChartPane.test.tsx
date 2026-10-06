@@ -8,7 +8,6 @@ import {
   type FrameRateMeterOptions,
 } from '../../performance/frame-rate';
 import { installCanvas2DContextMock } from '../../testing/canvas-2d';
-import { ChartSyncController } from '../../charting/chart-sync';
 import type { OverlayShape } from '../../charting/overlay-geometry';
 import { DEFAULT_INDICATOR_PARAMETERS } from '../../indicators/indicators';
 import ChartPane from './ChartPane';
@@ -1222,49 +1221,6 @@ describe('ChartPane', () => {
     expect(screen.getByText('MA200')).toBeTruthy();
     expect(screen.getByText('ATR(14)')).toBeTruthy();
     expect(screen.getByText('RSI(14)')).toBeTruthy();
-  });
-
-  it('applies remote range and crosshair from the sync controller (TASK-034)', async () => {
-    fetchMock.mockResolvedValue(createResponse(RESPONSE));
-    const controller = new ChartSyncController();
-    render(<ChartPane symbol="EURUSD" timeframe="1h" sync={controller} syncId="p1" />);
-    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
-    expect(chartMocks.subscribeVisibleTimeRangeChange).toHaveBeenCalled();
-
-    act(() => {
-      controller.publish({ source: 'p2', timeRange: { from: 1_781_000_000, to: 1_781_003_600 } });
-      controller.publish({ source: 'p2', crosshair: { time: 1_781_000_000, price: 1.5 } });
-      controller.publish({ source: 'p2', crosshair: null });
-      controller.publish({ source: 'p1', timeRange: { from: 0, to: 1 } });
-    });
-
-    expect(chartMocks.setVisibleRange).toHaveBeenCalledWith({
-      from: 1_781_000_000,
-      to: 1_781_003_600,
-    });
-    expect(chartMocks.setCrosshairPosition).toHaveBeenCalledWith(
-      1.5,
-      1_781_000_000,
-      expect.anything(),
-    );
-    expect(chartMocks.clearCrosshairPosition).toHaveBeenCalled();
-    // El eco del propio panel (source p1) no se reaplica.
-    expect(chartMocks.setVisibleRange).toHaveBeenCalledTimes(1);
-  });
-
-  it('publishes its own crosshair to the sync controller (TASK-034)', async () => {
-    fetchMock.mockResolvedValue(createResponse(RESPONSE));
-    const controller = new ChartSyncController();
-    const publishSpy = vi.spyOn(controller, 'publish');
-    render(<ChartPane symbol="EURUSD" timeframe="1h" sync={controller} syncId="p1" />);
-    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
-
-    emitCrosshairMove(1_781_000_000, 10, 40);
-
-    expect(publishSpy).toHaveBeenCalledWith({
-      source: 'p1',
-      crosshair: { time: 1_781_000_000, price: 1.5 },
-    });
   });
 
   it('notifies the latest candle through onLegend (TASK-UI-050)', async () => {

@@ -207,7 +207,7 @@ describe('layoutOperationLabels (ADR-025, RNF-301)', () => {
   });
 });
 
-describe('layout pane a pane en Multigráfico (TASK-UI-321)', () => {
+describe('layout de etiquetas con escalas distintas (TASK-UI-321)', () => {
   // Dos escalas del mismo activo: un pane "amplio" y otro "estrecho".
   const wideScale = (price: number): number => (1.7 - price) * 1000;
   const narrowScale = (price: number): number => (1.7 - price) * 100;

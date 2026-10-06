@@ -8,7 +8,7 @@ import { TIMEFRAMES, type Timeframe } from '../contracts/ohlc';
 import type { LastChartSelection } from '../state/chart-config';
 
 /** Identificador de pantalla del wireframe. */
-export type ScreenId = 'SCR-001' | 'SCR-002' | 'SCR-003' | 'SCR-004' | 'SCR-005' | 'SCR-006';
+export type ScreenId = 'SCR-001' | 'SCR-002' | 'SCR-003' | 'SCR-004' | 'SCR-006';
 
 /** Ruta de la aplicación. */
 export interface AppRoute {
@@ -26,7 +26,6 @@ export const ROUTES: ReadonlyArray<AppRoute> = [
   { path: '/downloads', screen: 'SCR-002', label: 'Descarga' },
   { path: '/open', screen: 'SCR-003', label: 'Abrir' },
   { path: '/chart', screen: 'SCR-004', label: 'Gráfico' },
-  { path: '/multichart', screen: 'SCR-005', label: 'Multigráfico' },
   { path: '/export', screen: 'SCR-006', label: 'Exportar' },
 ];
 
