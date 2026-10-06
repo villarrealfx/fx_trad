@@ -1,9 +1,10 @@
 // @vitest-environment node
 /**
- * Tests de la persistencia de configuración del gráfico (TASK-UI-240, RI-201).
+ * Tests del documento de configuración del gráfico v2 (TASK-401, RI-401, ADR-027).
  *
- * Verifican el esquema versionado, la clave por activo+timeframe, el round-trip
- * y la robustez ante datos corruptos, versión desconocida y cuota excedida.
+ * Verifican el contrato único por activo: la clave sin timeframe, el round-trip de
+ * dibujos + indicadores + selección, la robustez ante datos corruptos, versión
+ * desconocida o símbolo que no corresponde, y el aislamiento por activo. Patrón AAA.
  */
 import { describe, expect, it } from 'vitest';
 import type { OverlayShape } from '../../charting/overlay-geometry';
@@ -14,7 +15,10 @@ import {
   createChartConfigStore,
   deserializeChartConfig,
   serializeChartConfig,
+  type ChartSelection,
 } from '../chart-config';
+
+const SELECTION: ChartSelection = { timeframe: '1h', start: '2026-01-02', end: '2026-03-04' };
 
 const INDICATORS: IndicatorConfig[] = [{ id: 'ma-20', kind: 'MA', period: 20, visible: true }];
 
@@ -59,76 +63,205 @@ class MemoryStorage implements Storage {
   }
 }
 
-describe('chartConfigKey', () => {
-  it('incluye versión, activo y timeframe', () => {
-    expect(chartConfigKey('EURUSD', '1h')).toBe(`fxtrad.chart.v${CHART_CONFIG_VERSION}.EURUSD.1h`);
+describe('chartConfigKey (TASK-401)', () => {
+  it('incluye la versión y el activo, y NO el timeframe', () => {
+    const key = chartConfigKey('EURUSD');
+
+    expect(key).toBe(`fxtrad.chart.v${CHART_CONFIG_VERSION}.EURUSD`);
+    expect(key).not.toContain('1h');
+  });
+
+  it('declara la versión 2 del esquema (ADR-027)', () => {
+    expect(CHART_CONFIG_VERSION).toBe(2);
   });
 });
 
-describe('serializeChartConfig / deserializeChartConfig', () => {
-  it('hace round-trip de indicadores y dibujos', () => {
-    const raw = serializeChartConfig({ indicators: INDICATORS, drawings: DRAWINGS });
-
-    expect(deserializeChartConfig(raw)).toEqual({
-      version: CHART_CONFIG_VERSION,
+describe('serializeChartConfig / deserializeChartConfig (TASK-401)', () => {
+  it('hace round-trip de símbolo, indicadores, dibujos y selección', () => {
+    const raw = serializeChartConfig('EURUSD', {
       indicators: INDICATORS,
       drawings: DRAWINGS,
+      selection: SELECTION,
+    });
+
+    expect(deserializeChartConfig('EURUSD', raw)).toEqual({
+      version: CHART_CONFIG_VERSION,
+      symbol: 'EURUSD',
+      indicators: INDICATORS,
+      drawings: DRAWINGS,
+      selection: SELECTION,
     });
   });
 
+  it('hace round-trip de una selección sin rango explícito', () => {
+    const raw = serializeChartConfig('GBPUSD', {
+      indicators: [],
+      drawings: [],
+      selection: { timeframe: '15m' },
+    });
+
+    expect(deserializeChartConfig('GBPUSD', raw)?.selection).toEqual({ timeframe: '15m' });
+  });
+
   it('devuelve null ante ausencia, corrupción o versión desconocida', () => {
-    expect(deserializeChartConfig(null)).toBeNull();
-    expect(deserializeChartConfig('')).toBeNull();
-    expect(deserializeChartConfig('{no-json')).toBeNull();
+    expect(deserializeChartConfig('EURUSD', null)).toBeNull();
+    expect(deserializeChartConfig('EURUSD', '')).toBeNull();
+    expect(deserializeChartConfig('EURUSD', '{no-json')).toBeNull();
     expect(
-      deserializeChartConfig(JSON.stringify({ version: 999, indicators: [], drawings: [] })),
+      deserializeChartConfig(
+        'EURUSD',
+        JSON.stringify({
+          version: 999,
+          symbol: 'EURUSD',
+          indicators: [],
+          drawings: [],
+          selection: SELECTION,
+        }),
+      ),
     ).toBeNull();
-    expect(deserializeChartConfig(JSON.stringify({ version: CHART_CONFIG_VERSION }))).toBeNull();
+  });
+
+  it('devuelve null si el documento no declara el símbolo pedido', () => {
+    const raw = serializeChartConfig('EURUSD', {
+      indicators: [],
+      drawings: [],
+      selection: SELECTION,
+    });
+
+    expect(deserializeChartConfig('GBPUSD', raw)).toBeNull();
+  });
+
+  it('devuelve null si falta la selección o el timeframe no es válido', () => {
+    const withoutSelection = JSON.stringify({
+      version: CHART_CONFIG_VERSION,
+      symbol: 'EURUSD',
+      indicators: [],
+      drawings: [],
+    });
+    const badTimeframe = JSON.stringify({
+      version: CHART_CONFIG_VERSION,
+      symbol: 'EURUSD',
+      indicators: [],
+      drawings: [],
+      selection: { timeframe: '30m' },
+    });
+
+    expect(deserializeChartConfig('EURUSD', withoutSelection)).toBeNull();
+    expect(deserializeChartConfig('EURUSD', badTimeframe)).toBeNull();
   });
 
   it('filtra entradas malformadas conservando las válidas', () => {
     const raw = JSON.stringify({
       version: CHART_CONFIG_VERSION,
+      symbol: 'EURUSD',
       indicators: [INDICATORS[0], { id: 'bad' }],
       drawings: [DRAWINGS[0], { id: 'x', kind: 'line' }],
+      selection: SELECTION,
     });
 
-    expect(deserializeChartConfig(raw)).toEqual({
+    expect(deserializeChartConfig('EURUSD', raw)).toEqual({
       version: CHART_CONFIG_VERSION,
+      symbol: 'EURUSD',
+      indicators: INDICATORS,
+      drawings: DRAWINGS,
+      selection: SELECTION,
+    });
+  });
+
+  it('ignora campos desconocidos del documento (contrato extensible)', () => {
+    const raw = JSON.stringify({
+      version: CHART_CONFIG_VERSION,
+      symbol: 'EURUSD',
+      indicators: INDICATORS,
+      drawings: DRAWINGS,
+      selection: SELECTION,
+      futureField: { anything: true },
+    });
+
+    expect(deserializeChartConfig('EURUSD', raw)).toEqual({
+      version: CHART_CONFIG_VERSION,
+      symbol: 'EURUSD',
+      indicators: INDICATORS,
+      drawings: DRAWINGS,
+      selection: SELECTION,
+    });
+  });
+
+  it('hace round-trip vacío y poblado sin pérdida', () => {
+    const empty = serializeChartConfig('EURUSD', {
+      indicators: [],
+      drawings: [],
+      selection: { timeframe: '1h' },
+    });
+    expect(deserializeChartConfig('EURUSD', empty)).toEqual({
+      version: CHART_CONFIG_VERSION,
+      symbol: 'EURUSD',
+      indicators: [],
+      drawings: [],
+      selection: { timeframe: '1h' },
+    });
+
+    const populated = serializeChartConfig('EURUSD', {
+      indicators: INDICATORS,
+      drawings: MIXED_DRAWINGS,
+      selection: SELECTION,
+    });
+    expect(deserializeChartConfig('EURUSD', populated)?.drawings).toHaveLength(5);
+  });
+
+  it('descarta documentos de la versión anterior v1 (política ADR-027)', () => {
+    const obsolete = JSON.stringify({
+      version: 1,
       indicators: INDICATORS,
       drawings: DRAWINGS,
     });
+
+    expect(deserializeChartConfig('EURUSD', obsolete)).toBeNull();
   });
 });
 
-describe('createChartConfigStore', () => {
-  it('guarda y carga por activo + timeframe de forma independiente', () => {
+describe('createChartConfigStore (TASK-401)', () => {
+  it('guarda y carga el documento por activo de forma independiente', () => {
     const storage = new MemoryStorage();
     const store = createChartConfigStore(storage);
 
-    store.save('EURUSD', '1h', { indicators: INDICATORS, drawings: DRAWINGS });
+    store.save('EURUSD', { indicators: INDICATORS, drawings: DRAWINGS, selection: SELECTION });
 
-    expect(store.load('EURUSD', '1h')?.indicators).toEqual(INDICATORS);
-    expect(store.load('EURUSD', '4h')).toBeNull();
-    expect(store.load('GBPUSD', '1h')).toBeNull();
+    expect(store.load('EURUSD')?.indicators).toEqual(INDICATORS);
+    expect(store.load('EURUSD')?.selection).toEqual(SELECTION);
+    expect(store.load('GBPUSD')).toBeNull();
   });
 
-  it('clear elimina la configuración guardada', () => {
+  it('usa una única clave por activo, sin el timeframe (ADR-027)', () => {
     const storage = new MemoryStorage();
     const store = createChartConfigStore(storage);
 
-    store.save('EURUSD', '1h', { indicators: INDICATORS, drawings: DRAWINGS });
-    store.clear('EURUSD', '1h');
+    store.save('EURUSD', {
+      indicators: INDICATORS,
+      drawings: DRAWINGS,
+      selection: { timeframe: '15m' },
+    });
 
-    expect(store.load('EURUSD', '1h')).toBeNull();
+    expect(storage.length).toBe(1);
+    expect(storage.getItem('fxtrad.chart.v2.EURUSD')).not.toBeNull();
+  });
+
+  it('clear elimina el documento guardado', () => {
+    const storage = new MemoryStorage();
+    const store = createChartConfigStore(storage);
+
+    store.save('EURUSD', { indicators: INDICATORS, drawings: DRAWINGS, selection: SELECTION });
+    store.clear('EURUSD');
+
+    expect(store.load('EURUSD')).toBeNull();
   });
 
   it('es un no-op sin almacenamiento disponible', () => {
     const store = createChartConfigStore(null);
 
-    store.save('EURUSD', '1h', { indicators: INDICATORS, drawings: DRAWINGS });
+    store.save('EURUSD', { indicators: INDICATORS, drawings: DRAWINGS, selection: SELECTION });
 
-    expect(store.load('EURUSD', '1h')).toBeNull();
+    expect(store.load('EURUSD')).toBeNull();
   });
 
   it('no lanza si el almacenamiento rechaza la escritura (cuota)', () => {
@@ -145,107 +278,21 @@ describe('createChartConfigStore', () => {
     const store = createChartConfigStore(rejecting);
 
     expect(() =>
-      store.save('EURUSD', '1h', { indicators: INDICATORS, drawings: DRAWINGS }),
+      store.save('EURUSD', { indicators: INDICATORS, drawings: DRAWINGS, selection: SELECTION }),
     ).not.toThrow();
   });
-});
 
-describe('esquema y migración (TASK-UI-242)', () => {
-  it('el documento serializado declara la versión de esquema actual', () => {
-    const raw = serializeChartConfig({ indicators: INDICATORS, drawings: DRAWINGS });
-
-    expect((JSON.parse(raw) as { version: number }).version).toBe(CHART_CONFIG_VERSION);
-  });
-
-  it('hace round-trip vacío y poblado sin pérdida', () => {
-    const empty = serializeChartConfig({ indicators: [], drawings: [] });
-    expect(deserializeChartConfig(empty)).toEqual({
-      version: CHART_CONFIG_VERSION,
-      indicators: [],
-      drawings: [],
-    });
-
-    const populated = serializeChartConfig({ indicators: INDICATORS, drawings: DRAWINGS });
-    expect(deserializeChartConfig(populated)).toEqual({
-      version: CHART_CONFIG_VERSION,
-      indicators: INDICATORS,
-      drawings: DRAWINGS,
-    });
-  });
-
-  it('descarta documentos de una versión anterior (política ADR-018)', () => {
-    const obsolete = JSON.stringify({
-      version: CHART_CONFIG_VERSION - 1,
-      indicators: INDICATORS,
-      drawings: DRAWINGS,
-    });
-
-    expect(deserializeChartConfig(obsolete)).toBeNull();
-  });
-
-  it('ignora entradas guardadas bajo una clave de versión antigua', () => {
+  it('ignora entradas guardadas bajo la clave v1 de un timeframe', () => {
     const storage = new MemoryStorage();
     storage.setItem(
-      'fxtrad.chart.v0.EURUSD.1h',
-      JSON.stringify({ version: 0, indicators: INDICATORS, drawings: DRAWINGS }),
+      'fxtrad.chart.v1.EURUSD.1h',
+      JSON.stringify({ version: 1, indicators: INDICATORS, drawings: DRAWINGS }),
     );
 
     const store = createChartConfigStore(storage);
 
-    expect(store.load('EURUSD', '1h')).toBeNull();
-  });
-
-  it('ignora campos desconocidos del documento (contrato extensible)', () => {
-    const raw = JSON.stringify({
-      version: CHART_CONFIG_VERSION,
-      indicators: INDICATORS,
-      drawings: DRAWINGS,
-      futureField: { anything: true },
-    });
-
-    expect(deserializeChartConfig(raw)).toEqual({
-      version: CHART_CONFIG_VERSION,
-      indicators: INDICATORS,
-      drawings: DRAWINGS,
-    });
-  });
-});
-
-describe('documento v1 mixto con operación (TASK-UI-320, RNF-304)', () => {
-  it('hace round-trip de los cinco tipos de dibujo sin pérdida', () => {
-    const raw = serializeChartConfig({ indicators: INDICATORS, drawings: MIXED_DRAWINGS });
-
-    const restored = deserializeChartConfig(raw);
-
-    expect(restored).toEqual({
-      version: CHART_CONFIG_VERSION,
-      indicators: INDICATORS,
-      drawings: MIXED_DRAWINGS,
-    });
-    expect(restored?.drawings).toHaveLength(5);
-  });
-
-  it('conserva la operación a través del store por activo + timeframe', () => {
-    const storage = new MemoryStorage();
-    const store = createChartConfigStore(storage);
-
-    store.save('EURUSD', '1h', { indicators: INDICATORS, drawings: MIXED_DRAWINGS });
-
-    expect(store.load('EURUSD', '1h')?.drawings).toEqual(MIXED_DRAWINGS);
-  });
-
-  it('mantiene la versión 1 y la clave estables (ADR-023, sin bump)', () => {
-    expect(CHART_CONFIG_VERSION).toBe(1);
-    expect(chartConfigKey('EURUSD', '1h')).toBe('fxtrad.chart.v1.EURUSD.1h');
-  });
-
-  it('filtra una operación malformada conservando el resto', () => {
-    const raw = JSON.stringify({
-      version: CHART_CONFIG_VERSION,
-      indicators: INDICATORS,
-      drawings: [...MIXED_DRAWINGS, { id: 'bad-op', kind: 'operation', from: { time: 0 } }],
-    });
-
-    expect(deserializeChartConfig(raw)?.drawings).toEqual(MIXED_DRAWINGS);
+    expect(store.load('EURUSD')).toBeNull();
+    // La clave v1 sigue intacta: la migración es aditiva y no borra (RNF-401).
+    expect(storage.getItem('fxtrad.chart.v1.EURUSD.1h')).not.toBeNull();
   });
 });

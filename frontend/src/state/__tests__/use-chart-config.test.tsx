@@ -1,15 +1,22 @@
 /**
- * Tests del hook de configuración del gráfico (TASK-UI-241, RF-204).
+ * Tests del hook de configuración del gráfico (TASK-401, RI-401, ADR-027).
  *
- * Verifican la carga inicial, el guardado ante cambios, la restauración al
- * remontar (navegar/recargar) y el aislamiento por activo+timeframe. Patrón AAA.
+ * Verifican la carga por **activo** (la clave ya no lleva el timeframe), el
+ * guardado ante cambios reales, la restauración al remontar, el aislamiento por
+ * activo y que el montaje **no** escribe un documento v2 (para no bloquear la
+ * migración aditiva desde v1). Patrón AAA.
  */
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import { useEffect } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { OverlayShape } from '../../charting/overlay-geometry';
 import type { IndicatorConfig } from '../../indicators/config';
-import { createChartConfigStore, type ChartConfigStore } from '../chart-config';
+import {
+  chartConfigKey,
+  createChartConfigStore,
+  type ChartConfigStore,
+  type ChartSelection,
+} from '../chart-config';
 import { useChartConfig } from '../use-chart-config';
 
 /** `Storage` en memoria para tests deterministas. */
@@ -45,16 +52,16 @@ const NEW_DRAWING: OverlayShape = {
 
 interface HarnessProps {
   symbol: string;
-  timeframe: string;
+  selection: ChartSelection;
   store: ChartConfigStore;
   onState?: (state: { indicators: IndicatorConfig[]; drawings: OverlayShape[] }) => void;
 }
 
 /** Harness que expone el estado del hook y botones para mutarlo. */
-function Harness({ symbol, timeframe, store, onState }: HarnessProps) {
+function Harness({ symbol, selection, store, onState }: HarnessProps) {
   const { indicators, drawings, setIndicators, setDrawings } = useChartConfig(
     symbol,
-    timeframe,
+    selection,
     store,
   );
 
@@ -80,14 +87,16 @@ function makeStore(): { storage: MemoryStorage; store: ChartConfigStore } {
   return { storage, store: createChartConfigStore(storage) };
 }
 
-describe('useChartConfig (RF-204)', () => {
+const SELECTION: ChartSelection = { timeframe: '1h' };
+
+describe('useChartConfig (TASK-401, ADR-027)', () => {
   afterEach(cleanup);
 
   it('abre sin indicadores ni dibujos por defecto', () => {
     const { store } = makeStore();
     const onState = vi.fn();
 
-    render(<Harness symbol="EURUSD" timeframe="1h" store={store} onState={onState} />);
+    render(<Harness symbol="EURUSD" selection={SELECTION} store={store} onState={onState} />);
 
     const last = onState.mock.calls.at(-1)?.[0] as {
       indicators: IndicatorConfig[];
@@ -97,22 +106,49 @@ describe('useChartConfig (RF-204)', () => {
     expect(last.indicators).toEqual([]);
   });
 
-  it('persiste los cambios de indicadores y dibujos', () => {
+  it('no escribe el documento v2 en el montaje (no bloquea la migración de v1)', () => {
+    const { storage, store } = makeStore();
+
+    render(<Harness symbol="EURUSD" selection={SELECTION} store={store} />);
+
+    expect(storage.length).toBe(0);
+  });
+
+  it('persiste los cambios de indicadores y dibujos por activo', () => {
     const { store } = makeStore();
-    const { getByText } = render(<Harness symbol="EURUSD" timeframe="1h" store={store} />);
+    const { getByText } = render(<Harness symbol="EURUSD" selection={SELECTION} store={store} />);
 
     fireEvent.click(getByText('add-indicator'));
     fireEvent.click(getByText('add-drawing'));
 
-    const saved = store.load('EURUSD', '1h');
+    const saved = store.load('EURUSD');
     expect(saved?.indicators).toContainEqual(NEW_INDICATOR);
     expect(saved?.drawings).toEqual([NEW_DRAWING]);
+  });
+
+  it('persiste la selección vigente junto con los cambios', () => {
+    const { store } = makeStore();
+    const { getByText } = render(
+      <Harness
+        symbol="EURUSD"
+        selection={{ timeframe: '15m', start: '2026-01-02', end: '2026-03-04' }}
+        store={store}
+      />,
+    );
+
+    fireEvent.click(getByText('add-drawing'));
+
+    expect(store.load('EURUSD')?.selection).toEqual({
+      timeframe: '15m',
+      start: '2026-01-02',
+      end: '2026-03-04',
+    });
   });
 
   it('restaura la configuración al remontar (navegar/recargar)', () => {
     const { storage } = makeStore();
     const first = render(
-      <Harness symbol="EURUSD" timeframe="1h" store={createChartConfigStore(storage)} />,
+      <Harness symbol="EURUSD" selection={SELECTION} store={createChartConfigStore(storage)} />,
     );
     fireEvent.click(first.getByText('add-indicator'));
     first.unmount();
@@ -121,7 +157,7 @@ describe('useChartConfig (RF-204)', () => {
     render(
       <Harness
         symbol="EURUSD"
-        timeframe="1h"
+        selection={SELECTION}
         store={createChartConfigStore(storage)}
         onState={onState}
       />,
@@ -131,20 +167,43 @@ describe('useChartConfig (RF-204)', () => {
     expect(last.indicators).toContainEqual(NEW_INDICATOR);
   });
 
-  it('aísla la configuración por activo y timeframe', () => {
+  it('mantiene la configuración al cambiar de timeframe del mismo activo (RF-404)', () => {
     const { store } = makeStore();
-    store.save('GBPUSD', '4h', {
+    const onState = vi.fn();
+    store.save('EURUSD', {
       indicators: [NEW_INDICATOR],
       drawings: [NEW_DRAWING],
+      selection: SELECTION,
+    });
+
+    const { rerender } = render(
+      <Harness symbol="EURUSD" selection={SELECTION} store={store} onState={onState} />,
+    );
+    rerender(
+      <Harness symbol="EURUSD" selection={{ timeframe: '15m' }} store={store} onState={onState} />,
+    );
+
+    const last = onState.mock.calls.at(-1)?.[0] as { drawings: OverlayShape[] };
+    expect(last.drawings).toEqual([NEW_DRAWING]);
+  });
+
+  it('aísla la configuración por activo', () => {
+    const { store } = makeStore();
+    store.save('GBPUSD', {
+      indicators: [NEW_INDICATOR],
+      drawings: [NEW_DRAWING],
+      selection: { timeframe: '4h' },
     });
     const onState = vi.fn();
 
     const { rerender } = render(
-      <Harness symbol="EURUSD" timeframe="1h" store={store} onState={onState} />,
+      <Harness symbol="EURUSD" selection={SELECTION} store={store} onState={onState} />,
     );
     expect((onState.mock.calls.at(-1)?.[0] as { drawings: OverlayShape[] }).drawings).toEqual([]);
 
-    rerender(<Harness symbol="GBPUSD" timeframe="4h" store={store} onState={onState} />);
+    rerender(
+      <Harness symbol="GBPUSD" selection={{ timeframe: '4h' }} store={store} onState={onState} />,
+    );
 
     const last = onState.mock.calls.at(-1)?.[0] as {
       indicators: IndicatorConfig[];
@@ -152,5 +211,15 @@ describe('useChartConfig (RF-204)', () => {
     };
     expect(last.indicators).toContainEqual(NEW_INDICATOR);
     expect(last.drawings).toEqual([NEW_DRAWING]);
+  });
+
+  it('no escribe al cambiar de activo sin mutaciones', () => {
+    const { storage, store } = makeStore();
+    const { rerender } = render(<Harness symbol="EURUSD" selection={SELECTION} store={store} />);
+
+    rerender(<Harness symbol="GBPUSD" selection={SELECTION} store={store} />);
+
+    expect(storage.getItem(chartConfigKey('GBPUSD'))).toBeNull();
+    expect(storage.length).toBe(0);
   });
 });

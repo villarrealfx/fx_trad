@@ -1,22 +1,14 @@
 // @vitest-environment node
 /**
- * Tests del modelo y serialización de dibujos (TASK-UI-220, RF-209/RI-201).
+ * Tests del modelo y validación de dibujos (RF-209, RI-201, ADR-017).
  *
- * Verifican el color por tipo desde los tokens del design system, la
- * validación de formas y el round-trip de serialización versionada. Patrón AAA.
+ * Verifican el color por tipo desde los tokens del design system y la validación
+ * de formas. El contrato del **documento** de configuración se prueba en
+ * `state/__tests__/chart-config.test.ts` desde TASK-401 (ADR-027). Patrón AAA.
  */
 import { describe, expect, it } from 'vitest';
 import { COLOR_TOKENS, DRAWING_COLORS } from '../../styles/tokens';
-import {
-  DRAWING_DOCUMENT_VERSION,
-  DRAWING_KINDS,
-  colorForShape,
-  deserializeDrawings,
-  fromDrawingDocument,
-  isOverlayShape,
-  serializeDrawings,
-  toDrawingDocument,
-} from '../drawings';
+import { DRAWING_KINDS, colorForShape, isOverlayShape } from '../drawings';
 import type { OverlayShape } from '../overlay-geometry';
 
 const LINE: OverlayShape = {
@@ -108,53 +100,5 @@ describe('isOverlayShape', () => {
       false,
     );
     expect(isOverlayShape({ id: 'x', kind: 'unknown' })).toBe(false);
-  });
-});
-
-describe('toDrawingDocument / fromDrawingDocument', () => {
-  it('construye un documento con la versión actual y copia los trazos', () => {
-    const input = [LINE, BUY];
-    const document = toDrawingDocument(input);
-
-    expect(document.version).toBe(DRAWING_DOCUMENT_VERSION);
-    expect(document.shapes).toEqual(input);
-    expect(document.shapes).not.toBe(input);
-  });
-
-  it('descarta documentos de versión desconocida', () => {
-    expect(fromDrawingDocument({ version: 999, shapes: [LINE] })).toEqual([]);
-  });
-
-  it('filtra formas inválidas y conserva las válidas', () => {
-    const result = fromDrawingDocument({
-      version: DRAWING_DOCUMENT_VERSION,
-      shapes: [LINE, { id: 'bad' }, RECT],
-    });
-    expect(result).toEqual([LINE, RECT]);
-  });
-
-  it('devuelve [] ante valores no documento', () => {
-    expect(fromDrawingDocument(null)).toEqual([]);
-    expect(fromDrawingDocument({ version: DRAWING_DOCUMENT_VERSION })).toEqual([]);
-  });
-});
-
-describe('serializeDrawings / deserializeDrawings', () => {
-  it('hace round-trip de los trazos (RI-201)', () => {
-    const shapes = [LINE, RECT, FIB, OPERATION, BUY, SELL];
-    expect(deserializeDrawings(serializeDrawings(shapes))).toEqual(shapes);
-  });
-
-  it('devuelve [] ante entrada vacía o corrupta', () => {
-    expect(deserializeDrawings(null)).toEqual([]);
-    expect(deserializeDrawings(undefined)).toEqual([]);
-    expect(deserializeDrawings('')).toEqual([]);
-    expect(deserializeDrawings('{no-json')).toEqual([]);
-    expect(deserializeDrawings('"texto"')).toEqual([]);
-  });
-
-  it('devuelve [] si la versión serializada es desconocida', () => {
-    const stale = JSON.stringify({ version: 0, shapes: [LINE] });
-    expect(deserializeDrawings(stale)).toEqual([]);
   });
 });

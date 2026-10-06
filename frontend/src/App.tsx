@@ -35,13 +35,13 @@ import { useChartConfig } from './state/use-chart-config';
 /** Pantalla SCR-004: gráfico de la selección + indicadores + export. */
 function ChartScreen({ selection }: { selection: ChartQuery }) {
   const { symbol, timeframe } = selection;
-  // Configuración persistida por activo+timeframe (TASK-UI-241, RF-204).
+  // Documento v2 por activo: dibujos compartidos + indicadores + selección (TASK-401, ADR-027).
   const {
     indicators: configs,
     drawings,
     setIndicators,
     setDrawings,
-  } = useChartConfig(symbol, timeframe);
+  } = useChartConfig(symbol, selection);
   const paneRef = useRef<ChartPaneHandle>(null);
   const [exportOpen, setExportOpen] = useState(false);
   const [indicatorsOpen, setIndicatorsOpen] = useState(true);

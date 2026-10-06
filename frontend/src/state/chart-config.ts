@@ -1,44 +1,68 @@
 /**
- * Persistencia de la configuración del gráfico (RI-201, ADR-018).
+ * Persistencia de la configuración del gráfico (RI-401, RI-402, ADR-027).
  *
- * Guarda, por combinación **activo + timeframe**, los indicadores y los dibujos
- * del gráfico en el almacenamiento del navegador (`localStorage` por defecto)
- * con un esquema versionado. La versión vive tanto en la clave como en el
- * documento: al subir de versión, las entradas antiguas se ignoran sin corromper
- * el estado (migración/descarte, R-203).
+ * Un **documento v2 por activo** (`DrawingDocument`) reúne los dibujos compartidos
+ * del activo, su lista de indicadores y la última selección del gráfico. Sustituye
+ * la clave por activo+timeframe de RI-201: el dibujo pertenece al **activo**, no al
+ * timeframe que se esté mirando.
  *
- * Este módulo solo aporta el contrato de datos; el guardado/restauración dentro
- * del ciclo de vida del gráfico lo hace TASK-UI-241.
+ * La migración desde los documentos v1 (`fxtrad.chart.v1.{symbol}.{TF}`) es
+ * **aditiva al leer** y no borra las claves antiguas (RNF-401); vive en
+ * `state/migrate-chart-config` (TASK-402) y se invoca desde `load`.
+ *
+ * Este módulo solo aporta el contrato de datos; el guardado/restauración dentro del
+ * ciclo de vida del gráfico lo hace `state/use-chart-config`.
  */
 import { isOverlayShape } from '../charting/drawings';
 import type { OverlayShape } from '../charting/overlay-geometry';
+import { TIMEFRAMES, type Timeframe } from '../contracts/ohlc';
 import type { IndicatorConfig, IndicatorKind } from '../indicators/config';
 
-/** Versión del esquema de configuración del gráfico. */
-export const CHART_CONFIG_VERSION = 1;
+/** Versión del esquema del documento de configuración (ADR-027). */
+export const CHART_CONFIG_VERSION = 2;
 
 /** Tipos de indicador válidos al deserializar. */
 const INDICATOR_KINDS: readonly IndicatorKind[] = ['MA', 'RSI', 'ATR'];
 
-/** Configuración del gráfico que se persiste (RI-201). */
-export interface ChartConfig {
-  /** Versión del esquema. */
+/** Última selección de gráfico recordada para el activo (RI-402). */
+export interface ChartSelection {
+  /** Timeframe activo. */
+  timeframe: Timeframe;
+  /** Inicio del rango en ISO `YYYY-MM-DD` (opcional). */
+  start?: string;
+  /** Fin del rango en ISO `YYYY-MM-DD` (opcional). */
+  end?: string;
+}
+
+/**
+ * Documento de configuración del gráfico: **uno por activo**.
+ *
+ * Es el contrato único: `DrawingDocument` se reutiliza aquí en lugar de mantener
+ * un documento por timeframe (ADR-027).
+ */
+export interface DrawingDocument {
+  /** Versión del esquema, para migrar/descartar (RNF-201). */
   version: number;
-  /** Indicadores configurados. */
-  indicators: IndicatorConfig[];
-  /** Dibujos del overlay. */
+  /** Activo al que pertenece el documento. */
+  symbol: string;
+  /** Dibujos del activo, compartidos entre todos sus timeframes. */
   drawings: OverlayShape[];
+  /** Indicadores del activo, recalculados con las velas del TF visible. */
+  indicators: IndicatorConfig[];
+  /** Última selección de gráfico del activo. */
+  selection: ChartSelection;
 }
 
-/** Entrada para guardar (sin versión; la fija el store). */
+/** Entrada para guardar (sin versión ni símbolo; los fija el store). */
 export interface ChartConfigInput {
-  indicators: ReadonlyArray<IndicatorConfig>;
   drawings: ReadonlyArray<OverlayShape>;
+  indicators: ReadonlyArray<IndicatorConfig>;
+  selection: ChartSelection;
 }
 
-/** Clave de almacenamiento por activo + timeframe y versión de esquema. */
-export function chartConfigKey(symbol: string, timeframe: string): string {
-  return `fxtrad.chart.v${CHART_CONFIG_VERSION}.${symbol}.${timeframe}`;
+/** Clave de almacenamiento por activo y versión de esquema. */
+export function chartConfigKey(symbol: string): string {
+  return `fxtrad.chart.v${CHART_CONFIG_VERSION}.${symbol}`;
 }
 
 /** Comprueba que un valor sea un `IndicatorConfig` válido. */
@@ -53,21 +77,37 @@ function isIndicatorConfig(value: unknown): value is IndicatorConfig {
   );
 }
 
-/** Serializa la configuración a una cadena JSON versionada. */
-export function serializeChartConfig(input: ChartConfigInput): string {
-  const document: ChartConfig = {
+/** Comprueba que un valor sea una `ChartSelection` válida. */
+function isChartSelection(value: unknown): value is ChartSelection {
+  if (typeof value !== 'object' || value === null) return false;
+  const selection = value as Partial<ChartSelection>;
+  if (!TIMEFRAMES.includes(selection.timeframe as Timeframe)) return false;
+  return [selection.start, selection.end].every(
+    (bound) => bound === undefined || typeof bound === 'string',
+  );
+}
+
+/** Serializa el documento del activo a una cadena JSON versionada (RI-401). */
+export function serializeChartConfig(symbol: string, input: ChartConfigInput): string {
+  const document: DrawingDocument = {
     version: CHART_CONFIG_VERSION,
-    indicators: [...input.indicators],
+    symbol,
     drawings: [...input.drawings],
+    indicators: [...input.indicators],
+    selection: input.selection,
   };
   return JSON.stringify(document);
 }
 
 /**
- * Deserializa una configuración; `null` ante ausencia, versión desconocida o
- * datos corruptos. Las formas inválidas de cada lista se filtran.
+ * Deserializa el documento de un activo; `null` ante ausencia, versión desconocida,
+ * símbolo que no corresponde o datos corruptos. Las entradas inválidas de cada
+ * lista se filtran.
  */
-export function deserializeChartConfig(raw: string | null | undefined): ChartConfig | null {
+export function deserializeChartConfig(
+  symbol: string,
+  raw: string | null | undefined,
+): DrawingDocument | null {
   if (raw === null || raw === undefined || raw === '') return null;
   let parsed: unknown;
   try {
@@ -76,24 +116,28 @@ export function deserializeChartConfig(raw: string | null | undefined): ChartCon
     return null;
   }
   if (typeof parsed !== 'object' || parsed === null) return null;
-  const document = parsed as Partial<ChartConfig>;
+  const document = parsed as Partial<DrawingDocument>;
   if (document.version !== CHART_CONFIG_VERSION) return null;
-  if (!Array.isArray(document.indicators) || !Array.isArray(document.drawings)) return null;
+  if (document.symbol !== symbol) return null;
+  if (!Array.isArray(document.drawings) || !Array.isArray(document.indicators)) return null;
+  if (!isChartSelection(document.selection)) return null;
   return {
     version: CHART_CONFIG_VERSION,
-    indicators: document.indicators.filter(isIndicatorConfig),
+    symbol,
     drawings: document.drawings.filter(isOverlayShape),
+    indicators: document.indicators.filter(isIndicatorConfig),
+    selection: document.selection,
   };
 }
 
-/** API de persistencia de la configuración del gráfico. */
+/** API de persistencia de la configuración del gráfico por activo. */
 export interface ChartConfigStore {
-  /** Guarda indicadores y dibujos para un activo y timeframe. */
-  save(symbol: string, timeframe: string, input: ChartConfigInput): void;
-  /** Carga la configuración guardada, o `null` si no hay o es inválida. */
-  load(symbol: string, timeframe: string): ChartConfig | null;
-  /** Elimina la configuración de un activo y timeframe. */
-  clear(symbol: string, timeframe: string): void;
+  /** Guarda el documento de un activo. */
+  save(symbol: string, input: ChartConfigInput): void;
+  /** Carga el documento del activo, o `null` si no hay o es inválido. */
+  load(symbol: string): DrawingDocument | null;
+  /** Elimina el documento de un activo. */
+  clear(symbol: string): void;
 }
 
 /** Almacenamiento por defecto (navegador); `null` si no está disponible. */
@@ -111,20 +155,20 @@ export function createChartConfigStore(
   storage: Storage | null = defaultStorage(),
 ): ChartConfigStore {
   return {
-    save(symbol, timeframe, input) {
+    save(symbol, input) {
       if (storage === null) return;
       try {
-        storage.setItem(chartConfigKey(symbol, timeframe), serializeChartConfig(input));
+        storage.setItem(chartConfigKey(symbol), serializeChartConfig(symbol, input));
       } catch {
         // Cuota excedida u otro fallo del almacenamiento: se ignora.
       }
     },
-    load(symbol, timeframe) {
+    load(symbol) {
       if (storage === null) return null;
-      return deserializeChartConfig(storage.getItem(chartConfigKey(symbol, timeframe)));
+      return deserializeChartConfig(symbol, storage.getItem(chartConfigKey(symbol)));
     },
-    clear(symbol, timeframe) {
-      storage?.removeItem(chartConfigKey(symbol, timeframe));
+    clear(symbol) {
+      storage?.removeItem(chartConfigKey(symbol));
     },
   };
 }

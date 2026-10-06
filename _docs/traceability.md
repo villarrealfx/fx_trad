@@ -33,7 +33,7 @@ El histórico vivo de los ciclos 01–04 (35 requisitos, con su prueba y su comm
 
 | Requisito | Diseño (ADR/Componente) | Tarea | Prueba | Estado |
 |-----------|-------------------------|-------|--------|--------|
-| RNF-401 Sin pérdida de dibujos en la migración v1→v2 | `state/migrate-chart-config` (puro) + claves v1 intactas (ADR-027) | TASK-401, TASK-402, TASK-403 | — | 🔵 |
+| RNF-401 Sin pérdida de dibujos en la migración v1→v2 | `state/migrate-chart-config` (puro) + claves v1 intactas (ADR-027) | TASK-401, TASK-402, TASK-403 | TASK-401 ✅: `state/__tests__/chart-config.test.ts` (claves v1 intactas tras leer v2; versión desconocida → `null`) — pendiente la evidencia de TASK-402/403 | 🔵 |
 | RNF-402 0 regresiones en las suites existentes | CI GitHub Actions + `make ci` (ADR-008) | TASK-TEC-401 | — | 🔵 |
 | RNF-403 60 FPS con la figura activa | `charting/overlay-geometry` + frame batch (ADR-017) | TASK-UI-405, TASK-TEC-402 | — | 🔵 |
 | RNF-404 El cambio de TF se mide y se registra | Medición registrada en el AUDIT LOG del cierre | TASK-TEC-401 | — | 🔵 |
@@ -43,7 +43,7 @@ El histórico vivo de los ciclos 01–04 (35 requisitos, con su prueba y su comm
 
 | Requisito | Diseño (ADR/Componente) | Tarea | Prueba | Estado |
 |-----------|-------------------------|-------|--------|--------|
-| RI-401 Documento v2 por activo con migración aditiva desde v1 | `state/chart-config` v2 (`DrawingDocument` reutilizado) + `state/migrate-chart-config` (ADR-027) | TASK-401, TASK-402, TASK-403 | — | 🔵 |
+| RI-401 Documento v2 por activo con migración aditiva desde v1 | `state/chart-config` v2 (`DrawingDocument` reutilizado) + `state/migrate-chart-config` (ADR-027) | TASK-401, TASK-402, TASK-403 | TASK-401 ✅: `state/__tests__/chart-config.test.ts` (17: round-trip v2 con `symbol`/`drawings`/`indicators`/`selection`, clave sin TF, v1 descartado) + `state/__tests__/use-chart-config.test.tsx` (8) — pendiente la evidencia de TASK-402/403 | 🔵 |
 | RI-402 La última selección es estado persistido y recuperable | `state/chart-config` (`selection`) + `app/routes.ts` (precedencia URL > persistido > defecto) (ADR-028) | TASK-404, TASK-405 | — | 🔵 |
 
 ## 5. Requisitos de integración
