@@ -100,4 +100,35 @@ describe('ChartHeader · selector de timeframe (TASK-UI-403, RF-406)', () => {
 
     expect((screen.getByRole('radio', { name: '15m' }) as HTMLButtonElement).disabled).toBe(true);
   });
+
+  it('mueve el TF activo cuando cambia el timeframe (TASK-UI-405, RF-406)', () => {
+    const { rerender } = render(
+      <ChartHeader
+        symbol="EURUSD"
+        timeframe="1h"
+        indicatorsOpen={false}
+        onOpenIndicators={vi.fn()}
+        onExport={vi.fn()}
+        onFit={vi.fn()}
+        onChangeTimeframe={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole('radio', { name: '1h' }).getAttribute('aria-checked')).toBe('true');
+
+    rerender(
+      <ChartHeader
+        symbol="EURUSD"
+        timeframe="15m"
+        indicatorsOpen={false}
+        onOpenIndicators={vi.fn()}
+        onExport={vi.fn()}
+        onFit={vi.fn()}
+        onChangeTimeframe={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole('radio', { name: '15m' }).getAttribute('aria-checked')).toBe('true');
+    expect(screen.getByRole('radio', { name: '1h' }).getAttribute('aria-checked')).toBe('false');
+    expect(screen.getByText('EURUSD · 15m')).toBeTruthy();
+  });
 });

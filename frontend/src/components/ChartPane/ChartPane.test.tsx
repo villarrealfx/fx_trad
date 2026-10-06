@@ -260,6 +260,102 @@ describe('ChartPane', () => {
     await waitFor(() => expect(onStatusChange).toHaveBeenCalledWith('error'));
   });
 
+  it('recalcula los indicadores con las velas del TF nuevo (TASK-UI-405, RF-405)', async () => {
+    const candlesAt = (start: number, step: number) =>
+      Array.from({ length: 5 }, (_, index) => ({
+        time: start + index * step,
+        open: 1,
+        high: 1.1,
+        low: 0.9,
+        close: 1.05,
+      }));
+    const H1 = { ...RESPONSE, candles: candlesAt(1_781_000_000, 3600) };
+    const M15 = { ...RESPONSE, timeframe: '15m', candles: candlesAt(2_000_000_000, 900) };
+    fetchMock.mockResolvedValueOnce(createResponse(H1)).mockResolvedValueOnce(createResponse(M15));
+    const indicators = {
+      ...DEFAULT_INDICATOR_PARAMETERS,
+      maPeriods: [2],
+      showRsi: false,
+      showAtr: false,
+    };
+
+    const { rerender } = render(
+      <ChartPane symbol="EURUSD" timeframe="1h" indicators={indicators} />,
+    );
+    await waitFor(() => expect(chartMocks.lineSetData).toHaveBeenCalled());
+    const h1Times = (chartMocks.lineSetData.mock.calls.at(-1)?.[0] as { time: number }[]).map(
+      (point) => point.time,
+    );
+    expect(h1Times.at(-1)).toBe(1_781_014_400);
+
+    chartMocks.lineSetData.mockClear();
+    rerender(<ChartPane key="15m" symbol="EURUSD" timeframe="15m" indicators={indicators} />);
+
+    await waitFor(() => expect(chartMocks.lineSetData).toHaveBeenCalled());
+    const m15Times = (chartMocks.lineSetData.mock.calls.at(-1)?.[0] as { time: number }[]).map(
+      (point) => point.time,
+    );
+    // Las velas del TF nuevo son otras: el indicador se recalcula sobre ellas.
+    expect(m15Times.at(-1)).toBe(2_000_003_600);
+    expect(m15Times).not.toEqual(h1Times);
+  });
+
+  it('no emite NaN cuando la serie es más corta que el periodo (TASK-UI-405, RF-405)', async () => {
+    fetchMock.mockResolvedValue(
+      createResponse({ ...RESPONSE, candles: RESPONSE.candles.slice(0, 2) }),
+    );
+    const indicators = {
+      ...DEFAULT_INDICATOR_PARAMETERS,
+      maPeriods: [10],
+      showRsi: false,
+      showAtr: false,
+    };
+
+    render(<ChartPane symbol="EURUSD" timeframe="1h" indicators={indicators} />);
+
+    await waitFor(() => expect(chartMocks.lineSetData).toHaveBeenCalled());
+    const points = chartMocks.lineSetData.mock.calls.at(-1)?.[0] as { value: number }[];
+    // Con 2 velas y periodo 10 la serie puede venir vacía, pero nunca con NaN.
+    expect(points.every((point) => Number.isFinite(point.value))).toBe(true);
+  });
+
+  it('cambia de escala con la operación activa dentro del frame budget (TASK-UI-405)', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    const operation: OverlayShape = {
+      id: 'op-1',
+      kind: 'operation',
+      from: { time: 1_781_000_000, price: 1.5 },
+      to: { time: 1_781_003_600, price: 1.4 },
+    };
+    const { container, rerender } = render(
+      <ChartPane symbol="EURUSD" timeframe="1h" initialDrawings={[operation]} />,
+    );
+    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
+
+    const scheduler = createManualScheduler();
+    const meter = new FrameRateMeter({
+      now: scheduler.now,
+      schedule: scheduler.schedule,
+      cancel: scheduler.cancel,
+    });
+    meter.start();
+
+    rerender(<ChartPane key="15m" symbol="EURUSD" timeframe="15m" initialDrawings={[operation]} />);
+    await waitFor(() => expect(chartMocks.setData).toHaveBeenCalled());
+
+    const host = container.querySelector('.chart-pane__host') as HTMLElement;
+    for (let frame = 0; frame < 30; frame += 1) {
+      fireEvent(
+        host,
+        new MouseEvent('pointermove', { clientX: 10 + frame, clientY: 40, bubbles: true }),
+      );
+      scheduler.advance(FRAME_BUDGET_MS);
+    }
+
+    const metrics = meter.stop();
+    expect(metrics.droppedFrames).toBe(0);
+  });
+
   it('shows the empty state when the series has no candles', async () => {
     fetchMock.mockResolvedValue(createResponse({ ...RESPONSE, candles: [] }));
     render(<ChartPane symbol="EURUSD" timeframe="1h" />);

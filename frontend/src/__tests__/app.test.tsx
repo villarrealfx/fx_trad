@@ -18,6 +18,8 @@ vi.mock('../components/ChartPane/ChartPane', async () => {
         onExport?: () => void;
         onChangeTimeframe?: (timeframe: string) => void;
         onStatusChange?: (status: string) => void;
+        initialDrawings?: ReadonlyArray<unknown>;
+        indicators?: { maPeriods?: number[] };
       },
       ref: unknown,
     ) {
@@ -27,11 +29,16 @@ vi.mock('../components/ChartPane/ChartPane', async () => {
       return (
         <div>
           <div data-testid="chart-pane" aria-hidden="true" />
+          <span data-testid="pane-drawings">{String(props.initialDrawings?.length ?? 0)}</span>
+          <span data-testid="pane-ma">{props.indicators?.maPeriods?.join(',') ?? ''}</span>
           <button type="button" onClick={props.onExport}>
             Exportar
           </button>
           <button type="button" onClick={() => props.onChangeTimeframe?.('15m')}>
             cambiar-tf
+          </button>
+          <button type="button" onClick={() => props.onChangeTimeframe?.('1h')}>
+            volver-tf
           </button>
           <button type="button" onClick={() => props.onStatusChange?.('success')}>
             tf-success
@@ -162,6 +169,36 @@ describe('App', () => {
     await waitFor(() => expect(window.location.hash).toContain('timeframe=1h'));
     // Sin anuncio de éxito: el cambio no llegó a cuajar.
     expect(screen.queryByText('Timeframe 15 minutos.')).toBeNull();
+  });
+
+  it('la ida y vuelta de TF conserva dibujos e indicadores (TASK-UI-405)', async () => {
+    localStorage.setItem(
+      'fxtrad.chart.v2.GBPUSD',
+      JSON.stringify({
+        version: 2,
+        symbol: 'GBPUSD',
+        drawings: [
+          { id: 'fib-1', kind: 'fib', from: { time: 1, price: 1 }, to: { time: 2, price: 2 } },
+        ],
+        indicators: [{ id: 'ma-20', kind: 'MA', period: 20, visible: true }],
+        selection: { timeframe: '1h' },
+      }),
+    );
+    render(<App />);
+    window.location.hash = '/chart?symbol=GBPUSD&timeframe=1h';
+
+    await waitFor(() => expect(screen.getByTestId('pane-drawings').textContent).toBe('1'));
+    expect(screen.getByTestId('pane-ma').textContent).toBe('20');
+
+    fireEvent.click(screen.getByRole('button', { name: 'cambiar-tf' }));
+    await waitFor(() => expect(window.location.hash).toContain('timeframe=15m'));
+    // La misma figura y los mismos indicadores valen en la escala nueva.
+    expect(screen.getByTestId('pane-drawings').textContent).toBe('1');
+    expect(screen.getByTestId('pane-ma').textContent).toBe('20');
+
+    fireEvent.click(screen.getByRole('button', { name: 'volver-tf' }));
+    await waitFor(() => expect(window.location.hash).toContain('timeframe=1h'));
+    expect(screen.getByTestId('pane-drawings').textContent).toBe('1');
   });
 
   it('lets the chart fill the vertical space without a fixed height (RF-202)', async () => {
