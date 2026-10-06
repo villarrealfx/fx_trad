@@ -5,8 +5,15 @@
  * solicitado. El backend filtra de forma inclusiva sobre velas ya agregadas al
  * bucket del timeframe (`GET /series`), de modo que la primera vela puede estar
  * hasta un bucket después de `start` y la última hasta un bucket antes de `end`:
- * ese desfase es normal y **no** es una falta de cobertura. Un hueco solo cuenta
- * si pierde al menos un bucket completo y no es un cierre de fin de semana.
+ * ese desfase es normal y **no** es una falta de cobertura.
+ *
+ * El mercado de divisas no cotiza de forma continua: cierra el viernes por la
+ * tarde (20:00/21:00 UTC según el horario de verano) y reabre el domingo por la
+ * noche (21:00/22:00 UTC). Cualquier hueco contenido en esa **ventana semanal de
+ * cierre** es un cierre de mercado, no una vela ausente. La ventana se modela
+ * como `[viernes 19:00 UTC, lunes 00:00 UTC)` para absorber el desplazamiento
+ * por DST; el margen de una hora al abrir la ventana puede eximir un hueco de la
+ * última hora del viernes (límite conocido y deliberado).
  */
 import type { Candle, Timeframe } from '../contracts/ohlc';
 
@@ -23,8 +30,11 @@ export const TIMEFRAME_SECONDS: Record<Timeframe, number> = {
 /** Segundos de un día UTC. */
 const DAY_SECONDS = 86400;
 
-/** Duración máxima de un cierre de fin de semana (vie ~22:00 → dom ~22:00). */
-const MAX_WEEKEND_SECONDS = 3 * DAY_SECONDS;
+/** Hora UTC (viernes) a la que empieza la ventana semanal de cierre. */
+const WEEK_CLOSE_HOUR = 19;
+
+/** Duración de la ventana `[viernes 19:00, lunes 00:00)`: 2 días y 5 horas. */
+const WEEK_CLOSE_SECONDS = 2 * DAY_SECONDS + 5 * 3600;
 
 /** Rango pedido al backend (segundos UTC, ambos inclusivos). */
 export interface CoverageRange {
@@ -34,25 +44,27 @@ export interface CoverageRange {
   end?: number;
 }
 
-/** ¿El intervalo `(from, to]` toca sábado o domingo UTC? */
-function coversWeekend(from: number, to: number): boolean {
-  const firstDay = Math.floor(from / DAY_SECONDS) + 1;
-  const lastDay = Math.floor(to / DAY_SECONDS);
-  for (let day = firstDay; day <= lastDay; day += 1) {
-    const weekday = new Date(day * DAY_SECONDS * 1000).getUTCDay();
-    if (weekday === 0 || weekday === 6) return true;
-  }
-  return false;
+/** Día de la semana UTC del instante dado (0 = lunes … 6 = domingo). */
+function utcWeekday(timestamp: number): number {
+  // El 1 de enero de 1970 (epoch) fue jueves, es decir índice 3 contando desde lunes.
+  return (Math.floor(timestamp / DAY_SECONDS) + 3) % 7;
 }
 
-/** ¿El hueco de `from` a `to` se explica por un cierre de fin de semana? */
-function isWeekendClosure(from: number, to: number): boolean {
-  return to - from <= MAX_WEEKEND_SECONDS && coversWeekend(from, to);
+/** Inicio de la ventana de cierre de la semana a la que pertenece el instante. */
+function weekCloseStart(timestamp: number): number {
+  const monday = timestamp - utcWeekday(timestamp) * DAY_SECONDS - (timestamp % DAY_SECONDS);
+  return monday + 4 * DAY_SECONDS + WEEK_CLOSE_HOUR * 3600;
 }
 
-/** ¿Falta al menos un bucket completo entre `from` y `to`? */
+/** ¿El hueco de `from` a `to` cae dentro de la ventana semanal de cierre? */
+function isMarketClosure(from: number, to: number): boolean {
+  const start = weekCloseStart(from);
+  return from >= start && to <= start + WEEK_CLOSE_SECONDS;
+}
+
+/** ¿Falta al menos un bucket completo entre `from` y `to`, sin ser cierre? */
 function missesBuckets(from: number, to: number, bucket: number): boolean {
-  return to - from >= bucket && !isWeekendClosure(from, to);
+  return to - from >= bucket && !isMarketClosure(from, to);
 }
 
 /**
@@ -60,8 +72,8 @@ function missesBuckets(from: number, to: number, bucket: number): boolean {
  *
  * Sin ningún borde de rango no hay aviso (no se pidió nada que cubrir). Un
  * desfase menor que un bucket es el redondeo normal al bucket del timeframe; un
- * hueco que abarca sábado o domingo UTC y dura como mucho un fin de semana es un
- * cierre de mercado. Todo lo demás —borde o interior— es cobertura insuficiente.
+ * hueco contenido en la ventana semanal de cierre es el fin de semana del
+ * mercado. Todo lo demás —borde o interior— es cobertura insuficiente.
  *
  * @param candles Velas servidas, ordenadas ascendentemente por `time`.
  * @param range Rango pedido en segundos UTC; sus bordes son opcionales.
@@ -83,7 +95,7 @@ export function hasCoverageGap(
   for (let index = 1; index < candles.length; index += 1) {
     const previous = candles[index - 1] as Candle;
     const current = candles[index] as Candle;
-    if (current.time - previous.time > bucket && !isWeekendClosure(previous.time, current.time)) {
+    if (current.time - previous.time > bucket && !isMarketClosure(previous.time, current.time)) {
       return true;
     }
   }
