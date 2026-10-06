@@ -1,0 +1,66 @@
+# Perfil de calidad del proyecto — fxtrad
+#
+# Produce /sdd-stack. Es la política declarada del proyecto sobre el catálogo
+# `_shared/quality-rules.md` (ruleset_version = "1"): umbrales, idioma y el nivel
+# efectivo de cada regla (`gate` bloquea el cierre de tarea · `review` se juzga en
+# /sdd-audit · `off` desactivada). Los waivers son excepciones con motivo, autor y fecha.
+#
+# Contexto: auditoría CR-001 (`_docs/reviews/CR-001-proyecto.md`, revisión ed7b64c).
+
+ruleset_version = "1"
+
+# Backend FastAPI (ADR-002) + frontend React/Vite (ADR-003) + worker Celery (ADR-006).
+stack = ["python", "typescript"]
+
+# Límites duros del manual §9.3. `coverage` no tiene instrumento en backend
+# (pytest-cov no instalado) => Q-LIM-04 se reporta `not_measured`, nunca PASS.
+[thresholds]
+line = 100
+function = 50
+file = 500
+complexity = 10
+coverage = 80
+
+[language]
+# Identificadores en inglés; docstrings, comentarios y mensajes al usuario en español (S-10).
+identifiers = "english"
+user_messages = "es"
+# El contrato manda campos de log en inglés (`_docs/logging-contract.md:32`);
+# el código usa hoy nombres en español (ver WARNING-005 de CR-001). Se declara la
+# convención correcta para que la deriva siga siendo visible y medible.
+log_fields = "english"
+# Sustantivos de dominio exceptuados (glosario: Activo, Metadatos de descarga, Tanda,
+# «R total»). Corrige los 4 hallazgos Q-LANG-01 de CR-001 sin renombrar el dominio.
+allow_terms = ["activo", "estado", "fecha", "filas", "total"]
+
+[tools]
+linters = ["ruff", "black", "mypy", "eslint", "prettier", "tsc"]
+# `make ci` y `.github/workflows/ci.yml` los ejecutan; no se exige su presencia
+# local para no bloquear el ciclo por el entorno del usuario.
+mandatory = false
+
+[rules]
+# Decisión del usuario (CR-001): los límites de tamaño son deuda preexistente
+# (7 funciones >50 líneas, complejidad 11 ×2, 2 líneas >100, ChartPane.tsx 874
+# líneas y su test 1243). Se juzgan en /sdd-audit y no bloquean el cierre del ciclo;
+# no se ocultan: siguen apareciendo como REVIEW en `--level all`.
+Q-LIM-01 = "review"
+Q-LIM-02 = "review"
+Q-LIM-03 = "review"
+Q-LIM-05 = "review"
+
+[waivers]
+# Los `print` de estos dos scripts viven dentro de `main()` y son el contrato de
+# salida de un CLI, que el propio catálogo permite (quality-rules.md §C); el
+# heurístico de Q-LOG-01 no distingue el contexto. No hay `print` en `src/`.
+"Q-LOG-01:backend/scripts/benchmark_download.py" = "print dentro de main(): contrato de salida del CLI, permitido por el catálogo — autor: usuario · 2026-10-06"
+"Q-LOG-01:backend/scripts/benchmark_parquet.py" = "print dentro de main(): contrato de salida del CLI, permitido por el catálogo — autor: usuario · 2026-10-06"
+# Interpolan constantes internas del módulo o el número de placeholders; todos los
+# valores viajan parametrizados en `connection.execute(query, params)`. Sin entrada
+# de usuario en la cadena SQL (verificado en CR-001, WARNING-006).
+"Q-SEC-04:backend/src/fxtrad/storage/metadata.py" = "interpola la constante _COLUMNS; valores parametrizados, sin entrada de usuario — autor: usuario · 2026-10-06"
+"Q-SEC-04:backend/src/fxtrad/storage/series.py" = "interpola _COLUMNS/_CREATE_TABLE y el nº de placeholders; valores parametrizados — autor: usuario · 2026-10-06"
+"Q-SEC-04:backend/tests/pipeline/test_schema.py" = "SQL de test sobre el esquema; interpola constantes internas, sin entrada de usuario — autor: usuario · 2026-10-06"
+# Falso positivo del heurístico: `\b(eval|exec)\s*\(` casa con `RegExp.prototype.exec`
+# en una utilidad de contraste de color; no hay evaluación de datos no confiables.
+"Q-SEC-01:frontend/src/styles/contrast.ts" = "es RegExp.exec() en una utilidad de contraste, no eval/exec global ni entrada no confiable — autor: usuario · 2026-10-06"

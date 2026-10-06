@@ -242,6 +242,7 @@ graph LR
 | ADR-023 | Ampliación **aditiva** del esquema de documentos en v1, sin bumpar versión | Aceptado |
 | ADR-024 | Tres tokens de rol para la operación, reutilizando valores del design system | Aceptado |
 | ADR-025 | Etiquetas siempre visibles con separación mínima y línea guía | Aceptado |
+| ADR-026 | Política de control de versiones (perfil `git-profile.toml`) | Aceptado |
 
 ADRs heredados vigentes: ADR-001…021 (ver `_docs/adr/`). Los decisores de este ciclo son
 el arquitecto y el Tech Lead, con el usuario como stakeholder (plan.md §4).

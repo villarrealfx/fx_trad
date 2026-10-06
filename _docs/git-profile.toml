@@ -1,0 +1,58 @@
+# Perfil de control de versiones — fxtrad
+#
+# Produce /sdd-stack y lo justifica ADR-026. Es la fuente de verdad que consumen
+# /sdd-cycle (gate 5: commit de la tarea) y /sdd-next (comprobación de versiones):
+# cuando este archivo contradice la prosa de AGENTS.md, manda el archivo.
+
+init = true
+default_branch = "master"
+
+[remote]
+# El remoto está declarado; el push sigue siendo manual (nunca automático).
+name = "origin"
+url = "git@github.com:villarrealfx/fx_trad.git"
+
+[branches]
+# Modelo híbrido: se trabaja sobre la rama por defecto y solo se abre rama de
+# tarea cuando el plan de la FASE 2 lo propone (L/XL o cambio de esquema/migración).
+model = "hybrid"
+work_on = "master"
+feature_pattern = "feature/TASK-XXX-<slug>"
+feature_when = [
+  "la estimación de la tarea es L o XL",
+  "la tarea cambia el esquema o exige migración",
+]
+fix_pattern = "fix/<slug>"
+
+[commit]
+granularity = "one atomic commit per closed task"
+includes = ["código", "tests", "status.md", "backlog.md", "traceability.md"]
+message = "<type>(TASK-XXX): <resumen en imperativo>"
+trailers = ["Req:", "Board:", "QA:"]
+# `accept` y `reopen` commitean su propio acto; los informes de qa/audit no commitean
+# y entran en el commit correspondiente.
+close_acts = "accept -> docs(...) · reopen -> chore(...)"
+reports_without_commit = ["_docs/qa/", "_docs/reviews/"]
+forbidden = [
+  "commitear con un gate en rojo",
+  "commitear con cambios ajenos en el árbol",
+  "--force",
+  "amend de commits publicados",
+  "commitear secretos",
+]
+
+[push]
+policy = "manual"
+never_automatic = true
+# Al cerrar un ciclo se reporta "N commits locales listos" con el comando exacto;
+# sin remoto declarado se dice y no se inventa.
+report = "N commits locales listos + comando exacto (git push origin master)"
+
+[tag]
+release = "vX.Y.Z"
+when = "requisitos al 100% e historias aceptadas"
+
+[hooks]
+# No hay hooks instalados en .git/hooks; el pipeline real es CI (.github/workflows/ci.yml).
+installed = false
+recommended = ["pre-commit: make lint-backend && make lint-frontend"]
