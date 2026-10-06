@@ -1353,4 +1353,143 @@ describe('ChartPane', () => {
     expect(composed?.width).toBe(640);
     expect(ctx.drawImage).toHaveBeenCalledTimes(1);
   });
+
+  describe('precios numéricos de la operación (TASK-UI-411)', () => {
+    // Con estos mapeos todos los niveles de la operación se proyectan a y=40,
+    // así que un pointerdown en y=40 impacta la figura y la selecciona.
+    beforeEach(() => {
+      chartMocks.timeToCoordinate.mockImplementation(() => 10);
+      chartMocks.priceToCoordinate.mockImplementation(() => 40);
+      chartMocks.coordinateToTime.mockImplementation(() => 1_781_000_000);
+      chartMocks.coordinateToPrice.mockImplementation(() => 1.5);
+    });
+
+    const OPERATION: OverlayShape = {
+      id: 'op-1',
+      kind: 'operation',
+      from: { time: 1_781_000_000, price: 1.5 },
+      to: { time: 1_781_003_600, price: 1.4 },
+    };
+
+    /** Renderiza el panel con la operación sembrada y seleccionada. */
+    async function renderSelectedOperation(): Promise<{
+      container: HTMLElement;
+      host: HTMLElement;
+      onDrawingsChange: ReturnType<typeof vi.fn>;
+    }> {
+      fetchMock.mockResolvedValue(createResponse(RESPONSE));
+      const onDrawingsChange = vi.fn();
+      const { container } = render(
+        <ChartPane
+          symbol="EURUSD"
+          timeframe="1h"
+          initialDrawings={[OPERATION]}
+          onDrawingsChange={onDrawingsChange}
+        />,
+      );
+      await screen.findByText('C 1.09500');
+      const host = container.querySelector('.chart-pane__host') as HTMLElement;
+      fireEvent(host, new MouseEvent('pointerdown', { clientX: 10, clientY: 40, bubbles: true }));
+      fireEvent(host, new MouseEvent('pointerup', { clientX: 10, clientY: 40, bubbles: true }));
+      return { container, host, onDrawingsChange };
+    }
+
+    /** Arranca con la figura seleccionada y el popover abierto. */
+    async function renderOpenPopover(): Promise<{
+      container: HTMLElement;
+      host: HTMLElement;
+      onDrawingsChange: ReturnType<typeof vi.fn>;
+    }> {
+      const rendered = await renderSelectedOperation();
+      fireEvent.click(screen.getByRole('button', { name: 'Editar precios de la operación' }));
+      return rendered;
+    }
+
+    it('muestra el botón «Precios» con la operación seleccionada', async () => {
+      const { host } = await renderSelectedOperation();
+
+      expect(host).toBeTruthy();
+      expect(screen.getByRole('button', { name: 'Editar precios de la operación' })).toBeTruthy();
+    });
+
+    it('no muestra el botón «Precios» sin selección', async () => {
+      fetchMock.mockResolvedValue(createResponse(RESPONSE));
+      render(<ChartPane symbol="EURUSD" timeframe="1h" initialDrawings={[OPERATION]} />);
+      await screen.findByText('C 1.09500');
+
+      expect(screen.queryByRole('button', { name: 'Editar precios de la operación' })).toBeNull();
+    });
+
+    it('abre el popover con los precios de la figura seleccionada', async () => {
+      await renderOpenPopover();
+
+      expect(screen.getByRole('dialog', { name: 'Precios de la operación' })).toBeTruthy();
+      expect((screen.getByLabelText('Entrada') as HTMLInputElement).value).toBe('1.50000');
+      expect((screen.getByLabelText('Stop Loss') as HTMLInputElement).value).toBe('1.40000');
+    });
+
+    it('aplica los precios mutando la figura por el command stack', async () => {
+      const { onDrawingsChange } = await renderOpenPopover();
+
+      fireEvent.change(screen.getByLabelText('Entrada'), { target: { value: '1.60000' } });
+      fireEvent.change(screen.getByLabelText('Stop Loss'), { target: { value: '1.20000' } });
+      fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
+
+      await waitFor(() => {
+        const shapes = onDrawingsChange.mock.calls.at(-1)?.[0] as OverlayShape[];
+        expect(shapes[0]).toMatchObject({ from: { price: 1.6 }, to: { price: 1.2 } });
+      });
+      expect(screen.queryByRole('dialog', { name: 'Precios de la operación' })).toBeNull();
+    });
+
+    it('revierte la edición con Ctrl+Z y la rehace con Ctrl+Y', async () => {
+      const { host, onDrawingsChange } = await renderOpenPopover();
+
+      fireEvent.change(screen.getByLabelText('Entrada'), { target: { value: '1.60000' } });
+      fireEvent.change(screen.getByLabelText('Stop Loss'), { target: { value: '1.20000' } });
+      fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
+      await waitFor(() => {
+        const shapes = onDrawingsChange.mock.calls.at(-1)?.[0] as OverlayShape[];
+        expect(shapes[0]).toMatchObject({ from: { price: 1.6 } });
+      });
+
+      fireEvent.keyDown(host, { key: 'z', ctrlKey: true });
+      await waitFor(() => {
+        const shapes = onDrawingsChange.mock.calls.at(-1)?.[0] as OverlayShape[];
+        expect(shapes[0]).toMatchObject({ from: { price: 1.5 }, to: { price: 1.4 } });
+      });
+
+      fireEvent.keyDown(host, { key: 'y', ctrlKey: true });
+      await waitFor(() => {
+        const shapes = onDrawingsChange.mock.calls.at(-1)?.[0] as OverlayShape[];
+        expect(shapes[0]).toMatchObject({ from: { price: 1.6 }, to: { price: 1.2 } });
+      });
+    });
+
+    it('anuncia los cinco valores en LiveRegion al aplicar', async () => {
+      const { container } = await renderOpenPopover();
+
+      fireEvent.change(screen.getByLabelText('Entrada'), { target: { value: '1.60000' } });
+      fireEvent.change(screen.getByLabelText('Stop Loss'), { target: { value: '1.20000' } });
+      fireEvent.click(screen.getByRole('button', { name: 'Aplicar' }));
+
+      await waitFor(() => {
+        const announcement = container.querySelector('.sr-only[data-tone="polite"]')?.textContent;
+        expect(announcement).toContain('Entrada 1.60000');
+        expect(announcement).toContain('SL 1.20000');
+        expect(announcement).toContain('TP 1.382 2.15280');
+        expect(announcement).toContain('TP 1.5 2.20000');
+        expect(announcement).toContain('TP 2 2.40000');
+      });
+    });
+
+    it('cancela con Escape y devuelve el foco al gráfico', async () => {
+      const { host } = await renderOpenPopover();
+
+      fireEvent.keyDown(screen.getByLabelText('Entrada'), { key: 'Escape' });
+
+      expect(screen.queryByRole('dialog', { name: 'Precios de la operación' })).toBeNull();
+      expect(document.activeElement).toBe(host);
+    });
+  });
 });

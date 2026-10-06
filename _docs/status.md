@@ -9,27 +9,27 @@
 | Métrica | Valor | Δ vs estado anterior |
 |---------|-------|----------------------|
 | Tareas totales | **26** | +24 |
-| 📥 Backlog | **18** | +16 |
+| 📥 Backlog | **17** | +15 |
 | 🔨 Doing | 0 | +1 |
 | 👀 Review | 0 | 0 |
-| ✅ Done | **8** | +8 |
+| ✅ Done | **9** | +9 |
 | 🔴 Blocked | 0 | 0 |
-| % Completado | **31 %** | — |
+| % Completado | **35 %** | — |
 | Esfuerzo planificado | **76 pts** | — |
 | Ruta crítica | **5/7 · 24 pts** | — |
 | Historias aceptadas | **0/9** | — |
 | Días sin movimiento | 0 | — |
 
-**Estado general:** 🟢 **Ciclo 05 en ejecución.** 8/26 tareas cerradas; la ruta crítica avanza **5/7**
+**Estado general:** 🟢 **Ciclo 05 en ejecución.** 9/26 tareas cerradas; la ruta crítica avanza **5/7**
 (`TASK-401`, `TASK-402`, `TASK-UI-403`, `TASK-UI-404`, `TASK-UI-405` ✅). `EP-UI-401` (cambio de
-escala) queda **cerrada**; `EP-UI-404` (precios numéricos) abre con `CMP-025` entregado.
+escala) queda **cerrada**; `EP-UI-404` (precios numéricos) avanza con `CMP-025` integrado.
 
 El ciclo 04 quedó **cerrado y archivado** en `_docs/iterations/04-dibujo-referencia-operacion/`
 (20/20 tareas · 56/56 pts · 19/19 requisitos propios 🟢 · CI en verde).
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (18)
+### 📥 Backlog (17)
 
 | ID | Tarea | Épica | Prioridad | Est. | Deps |
 |----|-------|-------|-----------|------|------|
@@ -41,7 +41,6 @@ El ciclo 04 quedó **cerrado y archivado** en `_docs/iterations/04-dibujo-refere
 | TASK-UI-407 | Tests del eje | EP-UI-402 | Should | 2 | TASK-UI-406 |
 | TASK-UI-408 | `CMP-024 CandleContextMenu` | EP-UI-403 | Should | 5 | — |
 | TASK-UI-409 | Tests y accesibilidad del menú contextual | EP-UI-403 | Should | 3 | TASK-UI-408 |
-| TASK-UI-411 | Integración con command stack y `LiveRegion` | EP-UI-404 | Should | 3 | TASK-UI-410 |
 | TASK-UI-412 | Tests del popover numérico | EP-UI-404 | Should | 3 | TASK-UI-411 |
 | TASK-UI-413 | Diagnóstico y corrección de la condición de cobertura | EP-UI-405 | **Must** | 2 | — |
 | TASK-UI-414 | Tests de borde de la cobertura | EP-UI-405 | **Must** | 2 | TASK-UI-413 |
@@ -60,7 +59,7 @@ Ninguna.
 
 Ninguna.
 
-### ✅ Done (8)
+### ✅ Done (9)
 
 | ID | Tarea | Épica | Est. | Cerrada | Prueba |
 |----|-------|-------|------|---------|--------|
@@ -72,6 +71,7 @@ Ninguna.
 | TASK-UI-404 | Indicadores del activo recalculados por TF — **cerrada sin código: ya cubierta** | EP-UI-401 | — | 2026-10-06 | Evidencia en `traceability.md` RF-405: `ChartPane.tsx:500` (deps `[status, indicators]`) + remonte por `key` en `App.tsx`. Prueba explícita en `TASK-UI-405` (DP-7) |
 | TASK-UI-405 | Tests de la épica de escala (indicadores recalculados, serie corta, ida y vuelta, frame budget) | EP-UI-401 | 5 | 2026-10-06 | `ChartPane.test.tsx` (+3: recálculo con las velas del TF nuevo, sin `NaN` y frame budget) + `ChartHeader.test.tsx` (+1: `aria-checked` sigue al TF) + `app.test.tsx` (+1: ida y vuelta conserva dibujos e indicadores) |
 | TASK-UI-410 | `CMP-025 OperationNumericFields`: popover con dos campos, validación inline y foco gestionado | EP-UI-404 | 5 | 2026-10-06 | `components/OperationNumericFields/__tests__/OperationNumericFields.test.tsx` (14) + `charting/__tests__/operation-price-input.test.ts` (12) |
+| TASK-UI-411 | Integración de `CMP-025` con el command stack y `LiveRegion` | EP-UI-404 | 3 | 2026-10-06 | `components/ChartPane/ChartPane.test.tsx` (+7: botón «Precios» anclado, popover, mutación reversible, `Ctrl+Z`/`Ctrl+Y`, anuncio con los 5 valores y foco devuelto) |
 
 ### 🔴 Blocked (0)
 
@@ -136,7 +136,7 @@ Ninguna.
   se resuelve **dentro** de `TASK-UI-413`) · `PA-2` (¿desaparece el dolor de Multigráfico al
   arreglar `RF-401`? comprobar **antes** de `TASK-UI-415`) · `PA-3` (criterio de viabilidad de
   `Exportar`, `TASK-UI-417`) · `PA-4` (quién verifica los 12 frentes del insumo y con qué guion).
-- **1 commit local sin empujar** (el cierre de `TASK-UI-410`): el push es manual por política
+- **1 commit local sin empujar** (el cierre de `TASK-UI-411`): el push es manual por política
   (`_docs/git-profile.toml`); el remoto está declarado.
 
 ### 🟢 Informativas
@@ -167,9 +167,9 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 
 ## 8. Próximas acciones sugeridas
 
-1. **`/sdd-cycle`** para tomar **`TASK-UI-411`** (*Integración con el command stack y `LiveRegion`*,
-   `EP-UI-404`): cablea `CMP-025` al botón «Precios» de la figura y a la mutación reversible. Es la
-   primera tarea **lista** de la cadena que desbloquea el nodo 6 (`TASK-TEC-401`).
+1. **`/sdd-cycle`** para tomar **`TASK-UI-412`** (*Tests del popover numérico*, `EP-UI-404`): cierra
+   la cadena de la épica con `Tab`/`Enter`/`Escape`, error inline, `Ctrl+Z` y el anuncio de los 5
+   valores. Desbloquea `TASK-TEC-401` por ese lado.
 2. **Antes de `TASK-UI-415`**, resolver `PA-2`: si el dolor de Multigráfico lo causaba el bug de
    selección (`RF-401`), reconsiderar la retirada.
 3. **Antes de `TASK-UI-413`**, cerrar el diagnóstico de `PA-1` (bucket del TF vs hueco de mercado).
@@ -206,3 +206,6 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 | 2026-10-06 | TASK-UI-410 | 📥 → 🔨 | Inicio de desarrollo (CMP-025 OperationNumericFields, RF-410; componente + lógica pura; la integración con el command stack es TASK-UI-411) |
 | 2026-10-06 | TASK-UI-410 | 🔨 → 👀 | Tests verdes: 528/528 frontend (+26 casos nuevos) · typecheck, eslint y prettier en verde · `quality_gate --level gate` PASS |
 | 2026-10-06 | TASK-UI-410 | 👀 → ✅ | DoD verificada: labels visibles `Entrada`/`Stop Loss`, `inputMode` decimal, error inline `role="alert"` asociado al campo, `Aplicar` deshabilitado si el valor no es numérico o `Entrada == SL`, `Escape`/`Cancelar` devuelven el foco a la figura; prueba en `traceability.md` |
+| 2026-10-06 | TASK-UI-411 | 📥 → 🔨 | Inicio de desarrollo (integración de CMP-025 con el command stack y `LiveRegion`, RF-410) |
+| 2026-10-06 | TASK-UI-411 | 🔨 → 👀 | Tests verdes: 535/535 frontend (+7 de integración) · typecheck, eslint y prettier en verde · `quality_gate --level gate` PASS |
+| 2026-10-06 | TASK-UI-411 | 👀 → ✅ | DoD verificada: botón «Precios» anclado a la figura seleccionada, `Aplicar`/`Enter` mutan por `history.update` (un paso reversible: `Ctrl+Z` revierte y `Ctrl+Y` rehace), dirección/`R`/TP se derivan de las anclas y el anuncio reusa `operationAnnouncement`; prueba en `traceability.md` |

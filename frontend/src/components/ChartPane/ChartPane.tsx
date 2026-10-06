@@ -43,6 +43,7 @@ import { composeChartCanvas, type ExportScale } from '../../export';
 import ChartHeader from '../ChartHeader/ChartHeader';
 import ChartToolbar, { type ChartToolDescriptor } from '../ChartToolbar/ChartToolbar';
 import { type ChartToolType } from '../DrawTool/DrawTool';
+import OperationNumericFields from '../OperationNumericFields/OperationNumericFields';
 import StatusBanner from '../ui/StatusBanner';
 import LiveRegion from '../ui/LiveRegion';
 import { fetchSeries } from '../../services/series';
@@ -224,6 +225,8 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
   /** Anuncio accesible de la última mutación de una operación (ACC-201). */
   const [liveMessage, setLiveMessage] = useState('');
   const [selectedMarkerId, setSelectedMarkerId] = useState<string | null>(null);
+  /** Popover numérico de la operación seleccionada abierto (TASK-UI-411). */
+  const [pricesOpen, setPricesOpen] = useState(false);
   const confirmRef = useRef<HTMLButtonElement | null>(null);
   const clickHandlerRef = useRef<(param: MouseEventParams<Time>) => void>(() => {});
   const previewHandlerRef = useRef<(param: MouseEventParams<Time>) => void>(() => {});
@@ -655,6 +658,40 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
     }
   }, [selectedMarkerId]);
 
+  /** Sin figura seleccionada no hay popover numérico (TASK-UI-411). */
+  useEffect(() => {
+    if (selectedShapeId === null) setPricesOpen(false);
+  }, [selectedShapeId]);
+
+  /**
+   * Aplica los precios tecleados como **un único paso reversible** (RF-410).
+   *
+   * La operación solo guarda sus dos anclas (ADR-022), así que cambiar
+   * Entrada/SL recalcula dirección, `R` y TP por derivación. El anuncio reusa
+   * `operationAnnouncement`, la misma fuente que el render del canvas.
+   */
+  function applyOperationPrices(id: string, entry: number, stopLoss: number): void {
+    history.update((current) =>
+      current.map((shape) =>
+        shape.id === id && shape.kind === 'operation'
+          ? {
+              ...shape,
+              from: { ...shape.from, price: entry },
+              to: { ...shape.to, price: stopLoss },
+            }
+          : shape,
+      ),
+    );
+    setLiveMessage(operationAnnouncement(entry, stopLoss));
+    setPricesOpen(false);
+  }
+
+  /** Cierra el popover y devuelve el foco al gráfico (estado `cancelled`). */
+  function closePrices(): void {
+    setPricesOpen(false);
+    hostRef.current?.focus();
+  }
+
   /** Al cambiar de herramienta, cancela el trazo pendiente y la selección. */
   useEffect(() => {
     setDrawFrom(null);
@@ -703,6 +740,17 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
 
   const selectedMarker = markers.find((marker) => marker.id === selectedMarkerId) ?? null;
   const selectedPixel = selectedMarker === null ? null : markerPixel(selectedMarker);
+  /** Operación seleccionada (con handles) a la que anclar el popover numérico. */
+  const selectedOperation = useMemo(() => {
+    if (selectedShapeId === null) return null;
+    const shape = drawnShapes.find((item) => item.id === selectedShapeId);
+    return shape !== undefined && shape.kind === 'operation' ? shape : null;
+  }, [drawnShapes, selectedShapeId]);
+  /** Ancla del popover: la segunda ancla de la figura (su SL), ya proyectada. */
+  const operationAnchor =
+    selectedOperation === null || overlayBinding === null
+      ? null
+      : projectPoint(selectedOperation.to, overlayBinding);
   const overlayShapes = useMemo(
     () =>
       [
@@ -819,6 +867,31 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
           selectedShapeId={selectedShapeId}
           canvasRef={overlayCanvasRef}
         />
+        {selectedOperation !== null && operationAnchor !== null && (
+          <button
+            type="button"
+            className="chart-pane__prices"
+            style={{ left: operationAnchor.x, top: operationAnchor.y }}
+            aria-label="Editar precios de la operación"
+            title="Editar precios de la operación"
+            onClick={() => setPricesOpen(true)}
+          >
+            Precios
+          </button>
+        )}
+        {pricesOpen && selectedOperation !== null && operationAnchor !== null && (
+          <OperationNumericFields
+            entry={selectedOperation.from.price}
+            stopLoss={selectedOperation.to.price}
+            anchor={{ x: operationAnchor.x + 12, y: operationAnchor.y + 12 }}
+            returnFocusRef={hostRef}
+            onApply={(entry, stopLoss) => {
+              applyOperationPrices(selectedOperation.id, entry, stopLoss);
+              hostRef.current?.focus();
+            }}
+            onCancel={closePrices}
+          />
+        )}
         {selectedMarker !== null && selectedPixel !== null && (
           <div
             className="chart-pane__confirm"
