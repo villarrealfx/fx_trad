@@ -1535,6 +1535,12 @@ describe('ChartPane', () => {
     const SAT_10 = 1_781_344_800;
     /** Lunes 2026-06-15 00:00 UTC (reapertura). */
     const MON_00 = 1_781_481_600;
+    /** Viernes 2026-06-12 00:00 UTC (el anterior a `MON_00`). */
+    const FRI_00 = 1_781_222_400;
+    /** Viernes 2026-06-12 20:00 UTC: última vela antes del cierre real. */
+    const FRI_20 = FRI_00 + 20 * 3_600;
+    /** Domingo 2026-06-14 00:00 UTC. */
+    const SUN_00 = 1_781_395_200;
     const WARNING = 'La cobertura disponible es menor al rango solicitado';
 
     /** Respuesta con las velas indicadas (cierre = último valor). */
@@ -1550,6 +1556,23 @@ describe('ChartPane', () => {
           close: 1.085 + index / 100,
         })),
       });
+    }
+
+    /** Velas horarias contiguas de `from` a `to`, ambas inclusive. */
+    function hourly(from: number, to: number): number[] {
+      const times: number[] = [];
+      for (let time = from; time <= to; time += 3_600) times.push(time);
+      return times;
+    }
+
+    /** Renderiza un rango y exige que la serie cargue **sin** el aviso. */
+    async function expectNoWarning(times: number[], start: number, end: number): Promise<void> {
+      fetchMock.mockResolvedValue(series(times));
+      render(<ChartPane symbol="EURUSD" timeframe="1h" start={start} end={end} />);
+      const close = (1.085 + (times.length - 1) / 100).toFixed(5);
+      await waitFor(() => expect(screen.getByText(`C ${close}`)).toBeTruthy());
+
+      expect(screen.queryByText(WARNING)).toBeNull();
     }
 
     it('no avisa cuando el hueco del rango es un cierre de fin de semana', async () => {
@@ -1574,6 +1597,26 @@ describe('ChartPane', () => {
       await waitFor(() => expect(screen.getByText('C 1.08500')).toBeTruthy());
 
       expect(screen.queryByText(WARNING)).toBeNull();
+    });
+
+    // Reapertura (2026-10-06): el cierre del viernes y la apertura del domingo
+    // disparaban el aviso con datos reales; estos casos lo fijan.
+
+    it('no avisa en un rango de solo viernes (cierre temprano)', async () => {
+      await expectNoWarning(hourly(FRI_00, FRI_20), FRI_00, FRI_00 + 86_399);
+    });
+
+    it('no avisa en un rango de solo domingo (apertura tardía)', async () => {
+      await expectNoWarning(
+        hourly(SUN_00 + 21 * 3_600, SUN_00 + 23 * 3_600),
+        SUN_00,
+        SUN_00 + 86_399,
+      );
+    });
+
+    it('no avisa en una semana completa Lun→Vie', async () => {
+      const nextFriday20 = MON_00 + 4 * 86_400 + 20 * 3_600;
+      await expectNoWarning(hourly(MON_00, nextFriday20), MON_00, MON_00 + 4 * 86_400 + 86_399);
     });
   });
 

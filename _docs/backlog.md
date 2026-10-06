@@ -291,7 +291,7 @@ de RNF-007 asumiendo que el MoSCoW (DP-3) define el orden de recorte si el plazo
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
 | TASK-UI-413 | Diagnóstico y corrección de la condición `partialCoverage` (`ChartPane.tsx:413`) | frontend | 2 | — | El aviso solo se dispara con velas ausentes **dentro** del rango; el desfase de bucket y el fin de semana no lo disparan; el diagnóstico (bucket vs hueco) queda escrito en el AUDIT LOG de la tarea | ✅ |
-| TASK-UI-414 | Tests de borde de la cobertura | test | 2 | TASK-UI-413 | Borde desfasado por bucket → sin aviso; velas ausentes dentro → con aviso; fin de semana → sin aviso; los tests heredados del ciclo 04 se actualizan o sustituyen con criterio explícito | 🔨 |
+| TASK-UI-414 | Tests de borde de la cobertura | test | 2 | TASK-UI-413 | Borde desfasado por bucket → sin aviso; velas ausentes dentro → con aviso; fin de semana → sin aviso; los tests heredados del ciclo 04 se actualizan o sustituyen con criterio explícito | ✅ |
 
 ### EP-UI-406: Reducción de superficie (retirada y evaluación)
 
@@ -452,9 +452,12 @@ J-009 extendido → HU-UI-404 · J-002 extendido → HU-UI-402 y HU-UI-405 · J-
 
 ## 11. Preguntas abiertas (PA-*)
 
-1. **PA-1:** ¿El aviso de cobertura (`RF-402`) es realmente un falso positivo? Se resuelve con el
-   diagnóstico de `TASK-UI-413` antes de tocar la condición.
-2. **PA-2:** ¿Desaparece el dolor de Multigráfico al arreglar `RF-401`? Debe comprobarse **antes**
-   de ejecutar `TASK-UI-415`; si la causa era el bug de selección, reconsiderar la retirada.
+1. **PA-1 ✅ resuelta:** sí era un falso positivo de borde. Diagnóstico y corrección en
+   `TASK-UI-413` (ventana semanal de cierre `[viernes 19:00, lunes 00:00)` UTC) y bordes de
+   viernes/domingo/día suelto probados en `TASK-UI-414`. Reabiertas ambas el 2026-10-06 al
+   reproducirse el defecto con datos reales; cerradas de nuevo con la corrección.
+2. **PA-2 ✅ resuelta:** se confirma la retirada de Multigráfico. La evaluación posterior con el
+   código retirado (era multi-TF, no multi-activo, y `chart-sync` sin consumidor) está en
+   `ADR-029` → «Evaluación de PA-2»; `RF-401` fue factor contribuyente, no causa.
 3. **PA-3:** ¿Qué hace «viable» a `Exportar`? Criterio pendiente para `TASK-UI-417`.
 4. **PA-4:** ¿Quién verifica los 12 frentes del insumo (KPI-401) y con qué guion de prueba manual?

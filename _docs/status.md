@@ -10,20 +10,20 @@
 |---------|-------|----------------------|
 | Tareas totales | **26** | +24 |
 | 📥 Backlog | **10** | +8 |
-| 🔨 Doing | 1 | +3 |
+| 🔨 Doing | 0 | +3 |
 | 👀 Review | 0 | 0 |
-| ✅ Done | **15** | +14 |
+| ✅ Done | **16** | +14 |
 | 🔴 Blocked | 0 | 0 |
-| % Completado | **58 %** | — |
+| % Completado | **62 %** | — |
 | Esfuerzo planificado | **76 pts** | — |
 | Ruta crítica | **5/7 · 24 pts** | — |
 | Historias aceptadas | **0/9** | — |
 | Días sin movimiento | 0 | — |
 
-**Estado general:** 🟢 **Ciclo 05 en ejecución.** 15/26 tareas cerradas; la ruta crítica sigue
-**completa (7/7)**. `EP-UI-405` (cobertura honesta) está **reabierta**: `TASK-UI-413` corregida de
-nuevo (ventana semanal de cierre) y `TASK-UI-414` pendiente de ampliar. `EP-UI-404`, la retirada de
-`EP-UI-406` y los nodos de la ruta crítica, cerrados.
+**Estado general:** 🟢 **Ciclo 05 en ejecución.** 16/26 tareas cerradas; la ruta crítica sigue
+**completa (7/7)**. `EP-UI-405` (cobertura honesta) vuelve a estar **cerrada** tras la reapertura
+por defecto reproducido; `EP-UI-404`, la retirada de `EP-UI-406` y los nodos de la ruta crítica,
+cerrados.
 
 El ciclo 04 quedó **cerrado y archivado** en `_docs/iterations/04-dibujo-referencia-operacion/`
 (20/20 tareas · 56/56 pts · 19/19 requisitos propios 🟢 · CI en verde).
@@ -45,17 +45,15 @@ El ciclo 04 quedó **cerrado y archivado** en `_docs/iterations/04-dibujo-refere
 | TASK-UI-417 | Evaluación de `Exportar` con decisión documentada | EP-UI-406 | Could | 2 | — |
 | TASK-TEC-402 | Accesibilidad (axe + teclado) de los componentes nuevos | EP-TEC-400 | **Must** | 2 | TASK-UI-409, TASK-UI-412 |
 
-### 🔨 Doing (1)
+### 🔨 Doing (0)
 
-| ID | Tarea | Épica | Prioridad | Est. | Deps |
-|----|-------|-------|-----------|------|------|
-| TASK-UI-414 | Tests de borde de la cobertura | EP-UI-405 | **Must** | 2 | TASK-UI-413 |
+Ninguna.
 
 ### 👀 Review (0)
 
 Ninguna.
 
-### ✅ Done (15)
+### ✅ Done (16)
 
 | ID | Tarea | Épica | Est. | Cerrada | Prueba |
 |----|-------|-------|------|---------|--------|
@@ -70,6 +68,7 @@ Ninguna.
 | TASK-UI-411 | Integración de `CMP-025` con el command stack y `LiveRegion` | EP-UI-404 | 3 | 2026-10-06 | `components/ChartPane/ChartPane.test.tsx` (+7: botón «Precios» anclado, popover, mutación reversible, `Ctrl+Z`/`Ctrl+Y`, anuncio con los 5 valores y foco devuelto) |
 | TASK-UI-412 | Tests de aceptación del popover numérico | EP-UI-404 | 3 | 2026-10-06 | `components/ChartPane/ChartPane.test.tsx` (+5: `Enter` aplica y anuncia, `Escape` cancela sin mutar, no numérico bloquea `Aplicar`, `Ctrl+Z` restaura exacto, orden de foco Entrada→SL) |
 | TASK-UI-413 | Cobertura honesta con **ventana semanal de cierre** (`hasCoverageGap`) — reapertura | EP-UI-405 | 2 | 2026-10-06 | `charting/__tests__/coverage.test.ts` (17, +4: solo viernes, solo domingo, semana `Lun→Vie`, hueco real en la mañana del viernes) |
+| TASK-UI-414 | Tests de borde de la cobertura en pantalla — reapertura | EP-UI-405 | 2 | 2026-10-06 | `components/ChartPane/ChartPane.test.tsx` (6 de borde, +3: solo viernes, solo domingo y semana `Lun→Vie`, sin aviso) |
 | TASK-UI-415 | Retirada de Multigráfico y de `chart-sync` (ADR-029) | EP-UI-406 | 3 | 2026-10-06 | `__tests__/app.test.tsx` (sin enlace «Multigráfico») + `grep` con 0 referencias en `src/`; −11 tests por retirada de código |
 | TASK-UI-416 | Limpieza de tests de la retirada y guardia de `ROUTES` | EP-UI-406 | 2 | 2026-10-06 | `app/__tests__/routes.test.ts` (+2: sin `/multichart`/`SCR-005`; `routeFor('/multichart')` → `/chart`); 6 mocks huérfanos retirados; 548/548 |
 | TASK-TEC-401 | Suite completa + medición del cambio de TF + gate | EP-TEC-400 | 3 | 2026-10-06 | Backend 546/546 + 2 skip; frontend 549/549 en 58 archivos; `coverage/tf-switch-measurement.json` (medición client-side); `quality_gate --level gate` PASS |
@@ -106,12 +105,12 @@ graph LR
 |-------|-------------|----------|
 | 03 — Mejoras UX | 35 | 121 pts |
 | 04 — Dibujo Referencia de Operación | 20 | 56 pts |
-| **05 — en ejecución** | **15/26 · 48 pts** | **76 pts** |
+| **05 — en ejecución** | **16/26 · 50 pts** | **76 pts** |
 
 ### 4.2 Burn-down
 
-15 de 26 tareas cerradas (**58 %**), 48 de 76 pts; 10 tareas en 📥 (26 pts) y 1 en 🔨 (2 pts), 0
-bloqueadas. La **ruta crítica está completa (7/7)**.
+16 de 26 tareas cerradas (**62 %**), 50 de 76 pts; 10 tareas en 📥 (26 pts), 0 bloqueadas. La
+**ruta crítica está completa (7/7)**.
 
 ### 4.3 Lead time / cycle time
 
@@ -130,24 +129,23 @@ Ninguna.
 
 ### 🟡 Advertencias
 
-- **`RF-402` en corrección** (`EP-UI-405` reabierta): `TASK-UI-413` ya exime el hueco contenido en
-  la ventana semanal `[viernes 19:00, lunes 00:00)` UTC (el defecto la disparaba en **103/103**
-  rangos `Lun→Vie`, **103/103** viernes y **79/79** domingos). Queda `TASK-UI-414` (tests de borde
-  en pantalla). Límite conocido: los festivos en día laborable siguen avisando (6/594 días).
+- **`PA-1` cerrada tras reapertura**: `RF-402` vuelve a 🟢 con la ventana semanal de cierre
+  `[viernes 19:00, lunes 00:00)` UTC y los bordes de viernes/domingo probados en pantalla. Límite
+  conocido: los festivos en día laborable siguen avisando (6/594 días del histórico).
 - **El ciclo planifica 76 pts frente a los 56 del ciclo 04.** Si el plazo de 2 semanas (RNF-007)
   aprieta, el orden de recorte lo fija `DP-3`: primero `RF-411` (Could, `TASK-UI-417`) y después los
   Should de UI pura (eje, menú contextual, precios numéricos, retirada).
 - **Deuda fuera del ciclo 05** (`D-8`): `TECH-305` (motivos de waiver imprecisos), `TECH-306`
   (límites de tamaño: 8 funciones >50 líneas, `ChartPane.tsx` 874) y `TECH-307` (contrato de
   logging autocontradictorio). Provienen de la auditoría `CR-002`, en CHANGES_REQUESTED.
-- **Preguntas abiertas que condicionan tareas**: `PA-1` **reabierta** (defecto reproducido; la
-  corrección de borde de `TASK-UI-413` no cubría viernes/domingo) · `PA-2` **resuelta** antes de
-  `TASK-UI-415` (se confirma la retirada: la decisión D-3/ADR-029 no dependía de `RF-401`) · `PA-3`
-  (criterio de viabilidad de `Exportar`, `TASK-UI-417`) · `PA-4` (quién verifica los 12 frentes del
-  insumo y con qué guion).
-- **3 commits locales sin empujar** (cierre de `TASK-TEC-403`, reapertura de `EP-UI-405` y
-  corrección de `TASK-UI-413`): el push es manual por política (`_docs/git-profile.toml`); los 7
-  cierres anteriores ya están en `origin/master`.
+- **Preguntas abiertas que condicionan tareas**: `PA-1` **resuelta** (defecto de borde reproducido
+  y corregido con la ventana semanal; bordes de viernes/domingo probados) · `PA-2` **resuelta**
+  antes de `TASK-UI-415` (se confirma la retirada: la decisión D-3/ADR-029 no dependía de `RF-401`)
+  · `PA-3` (criterio de viabilidad de `Exportar`, `TASK-UI-417`) · `PA-4` (quién verifica los 12
+  frentes del insumo y con qué guion).
+- **4 commits locales sin empujar** (cierre de `TASK-TEC-403`, reapertura de `EP-UI-405` y las
+  correcciones de `TASK-UI-413` y `TASK-UI-414`): el push es manual por política
+  (`_docs/git-profile.toml`); los 7 cierres anteriores ya están en `origin/master`.
 
 ### 🟢 Informativas
 
@@ -177,10 +175,10 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 
 ## 8. Próximas acciones sugeridas
 
-1. **`/sdd-cycle TASK-UI-414`** (*Tests de borde de la cobertura*, `EP-UI-405`, **Must**, 2 pts,
-   ya en 🔨): añadir los casos de pantalla de **viernes** y **domingo** (y la semana `Lun→Vie`) que
-   faltaban; cierra `PA-1` y deja `RF-402` 🟢.
-2. Después, `TASK-405` (Must, 2 pts) y `TASK-403` (Must, 3 pts), ya con sus dependencias ✅.
+1. **`/sdd-cycle`** para tomar **`TASK-405`** (*Tests de precedencia y de ida y vuelta*, `EP-402`,
+   **Must**, 2 pts, deps `TASK-404` ✅): fuera de ruta crítica; gana a `TASK-403` por el criterio
+   determinista de FASE 5 (Must y menor estimación: 2 < 3).
+2. `TASK-403` (tests de migración y contrato v2, Must, 3 pts) es la siguiente Must de la cola.
 3. `TASK-UI-400`, `TASK-UI-408` y `TASK-UI-417` pueden empezar sin dependencias.
 4. **`git push origin master`** cuando se quiera publicar los commits locales (manual).
 
@@ -243,3 +241,5 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 | 2026-10-06 | TASK-UI-414 | ✅ Done → 🔨 Doing | **Reapertura** arrastrada: sus tests de borde no cubrían viernes/domingo y el DoD «fin de semana → sin aviso» no se cumple con datos reales |
 | 2026-10-06 | TASK-UI-413 | 🔨 → 👀 | Reapertura corregida: `hasCoverageGap` exime ahora el hueco de la ventana semanal `[vie 19:00, lun 00:00)`; 17 tests de `coverage` verdes (+4), suite 553/553 · typecheck, eslint y prettier en verde · `quality_gate --level gate` PASS |
 | 2026-10-06 | TASK-UI-413 | 👀 → ✅ | DoD verificada (reapertura): solo viernes, solo domingo y semana `Lun→Vie` **sin** aviso; sigue avisando el hueco real en la mañana del viernes y el hueco interno entre semana. Queda `TASK-UI-414` |
+| 2026-10-06 | TASK-UI-414 | 🔨 → 👀 | Reapertura ampliada: 3 casos nuevos de pantalla (solo viernes, solo domingo y semana `Lun→Vie`); 556/556 frontend · typecheck, eslint y prettier en verde · `quality_gate --level gate` PASS |
+| 2026-10-06 | TASK-UI-414 | 👀 → ✅ | DoD verificada (reapertura): los bordes de viernes/domingo y la semana `Lun→Vie` no disparan el aviso en pantalla; `EP-UI-405` cerrada y `RF-402` 🟢. `PA-1` resuelta |
