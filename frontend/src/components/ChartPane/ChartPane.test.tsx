@@ -648,6 +648,21 @@ describe('ChartPane', () => {
     expect(options?.timeScale?.visible).toBe(false);
   });
 
+  it('abre el menú contextual con la vela del clic derecho (TASK-UI-409)', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    chartMocks.coordinateToTime.mockImplementation(() => RESPONSE.candles[0].time);
+    render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(chartMocks.setData).toHaveBeenCalled());
+
+    const host = document.querySelector('.chart-pane__host') as HTMLElement;
+    fireEvent.contextMenu(host, { clientX: 10, clientY: 20 });
+
+    const dialog = await screen.findByRole('dialog', { name: 'Datos de la vela' });
+    // La vela bajo el cursor es la primera del histórico (cierre 1.085).
+    expect(dialog.textContent).toContain('1.08500');
+    chartMocks.coordinateToTime.mockImplementation(() => 1_781_000_000);
+  });
+
   it('reprojects drawn anchors after a visible range change', async () => {
     const drawing: OverlayShape = {
       id: 'tendencia-1',

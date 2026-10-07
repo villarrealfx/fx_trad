@@ -9,18 +9,18 @@
 | Métrica | Valor | Δ vs estado anterior |
 |---------|-------|----------------------|
 | Tareas totales | **26** | +24 |
-| 📥 Backlog | **3** | +8 |
+| 📥 Backlog | **2** | +8 |
 | 🔨 Doing | 0 | +3 |
 | 👀 Review | 0 | 0 |
-| ✅ Done | **23** | +14 |
+| ✅ Done | **24** | +14 |
 | 🔴 Blocked | 0 | 0 |
-| % Completado | **88 %** | — |
+| % Completado | **92 %** | — |
 | Esfuerzo planificado | **76 pts** | — |
 | Ruta crítica | **7/7 · 26 pts** | — |
 | Historias aceptadas | **0/9** | — |
 | Días sin movimiento | 0 | — |
 
-**Estado general:** 🟢 **Ciclo 05 en ejecución.** 23/26 tareas cerradas; la ruta crítica sigue
+**Estado general:** 🟢 **Ciclo 05 en ejecución.** 24/26 tareas cerradas; la ruta crítica sigue
 **completa (7/7)**. `EP-UI-405` (cobertura honesta) vuelve a estar **cerrada** tras la reapertura
 por defecto reproducido; `EP-UI-404`, la retirada de `EP-UI-406` y los nodos de la ruta crítica,
 cerrados.
@@ -30,11 +30,10 @@ El ciclo 04 quedó **cerrado y archivado** en `_docs/iterations/04-dibujo-refere
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (3)
+### 📥 Backlog (2)
 
 | ID | Tarea | Épica | Prioridad | Est. | Deps |
 |----|-------|-------|-----------|------|------|
-| TASK-UI-409 | Tests y accesibilidad del menú contextual | EP-UI-403 | Should | 3 | TASK-UI-408 |
 | TASK-UI-417 | Evaluación de `Exportar` con decisión documentada | EP-UI-406 | Could | 2 | — |
 | TASK-TEC-402 | Accesibilidad (axe + teclado) de los componentes nuevos | EP-TEC-400 | **Must** | 2 | TASK-UI-409, TASK-UI-412 |
 
@@ -46,7 +45,7 @@ Ninguna.
 
 Ninguna.
 
-### ✅ Done (23)
+### ✅ Done (24)
 
 | ID | Tarea | Épica | Est. | Cerrada | Prueba |
 |----|-------|-------|------|---------|--------|
@@ -73,6 +72,7 @@ Ninguna.
 | TASK-UI-401 | Contraste de `drawLine` (5.25:1 / 4.64:1) y formato del eje desde los tokens | EP-UI-400 | 2 | 2026-10-07 | `styles/__tests__/tokens.test.ts` (+2: AA sobre los dos fondos y guardia anti-drift) + `charting/__tests__/axis-format.test.ts` (+2: patrones y render `18-nov-25`/`00:15`) |
 | TASK-UI-407 | Tests de aceptación del eje: dos filas, 15m a zoom mínimo y layout de la franja | EP-UI-402 | 2 | 2026-10-07 | `ChartTimeAxis.test.tsx` (4: filas, posiciones, vacío y layout de 40 px) + `axis-format.test.ts` (+1: 15m a zoom mínimo sin solape) |
 | TASK-UI-408 | `CMP-024 CandleContextMenu`: panel de la vela con cabecera `fecha · hora` y OHLC en dos columnas | EP-UI-403 | 5 | 2026-10-07 | `CandleContextMenu.tsx` (`role="dialog"`, `font-num`, reposicionamiento y cierre con retorno de foco) integrado por clic derecho en `ChartPane`; suite 578/578 sin regresiones (los tests de aceptación son de TASK-UI-409) |
+| TASK-UI-409 | Tests y accesibilidad de `CMP-024` | EP-UI-403 | 3 | 2026-10-07 | `CandleContextMenu.test.tsx` (5: valores, `Escape` con foco, clic fuera/dentro, 4 bordes sin desbordar, axe sin violaciones) + `ChartPane.test.tsx` (+1: clic derecho abre con la vela del cursor) |
 
 ### 🔴 Blocked (0)
 
@@ -94,7 +94,7 @@ graph LR
 `TASK-UI-405` incluidos). El tramo que dominó el ciclo fue `TASK-401 → TASK-402 → TASK-UI-403`
 (tres tareas de 5 puntos encadenadas: contrato v2, migración e integración del cambio de escala).
 
-**Pueden empezar en paralelo**: `TASK-UI-409` (dep ✅) y `TASK-UI-417` (sin dependencias).
+**Pueden empezar en paralelo**: `TASK-TEC-402` (ya con sus deps ✅) y `TASK-UI-417`.
 
 ## 4. Métricas
 
@@ -104,11 +104,11 @@ graph LR
 |-------|-------------|----------|
 | 03 — Mejoras UX | 35 | 121 pts |
 | 04 — Dibujo Referencia de Operación | 20 | 56 pts |
-| **05 — en ejecución** | **23/26 · 69 pts** | **76 pts** |
+| **05 — en ejecución** | **24/26 · 72 pts** | **76 pts** |
 
 ### 4.2 Burn-down
 
-23 de 26 tareas cerradas (**88 %**), 69 de 76 pts; 3 tareas en 📥 (7 pts), 0 bloqueadas. La
+24 de 26 tareas cerradas (**92 %**), 72 de 76 pts; 2 tareas en 📥 (4 pts), 0 bloqueadas. La
 **ruta crítica está completa (7/7)**.
 
 ### 4.3 Lead time / cycle time
@@ -172,17 +172,17 @@ Ninguna.
 
 **Requisitos sin tareas:** ninguno. **Cobertura UX:** 3/3 pantallas afectadas (SCR-004 modificada,
 SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios.
-**Historias sin aceptación:** 9/9 pendientes (exigen QA `PASS` y `/sdd-track accept`); `HU-401` y
-`HU-402` ya tienen todas sus tareas ✅ y esperan `/sdd-qa HU-401` y `/sdd-qa HU-402`.
+**Historias sin aceptación:** 9/9 pendientes (exigen QA `PASS` y `/sdd-track accept`); `HU-401`,
+`HU-402` y `HU-UI-403` ya tienen todas sus tareas ✅ y esperan `/sdd-qa`.
 
 ## 8. Próximas acciones sugeridas
 
-1. **`/sdd-cycle`** para tomar **`TASK-UI-409`** (*Tests y accesibilidad del menú*, `EP-UI-403`,
-   Should, 3 pts, dep `TASK-UI-408` ✅): abre con los valores de la vela, cierra por `Escape`/clic
-   fuera, reposiciona en los 4 bordes, axe-core sin violaciones y sin desbordar el viewport.
-2. `TASK-UI-417` (`Exportar`, Could, 2) puede empezar sin dependencias.
-3. Después: `TASK-TEC-402` (Must) espera a `TASK-UI-409`.
-4. Sin commits pendientes de publicar: `origin/master` está al día (push manual por política).
+1. **`/sdd-cycle`** para tomar **`TASK-TEC-402`** (*Accesibilidad de los tres componentes nuevos*,
+   `EP-TEC-400`, **Must**, 2 pts, deps `TASK-UI-409` y `TASK-UI-412` ✅): última `Must` del ciclo;
+   axe-core en SCR-004 con la operación, el menú y el popover abiertos, recorrido solo con teclado y
+   contraste a zoom 200 % (RNF-403).
+2. `TASK-UI-417` (`Exportar`, **Could**, 2) es la última tarea: primer candidato a recorte (`DP-3`).
+3. Sin commits pendientes de publicar: `origin/master` está al día (push manual por política).
 
 ## 9. Historial de cambios (append-only)
 
@@ -268,3 +268,6 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 | 2026-10-07 | TASK-UI-408 | 📥 → 🔨 | Inicio de desarrollo (CMP-024 CandleContextMenu: panel de datos de la vela, RF-408) |
 | 2026-10-07 | TASK-UI-408 | 🔨 → 👀 | Suite verde: 578/578 frontend en 59 archivos (sin regresiones) · typecheck, eslint y prettier en verde · `quality_gate --level gate` PASS |
 | 2026-10-07 | TASK-UI-408 | 👀 → ✅ | DoD verificada: `role="dialog"` + `aria-label="Datos de la vela"`, cabecera `fecha · hora` y OHLC a 5 decimales con `font-num`; reposiciona sin recortar; `Escape`/clic fuera cierran y devuelven el foco; cierra al cambiar de TF; fondo y sombra estáticos. Suite 578/578 sin regresiones; prueba en `traceability.md`. Los tests de aceptación son de TASK-UI-409 |
+| 2026-10-07 | TASK-UI-409 | 📥 → 🔨 | Inicio de desarrollo (tests y accesibilidad de CMP-024: valores, cierre, foco, reposicionamiento y axe, RF-408) |
+| 2026-10-07 | TASK-UI-409 | 🔨 → 👀 | Tests verdes: 584/584 frontend en 60 archivos (+6) · axe-core sin violaciones en el menú · typecheck, eslint y prettier en verde · `quality_gate --level gate` PASS |
+| 2026-10-07 | TASK-UI-409 | 👀 → ✅ | DoD verificada: el menú abre con los valores de la vela (5 decimales), cierra por `Escape` y clic fuera devolviendo el foco, reposiciona en los 4 bordes sin desbordar el viewport y pasa axe-core sin violaciones; prueba en `traceability.md`. RF-408 🟢 y `EP-UI-403` cerrada |

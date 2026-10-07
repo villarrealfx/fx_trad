@@ -1,7 +1,7 @@
 # Handoff de Sesión
 
-> Estado con el **ciclo 05 en ejecución** (23/26 tareas) — 2026-10-07
-> **Ruta crítica completa (7/7).** Punto de continuación exacto: **`/sdd-cycle TASK-UI-409`**
+> Estado con el **ciclo 05 en ejecución** (24/26 tareas) — 2026-10-07
+> **Ruta crítica completa (7/7).** Punto de continuación exacto: **`/sdd-cycle TASK-TEC-402`**
 
 ## Dónde estamos
 
@@ -12,25 +12,25 @@ ADR-027/028/029/030, 9 contratos en `_docs/ux/` y el backlog con 10 épicas, 9 h
 
 | Métrica | Valor |
 |---------|-------|
-| Tareas cerradas | **23/26** (88 %) |
-| Cerradas | `TASK-401`, `TASK-402`, `TASK-403`, `TASK-UI-400`, `TASK-UI-401`, `TASK-UI-402`, `TASK-UI-403`, `TASK-UI-404`\*, `TASK-UI-405`, `TASK-UI-406`, `TASK-UI-407`, `TASK-UI-408`, `TASK-404`, `TASK-405`, `TASK-UI-410`, `TASK-UI-411`, `TASK-UI-412`, `TASK-UI-413`, `TASK-UI-414`, `TASK-UI-415`, `TASK-UI-416`, `TASK-TEC-401`, `TASK-TEC-403` |
+| Tareas cerradas | **24/26** (92 %) |
+| Cerradas | `TASK-401`, `TASK-402`, `TASK-403`, `TASK-UI-400`, `TASK-UI-401`, `TASK-UI-402`, `TASK-UI-403`, `TASK-UI-404`\*, `TASK-UI-405`, `TASK-UI-406`, `TASK-UI-407`, `TASK-UI-408`, `TASK-UI-409`, `TASK-404`, `TASK-405`, `TASK-UI-410`, `TASK-UI-411`, `TASK-UI-412`, `TASK-UI-413`, `TASK-UI-414`, `TASK-UI-415`, `TASK-UI-416`, `TASK-TEC-401`, `TASK-TEC-403` |
 | Ruta crítica | **7/7 · 26 pts — completa** |
 | Épicas cerradas | `EP-UI-401`, `EP-UI-404`, `EP-UI-405` y la retirada de `EP-UI-406` |
 | Historias aceptadas | 0/9 (exigen QA `PASS` y `/sdd-track accept`) |
 | Commits locales sin empujar | **0** — `origin/master` al día tras el push manual |
-| Gates | `quality_gate --level gate` = **PASS** · backend **546/546 + 2 skip** · frontend **578/578** en 59 archivos |
+| Gates | `quality_gate --level gate` = **PASS** · backend **546/546 + 2 skip** · frontend **584/584** en 60 archivos |
 
 \* `TASK-UI-404` se cerró **sin código** (RF-405 ya estaba cubierto, DP-7); sus 2 pts pasaron a
 `TASK-UI-405`.
 
 ## Punto exacto de continuación
 
-**`TASK-UI-409`** — *Tests y accesibilidad del menú* (`EP-UI-403`, Should, 3 pts, `test`, dep
-`TASK-UI-408` ✅). Única `Should` ready: cierra `RF-408` con los tests de aceptación del menú.
+**`TASK-TEC-402`** — *Accesibilidad de los tres componentes nuevos* (`EP-TEC-400`, **Must**, 2 pts,
+`test`, deps `TASK-UI-409` y `TASK-UI-412` ✅). Última `Must` del ciclo; cierra `RNF-403`.
 
 Después:
-- `TASK-UI-417` (evaluación de `Exportar`, Could, 2).
-- **`TASK-TEC-402`** (accesibilidad de los tres componentes nuevos, Must) tras `TASK-UI-409`.
+- `TASK-UI-417` (evaluación de `Exportar`, **Could**, 2) — última tarea y primer candidato a recorte
+  (`DP-3`).
 
 ## Decisiones de sesión (D-X)
 
@@ -92,8 +92,8 @@ Después:
 
 ## Qué haría yo ahora
 
-1. **`/sdd-cycle TASK-UI-409`** (arriba; tests y accesibilidad del menú contextual).
-2. Después quedan `TASK-UI-417` y `TASK-TEC-402`.
+1. **`/sdd-cycle TASK-TEC-402`** (arriba; última `Must`, accesibilidad y teclado).
+2. Después solo queda `TASK-UI-417` (`Exportar`, Could).
 3. Sin commits pendientes de publicar (`origin/master` al día).
 
 ## Avisos
