@@ -1,7 +1,7 @@
 # Handoff de Sesión
 
-> Estado con el **ciclo 05 CERRADO** (26/26 tareas · 76/76 pts) — 2026-10-07
-> **Ruta crítica completa (7/7).** Punto de continuación exacto: **`/sdd-qa`** de las historias cerradas
+> Estado con el **ciclo 05 CERRADO** (26/26 tareas · 76/76 pts) tras **D-19** — 2026-10-07
+> **Ruta crítica completa (7/7).** Punto de continuación exacto: **re-verificación manual** de los 4 síntomas del eje y **re-QA** de `HU-UI-401`/`HU-UI-402`
 
 ## Dónde estamos
 
@@ -18,20 +18,22 @@ ADR-027/028/029/030, 9 contratos en `_docs/ux/` y el backlog con 10 épicas, 9 h
 | Épicas cerradas | `EP-UI-401`, `EP-UI-404`, `EP-UI-405` y la retirada de `EP-UI-406` |
 | Historias aceptadas | 0/9 (exigen QA `PASS` y `/sdd-track accept`) |
 | Commits locales sin empujar | **0** — `origin/master` al día tras el push manual |
-| Gates | `quality_gate --level gate` = **PASS** · backend **546/546 + 2 skip** · frontend **586/586** en 60 archivos |
+| Gates | `quality_gate --level gate` = **PASS** · backend **546/546 + 2 skip** · frontend **577/577** en 59 archivos |
 
 \* `TASK-UI-404` se cerró **sin código** (RF-405 ya estaba cubierto, DP-7); sus 2 pts pasaron a
 `TASK-UI-405`.
 
 ## Punto exacto de continuación
 
-**Ciclo cerrado: no queda ninguna tarea en la cola.** Siguiente paso natural: **`/sdd-qa`** de las
-historias con sus tareas cerradas (`HU-401`, `HU-402`, `HU-UI-403`, `HU-UI-406`) y su registro con
-`/sdd-track accept HU-XXX` cuando el veredicto sea `PASS`.
+**Bloqueante antes de cerrar: re-verificación manual de D-19.** Comprobar en navegador: (a) manipular
+el eje (arrastre/zoom), (b) precisión al crear dibujos, (c) edición y borrado de dibujos/líneas/
+operación, (d) estabilidad al hacer zoom.
 
 Después:
+- **Re-QA** de `HU-UI-402` y `HU-UI-401` (sus `PASS` quedaron obsoletos con D-19) y
+  `/sdd-track accept HU-XXX` con los nuevos informes.
 - **Revisión de cierre:** `/sdd-next status` y, si se quiere informe completo, `/sdd-audit --sdd`.
-- **Publicar:** `git push origin master` (manual) con los commits locales del cierre.
+- **Publicar:** `git push origin master` (manual) con los commits locales.
 - Deuda fuera del ciclo (`D-8`): `TECH-305`, `TECH-306`, `TECH-307` siguen abiertas en §8 del backlog.
 
 ## Decisiones de sesión (D-X)
@@ -64,6 +66,11 @@ Después:
 - **D-18 *(esta corrida)*:** `Exportar` (`SCR-006`) se **mantiene**: cierra el requisito vigente
   `RF-015`, está cubierta por tests y no duplica la superficie de gráfico. Criterio y evidencia en
   `ADR-029` → «Evaluación de PA-3».
+- **D-19 *(esta corrida, verificación manual)***: el **eje X de dos filas se descarta** y se vuelve al
+  **formato original de una fila** `{día} {HH:mm}` sobre el **eje nativo**. Motivo: ocultar el eje
+  nativo impedía manipular el eje, y la franja dentro de `.chart-pane__graph` **estiraba el canvas del
+  overlay** (buffer = host, caja CSS = grafo + 40 px), rompiendo la precisión al crear, la edición y
+  el borrado, y la posición al hacer zoom. Reabiertas `TASK-UI-400/401/406/407`; `RF-407` modificado.
 
 ## Preguntas abiertas (PA-X)
 
@@ -89,8 +96,8 @@ Después:
 | Cambio de escala | `CMP-023` en `ChartHeader` + estados `switching-tf`/`tf-ready`/`tf-error` con **reversión** y anuncio |
 | Cobertura | `charting/coverage.ts` (`hasCoverageGap`): avisa solo por huecos reales (bucket/weekend excluidos) |
 | Precios numéricos | `CMP-025` integrado: botón «Precios» anclado, `Aplicar`/`Enter` por el command stack, anuncio en `LiveRegion` |
-| Eje X | **franja propia de dos filas** (`ChartTimeAxis`, 40 px): eje nativo oculto; `formatAxisDate`/`formatAxisTime`/`selectAxisRows` con umbral (TASK-UI-400/406) |
-| Eje X (tokens) | `AXIS_TOKENS` con `xFormatTop`/`xFormatBottom`/`axisRowGap: 12` y `drawLine` `#7D8590` (TASK-UI-400) |
+| Eje X | **formato original de una fila** `{día} {HH:mm}` sobre el **eje nativo** (arrastre/zoom conservados); sin franja propia (D-19) |
+| Eje X (tokens) | `AXIS_TOKENS.xFormat` = `'{día} {HH:mm}'` y `drawLine` `#7D8590` (TASK-UI-400); `formatAxisDate`/`formatAxisTime` se conservan para la cabecera de `CMP-024` |
 | Menú contextual | `CMP-024`: clic derecho **y** `Shift+F10`/`ContextMenu` (WCAG 2.1.1, D-17); `role="dialog"`, OHLC a 5 decimales, reposiciona y devuelve el foco (TASK-UI-408/409/TEC-402) |
 | Multigráfico | **retirado** (ADR-029): sin ruta, sin `MultiChart`, sin `chart-sync`, sin props `sync` |
 | Fuera de alcance | `TECH-305` (waivers), `TECH-306` (límites de tamaño), `TECH-307` (logging) — auditoría `CR-002` |

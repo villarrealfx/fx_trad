@@ -20,10 +20,10 @@
 | Historias aceptadas | **0/9** | — |
 | Días sin movimiento | 0 | — |
 
-**Estado general:** 🟢 **Ciclo 05 completo.** 26/26 tareas cerradas (**76/76 pts**); la ruta crítica
-está **completa (7/7)** y no queda ninguna tarea en 📥 ni bloqueada. `EP-UI-405` (cobertura honesta)
-vuelve a estar **cerrada** tras la reapertura por defecto reproducido; `EP-UI-404`, la retirada de
-`EP-UI-406` y los nodos de la ruta crítica, cerrados. `PA-3` resuelta: `Exportar` se mantiene.
+**Estado general:** 🟢 **Ciclo 05 completo (26/26 · 76/76 pts) tras el arreglo del eje (D-19).**
+Se revirtió el eje X a su **formato original de una fila** sobre el eje nativo: recupera la
+manipulación del eje y devuelve la geometría del overlay a 1:1 con el host (precisión al crear,
+edición/borrado y estabilidad al hacer zoom). `RF-407` modificado; ruta crítica **completa (7/7)**.
 
 El ciclo 04 quedó **cerrado y archivado** en `_docs/iterations/04-dibujo-referencia-operacion/`
 (20/20 tareas · 56/56 pts · 19/19 requisitos propios 🟢 · CI en verde).
@@ -64,14 +64,14 @@ Ninguna.
 | TASK-TEC-403 | Sin dependencias nuevas: diff de manifiestos y `backend/` vacío | EP-TEC-400 | 1 | 2026-10-06 | `git diff --exit-code e67ba78..HEAD -- frontend/package.json frontend/package-lock.json backend/` → exit 0 y 0 archivos |
 | TASK-405 | Tests de precedencia y de ida y vuelta (query explícito gana; hidratación con rango; defecto; ida y vuelta) | EP-402 | 2 | 2026-10-07 | `__tests__/app.test.tsx` (4 casos nuevos: query explícito gana y pasa a ser la nueva, hidratación de activo+TF+rango, defecto `EURUSD`/`1h`, ida y vuelta por «Biblioteca») |
 | TASK-403 | Aceptación de la migración v1→v2 y del contrato v2 | EP-401 | 3 | 2026-10-07 | `state/__tests__/chart-config.test.ts` (4 casos: v1 mixto de 5 `kind` en 3 TF sin pérdidas ni duplicados, idempotencia estricta, claves v1 intactas, v3 rechazado) |
-| TASK-UI-400 | Tokens del eje: `drawLine` a `#7D8590` y formato X en dos filas (`xFormatTop`/`xFormatBottom`/`axisRowGap`) | EP-UI-400 | 2 | 2026-10-07 | `styles/__tests__/tokens.test.ts` (anti-drift verde con las 3 properties nuevas); `xFormat` retirado y sin consumidores (`grep` 0) |
-| TASK-UI-406 | Render del eje X en dos filas con franja propia de 40 px (eje nativo oculto) | EP-UI-402 | 3 | 2026-10-07 | `charting/__tests__/axis-format.test.ts` (8: formateadores + umbral sin solape a 2 años) + `ChartPane.test.tsx` (franja de dos filas y `timeScale.visible: false`) |
-| TASK-UI-401 | Contraste de `drawLine` (5.25:1 / 4.64:1) y formato del eje desde los tokens | EP-UI-400 | 2 | 2026-10-07 | `styles/__tests__/tokens.test.ts` (+2: AA sobre los dos fondos y guardia anti-drift) + `charting/__tests__/axis-format.test.ts` (+2: patrones y render `18-nov-25`/`00:15`) |
-| TASK-UI-407 | Tests de aceptación del eje: dos filas, 15m a zoom mínimo y layout de la franja | EP-UI-402 | 2 | 2026-10-07 | `ChartTimeAxis.test.tsx` (4: filas, posiciones, vacío y layout de 40 px) + `axis-format.test.ts` (+1: 15m a zoom mínimo sin solape) |
 | TASK-UI-408 | `CMP-024 CandleContextMenu`: panel de la vela con cabecera `fecha · hora` y OHLC en dos columnas | EP-UI-403 | 5 | 2026-10-07 | `CandleContextMenu.tsx` (`role="dialog"`, `font-num`, reposicionamiento y cierre con retorno de foco) integrado por clic derecho en `ChartPane`; suite 578/578 sin regresiones (los tests de aceptación son de TASK-UI-409) |
 | TASK-UI-409 | Tests y accesibilidad de `CMP-024` | EP-UI-403 | 3 | 2026-10-07 | `CandleContextMenu.test.tsx` (5: valores, `Escape` con foco, clic fuera/dentro, 4 bordes sin desbordar, axe sin violaciones) + `ChartPane.test.tsx` (+1: clic derecho abre con la vela del cursor) |
 | TASK-TEC-402 | Accesibilidad de los tres componentes nuevos (axe + teclado) | EP-TEC-400 | 2 | 2026-10-07 | `ChartPane.test.tsx` (+2: axe sin violaciones con popover y menú abiertos; recorrido solo con teclado con foco devuelto). Se añade el disparador `Shift+F10`/`ContextMenu` de CMP-024 (WCAG 2.1.1) |
 | TASK-UI-417 | Evaluación de `Exportar` (SCR-006) con decisión documentada: **mantener** | EP-UI-406 | 2 | 2026-10-07 | `ADR-029` → «Evaluación de PA-3» (criterio de viabilidad + evidencia: `RF-015` vigente, 5 ficheros de test, modal sin duplicar superficie); `RF-411` 🟢 y `PA-3` resuelta |
+| TASK-UI-400 | Tokens: `drawLine` `#7D8590` y `xFormat` original (**D-19**: sin tokens de dos filas) | EP-UI-400 | 2 | 2026-10-07 | `styles/__tests__/tokens.test.ts` (anti-drift verde con `--axis-x-format`; contraste 5.25:1 / 4.64:1); `xFormatTop`/`xFormatBottom`/`axisRowGap` retirados |
+| TASK-UI-401 | Tests de contraste y del formato original del eje | EP-UI-400 | 2 | 2026-10-07 | `styles/__tests__/tokens.test.ts` (+2: AA de `drawLine` sobre los dos fondos y guardia anti-drift) + `charting/__tests__/axis-format.test.ts` (6: `formatAxisLabel` → `1 00:15`, formato del menú y `xFormat` original) |
+| TASK-UI-406 | Eje X original de una fila sobre el eje nativo (revert del de dos filas, D-19) | EP-UI-402 | 3 | 2026-10-07 | `ChartPane` con `tickMarkFormatter` nativo (arrastre/zoom del eje) y sin franja; geometría del overlay 1:1 con el host; `ChartTimeAxis` eliminado |
+| TASK-UI-407 | Tests del eje original y guardia de geometría del overlay | EP-UI-402 | 2 | 2026-10-07 | `charting/__tests__/axis-format.test.ts` (6) + `ChartPane.test.tsx` (85, con la guardia de que el canvas del overlay no excede el host) |
 
 ### 🔴 Blocked (0)
 
@@ -93,7 +93,7 @@ graph LR
 `TASK-UI-405` incluidos). El tramo que dominó el ciclo fue `TASK-401 → TASK-402 → TASK-UI-403`
 (tres tareas de 5 puntos encadenadas: contrato v2, migración e integración del cambio de escala).
 
-**Puede empezar**: ninguna — **backlog vacío** (26/26 cerradas).
+**Puede empezar**: ninguna — **26/26 cerradas**. Pendiente la **re-verificación manual** del usuario.
 
 ## 4. Métricas
 
@@ -107,7 +107,7 @@ graph LR
 
 ### 4.2 Burn-down
 
-26 de 26 tareas cerradas (**100 %**), 76 de 76 pts; 0 tareas en 📥, 0 bloqueadas. La
+26 de 26 tareas cerradas (**100 %**), 76 de 76 pts; 0 en 📥, 0 en 🔨, 0 bloqueadas. La
 **ruta crítica está completa (7/7)**.
 
 ### 4.3 Lead time / cycle time
@@ -123,7 +123,8 @@ Ninguno.
 
 ### 🔴 Críticas
 
-Ninguna.
+Ninguna. *(La crítica de D-19 —eje de dos filas— está **resuelta**: revert al eje original de una
+fila; pendiente solo la re-verificación manual del usuario.)*
 
 ### 🟡 Advertencias
 
@@ -171,18 +172,20 @@ Ninguna.
 
 **Requisitos sin tareas:** ninguno. **Cobertura UX:** 3/3 pantallas afectadas (SCR-004 modificada,
 SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios.
-**Historias sin aceptación:** 9/9 pendientes (exigen QA `PASS` y `/sdd-track accept`); `HU-401`,
-`HU-402`, `HU-UI-403` y `HU-UI-406` ya tienen todas sus tareas ✅ y esperan `/sdd-qa`.
+**Historias sin aceptación:** 8/8 pendientes (exigen QA `PASS` y `/sdd-track accept`); `HU-401`,
+`HU-402`, `HU-UI-403` y `HU-UI-406` tienen sus tareas ✅, pero los informes `PASS` de **`HU-UI-401` y
+`HU-UI-402`** quedan **a re-verificar** por la reapertura del eje. *(El backlog declara 9 historias;
+existen 8: hallazgo de contrato pendiente de corregir.)*
 
 ## 8. Próximas acciones sugeridas
 
-1. **Ciclo 05 cerrado (26/26 · 76/76 pts).** No queda ninguna tarea en la cola: `/sdd-cycle` no tiene
-   trabajo pendiente.
-2. **QA de historias:** `/sdd-qa` de las historias con sus tareas cerradas (`HU-401`, `HU-402`,
-   `HU-UI-403`, `HU-UI-406`) y `/sdd-track accept HU-XXX` con el `PASS` correspondiente.
-3. **Cierre de proyecto:** `/sdd-next status` (fase y coherencia) y, si se quiere informe completo,
-   `/sdd-audit --sdd`.
-4. **Publicar:** `git push origin master` (manual) con los commits locales del cierre.
+1. **Re-verificación manual del usuario (bloqueante):** (a) manipular el eje (arrastre/zoom),
+   (b) precisión al crear dibujos, (c) edición y borrado de dibujos/líneas/operación, (d) estabilidad
+   al hacer zoom.
+2. **Re-QA** de las historias afectadas (`HU-UI-402` y `HU-UI-401`): sus informes `PASS` quedaron
+   obsoletos con D-19; hay que emitir QAR nuevos y `/sdd-track accept` cuando den `PASS`.
+3. **Corregir el recuento de historias** (el backlog declara 9; existen 8).
+4. **Publicar:** `git push origin master` (manual) con los commits locales.
 
 ## 9. Historial de cambios (append-only)
 
@@ -277,3 +280,11 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 | 2026-10-07 | TASK-UI-417 | 📥 → 🔨 | Inicio de desarrollo (evaluación de `Exportar` con decisión documentada, RF-411/PA-3) |
 | 2026-10-07 | TASK-UI-417 | 🔨 → 👀 | Decisión documentada en `ADR-029` («Evaluación de PA-3»): **mantener** `SCR-006`; `RF-411` 🟢 · suite 586/586 sin regresiones · `quality_gate --level gate` PASS |
 | 2026-10-07 | TASK-UI-417 | 👀 → ✅ | DoD verificada: decisión mantener con el criterio de viabilidad (requisito vigente `RF-015`, cobertura de tests y no duplicar superficie) y la evidencia citada; sin requisito modificado; `PA-3` resuelta; prueba en `traceability.md`. **Ciclo 05 completo: 26/26 · 76/76 pts** |
+| 2026-10-07 | TASK-UI-406 | ✅ Done → 🔨 Doing | **Reapertura por defecto reproducido** (verificación manual, D-19): (1) el eje nativo oculto impide manipular el eje; (2) la franja dentro de `.chart-pane__graph` estira el canvas del overlay (buffer = host, caja CSS = graph + 40 px) → dibujos desplazados; (3) sin edición ni borrado; (4) pérdida de ubicación al hacer zoom. Remedio: volver al eje original de una fila |
+| 2026-10-07 | TASK-UI-400 | ✅ Done → 🔨 Doing | Reapertura arrastrada: `RF-407` se modifica a una fila y `xFormat` vuelve a existir; se retiran los tokens de dos filas (`xFormatTop`/`xFormatBottom`/`axisRowGap`). Se conserva `drawLine` `#7D8590` (RNF-405) |
+| 2026-10-07 | TASK-UI-401 | ✅ Done → 🔨 Doing | Reapertura arrastrada: sus tests de formato de dos filas quedan obsoletos; se conservan los de contraste de `drawLine` |
+| 2026-10-07 | TASK-UI-407 | ✅ Done → 🔨 Doing | Reapertura arrastrada: los tests de la franja se sustituyen por los del eje original y una guardia de geometría del overlay |
+| 2026-10-07 | TASK-UI-406 | 🔨 → 👀 → ✅ | Revert verificado (D-19): se restaura el eje nativo (`tickMarkFormatter` → `{día} {HH:mm}`), se elimina la franja/`ChartTimeAxis` y la caja del overlay vuelve a coincidir con el host (precisión, edición y zoom). Suite 577/577 en 59 archivos · backend 546 + 2 skip · lint/typecheck/format y `quality_gate --level gate` PASS |
+| 2026-10-07 | TASK-UI-400 | 🔨 → 👀 → ✅ | `xFormat` restaurado y tokens de dos filas retirados; `drawLine` `#7D8590` se conserva (RNF-405); anti-drift verde |
+| 2026-10-07 | TASK-UI-401 | 🔨 → 👀 → ✅ | Tests reescritos: contraste de `drawLine` (5.25:1 / 4.64:1) y formato original `1 00:15`; sin aserciones del eje de dos filas |
+| 2026-10-07 | TASK-UI-407 | 🔨 → 👀 → ✅ | Tests del eje original (6) y guardia de geometría del overlay en `ChartPane.test.tsx` (85); `RF-407` 🟢. **Ciclo 05: 26/26 · 76/76 pts** |

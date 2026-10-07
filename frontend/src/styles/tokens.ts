@@ -79,16 +79,16 @@ export const SHADOW_TOKENS = {
  * Formato de los ejes del gráfico (RF-206, RF-207, RF-407).
  *
  * `priceDecimals` fija la precisión del eje Y; `priceSide` lo ubica a la
- * derecha (vista de usuario); el eje X usa **dos filas** (ciclo 05): `xFormatTop`
- * para la fecha y `xFormatBottom` para `hh:mm`, separadas por `axisRowGap`
- * (px, consumo en canvas); `xTick` es la separación de marcas del eje X.
+ * derecha (vista de usuario); `xFormat` combina día + hora:minuto de apertura
+ * de la vela; `xTick` es la separación de marcas del eje X.
+ *
+ * D-19: se descartó el eje de dos filas (`xFormatTop`/`xFormatBottom`/`axisRowGap`)
+ * porque la franja propia rompía la manipulación del eje y la geometría del overlay.
  */
 export const AXIS_TOKENS = {
   priceDecimals: 5,
   priceSide: 'right',
-  xFormatTop: '{día}',
-  xFormatBottom: '{HH:mm}',
-  axisRowGap: 12,
+  xFormat: '{día} {HH:mm}',
   xTick: '15m',
 } as const;
 

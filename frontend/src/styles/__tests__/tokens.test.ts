@@ -99,9 +99,7 @@ describe('tokens del ciclo 03 (dibujos, ejes, marcas, íconos)', () => {
     const expected: ReadonlyArray<readonly [string, string]> = [
       ['--axis-price-decimals', String(AXIS_TOKENS.priceDecimals)],
       ['--axis-price-side', AXIS_TOKENS.priceSide],
-      ['--axis-x-format-top', `'${AXIS_TOKENS.xFormatTop}'`],
-      ['--axis-x-format-bottom', `'${AXIS_TOKENS.xFormatBottom}'`],
-      ['--axis-row-gap', `${AXIS_TOKENS.axisRowGap}px`],
+      ['--axis-x-format', `'${AXIS_TOKENS.xFormat}'`],
       ['--axis-x-tick', AXIS_TOKENS.xTick],
       ['--marker-offset-pips', String(MARKER_TOKENS.offsetPips)],
       ['--marker-pip-value', String(MARKER_TOKENS.pipValue)],
@@ -175,15 +173,13 @@ describe('contraste y formato del eje (ciclo 05, TASK-UI-401)', () => {
     expect(COLOR_TOKENS.drawLine).toBe('#7D8590');
     expect(css).toContain(`--color-draw-line: ${COLOR_TOKENS.drawLine.toLowerCase()};`);
 
-    expect(AXIS_TOKENS.xFormatTop).toBe('{día}');
-    expect(AXIS_TOKENS.xFormatBottom).toBe('{HH:mm}');
-    expect(AXIS_TOKENS.axisRowGap).toBe(12);
-    expect(css).toContain(`--axis-x-format-top: '${AXIS_TOKENS.xFormatTop.toLowerCase()}';`);
-    expect(css).toContain(`--axis-x-format-bottom: '${AXIS_TOKENS.xFormatBottom.toLowerCase()}';`);
-    expect(css).toContain(`--axis-row-gap: ${AXIS_TOKENS.axisRowGap}px;`);
+    expect(AXIS_TOKENS.xFormat).toBe('{día} {HH:mm}');
+    expect(css).toContain(`--axis-x-format: '${AXIS_TOKENS.xFormat.toLowerCase()}';`);
 
-    // El formato combinado del ciclo 04 se retiró (RF-407).
-    expect('xFormat' in AXIS_TOKENS).toBe(false);
+    // D-19: el eje de dos filas se descartó; sus tokens no deben reintroducirse.
+    expect('xFormatTop' in AXIS_TOKENS).toBe(false);
+    expect('xFormatBottom' in AXIS_TOKENS).toBe(false);
+    expect('axisRowGap' in AXIS_TOKENS).toBe(false);
   });
 });
 

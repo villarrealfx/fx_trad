@@ -25,20 +25,6 @@
   box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.85);
 }
 
-/*
- * Franja del eje X en dos filas (RF-407, TASK-UI-406). El eje temporal nativo se
- * oculta (`timeScale.visible: false`): el canvas cede estos ~40 px de alto (28 → 40)
- * y el eje Y queda intacto dentro del canvas.
- */
-.chart-pane__time-axis {
-  position: relative;
-  z-index: 2;
-  flex: 0 0 40px;
-  box-sizing: border-box;
-  border-top: 1px solid var(--color-border);
-  background: var(--color-bg);
-}
-
 .chart-pane__tools {
   display: flex;
   gap: 8px;

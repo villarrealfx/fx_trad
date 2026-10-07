@@ -1,14 +1,29 @@
 /**
- * Formato del eje temporal en dos filas (RF-407, RF-206, RF-207, TASK-UI-406).
+ * Formato de los ejes del gráfico (RF-206, RF-207, RF-407).
  *
- * La fila **superior** muestra la fecha `dd-mmm-aa` y la **inferior** `hh:mm`, en
- * UTC, según `AXIS_TOKENS.xFormatTop`/`xFormatBottom`. `selectAxisRows` elige las
- * marcas visibles aplicando el **umbral de separación** que evita el solape a zoom
- * de 2 años (R-406). El eje Y conserva su precisión (`PRICE_FORMAT`).
+ * El eje X usa el **formato original de una fila** `{día} {HH:mm}` sobre el eje
+ * nativo de la librería (que conserva el arrastre/zoom); el eje Y usa la precisión
+ * de `AXIS_TOKENS` (5 decimales) en la escala derecha. `formatAxisDate` y
+ * `formatAxisTime` se conservan porque los usa la cabecera «fecha · hora» del
+ * menú contextual de vela (CMP-024, RF-408).
  */
 import { AXIS_TOKENS } from '../styles/tokens';
 
-/** Meses abreviados en español, como el `{día}` del design system (`18-nov-25`). */
+/**
+ * Formatea un instante (segundos epoch UTC) como `{día} {HH:mm}`.
+ *
+ * @param epochSeconds Marca temporal en segundos UTC.
+ * @returns Etiqueta de eje, p. ej. `1 00:15`.
+ */
+export function formatAxisLabel(epochSeconds: number): string {
+  const date = new Date(epochSeconds * 1000);
+  const day = date.getUTCDate();
+  const hours = String(date.getUTCHours()).padStart(2, '0');
+  const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+  return `${day} ${hours}:${minutes}`;
+}
+
+/** Meses abreviados en español para la cabecera del menú contextual (CMP-024). */
 const MONTHS_ES = [
   'ene',
   'feb',
@@ -24,17 +39,11 @@ const MONTHS_ES = [
   'dic',
 ] as const;
 
-/** Umbral de separación entre etiquetas de fecha contiguas (R-406). */
-export const AXIS_DATE_MIN_GAP_PX = AXIS_TOKENS.axisRowGap * 6;
-
-/** Umbral de separación entre etiquetas de hora contiguas. */
-export const AXIS_TIME_MIN_GAP_PX = AXIS_TOKENS.axisRowGap * 4;
-
 /**
  * Formatea un instante (segundos epoch UTC) como fecha `dd-mmm-aa`.
  *
  * @param epochSeconds Marca temporal en segundos UTC.
- * @returns Etiqueta de la fila superior, p. ej. `18-nov-25`.
+ * @returns Fecha, p. ej. `18-nov-25`.
  */
 export function formatAxisDate(epochSeconds: number): string {
   const date = new Date(epochSeconds * 1000);
@@ -48,85 +57,13 @@ export function formatAxisDate(epochSeconds: number): string {
  * Formatea un instante (segundos epoch UTC) como `hh:mm`.
  *
  * @param epochSeconds Marca temporal en segundos UTC.
- * @returns Etiqueta de la fila inferior, p. ej. `00:15`.
+ * @returns Hora, p. ej. `00:15`.
  */
 export function formatAxisTime(epochSeconds: number): string {
   const date = new Date(epochSeconds * 1000);
   const hours = String(date.getUTCHours()).padStart(2, '0');
   const minutes = String(date.getUTCMinutes()).padStart(2, '0');
   return `${hours}:${minutes}`;
-}
-
-/** Marca de eje ya posicionada en píxeles. */
-export interface AxisTick {
-  /** Marca temporal de la vela (segundos UTC). */
-  time: number;
-  /** Coordenada horizontal dentro de la franja. */
-  x: number;
-  /** Texto de la etiqueta. */
-  label: string;
-}
-
-/** Las dos filas del eje X. */
-export interface AxisRows {
-  /** Fila superior: fechas. */
-  top: AxisTick[];
-  /** Fila inferior: horas. */
-  bottom: AxisTick[];
-}
-
-/** Opciones de selección de marcas del eje. */
-export interface AxisRowsOptions {
-  /** Ancho disponible de la franja en píxeles. */
-  width: number;
-  /** Umbral de separación de la fila de fechas (por defecto `AXIS_DATE_MIN_GAP_PX`). */
-  minDateGapPx?: number;
-  /** Umbral de separación de la fila de horas (por defecto `AXIS_TIME_MIN_GAP_PX`). */
-  minTimeGapPx?: number;
-}
-
-/**
- * Selecciona las marcas visibles de las dos filas del eje X.
- *
- * Recorre las marcas temporales en orden y descarta las que caen fuera de la
- * franja (`[0, width]`). La fila superior emite una fecha **cuando cambia el día
- * UTC** y hay sitio respecto a la anterior; la inferior emite una hora si respeta
- * su umbral. El umbral es lo que garantiza que no haya solape a zoom de 2 años.
- *
- * @param times Marcas temporales de las velas (segundos UTC), en orden.
- * @param coordinateOf Proyecta un instante a píxeles (`null` si no es visible).
- * @param options Ancho de la franja y umbrales.
- */
-export function selectAxisRows(
-  times: ReadonlyArray<number>,
-  coordinateOf: (time: number) => number | null,
-  options: AxisRowsOptions,
-): AxisRows {
-  const minDateGapPx = options.minDateGapPx ?? AXIS_DATE_MIN_GAP_PX;
-  const minTimeGapPx = options.minTimeGapPx ?? AXIS_TIME_MIN_GAP_PX;
-  const top: AxisTick[] = [];
-  const bottom: AxisTick[] = [];
-  let emittedDay = '';
-  let lastDateX = Number.NEGATIVE_INFINITY;
-  let lastTimeX = Number.NEGATIVE_INFINITY;
-
-  for (const time of times) {
-    const x = coordinateOf(time);
-    if (x === null || x < 0 || x > options.width) continue;
-
-    const day = formatAxisDate(time);
-    if (day !== emittedDay && x - lastDateX >= minDateGapPx) {
-      top.push({ time, x, label: day });
-      emittedDay = day;
-      lastDateX = x;
-    }
-    if (x - lastTimeX >= minTimeGapPx) {
-      bottom.push({ time, x, label: formatAxisTime(time) });
-      lastTimeX = x;
-    }
-  }
-
-  return { top, bottom };
 }
 
 /** Formato de precio del eje Y: precisión y paso mínimo de los tokens. */

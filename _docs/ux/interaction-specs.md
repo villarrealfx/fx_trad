@@ -12,7 +12,7 @@
 | loading | Abrir gráfico | Skeleton de velas; toolbar y **selector de TF** deshabilitados | Hasta carga |
 | empty | Sin datos en rango | Overlay "Sin datos en este periodo" + volver a SCR-003 | persistente |
 | error | Fallo de serie | Banner + "Reintentar"; estado del chart y la selección intactos | persistente |
-| success | Datos OK | Velas + **eje X en dos filas** (fecha / `hh:mm`), Y 5 dec. derecha; operación con 5 niveles; 60 FPS | — |
+| success | Datos OK | Velas + **eje X `{día} {HH:mm}` en una fila** (eje nativo, manipulable), Y 5 dec. derecha; operación con 5 niveles; 60 FPS | — |
 | partial | **La serie no cubre el rango pedido** | Velas continuas; aviso de cobertura recortada | — |
 
 > **Cambio en `partial` (RF-402):** el aviso se dispara **solo** si el primer/último bucket

@@ -74,22 +74,26 @@ nunca es el único portador de información.
 | font-small | Inter / system-ui | 12px | 400 | Nombre de etiqueta de nivel, **eje X**, menú contextual |
 | font-num | tabular-nums | 12px | 500 | Precio de etiqueta, **OHLC del menú**, campos del popover |
 
-### Formato del eje (modificado en el ciclo 05)
+### Formato del eje (D-19: se conserva el formato original)
 
-`AXIS_TOKENS` parte el formato en dos filas (RF-407):
+`RF-407` se **modificó** en la verificación manual del ciclo 05: el eje X vuelve al formato
+**original de una fila** `{día} {HH:mm}` sobre el **eje nativo** de la librería, que es el que
+conserva el arrastre/zoom del eje. El intento de dos filas se descartó porque (1) ocultar el eje
+nativo impedía manipularlo y (2) la franja propia dentro del grafo **estiraba el canvas del overlay**,
+rompiendo la precisión al crear y la edición/borrado de dibujos.
 
-| Token | Antes | Ahora | Uso |
-|-------|-------|-------|-----|
-| `xFormat` | `'{día} {HH:mm}'` | — *(se retira)* | — |
-| `xFormatTop` | — | `'{día}'` → `18-nov-25` | Fila superior del eje X |
-| `xFormatBottom` | — | `'{HH:mm}'` → `00:15` | Fila inferior del eje X |
-| `axisRowGap` | — | `12px` | Separación entre las dos filas |
-| `xTick` | `15m` | `15m` | Separación de marcas (sin cambios) |
-| `priceDecimals` / `priceSide` | 5 / `right` | sin cambios | Eje Y |
+| Token | Ahora | Uso |
+|-------|-------|-----|
+| `xFormat` | `'{día} {HH:mm}'` → `1 00:15` | Etiqueta del eje X (una fila, eje nativo) |
+| `xTick` | `15m` | Separación de marcas |
+| `priceDecimals` / `priceSide` | 5 / `right` | Eje Y |
 
-**Impacto de layout:** la franja del eje X pasa de **28 px a ~40 px**. El canvas cede ese alto (no
-hay scroll); el layout sigue siendo appbar 48 + ChartHeader 40 + toolbar 40 + canvas flexible +
-eje ~40 + leyenda 28.
+**Impacto de layout:** ninguno. La franja del eje X se mantiene en sus **28 px originales** y el
+canvas no cede alto: appbar 48 + ChartHeader 40 + toolbar 40 + canvas flexible + eje ~28 + leyenda 28.
+*(No se reintroducen `xFormatTop`/`xFormatBottom`/`axisRowGap`.)*
+
+`formatAxisDate` (`18-nov-25`) y `formatAxisTime` (`00:15`) siguen existiendo en
+`charting/axis-format` porque los usa la **cabecera del menú contextual** (`CMP-024`, RF-408).
 
 ### Tokens del menú contextual y del popover (nuevos componentes, sin tokens nuevos)
 
@@ -132,8 +136,9 @@ de alcance.
 
 ## 5. Grid y layout
 
-Sin cambios en el grid. El ciclo 05 ajusta una franja: la del **eje X** (28 → ~40 px) por las dos
-filas de `RF-407`. Ni el selector de TF ni el menú contextual ocupan espacio de layout: el primero
+Sin cambios en el grid. **D-19:** el eje X conserva su franja original de **28 px** (`RF-407` se
+modificó: el eje de dos filas se descartó por romper la manipulación del eje y la geometría del
+overlay). Ni el selector de TF ni el menú contextual ocupan espacio de layout: el primero
 vive en `ChartHeader`, el segundo flota sobre el canvas.
 
 ## 6. Contrato visual del menú contextual (nuevo)

@@ -78,9 +78,10 @@
 
 - **Selector de TF (`CMP-023`)** en `ChartHeader`, a la izquierda de Indicadores: `radiogroup`
   con un único TF activo, valores de `TIMEFRAMES` (`1m, 5m, 15m, 1h, 4h, 1d`).
-- **Eje X en dos filas (`RF-407`)**: fila superior `dd-mmm-aa`, fila inferior `hh:mm`
-  (`AXIS_TOKENS.xFormatTop` / `xFormatBottom`, `axisRowGap` = 12 px). La franja del eje crece de
-  28 px a ~40 px y el canvas cede ese alto; no hay scroll ni solape.
+- **Eje X (`RF-407`, D-19)**: una fila con `{día} {HH:mm}` (`AXIS_TOKENS.xFormat`, p. ej. `1
+  00:15`) sobre el **eje nativo**, que conserva el arrastre/zoom. La franja se mantiene en 28 px y
+  el canvas no cede alto. *(Se descartó el eje de dos filas: rompía la manipulación del eje y la
+  precisión/edición de los dibujos.)*
 - **Menú contextual (`CMP-024`)**: clic derecho sobre una vela. **No sustituye** la leyenda
   inferior `🎯`: la leyenda sigue la posición del cursor, el menú **fija** una vela.
 - **Popover numérico (`CMP-025`)**: con una figura seleccionada, botón «Precios» (o doble clic

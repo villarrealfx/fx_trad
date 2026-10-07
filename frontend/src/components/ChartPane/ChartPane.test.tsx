@@ -1,6 +1,7 @@
 import axe from 'axe-core';
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { createRef } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
@@ -9,7 +10,6 @@ import {
   type FrameRateMeterOptions,
 } from '../../performance/frame-rate';
 import { installCanvas2DContextMock } from '../../testing/canvas-2d';
-import { formatAxisDate, formatAxisTime } from '../../charting/axis-format';
 import type { OverlayShape } from '../../charting/overlay-geometry';
 import type { Timeframe } from '../../contracts/ohlc';
 import { DEFAULT_INDICATOR_PARAMETERS } from '../../indicators/indicators';
@@ -622,30 +622,29 @@ describe('ChartPane', () => {
     const overlay = document.querySelector('.chart-pane__graph canvas');
     expect(overlay).not.toBeNull();
     expect(overlay?.getAttribute('aria-hidden')).toBe('true');
-    // Overlay + eje X propio (TASK-UI-406) se suscriben al rango visible.
-    expect(chartMocks.subscribeVisibleLogicalRangeChange).toHaveBeenCalledTimes(2);
-    expect(chartMocks.subscribeSizeChange).toHaveBeenCalledTimes(2);
+    // Solo el overlay se suscribe al rango visible (el eje de dos filas se retiró, D-19).
+    expect(chartMocks.subscribeVisibleLogicalRangeChange).toHaveBeenCalledTimes(1);
+    expect(chartMocks.subscribeSizeChange).toHaveBeenCalledTimes(1);
   });
 
-  it('renderiza el eje X propio en dos filas (TASK-UI-406, RF-407)', async () => {
+  it('el overlay cubre exactamente el host del gráfico (regresión D-19, RF-407)', async () => {
     fetchMock.mockResolvedValue(createResponse(RESPONSE));
-    render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    const { container } = render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+    await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
 
-    const axis = await screen.findByTestId('chart-time-axis');
-    expect(axis.closest('.chart-pane__time-axis')).not.toBeNull();
-    await waitFor(() =>
-      expect(axis.querySelector('[data-row="date"]')?.textContent).toBe(
-        formatAxisDate(RESPONSE.candles[0].time),
-      ),
+    // Invariante de geometría: el canvas del overlay se dimensiona con el host
+    // (`OverlayCanvas`), así que su caja CSS no puede ser más alta que el host.
+    // Una franja hermana con altura fija dentro del grafo lo estiraba y rompía
+    // la precisión, el hit-test de edición y la posición al hacer zoom.
+    const host = container.querySelector('.chart-pane__host') as HTMLElement;
+    const canvas = container.querySelector('.chart-pane__graph canvas') as HTMLElement;
+    expect(canvas.parentElement).toBe(host.parentElement);
+    const css = readFileSync(
+      resolve(process.cwd(), 'src/components/ChartPane/ChartPane.css'),
+      'utf8',
     );
-    expect(axis.querySelector('[data-row="time"]')?.textContent).toBe(
-      formatAxisTime(RESPONSE.candles[0].time),
-    );
-    // El eje temporal nativo queda oculto: la franja de dos filas lo sustituye.
-    const options = chartMocks.createChart.mock.calls.at(-1)?.[1] as {
-      timeScale?: { visible?: boolean };
-    };
-    expect(options?.timeScale?.visible).toBe(false);
+    expect(css).not.toContain('.chart-pane__time-axis');
+    expect(css).not.toMatch(/\.chart-pane__host\s*\{[^}]*flex:\s*0/s);
   });
 
   it('abre el menú contextual con la vela del clic derecho (TASK-UI-409)', async () => {
@@ -1162,12 +1161,13 @@ describe('ChartPane', () => {
     await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
 
     const options = chartMocks.createChart.mock.calls[0]?.[1] as {
-      timeScale?: { visible?: boolean };
+      timeScale?: { tickMarkFormatter?: (time: number) => string };
     };
-    // El eje temporal nativo se oculta: lo sustituye la franja de dos filas (RF-407).
-    expect(options.timeScale?.visible).toBe(false);
-    expect(formatAxisDate(Date.UTC(2025, 10, 18, 0, 15) / 1000)).toBe('18-nov-25');
-    expect(formatAxisTime(Date.UTC(2026, 0, 1, 0, 15) / 1000)).toBe('00:15');
+    // D-19: el eje nativo se conserva (arrastre/zoom) con el formato de una fila.
+    expect(typeof options.timeScale?.tickMarkFormatter).toBe('function');
+    expect(options.timeScale?.tickMarkFormatter?.(Date.UTC(2026, 0, 1, 0, 15) / 1000)).toBe(
+      '1 00:15',
+    );
     expect(chartMocks.addCandlestickSeries).toHaveBeenCalledWith(
       expect.objectContaining({
         priceFormat: { type: 'price', precision: 5, minMove: 0.00001 },
