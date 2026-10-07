@@ -108,6 +108,30 @@ describe('selectAxisRows (RF-407, umbral de separación)', () => {
     }
     expect(AXIS_DATE_MIN_GAP_PX).toBeGreaterThan(AXIS_TIME_MIN_GAP_PX);
   });
+
+  it('respeta el umbral de las dos filas con ticks de 15m a zoom mínimo', () => {
+    // 60 días de velas de 15m proyectadas a 0,05 px por vela (zoom mínimo).
+    const stepSeconds = 15 * 60;
+    const times = Array.from({ length: 60 * 24 * 4 }, (_, index) => index * stepSeconds);
+
+    const rows = selectAxisRows(times, (time) => (time / stepSeconds) * 0.05, { width: 800 });
+
+    const datePositions = rows.top.map((tick) => tick.x);
+    const timePositions = rows.bottom.map((tick) => tick.x);
+
+    expect(datePositions.length).toBeGreaterThan(0);
+    expect(timePositions.length).toBeGreaterThan(0);
+    for (let index = 1; index < datePositions.length; index += 1) {
+      expect(datePositions[index] - datePositions[index - 1]).toBeGreaterThanOrEqual(
+        AXIS_DATE_MIN_GAP_PX,
+      );
+    }
+    for (let index = 1; index < timePositions.length; index += 1) {
+      expect(timePositions[index] - timePositions[index - 1]).toBeGreaterThanOrEqual(
+        AXIS_TIME_MIN_GAP_PX,
+      );
+    }
+  });
 });
 
 describe('formato en dos filas desde los tokens (TASK-UI-401, RF-407)', () => {

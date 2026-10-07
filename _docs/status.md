@@ -9,18 +9,18 @@
 | Métrica | Valor | Δ vs estado anterior |
 |---------|-------|----------------------|
 | Tareas totales | **26** | +24 |
-| 📥 Backlog | **5** | +8 |
+| 📥 Backlog | **4** | +8 |
 | 🔨 Doing | 0 | +3 |
 | 👀 Review | 0 | 0 |
-| ✅ Done | **21** | +14 |
+| ✅ Done | **22** | +14 |
 | 🔴 Blocked | 0 | 0 |
-| % Completado | **81 %** | — |
+| % Completado | **85 %** | — |
 | Esfuerzo planificado | **76 pts** | — |
 | Ruta crítica | **7/7 · 26 pts** | — |
 | Historias aceptadas | **0/9** | — |
 | Días sin movimiento | 0 | — |
 
-**Estado general:** 🟢 **Ciclo 05 en ejecución.** 21/26 tareas cerradas; la ruta crítica sigue
+**Estado general:** 🟢 **Ciclo 05 en ejecución.** 22/26 tareas cerradas; la ruta crítica sigue
 **completa (7/7)**. `EP-UI-405` (cobertura honesta) vuelve a estar **cerrada** tras la reapertura
 por defecto reproducido; `EP-UI-404`, la retirada de `EP-UI-406` y los nodos de la ruta crítica,
 cerrados.
@@ -30,11 +30,10 @@ El ciclo 04 quedó **cerrado y archivado** en `_docs/iterations/04-dibujo-refere
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (5)
+### 📥 Backlog (4)
 
 | ID | Tarea | Épica | Prioridad | Est. | Deps |
 |----|-------|-------|-----------|------|------|
-| TASK-UI-407 | Tests del eje | EP-UI-402 | Should | 2 | TASK-UI-406 |
 | TASK-UI-408 | `CMP-024 CandleContextMenu` | EP-UI-403 | Should | 5 | — |
 | TASK-UI-409 | Tests y accesibilidad del menú contextual | EP-UI-403 | Should | 3 | TASK-UI-408 |
 | TASK-UI-417 | Evaluación de `Exportar` con decisión documentada | EP-UI-406 | Could | 2 | — |
@@ -48,7 +47,7 @@ Ninguna.
 
 Ninguna.
 
-### ✅ Done (21)
+### ✅ Done (22)
 
 | ID | Tarea | Épica | Est. | Cerrada | Prueba |
 |----|-------|-------|------|---------|--------|
@@ -73,6 +72,7 @@ Ninguna.
 | TASK-UI-400 | Tokens del eje: `drawLine` a `#7D8590` y formato X en dos filas (`xFormatTop`/`xFormatBottom`/`axisRowGap`) | EP-UI-400 | 2 | 2026-10-07 | `styles/__tests__/tokens.test.ts` (anti-drift verde con las 3 properties nuevas); `xFormat` retirado y sin consumidores (`grep` 0) |
 | TASK-UI-406 | Render del eje X en dos filas con franja propia de 40 px (eje nativo oculto) | EP-UI-402 | 3 | 2026-10-07 | `charting/__tests__/axis-format.test.ts` (8: formateadores + umbral sin solape a 2 años) + `ChartPane.test.tsx` (franja de dos filas y `timeScale.visible: false`) |
 | TASK-UI-401 | Contraste de `drawLine` (5.25:1 / 4.64:1) y formato del eje desde los tokens | EP-UI-400 | 2 | 2026-10-07 | `styles/__tests__/tokens.test.ts` (+2: AA sobre los dos fondos y guardia anti-drift) + `charting/__tests__/axis-format.test.ts` (+2: patrones y render `18-nov-25`/`00:15`) |
+| TASK-UI-407 | Tests de aceptación del eje: dos filas, 15m a zoom mínimo y layout de la franja | EP-UI-402 | 2 | 2026-10-07 | `ChartTimeAxis.test.tsx` (4: filas, posiciones, vacío y layout de 40 px) + `axis-format.test.ts` (+1: 15m a zoom mínimo sin solape) |
 
 ### 🔴 Blocked (0)
 
@@ -94,8 +94,7 @@ graph LR
 `TASK-UI-405` incluidos). El tramo que dominó el ciclo fue `TASK-401 → TASK-402 → TASK-UI-403`
 (tres tareas de 5 puntos encadenadas: contrato v2, migración e integración del cambio de escala).
 
-**Pueden empezar en paralelo**: `TASK-UI-407` (dep ✅), `TASK-UI-408` y `TASK-UI-417`
-(estas dos sin dependencias).
+**Pueden empezar en paralelo**: `TASK-UI-408` y `TASK-UI-417` (sin dependencias).
 
 ## 4. Métricas
 
@@ -105,11 +104,11 @@ graph LR
 |-------|-------------|----------|
 | 03 — Mejoras UX | 35 | 121 pts |
 | 04 — Dibujo Referencia de Operación | 20 | 56 pts |
-| **05 — en ejecución** | **21/26 · 62 pts** | **76 pts** |
+| **05 — en ejecución** | **22/26 · 64 pts** | **76 pts** |
 
 ### 4.2 Burn-down
 
-21 de 26 tareas cerradas (**81 %**), 62 de 76 pts; 5 tareas en 📥 (14 pts), 0 bloqueadas. La
+22 de 26 tareas cerradas (**85 %**), 64 de 76 pts; 4 tareas en 📥 (12 pts), 0 bloqueadas. La
 **ruta crítica está completa (7/7)**.
 
 ### 4.3 Lead time / cycle time
@@ -178,10 +177,9 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 
 ## 8. Próximas acciones sugeridas
 
-1. **`/sdd-cycle`** para tomar **`TASK-UI-407`** (*Tests del eje*, `EP-UI-402`, Should, 2 pts, dep
-   `TASK-UI-406` ✅): cierra `RF-407` (render y extremos del eje en dos filas).
-2. `TASK-UI-408` (menú contextual, Should, 5) y `TASK-UI-417` (`Exportar`, Could, 2) pueden empezar
-   sin dependencias.
+1. **`/sdd-cycle`** para tomar **`TASK-UI-408`** (*`CMP-024 CandleContextMenu`*, `EP-UI-403`,
+   Should, 5 pts, sin deps): el componente nuevo del menú contextual de vela (RF-408).
+2. `TASK-UI-417` (`Exportar`, Could, 2) puede empezar sin dependencias.
 3. Después: `TASK-UI-409` espera a `TASK-UI-408` y `TASK-TEC-402` (Must) a `TASK-UI-409`.
 4. Sin commits pendientes de publicar: `origin/master` está al día (push manual por política).
 
@@ -263,3 +261,6 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 | 2026-10-07 | TASK-UI-401 | 📥 → 🔨 | Inicio de desarrollo (tests de contraste de `drawLine` y de formato del eje, RNF-405/RF-407) |
 | 2026-10-07 | TASK-UI-401 | 🔨 → 👀 | Tests verdes: 573/573 frontend en 58 archivos (+4) · `drawLine` 5.25:1 / 4.64:1 y patrones del eje · typecheck, eslint y prettier en verde · `quality_gate --level gate` PASS |
 | 2026-10-07 | TASK-UI-401 | 👀 → ✅ | DoD verificada: `color-draw-line` ≥4.5:1 sobre `#0A0C10` (5.25:1) y `#161B22` (4.64:1); el anti-drift exige el valor en TS y CSS a la vez y `xFormat` ya no existe; `xFormatTop`/`xFormatBottom` rinden `18-nov-25` / `00:15`; prueba en `traceability.md`. RNF-405 🟢 |
+| 2026-10-07 | TASK-UI-407 | 📥 → 🔨 | Inicio de desarrollo (tests del eje en dos filas: formato, 15m a zoom mínimo y layout, RF-407) |
+| 2026-10-07 | TASK-UI-407 | 🔨 → 👀 | Tests verdes: 578/578 frontend en 59 archivos (+5: 4 de `ChartTimeAxis` y 1 de 15m a zoom mínimo) · typecheck, eslint y prettier en verde · `quality_gate --level gate` PASS |
+| 2026-10-07 | TASK-UI-407 | 👀 → ✅ | DoD verificada: formato por filas (fecha arriba / `hh:mm` abajo) con posición por marca; ambas filas respetan su umbral con ticks de 15m a zoom mínimo; la franja es un ítem flex de 40 px en columna y el canvas cede el alto sin scroll; prueba en `traceability.md`. RF-407 🟢 y `EP-UI-402` cerrada |
