@@ -6,8 +6,8 @@
 
 ## 1. Estado de la trazabilidad
 
-Los **19 requisitos** del ciclo tienen **Diseño** (módulo/ADR) y **Tarea** asignados, y están en
-**🔵**. La columna **Prueba** la rellena `/sdd-cycle` al cerrar cada tarea (un ✅ exige prueba
+Los **19 requisitos** del ciclo tienen **Diseño** (módulo/ADR) y **Tarea** asignados, y avanzan según el estado de sus tareas
+(🟢 cuando todas están cerradas con prueba registrada). La columna **Prueba** la rellena `/sdd-cycle` al cerrar cada tarea (un ✅ exige prueba
 registrada). No hay ningún requisito sin tarea.
 
 El histórico vivo de los ciclos 01–04 (35 requisitos, con su prueba y su commit) vive en
@@ -17,7 +17,7 @@ El histórico vivo de los ciclos 01–04 (35 requisitos, con su prueba y su comm
 
 | Requisito | Diseño (ADR/Componente) | Tarea | Prueba | Estado |
 |-----------|-------------------------|-------|--------|--------|
-| RF-401 Conservar la última selección al volver a `Gráfico` | `App.tsx` + `app/routes.ts` (`parseChartQuery` con fallback) + `state/chart-config` (`selection` y puntero `fxtrad.chart.last`) (ADR-028/ADR-030) | TASK-404, TASK-405, TASK-UI-403 | TASK-404 ✅: `app/__tests__/routes.test.ts` (precedencia URL > fallback > defecto; un query explícito no se pisa) + `__tests__/app.test.tsx` (ida y vuelta a `/chart` sin query, URL enriquecida) — pendiente TASK-405 | 🔵 |
+| RF-401 Conservar la última selección al volver a `Gráfico` | `App.tsx` + `app/routes.ts` (`parseChartQuery` con fallback) + `state/chart-config` (`selection` y puntero `fxtrad.chart.last`) (ADR-028/ADR-030) | TASK-404, TASK-405, TASK-UI-403 | TASK-404 ✅: `app/__tests__/routes.test.ts` (precedencia URL > fallback > defecto; un query explícito no se pisa) + `__tests__/app.test.tsx` (ida y vuelta a `/chart` sin query, URL enriquecida) · TASK-405 ✅: `__tests__/app.test.tsx` (un query explícito gana a la memoria y pasa a ser la nueva; sin query se hidrata activo+timeframe+rango; sin selección previa → `EURUSD`/`1h`; navegar fuera y volver conserva la selección) | 🟢 |
 | RF-402 Aviso de cobertura solo cuando es real | `charting/coverage` (`hasCoverageGap`) + `components/ChartPane` (condición de `partialCoverage`) | TASK-UI-413, TASK-UI-414 | TASK-UI-413 ✅ (**reapertura** 2026-10-06): `charting/coverage` exime el hueco contenido en la ventana semanal `[viernes 19:00, lunes 00:00)` UTC; `charting/__tests__/coverage.test.ts` (17, +4 de la reapertura: solo viernes, solo domingo, semana `Lun→Vie` y hueco real en la mañana del viernes). Defecto original: con `data/EURUSD.1h.parquet` la condición previa avisaba en **103/103** `Lun→Vie`, **103/103** viernes y **79/79** domingos (188/594). **Límite conocido:** los festivos en día laborable siguen avisando (6/594 residuales). `ChartPane.test.tsx` mantiene el aviso con hueco interno y el silencio con borde desfasado · TASK-UI-414 ✅ (**reapertura** 2026-10-06): `ChartPane.test.tsx` (6 de borde en pantalla, +3 de la reapertura: solo viernes, solo domingo y semana `Lun→Vie`, todos **sin** aviso) | 🟢 |
 | RF-403 Cambio de timeframe desde el gráfico | `components/ChartHeader` (CMP-023) + `App.tsx` (`pendingTimeframe`, estados y reversión) (ADR-028) | TASK-UI-403 | TASK-UI-403 ✅: `app/__tests__/app.test.tsx` (cambio de TF navega y persiste; `tf-error` revierte al anterior sin anunciar) + `components/ChartHeader/__tests__` | 🟢 |
 | RF-404 Dibujos compartidos por activo entre timeframes | `charting/drawings` (anclas `PriceTimePoint`) + `state/chart-config` v2 (ADR-027) | TASK-402, TASK-UI-403 | — | 🔵 |
@@ -44,7 +44,7 @@ El histórico vivo de los ciclos 01–04 (35 requisitos, con su prueba y su comm
 | Requisito | Diseño (ADR/Componente) | Tarea | Prueba | Estado |
 |-----------|-------------------------|-------|--------|--------|
 | RI-401 Documento v2 por activo con migración aditiva desde v1 | `state/chart-config` v2 (`DrawingDocument` reutilizado) + `state/migrate-chart-config` (ADR-027) | TASK-401, TASK-402, TASK-403 | TASK-401 ✅: `state/__tests__/chart-config.test.ts` (17: round-trip v2, clave sin TF) + `state/__tests__/use-chart-config.test.tsx` (8) · TASK-402 ✅: `state/__tests__/migrate-chart-config.test.ts` (12: unión multi-TF, indicadores del TF preferido, idempotencia por prioridad del v2) — pendiente la evidencia de aceptación de TASK-403 | 🔵 |
-| RI-402 La última selección es estado persistido y recuperable | `state/chart-config` (`selection` por activo + puntero `fxtrad.chart.last`) + `app/routes.ts` (precedencia) (ADR-028/ADR-030) | TASK-404, TASK-405 | TASK-404 ✅: `state/__tests__/chart-config.test.ts` (round-trip del puntero, validación al leer, no-op sin almacenamiento) + `app/__tests__/routes.test.ts` — pendiente TASK-405 | 🔵 |
+| RI-402 La última selección es estado persistido y recuperable | `state/chart-config` (`selection` por activo + puntero `fxtrad.chart.last`) + `app/routes.ts` (precedencia) (ADR-028/ADR-030) | TASK-404, TASK-405 | TASK-404 ✅: `state/__tests__/chart-config.test.ts` (round-trip del puntero, validación al leer, no-op sin almacenamiento) + `app/__tests__/routes.test.ts` · TASK-405 ✅: `__tests__/app.test.tsx` (ida y vuelta y precedencia URL > persistido > defecto a nivel de app) | 🟢 |
 
 ## 5. Requisitos de integración
 

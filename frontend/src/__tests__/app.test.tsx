@@ -138,6 +138,74 @@ describe('App', () => {
     expect(window.location.hash).toContain('timeframe=15m');
   });
 
+  it('un query explícito gana a la memoria y pasa a ser la nueva (TASK-405)', async () => {
+    // Memoria previa: otra selección distinta de la que trae la URL.
+    localStorage.setItem(
+      'fxtrad.chart.last',
+      JSON.stringify({ symbol: 'GBPUSD', timeframe: '15m' }),
+    );
+    window.location.hash = '/chart?symbol=GBPJPY';
+    render(<App />);
+
+    // El parámetro explícito nunca se sobrescribe con lo persistido.
+    await waitFor(() => expect(window.location.hash).toContain('symbol=GBPJPY'));
+    expect(window.location.hash).not.toContain('GBPUSD');
+    // Y queda recordado como la nueva última selección.
+    await waitFor(() =>
+      expect(localStorage.getItem('fxtrad.chart.last')).toContain('"symbol":"GBPJPY"'),
+    );
+
+    window.location.hash = '/chart';
+    await waitFor(() => expect(window.location.hash).toContain('symbol=GBPJPY'));
+    expect(window.location.hash).toContain('timeframe=1h');
+  });
+
+  it('sin query hidrata activo, timeframe y rango de la memoria (TASK-405, RI-402)', async () => {
+    localStorage.setItem(
+      'fxtrad.chart.last',
+      JSON.stringify({
+        symbol: 'GBPUSD',
+        timeframe: '15m',
+        start: '2026-01-02',
+        end: '2026-03-04',
+      }),
+    );
+    window.location.hash = '/chart';
+    render(<App />);
+
+    await waitFor(() => expect(window.location.hash).toContain('start=2026-01-02'));
+    const hash = window.location.hash;
+    expect(hash).toContain('symbol=GBPUSD');
+    expect(hash).toContain('timeframe=15m');
+    expect(hash).toContain('end=2026-03-04');
+  });
+
+  it('sin selección previa cae a EURUSD/1h (TASK-405, RF-401)', async () => {
+    window.location.hash = '/chart';
+    render(<App />);
+
+    await waitFor(() => expect(window.location.hash).toContain('symbol=EURUSD'));
+    expect(window.location.hash).toContain('timeframe=1h');
+  });
+
+  it('navegar fuera y volver conserva activo, timeframe y rango (TASK-405, RF-401)', async () => {
+    window.location.hash = '/chart?symbol=GBPUSD&timeframe=15m&start=2026-01-02&end=2026-03-04';
+    render(<App />);
+    await screen.findByRole('button', { name: 'Exportar' });
+
+    fireEvent.click(screen.getByRole('link', { name: 'Biblioteca' }));
+    await screen.findByRole('heading', { name: 'Activos guardados' });
+
+    // El enlace de navegación apunta a `/chart` sin query: la selección se recupera.
+    fireEvent.click(screen.getByRole('link', { name: 'Gráfico' }));
+
+    await waitFor(() => expect(window.location.hash).toContain('symbol=GBPUSD'));
+    const hash = window.location.hash;
+    expect(hash).toContain('timeframe=15m');
+    expect(hash).toContain('start=2026-01-02');
+    expect(hash).toContain('end=2026-03-04');
+  });
+
   it('cambia de timeframe sin salir del gráfico y lo anuncia (TASK-UI-403, RF-403)', async () => {
     render(<App />);
     window.location.hash = '/chart?symbol=GBPUSD&timeframe=1h';

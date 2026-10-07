@@ -105,7 +105,7 @@ de RNF-007 asumiendo que el MoSCoW (DP-3) define el orden de recorte si el plazo
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
 | TASK-404 | Resolución de la selección en `app/routes.ts` y `App.tsx`: `parseChartQuery` con *fallback* al `selection` del documento v2; escribir URL **y** `selection` al cambiar activo, TF o rango | frontend | 3 | TASK-401 | Precedencia estricta URL > persistido > defecto; un query explícito **nunca** se sobrescribe con el persistido; la URL activa queda siempre enriquecida; sin dependencias nuevas | ✅ |
-| TASK-405 | Tests de precedencia y de ida y vuelta | test | 2 | TASK-404 | `/chart` sin query hidrata la última selección; `/chart?symbol=X` gana y pasa a ser la nueva; sin nada → `EURUSD`/`1h`; navegar fuera y volver conserva activo, TF y rango | 📥 |
+| TASK-405 | Tests de precedencia y de ida y vuelta | test | 2 | TASK-404 | `/chart` sin query hidrata la última selección; `/chart?symbol=X` gana y pasa a ser la nueva; sin nada → `EURUSD`/`1h`; navegar fuera y volver conserva activo, TF y rango | ✅ |
 
 ## 4. Épicas de UI
 
