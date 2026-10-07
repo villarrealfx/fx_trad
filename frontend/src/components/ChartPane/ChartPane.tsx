@@ -1,5 +1,6 @@
 import {
   forwardRef,
+  useCallback,
   useEffect,
   useImperativeHandle,
   useMemo,
@@ -18,7 +19,7 @@ import {
   type Time,
 } from 'lightweight-charts';
 import type { Candle, Timeframe } from '../../contracts/ohlc';
-import { PRICE_FORMAT, formatAxisLabel } from '../../charting/axis-format';
+import { PRICE_FORMAT, selectAxisRows, type AxisRows } from '../../charting/axis-format';
 import { createOverlayBinding, type OverlayBinding } from '../../charting/chart-binding';
 import { hasCoverageGap } from '../../charting/coverage';
 import { constrainToAxis } from '../../charting/drawing-edit';
@@ -42,6 +43,7 @@ import { createFrameBatcher, type FrameBatcher } from '../../performance/frame-b
 import { composeChartCanvas, type ExportScale } from '../../export';
 import ChartHeader from '../ChartHeader/ChartHeader';
 import ChartToolbar, { type ChartToolDescriptor } from '../ChartToolbar/ChartToolbar';
+import ChartTimeAxis from './ChartTimeAxis';
 import { type ChartToolType } from '../DrawTool/DrawTool';
 import OperationNumericFields from '../OperationNumericFields/OperationNumericFields';
 import StatusBanner from '../ui/StatusBanner';
@@ -197,6 +199,9 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
   const [legendBar, setLegendBar] = useState<Candle | null>(null);
   const [retryToken, setRetryToken] = useState(0);
   const [overlayBinding, setOverlayBinding] = useState<OverlayBinding | null>(null);
+  /** Marcas del eje X propio, en dos filas (RF-407, TASK-UI-406). */
+  const [axisRows, setAxisRows] = useState<AxisRows>({ top: [], bottom: [] });
+  const axisRef = useRef<HTMLDivElement | null>(null);
   const candlesRef = useRef<ReadonlyArray<Candle>>([]);
   const [markers, setMarkers] = useState<ReadonlyArray<MarkerShape>>([]);
   const [activeTool, setActiveTool] = useState<ActiveTool>(DEFAULT_MARKER_TOOL);
@@ -291,8 +296,9 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
       },
       timeScale: {
         borderColor: COLOR_BORDER,
-        // Eje X con `{día} {HH:mm}` UTC de apertura de la vela (RF-206).
-        tickMarkFormatter: (time: Time) => (typeof time === 'number' ? formatAxisLabel(time) : ''),
+        // El eje temporal de la librería no soporta dos filas: se oculta y lo
+        // dibuja `ChartTimeAxis` con `AXIS_TOKENS` (RF-407, TASK-UI-406).
+        visible: false,
       },
       rightPriceScale: { borderColor: COLOR_BORDER },
       crosshair: {
@@ -757,6 +763,38 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
     setPreviewShape({ id: 'preview', kind: activeTool, from: drawFrom, to } as OverlayShape);
   };
 
+  /**
+   * Marcas del eje X en dos filas (RF-407, TASK-UI-406).
+   *
+   * `selectAxisRows` aplica el umbral de separación, de modo que no haya solape a
+   * zoom de 2 años. En jsdom `clientWidth` es 0: sin medida se muestran las marcas
+   * proyectadas (el primer frame real las recorta).
+   */
+  const recomputeAxis = useCallback((): void => {
+    if (overlayBinding === null) return;
+    const measured = axisRef.current?.clientWidth ?? 0;
+    const width = measured > 0 ? measured : Number.POSITIVE_INFINITY;
+    setAxisRows(
+      selectAxisRows(
+        candlesRef.current.map((candle) => candle.time),
+        (time) => overlayBinding.timeToCoordinate(time),
+        { width },
+      ),
+    );
+  }, [overlayBinding]);
+
+  // Recalcula en cada pan/zoom (una sola suscripción por binding).
+  useEffect(() => {
+    if (overlayBinding === null) return;
+    recomputeAxis();
+    return overlayBinding.subscribeRedraw(recomputeAxis);
+  }, [overlayBinding, recomputeAxis]);
+
+  // Y cuando la serie termina de cargar (las velas viven en un ref).
+  useEffect(() => {
+    if (status === 'success') recomputeAxis();
+  }, [status, recomputeAxis]);
+
   return (
     <div className="chart-pane" data-shapes={overlayShapes.length}>
       <ChartHeader
@@ -867,6 +905,10 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
             </button>
           </div>
         )}
+        {/* Franja propia del eje X en dos filas (RF-407): el canvas cede el alto. */}
+        <div className="chart-pane__time-axis" ref={axisRef}>
+          <ChartTimeAxis rows={axisRows} />
+        </div>
       </div>
       {liveMessage !== '' && <LiveRegion message={liveMessage} />}
       {status === 'success' && partialCoverage && (

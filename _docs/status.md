@@ -9,18 +9,18 @@
 | Métrica | Valor | Δ vs estado anterior |
 |---------|-------|----------------------|
 | Tareas totales | **26** | +24 |
-| 📥 Backlog | **7** | +8 |
+| 📥 Backlog | **6** | +8 |
 | 🔨 Doing | 0 | +3 |
 | 👀 Review | 0 | 0 |
-| ✅ Done | **19** | +14 |
+| ✅ Done | **20** | +14 |
 | 🔴 Blocked | 0 | 0 |
-| % Completado | **73 %** | — |
+| % Completado | **77 %** | — |
 | Esfuerzo planificado | **76 pts** | — |
 | Ruta crítica | **7/7 · 26 pts** | — |
 | Historias aceptadas | **0/9** | — |
 | Días sin movimiento | 0 | — |
 
-**Estado general:** 🟢 **Ciclo 05 en ejecución.** 19/26 tareas cerradas; la ruta crítica sigue
+**Estado general:** 🟢 **Ciclo 05 en ejecución.** 20/26 tareas cerradas; la ruta crítica sigue
 **completa (7/7)**. `EP-UI-405` (cobertura honesta) vuelve a estar **cerrada** tras la reapertura
 por defecto reproducido; `EP-UI-404`, la retirada de `EP-UI-406` y los nodos de la ruta crítica,
 cerrados.
@@ -30,12 +30,11 @@ El ciclo 04 quedó **cerrado y archivado** en `_docs/iterations/04-dibujo-refere
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (7)
+### 📥 Backlog (6)
 
 | ID | Tarea | Épica | Prioridad | Est. | Deps |
 |----|-------|-------|-----------|------|------|
 | TASK-UI-401 | Tests de contraste y de formato del eje | EP-UI-400 | Should | 2 | TASK-UI-400 |
-| TASK-UI-406 | Render del eje X en dos filas | EP-UI-402 | Should | 3 | TASK-UI-400 |
 | TASK-UI-407 | Tests del eje | EP-UI-402 | Should | 2 | TASK-UI-406 |
 | TASK-UI-408 | `CMP-024 CandleContextMenu` | EP-UI-403 | Should | 5 | — |
 | TASK-UI-409 | Tests y accesibilidad del menú contextual | EP-UI-403 | Should | 3 | TASK-UI-408 |
@@ -50,7 +49,7 @@ Ninguna.
 
 Ninguna.
 
-### ✅ Done (19)
+### ✅ Done (20)
 
 | ID | Tarea | Épica | Est. | Cerrada | Prueba |
 |----|-------|-------|------|---------|--------|
@@ -73,6 +72,7 @@ Ninguna.
 | TASK-405 | Tests de precedencia y de ida y vuelta (query explícito gana; hidratación con rango; defecto; ida y vuelta) | EP-402 | 2 | 2026-10-07 | `__tests__/app.test.tsx` (4 casos nuevos: query explícito gana y pasa a ser la nueva, hidratación de activo+TF+rango, defecto `EURUSD`/`1h`, ida y vuelta por «Biblioteca») |
 | TASK-403 | Aceptación de la migración v1→v2 y del contrato v2 | EP-401 | 3 | 2026-10-07 | `state/__tests__/chart-config.test.ts` (4 casos: v1 mixto de 5 `kind` en 3 TF sin pérdidas ni duplicados, idempotencia estricta, claves v1 intactas, v3 rechazado) |
 | TASK-UI-400 | Tokens del eje: `drawLine` a `#7D8590` y formato X en dos filas (`xFormatTop`/`xFormatBottom`/`axisRowGap`) | EP-UI-400 | 2 | 2026-10-07 | `styles/__tests__/tokens.test.ts` (anti-drift verde con las 3 properties nuevas); `xFormat` retirado y sin consumidores (`grep` 0) |
+| TASK-UI-406 | Render del eje X en dos filas con franja propia de 40 px (eje nativo oculto) | EP-UI-402 | 3 | 2026-10-07 | `charting/__tests__/axis-format.test.ts` (8: formateadores + umbral sin solape a 2 años) + `ChartPane.test.tsx` (franja de dos filas y `timeScale.visible: false`) |
 
 ### 🔴 Blocked (0)
 
@@ -94,8 +94,8 @@ graph LR
 `TASK-UI-405` incluidos). El tramo que dominó el ciclo fue `TASK-401 → TASK-402 → TASK-UI-403`
 (tres tareas de 5 puntos encadenadas: contrato v2, migración e integración del cambio de escala).
 
-**Pueden empezar en paralelo**: `TASK-UI-401` (ya con su dep ✅), `TASK-UI-408` y `TASK-UI-417`
-(estas dos sin dependencias).
+**Pueden empezar en paralelo**: `TASK-UI-401` y `TASK-UI-407` (ambas con sus deps ✅), `TASK-UI-408`
+y `TASK-UI-417` (estas dos sin dependencias).
 
 ## 4. Métricas
 
@@ -105,11 +105,11 @@ graph LR
 |-------|-------------|----------|
 | 03 — Mejoras UX | 35 | 121 pts |
 | 04 — Dibujo Referencia de Operación | 20 | 56 pts |
-| **05 — en ejecución** | **19/26 · 57 pts** | **76 pts** |
+| **05 — en ejecución** | **20/26 · 60 pts** | **76 pts** |
 
 ### 4.2 Burn-down
 
-19 de 26 tareas cerradas (**73 %**), 57 de 76 pts; 7 tareas en 📥 (19 pts), 0 bloqueadas. La
+20 de 26 tareas cerradas (**77 %**), 60 de 76 pts; 6 tareas en 📥 (16 pts), 0 bloqueadas. La
 **ruta crítica está completa (7/7)**.
 
 ### 4.3 Lead time / cycle time
@@ -129,11 +129,9 @@ Ninguna.
 
 ### 🟡 Advertencias
 
-- **Secuencia de `RF-407`**: `TASK-UI-400` deja los tokens del eje (`xFormatTop`/`xFormatBottom`/
-  `axisRowGap`) **sin consumidor**: el formateador de dos filas vive en `TASK-UI-406`, pero el DoD
-  de `TASK-UI-401` (tests) espera que rindan `18-nov-25`/`00:15`. Si al llegar a `TASK-UI-401` no
-  existe ese formateador, hay que reordenar (`TASK-UI-406` antes) o ampliar su alcance; la medición
-  de contraste de `drawLine` no depende de ello.
+- **`RF-407` resuelto por secuencia (D-16)**: `TASK-UI-406` se ejecutó **antes** que `TASK-UI-401`
+  porque el DoD de este último exige el formateador de dos filas, que vive en el primero. La
+  inversión de dependencia ya no está pendiente; `RF-407` queda 🔵 hasta los tests de `TASK-UI-407`.
 - **`PA-1` cerrada tras reapertura**: `RF-402` vuelve a 🟢 con la ventana semanal de cierre
   `[viernes 19:00, lunes 00:00)` UTC y los bordes de viernes/domingo probados en pantalla. Límite
   conocido: los festivos en día laborable siguen avisando (6/594 días del histórico).
@@ -181,13 +179,12 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 ## 8. Próximas acciones sugeridas
 
 1. **`/sdd-cycle`** para tomar **`TASK-UI-401`** (*Tests de contraste y de formato del eje*,
-   `EP-UI-400`, Should, 2 pts, dep `TASK-UI-400` ✅): fuera de ruta crítica; gana a `TASK-UI-408`
-   (5) por menor estimación y a `TASK-UI-417` (`Could`) por prioridad. **Ojo:** su DoD de formato
-   exige el formateador de dos filas de `TASK-UI-406` (ver §6).
-2. `TASK-UI-408` (menú contextual, Should, 5) y `TASK-UI-417` (`Exportar`, Could, 2) pueden empezar
-   sin dependencias.
-3. Después: `TASK-UI-406` → `TASK-UI-407`; `TASK-UI-409` espera a `TASK-UI-408` y `TASK-TEC-402`
-   (Must) a `TASK-UI-409`.
+   `EP-UI-400`, Should, 2 pts, dep `TASK-UI-400` ✅): **desempate por ID menor** frente a
+   `TASK-UI-407` (misma prioridad y estimación: 401 < 407). Su DoD de formato ya es medible con el
+   formateador de `TASK-UI-406`.
+2. `TASK-UI-407` (tests del eje, Should, 2) y `TASK-UI-408` (menú contextual, Should, 5) pueden
+   empezar; `TASK-UI-417` (`Exportar`, Could, 2) también.
+3. Después: `TASK-UI-409` espera a `TASK-UI-408` y `TASK-TEC-402` (Must) a `TASK-UI-409`.
 4. Sin commits pendientes de publicar: `origin/master` está al día (push manual por política).
 
 ## 9. Historial de cambios (append-only)
@@ -261,3 +258,7 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 | 2026-10-07 | TASK-UI-400 | 📥 → 🔨 | Inicio de desarrollo (tokens del eje: contraste de `drawLine` y formato en dos filas, RNF-405/RF-407) |
 | 2026-10-07 | TASK-UI-400 | 🔨 → 👀 | Tests verdes: 564/564 frontend en 58 archivos · anti-drift verde con las 3 properties nuevas · typecheck, eslint y prettier en verde · `quality_gate --level gate` PASS |
 | 2026-10-07 | TASK-UI-400 | 👀 → ✅ | DoD verificada: `drawLine` = `#7D8590` en TS y CSS; `AXIS_TOKENS` con `xFormatTop`/`xFormatBottom`/`axisRowGap: 12` y `xFormat` retirado (0 consumidores); anti-drift verde; prueba en `traceability.md`. RNF-405 y RF-407 quedan 🔵 (los cierra `TASK-UI-401`/`TASK-UI-406`) |
+| 2026-10-07 | — | 🔀 Reordenación (D-16) | Inversión de dependencia detectada: el DoD de `TASK-UI-401` exige el formateador de dos filas de `TASK-UI-406`; se ejecuta `TASK-UI-406` antes (sin cambiar `Deps` del backlog) |
+| 2026-10-07 | TASK-UI-406 | 📥 → 🔨 | Inicio de desarrollo (render del eje X en dos filas: franja propia de ~40 px, RF-407) |
+| 2026-10-07 | TASK-UI-406 | 🔨 → 👀 | Tests verdes: 569/569 frontend en 58 archivos (+5) · `ChartTimeAxis` con dos filas y umbral sin solape a 2 años · typecheck, eslint y prettier en verde · `quality_gate --level gate` PASS |
+| 2026-10-07 | TASK-UI-406 | 👀 → ✅ | DoD verificada: fecha arriba / `hh:mm` abajo con `axisRowGap`; el eje nativo de la librería se oculta (`timeScale.visible: false`, no soporta dos filas) y el canvas cede los ~40 px de la franja sin scroll; eje Y intacto; sin solape a zoom de 2 años por umbral en `axis-format`; prueba en `traceability.md`. RF-407 queda 🔵 hasta `TASK-UI-407` |

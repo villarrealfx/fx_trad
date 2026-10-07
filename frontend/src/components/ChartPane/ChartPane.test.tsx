@@ -9,6 +9,7 @@ import {
   type FrameRateMeterOptions,
 } from '../../performance/frame-rate';
 import { installCanvas2DContextMock } from '../../testing/canvas-2d';
+import { formatAxisDate, formatAxisTime } from '../../charting/axis-format';
 import type { OverlayShape } from '../../charting/overlay-geometry';
 import type { Timeframe } from '../../contracts/ohlc';
 import { DEFAULT_INDICATOR_PARAMETERS } from '../../indicators/indicators';
@@ -621,8 +622,30 @@ describe('ChartPane', () => {
     const overlay = document.querySelector('.chart-pane__graph canvas');
     expect(overlay).not.toBeNull();
     expect(overlay?.getAttribute('aria-hidden')).toBe('true');
-    expect(chartMocks.subscribeVisibleLogicalRangeChange).toHaveBeenCalledTimes(1);
-    expect(chartMocks.subscribeSizeChange).toHaveBeenCalledTimes(1);
+    // Overlay + eje X propio (TASK-UI-406) se suscriben al rango visible.
+    expect(chartMocks.subscribeVisibleLogicalRangeChange).toHaveBeenCalledTimes(2);
+    expect(chartMocks.subscribeSizeChange).toHaveBeenCalledTimes(2);
+  });
+
+  it('renderiza el eje X propio en dos filas (TASK-UI-406, RF-407)', async () => {
+    fetchMock.mockResolvedValue(createResponse(RESPONSE));
+    render(<ChartPane symbol="EURUSD" timeframe="1h" />);
+
+    const axis = await screen.findByTestId('chart-time-axis');
+    expect(axis.closest('.chart-pane__time-axis')).not.toBeNull();
+    await waitFor(() =>
+      expect(axis.querySelector('[data-row="date"]')?.textContent).toBe(
+        formatAxisDate(RESPONSE.candles[0].time),
+      ),
+    );
+    expect(axis.querySelector('[data-row="time"]')?.textContent).toBe(
+      formatAxisTime(RESPONSE.candles[0].time),
+    );
+    // El eje temporal nativo queda oculto: la franja de dos filas lo sustituye.
+    const options = chartMocks.createChart.mock.calls.at(-1)?.[1] as {
+      timeScale?: { visible?: boolean };
+    };
+    expect(options?.timeScale?.visible).toBe(false);
   });
 
   it('reprojects drawn anchors after a visible range change', async () => {
@@ -1118,18 +1141,18 @@ describe('ChartPane', () => {
     }
   });
 
-  it('configures the axis formats (RF-206/RF-207)', async () => {
+  it('configures the axis formats (RF-206/RF-207/RF-407)', async () => {
     fetchMock.mockResolvedValue(createResponse(RESPONSE));
     render(<ChartPane symbol="EURUSD" timeframe="1h" />);
     await waitFor(() => expect(chartMocks.createChart).toHaveBeenCalled());
 
     const options = chartMocks.createChart.mock.calls[0]?.[1] as {
-      timeScale?: { tickMarkFormatter?: (time: number) => string };
+      timeScale?: { visible?: boolean };
     };
-    expect(typeof options.timeScale?.tickMarkFormatter).toBe('function');
-    expect(options.timeScale?.tickMarkFormatter?.(Date.UTC(2026, 0, 1, 0, 15) / 1000)).toBe(
-      '1 00:15',
-    );
+    // El eje temporal nativo se oculta: lo sustituye la franja de dos filas (RF-407).
+    expect(options.timeScale?.visible).toBe(false);
+    expect(formatAxisDate(Date.UTC(2025, 10, 18, 0, 15) / 1000)).toBe('18-nov-25');
+    expect(formatAxisTime(Date.UTC(2026, 0, 1, 0, 15) / 1000)).toBe('00:15');
     expect(chartMocks.addCandlestickSeries).toHaveBeenCalledWith(
       expect.objectContaining({
         priceFormat: { type: 'price', precision: 5, minMove: 0.00001 },

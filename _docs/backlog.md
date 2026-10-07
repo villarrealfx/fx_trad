@@ -198,7 +198,7 @@ de RNF-007 asumiendo que el MoSCoW (DP-3) define el orden de recorte si el plazo
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-UI-406 | Render del eje X en dos filas en `charting/axis-format` + `ChartPane`, con la franja de ~40 px | frontend | 3 | TASK-UI-400 | Fecha arriba / `hh:mm` abajo con `axisRowGap`; el canvas cede el alto sin scroll; sin solape a zoom de 2 años; eje Y intacto | 📥 |
+| TASK-UI-406 | Render del eje X en dos filas en `charting/axis-format` + `ChartPane`, con la franja de ~40 px | frontend | 3 | TASK-UI-400 | Fecha arriba / `hh:mm` abajo con `axisRowGap`; el canvas cede el alto sin scroll; sin solape a zoom de 2 años; eje Y intacto | ✅ |
 | TASK-UI-407 | Tests del eje | test | 2 | TASK-UI-406 | Formato por filas verificado; sin solape con ticks de 15m a zoom mínimo; el layout no se rompe con la franja nueva | 📥 |
 
 ### EP-UI-403: Menú contextual de vela (SCR-004)

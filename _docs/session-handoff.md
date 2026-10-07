@@ -1,6 +1,6 @@
 # Handoff de Sesión
 
-> Estado con el **ciclo 05 en ejecución** (19/26 tareas) — 2026-10-07
+> Estado con el **ciclo 05 en ejecución** (20/26 tareas) — 2026-10-07
 > **Ruta crítica completa (7/7).** Punto de continuación exacto: **`/sdd-cycle TASK-UI-401`**
 
 ## Dónde estamos
@@ -12,13 +12,13 @@ ADR-027/028/029/030, 9 contratos en `_docs/ux/` y el backlog con 10 épicas, 9 h
 
 | Métrica | Valor |
 |---------|-------|
-| Tareas cerradas | **19/26** (73 %) |
-| Cerradas | `TASK-401`, `TASK-402`, `TASK-403`, `TASK-UI-400`, `TASK-UI-402`, `TASK-UI-403`, `TASK-UI-404`\*, `TASK-UI-405`, `TASK-404`, `TASK-405`, `TASK-UI-410`, `TASK-UI-411`, `TASK-UI-412`, `TASK-UI-413`, `TASK-UI-414`, `TASK-UI-415`, `TASK-UI-416`, `TASK-TEC-401`, `TASK-TEC-403` |
+| Tareas cerradas | **20/26** (77 %) |
+| Cerradas | `TASK-401`, `TASK-402`, `TASK-403`, `TASK-UI-400`, `TASK-UI-402`, `TASK-UI-403`, `TASK-UI-404`\*, `TASK-UI-405`, `TASK-UI-406`, `TASK-404`, `TASK-405`, `TASK-UI-410`, `TASK-UI-411`, `TASK-UI-412`, `TASK-UI-413`, `TASK-UI-414`, `TASK-UI-415`, `TASK-UI-416`, `TASK-TEC-401`, `TASK-TEC-403` |
 | Ruta crítica | **7/7 · 26 pts — completa** |
 | Épicas cerradas | `EP-UI-401`, `EP-UI-404`, `EP-UI-405` y la retirada de `EP-UI-406` |
 | Historias aceptadas | 0/9 (exigen QA `PASS` y `/sdd-track accept`) |
 | Commits locales sin empujar | **0** — `origin/master` al día tras el push manual |
-| Gates | `quality_gate --level gate` = **PASS** · backend **546/546 + 2 skip** · frontend **564/564** en 58 archivos |
+| Gates | `quality_gate --level gate` = **PASS** · backend **546/546 + 2 skip** · frontend **569/569** en 58 archivos |
 
 \* `TASK-UI-404` se cerró **sin código** (RF-405 ya estaba cubierto, DP-7); sus 2 pts pasaron a
 `TASK-UI-405`.
@@ -26,16 +26,12 @@ ADR-027/028/029/030, 9 contratos en `_docs/ux/` y el backlog con 10 épicas, 9 h
 ## Punto exacto de continuación
 
 **`TASK-UI-401`** — *Tests de contraste y de formato del eje* (`EP-UI-400`, Should, 2 pts, `test`,
-dep `TASK-UI-400` ✅). Fuera de ruta crítica: gana a `TASK-UI-408` (5) por menor estimación y a
-`TASK-UI-417` (`Could`) por prioridad.
-
-**Ojo (secuencia `RF-407`):** su DoD exige que `xFormatTop`/`xFormatBottom` rindan `18-nov-25`/
-`00:15`, pero el formateador de dos filas vive en `TASK-UI-406`. Si al llegar no existe, hay que
-reordenar (`TASK-UI-406` antes) o ampliar su alcance; la medición de contraste de `drawLine` no
-depende de ello.
+dep `TASK-UI-400` ✅). Selección determinista con **desempate por ID menor** frente a `TASK-UI-407`
+(misma prioridad y estimación: 401 < 407). Su DoD de formato ya es medible con el formateador de
+`TASK-UI-406`.
 
 Después:
-- `TASK-UI-406` → `TASK-UI-407` (render del eje X en dos filas).
+- `TASK-UI-407` (tests del eje, Should, 2) y `TASK-UI-408` (menú contextual, Should, 5).
 - `TASK-UI-408` → `TASK-UI-409` → **`TASK-TEC-402`** (accesibilidad, Must).
 - `TASK-UI-417` (evaluación de `Exportar`, Could, 2).
 
@@ -60,6 +56,9 @@ Después:
   decisión D-3/ADR-029 no dependía de `RF-401`.
 - **D-15 *(esta corrida)*:** la medición de RNF-404 es **client-side** (jsdom, `fetch` mockeado) y
   su comparación estricta no es fiable ahí; queda pendiente en navegador real, sin bloquear (D-5).
+- **D-16 *(esta corrida)*:** `TASK-UI-406` se ejecuta **antes** que `TASK-UI-401`: el DoD de los tests
+  de formato exige el formateador de dos filas, que vive en el render. No se cambian los `Deps` del
+  backlog (decisión de secuencia de sesión).
 
 ## Preguntas abiertas (PA-X)
 
@@ -84,7 +83,8 @@ Después:
 | Cambio de escala | `CMP-023` en `ChartHeader` + estados `switching-tf`/`tf-ready`/`tf-error` con **reversión** y anuncio |
 | Cobertura | `charting/coverage.ts` (`hasCoverageGap`): avisa solo por huecos reales (bucket/weekend excluidos) |
 | Precios numéricos | `CMP-025` integrado: botón «Precios» anclado, `Aplicar`/`Enter` por el command stack, anuncio en `LiveRegion` |
-| Eje X | `AXIS_TOKENS` con `xFormatTop`/`xFormatBottom`/`axisRowGap: 12` y `drawLine` `#7D8590` (TASK-UI-400); **render de dos filas pendiente** (TASK-UI-406) |
+| Eje X | **franja propia de dos filas** (`ChartTimeAxis`, 40 px): eje nativo oculto; `formatAxisDate`/`formatAxisTime`/`selectAxisRows` con umbral (TASK-UI-400/406) |
+| Eje X (tokens) | `AXIS_TOKENS` con `xFormatTop`/`xFormatBottom`/`axisRowGap: 12` y `drawLine` `#7D8590` (TASK-UI-400) |
 | Multigráfico | **retirado** (ADR-029): sin ruta, sin `MultiChart`, sin `chart-sync`, sin props `sync` |
 | Fuera de alcance | `TECH-305` (waivers), `TECH-306` (límites de tamaño), `TECH-307` (logging) — auditoría `CR-002` |
 | Backend | intacto (546 tests + 2 skip) — el ciclo es 100 % frontend |
@@ -94,8 +94,8 @@ Después:
 
 ## Qué haría yo ahora
 
-1. **`/sdd-cycle TASK-UI-401`** (arriba; ojo con la secuencia del formateador).
-2. Después quedan las cadenas de UI (eje X, menú contextual) y `TASK-TEC-402`.
+1. **`/sdd-cycle TASK-UI-401`** (arriba; ya con el formateador de dos filas disponible).
+2. Después quedan `TASK-UI-407` (tests del eje), el menú contextual y `TASK-TEC-402`.
 3. Sin commits pendientes de publicar (`origin/master` al día).
 
 ## Avisos
