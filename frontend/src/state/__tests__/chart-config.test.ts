@@ -430,3 +430,100 @@ describe('puntero de la última selección (TASK-404, RI-402, ADR-030)', () => {
     expect(() => createChartConfigStore(rejecting).saveLastSelection(LAST)).not.toThrow();
   });
 });
+
+describe('aceptación de la migración v1→v2 y del contrato v2 (TASK-403)', () => {
+  /** Timeframes usados por la aceptación (orden canónico del contrato). */
+  const THREE_TF = ['4h', '1h', '15m'] as const;
+
+  /** Escribe un documento v1 con la forma del ciclo 04. */
+  function writeLegacy(
+    storage: MemoryStorage,
+    timeframe: ChartSelection['timeframe'],
+    drawings: OverlayShape[],
+    indicators: IndicatorConfig[] = [],
+  ): void {
+    storage.setItem(
+      legacyChartConfigKey('EURUSD', timeframe),
+      JSON.stringify({ version: 1, indicators, drawings }),
+    );
+  }
+
+  it('migra un v1 mixto de los 5 kind en 3 TF sin pérdidas ni duplicados', () => {
+    const storage = new MemoryStorage();
+    // Los 5 `kind` repartidos en tres timeframes, con `line-1` y `op-1` repetidos.
+    writeLegacy(storage, '4h', [MIXED_DRAWINGS[0], MIXED_DRAWINGS[1]]);
+    writeLegacy(
+      storage,
+      '1h',
+      [MIXED_DRAWINGS[0], MIXED_DRAWINGS[2], MIXED_DRAWINGS[3]],
+      INDICATORS,
+    );
+    writeLegacy(storage, '15m', [MIXED_DRAWINGS[3], MIXED_DRAWINGS[4]]);
+    const store = createChartConfigStore(storage);
+
+    const loaded = store.load('EURUSD', '1h');
+
+    // 0 pérdidas: están los 5 tipos; 0 duplicados: cada id aparece una sola vez.
+    const ids = loaded?.drawings.map((drawing) => drawing.id) ?? [];
+    const kinds = loaded?.drawings.map((drawing) => drawing.kind) ?? [];
+    expect([...ids].sort()).toEqual(['buy-1', 'fib-1', 'line-1', 'op-1', 'rect-1']);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect([...kinds].sort()).toEqual(['fib', 'line', 'marker', 'operation', 'rect']);
+    // Indicadores del TF preferido y selección inicial de la migración.
+    expect(loaded?.indicators).toEqual(INDICATORS);
+    expect(loaded?.selection).toEqual({ timeframe: '1h' });
+  });
+
+  it('es idempotente: la segunda pasada no cambia el v2 persistido', () => {
+    const storage = new MemoryStorage();
+    writeLegacy(storage, '1h', MIXED_DRAWINGS, INDICATORS);
+    writeLegacy(storage, '15m', [MIXED_DRAWINGS[0]]);
+    const store = createChartConfigStore(storage);
+
+    store.load('EURUSD', '1h');
+    const firstPass = storage.getItem(chartConfigKey('EURUSD'));
+    store.load('EURUSD', '1h');
+    const secondPass = storage.getItem(chartConfigKey('EURUSD'));
+
+    expect(firstPass).not.toBeNull();
+    expect(secondPass).toBe(firstPass);
+  });
+
+  it('conserva las claves v1 de los 3 TF tras migrar (RNF-401)', () => {
+    const storage = new MemoryStorage();
+    writeLegacy(storage, '4h', [MIXED_DRAWINGS[0]]);
+    writeLegacy(storage, '1h', MIXED_DRAWINGS, INDICATORS);
+    writeLegacy(storage, '15m', [MIXED_DRAWINGS[4]]);
+    const before = THREE_TF.map((timeframe) =>
+      storage.getItem(legacyChartConfigKey('EURUSD', timeframe)),
+    );
+    const store = createChartConfigStore(storage);
+
+    store.load('EURUSD', '1h');
+
+    THREE_TF.forEach((timeframe, index) => {
+      expect(storage.getItem(legacyChartConfigKey('EURUSD', timeframe))).toBe(before[index]);
+    });
+  });
+
+  it('no interpreta un documento v3 como v2 (versión desconocida)', () => {
+    const storage = new MemoryStorage();
+    storage.setItem(
+      chartConfigKey('EURUSD'),
+      JSON.stringify({
+        version: 3,
+        symbol: 'EURUSD',
+        drawings: MIXED_DRAWINGS,
+        indicators: INDICATORS,
+        selection: { timeframe: '1h' },
+      }),
+    );
+    const raw = storage.getItem(chartConfigKey('EURUSD'));
+    const store = createChartConfigStore(storage);
+
+    // El contrato lo rechaza explícitamente...
+    expect(deserializeChartConfig('EURUSD', raw)).toBeNull();
+    // ...y `load` no lo lee como v2: sin documento v1, no hay nada que migrar.
+    expect(store.load('EURUSD', '1h')).toBeNull();
+  });
+});

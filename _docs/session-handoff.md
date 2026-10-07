@@ -1,7 +1,7 @@
 # Handoff de Sesión
 
-> Estado con el **ciclo 05 en ejecución** (17/26 tareas) — 2026-10-07
-> **Ruta crítica completa (7/7).** Punto de continuación exacto: **`/sdd-cycle TASK-403`**
+> Estado con el **ciclo 05 en ejecución** (18/26 tareas) — 2026-10-07
+> **Ruta crítica completa (7/7).** Punto de continuación exacto: **`/sdd-cycle TASK-UI-400`**
 
 ## Dónde estamos
 
@@ -12,25 +12,27 @@ ADR-027/028/029/030, 9 contratos en `_docs/ux/` y el backlog con 10 épicas, 9 h
 
 | Métrica | Valor |
 |---------|-------|
-| Tareas cerradas | **17/26** (65 %) |
-| Cerradas | `TASK-401`, `TASK-402`, `TASK-UI-402`, `TASK-UI-403`, `TASK-UI-404`\*, `TASK-UI-405`, `TASK-404`, `TASK-405`, `TASK-UI-410`, `TASK-UI-411`, `TASK-UI-412`, `TASK-UI-413`, `TASK-UI-414`, `TASK-UI-415`, `TASK-UI-416`, `TASK-TEC-401`, `TASK-TEC-403` |
+| Tareas cerradas | **18/26** (69 %) |
+| Cerradas | `TASK-401`, `TASK-402`, `TASK-403`, `TASK-UI-402`, `TASK-UI-403`, `TASK-UI-404`\*, `TASK-UI-405`, `TASK-404`, `TASK-405`, `TASK-UI-410`, `TASK-UI-411`, `TASK-UI-412`, `TASK-UI-413`, `TASK-UI-414`, `TASK-UI-415`, `TASK-UI-416`, `TASK-TEC-401`, `TASK-TEC-403` |
 | Ruta crítica | **7/7 · 26 pts — completa** |
 | Épicas cerradas | `EP-UI-401`, `EP-UI-404`, `EP-UI-405` y la retirada de `EP-UI-406` |
 | Historias aceptadas | 0/9 (exigen QA `PASS` y `/sdd-track accept`) |
 | Commits locales sin empujar | **0** — `origin/master` al día tras el push manual |
-| Gates | `quality_gate --level gate` = **PASS** · backend **546/546 + 2 skip** · frontend **560/560** en 58 archivos |
+| Gates | `quality_gate --level gate` = **PASS** · backend **546/546 + 2 skip** · frontend **564/564** en 58 archivos |
 
 \* `TASK-UI-404` se cerró **sin código** (RF-405 ya estaba cubierto, DP-7); sus 2 pts pasaron a
 `TASK-UI-405`.
 
 ## Punto exacto de continuación
 
-**`TASK-403`** — *Tests de migración y de contrato v2* (`EP-401`, **Must**, 3 pts, `test`,
-deps `TASK-402` ✅). Fuera de ruta crítica: única `Must` ready tras cerrar `TASK-405`.
+**`TASK-UI-400`** — *Tokens: `color-draw-line` `#7D8590` + `AXIS_TOKENS` en dos filas*
+(`EP-UI-400`, Should, 2 pts, `frontend`, sin deps). Fuera de ruta crítica: gana a `TASK-UI-408` (5)
+por menor estimación y a `TASK-UI-417` (`Could`) por prioridad.
 
 Después:
-- `TASK-UI-400` (tokens del eje, Should, 2) y su cadena `TASK-UI-401`/`TASK-UI-406`/`TASK-UI-407`.
-- `TASK-UI-408` → `TASK-UI-409` → **`TASK-TEC-402`** (accesibilidad, Must; espera a `TASK-UI-409`).
+- Cierra la última `Must` pendiente: `TASK-403` ✅ → no quedan `Must` ready (`TASK-TEC-402` espera a `TASK-UI-409`).
+- `TASK-UI-400` habilita `TASK-UI-401` y `TASK-UI-406` → `TASK-UI-407` (eje X en dos filas).
+- `TASK-UI-408` → `TASK-UI-409` → **`TASK-TEC-402`** (accesibilidad, Must).
 - `TASK-UI-417` (evaluación de `Exportar`, Could, 2).
 
 ## Decisiones de sesión (D-X)
@@ -81,14 +83,14 @@ Después:
 | Multigráfico | **retirado** (ADR-029): sin ruta, sin `MultiChart`, sin `chart-sync`, sin props `sync` |
 | Fuera de alcance | `TECH-305` (waivers), `TECH-306` (límites de tamaño), `TECH-307` (logging) — auditoría `CR-002` |
 | Backend | intacto (546 tests + 2 skip) — el ciclo es 100 % frontend |
-| Frontend | **549 tests** en 58 archivos · typecheck, eslint y prettier en verde |
+| Frontend | **564 tests** en 58 archivos · typecheck, eslint y prettier en verde |
 | Calidad | `_docs/quality-profile.toml` · gate **PASS** (0 incumplidos, 25 waivers) |
 | Versionado | `_docs/git-profile.toml` · rama `master` · árbol limpio · **0 commits locales** sin `push` |
 
 ## Qué haría yo ahora
 
-1. **`/sdd-cycle TASK-403`** (arriba).
-2. Después de `TASK-403` quedarán las cadenas de UI (`TASK-UI-400` → eje/menú) y `TASK-TEC-402`.
+1. **`/sdd-cycle TASK-UI-400`** (arriba).
+2. Después quedan las cadenas de UI (eje X, menú contextual) y `TASK-TEC-402`.
 3. Sin commits pendientes de publicar (`origin/master` al día).
 
 ## Avisos

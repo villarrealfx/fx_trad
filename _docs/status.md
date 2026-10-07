@@ -9,18 +9,18 @@
 | Métrica | Valor | Δ vs estado anterior |
 |---------|-------|----------------------|
 | Tareas totales | **26** | +24 |
-| 📥 Backlog | **9** | +8 |
+| 📥 Backlog | **8** | +8 |
 | 🔨 Doing | 0 | +3 |
 | 👀 Review | 0 | 0 |
-| ✅ Done | **17** | +14 |
+| ✅ Done | **18** | +14 |
 | 🔴 Blocked | 0 | 0 |
-| % Completado | **65 %** | — |
+| % Completado | **69 %** | — |
 | Esfuerzo planificado | **76 pts** | — |
 | Ruta crítica | **7/7 · 26 pts** | — |
 | Historias aceptadas | **0/9** | — |
 | Días sin movimiento | 0 | — |
 
-**Estado general:** 🟢 **Ciclo 05 en ejecución.** 17/26 tareas cerradas; la ruta crítica sigue
+**Estado general:** 🟢 **Ciclo 05 en ejecución.** 18/26 tareas cerradas; la ruta crítica sigue
 **completa (7/7)**. `EP-UI-405` (cobertura honesta) vuelve a estar **cerrada** tras la reapertura
 por defecto reproducido; `EP-UI-404`, la retirada de `EP-UI-406` y los nodos de la ruta crítica,
 cerrados.
@@ -30,11 +30,10 @@ El ciclo 04 quedó **cerrado y archivado** en `_docs/iterations/04-dibujo-refere
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (9)
+### 📥 Backlog (8)
 
 | ID | Tarea | Épica | Prioridad | Est. | Deps |
 |----|-------|-------|-----------|------|------|
-| TASK-403 | Tests de migración y de contrato v2 | EP-401 | **Must** | 3 | TASK-402 |
 | TASK-UI-400 | Tokens: `color-draw-line` `#7D8590` + `AXIS_TOKENS` en dos filas | EP-UI-400 | Should | 2 | — |
 | TASK-UI-401 | Tests de contraste y de formato del eje | EP-UI-400 | Should | 2 | TASK-UI-400 |
 | TASK-UI-406 | Render del eje X en dos filas | EP-UI-402 | Should | 3 | TASK-UI-400 |
@@ -52,7 +51,7 @@ Ninguna.
 
 Ninguna.
 
-### ✅ Done (17)
+### ✅ Done (18)
 
 | ID | Tarea | Épica | Est. | Cerrada | Prueba |
 |----|-------|-------|------|---------|--------|
@@ -73,6 +72,7 @@ Ninguna.
 | TASK-TEC-401 | Suite completa + medición del cambio de TF + gate | EP-TEC-400 | 3 | 2026-10-06 | Backend 546/546 + 2 skip; frontend 549/549 en 58 archivos; `coverage/tf-switch-measurement.json` (medición client-side); `quality_gate --level gate` PASS |
 | TASK-TEC-403 | Sin dependencias nuevas: diff de manifiestos y `backend/` vacío | EP-TEC-400 | 1 | 2026-10-06 | `git diff --exit-code e67ba78..HEAD -- frontend/package.json frontend/package-lock.json backend/` → exit 0 y 0 archivos |
 | TASK-405 | Tests de precedencia y de ida y vuelta (query explícito gana; hidratación con rango; defecto; ida y vuelta) | EP-402 | 2 | 2026-10-07 | `__tests__/app.test.tsx` (4 casos nuevos: query explícito gana y pasa a ser la nueva, hidratación de activo+TF+rango, defecto `EURUSD`/`1h`, ida y vuelta por «Biblioteca») |
+| TASK-403 | Aceptación de la migración v1→v2 y del contrato v2 | EP-401 | 3 | 2026-10-07 | `state/__tests__/chart-config.test.ts` (4 casos: v1 mixto de 5 `kind` en 3 TF sin pérdidas ni duplicados, idempotencia estricta, claves v1 intactas, v3 rechazado) |
 
 ### 🔴 Blocked (0)
 
@@ -94,8 +94,7 @@ graph LR
 `TASK-UI-405` incluidos). El tramo que dominó el ciclo fue `TASK-401 → TASK-402 → TASK-UI-403`
 (tres tareas de 5 puntos encadenadas: contrato v2, migración e integración del cambio de escala).
 
-**Pueden empezar en paralelo** (sin dependencias): `TASK-UI-400`, `TASK-UI-408` y `TASK-UI-417`;
-`TASK-403` ya tiene sus dependencias ✅.
+**Pueden empezar en paralelo** (sin dependencias): `TASK-UI-400`, `TASK-UI-408` y `TASK-UI-417`.
 
 ## 4. Métricas
 
@@ -105,11 +104,11 @@ graph LR
 |-------|-------------|----------|
 | 03 — Mejoras UX | 35 | 121 pts |
 | 04 — Dibujo Referencia de Operación | 20 | 56 pts |
-| **05 — en ejecución** | **17/26 · 52 pts** | **76 pts** |
+| **05 — en ejecución** | **18/26 · 55 pts** | **76 pts** |
 
 ### 4.2 Burn-down
 
-17 de 26 tareas cerradas (**65 %**), 52 de 76 pts; 9 tareas en 📥 (24 pts), 0 bloqueadas. La
+18 de 26 tareas cerradas (**69 %**), 55 de 76 pts; 8 tareas en 📥 (21 pts), 0 bloqueadas. La
 **ruta crítica está completa (7/7)**.
 
 ### 4.3 Lead time / cycle time
@@ -170,16 +169,18 @@ Ninguna.
 
 **Requisitos sin tareas:** ninguno. **Cobertura UX:** 3/3 pantallas afectadas (SCR-004 modificada,
 SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios.
-**Historias sin aceptación:** 9/9 pendientes (exigen QA `PASS` y `/sdd-track accept`); `HU-402` ya
-tiene todas sus tareas ✅ y espera `/sdd-qa HU-402`.
+**Historias sin aceptación:** 9/9 pendientes (exigen QA `PASS` y `/sdd-track accept`); `HU-401` y
+`HU-402` ya tienen todas sus tareas ✅ y esperan `/sdd-qa HU-401` y `/sdd-qa HU-402`.
 
 ## 8. Próximas acciones sugeridas
 
-1. **`/sdd-cycle`** para tomar **`TASK-403`** (*Tests de migración y de contrato v2*, `EP-401`,
-   **Must**, 3 pts, deps `TASK-402` ✅): fuera de ruta crítica; única `Must` ready de la cola.
-2. `TASK-UI-400`, `TASK-UI-408` y `TASK-UI-417` pueden empezar sin dependencias (`Should`/`Could`).
-3. `TASK-UI-401` y `TASK-UI-406` esperan a `TASK-UI-400`; `TASK-UI-409` a `TASK-UI-408`; y
-   `TASK-TEC-402` a `TASK-UI-409`.
+1. **`/sdd-cycle`** para tomar **`TASK-UI-400`** (*Tokens: `color-draw-line` `#7D8590` +
+   `AXIS_TOKENS` en dos filas*, `EP-UI-400`, Should, 2 pts, sin deps): fuera de ruta crítica; gana a
+   `TASK-UI-408` (5) por menor estimación y a `TASK-UI-417` (`Could`) por prioridad.
+2. `TASK-UI-408` (menú contextual, Should, 5) y `TASK-UI-417` (`Exportar`, Could, 2) pueden empezar
+   sin dependencias.
+3. Tras `TASK-UI-400`: `TASK-UI-401` y `TASK-UI-406`; después `TASK-UI-407`. `TASK-UI-409` espera a
+   `TASK-UI-408` y `TASK-TEC-402` (Must) a `TASK-UI-409`.
 4. Sin commits pendientes de publicar: `origin/master` está al día (push manual por política).
 
 ## 9. Historial de cambios (append-only)
@@ -247,3 +248,6 @@ tiene todas sus tareas ✅ y espera `/sdd-qa HU-402`.
 | 2026-10-07 | TASK-405 | 📥 → 🔨 | Inicio de desarrollo (tests de precedencia y de ida y vuelta, RF-401/RI-402) |
 | 2026-10-07 | TASK-405 | 🔨 → 👀 | Tests verdes: 560/560 frontend en 58 archivos (+4 casos nuevos) · backend 546 + 2 skip · typecheck, eslint y prettier en verde · `quality_gate --level gate` PASS |
 | 2026-10-07 | TASK-405 | 👀 → ✅ | DoD verificada: un query explícito gana a la memoria y pasa a ser la nueva; `/chart` sin query hidrata activo, TF y rango; sin selección previa → `EURUSD`/`1h`; ida y vuelta por «Biblioteca» conserva la selección; prueba en `traceability.md`. RF-401 y RI-402 🟢 |
+| 2026-10-07 | TASK-403 | 📥 → 🔨 | Inicio de desarrollo (tests de aceptación de la migración v1→v2 y del contrato v2, RI-401/RNF-401) |
+| 2026-10-07 | TASK-403 | 🔨 → 👀 | Tests verdes: 564/564 frontend en 58 archivos (+4 casos) · backend 546 + 2 skip · typecheck, eslint y prettier en verde · `quality_gate --level gate` PASS |
+| 2026-10-07 | TASK-403 | 👀 → ✅ | DoD verificada: v1 mixto de los 5 `kind` en 3 TF → v2 con los 5 `id` una sola vez (0 pérdidas y 0 duplicados); idempotencia estricta del v2 persistido; claves v1 de los 3 TF intactas; un v3 no se interpreta como v2; prueba en `traceability.md`. RI-401, RNF-401 y RF-404 🟢 |
