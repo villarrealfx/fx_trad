@@ -657,6 +657,20 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
     hostRef.current?.focus();
   }
 
+  /**
+   * Abre el menú contextual de vela con el teclado (WCAG 2.1.1, TASK-TEC-402).
+   *
+   * Sin cursor se usa la vela de la leyenda (última bajo el crosshair) y, si aún
+   * no hay ninguna, la última de la serie; el panel se ancla al centro del host.
+   */
+  function openContextForLegend(): void {
+    const candle = legendBar ?? candlesRef.current.at(-1) ?? null;
+    if (candle === null) return;
+    const host = hostRef.current;
+    setContextCandle(candle);
+    setContextAnchor({ x: (host?.clientWidth ?? 0) / 2, y: 8 });
+  }
+
   /** Al cambiar de herramienta, cancela el trazo pendiente y la selección. */
   useEffect(() => {
     setDrawFrom(null);
@@ -680,6 +694,12 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
     if (modifier && (event.key === 'y' || event.key === 'Y')) {
       event.preventDefault();
       history.redo();
+      return;
+    }
+    // `Shift+F10` / tecla `ContextMenu`: abre CMP-024 sin ratón (WCAG 2.1.1).
+    if (event.shiftKey && (event.key === 'F10' || event.key === 'ContextMenu')) {
+      event.preventDefault();
+      openContextForLegend();
       return;
     }
     if (event.key === 'Escape') {

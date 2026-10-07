@@ -1424,6 +1424,46 @@ describe('ChartPane', () => {
       expect((screen.getByLabelText('Stop Loss') as HTMLInputElement).value).toBe('1.40000');
     });
 
+    it('no tiene violaciones de axe con el popover y el menú abiertos (TASK-TEC-402)', async () => {
+      const { container, host } = await renderOpenPopover();
+      host.focus();
+      fireEvent.keyDown(host, { key: 'F10', shiftKey: true });
+      await screen.findByRole('dialog', { name: 'Datos de la vela' });
+
+      const results = await axe.run(container, {
+        rules: { 'color-contrast': { enabled: false } },
+      });
+
+      expect(results.violations).toEqual([]);
+    });
+
+    it('recorre los componentes nuevos solo con teclado (TASK-TEC-402, RNF-403)', async () => {
+      const { host } = await renderSelectedOperation();
+      host.focus();
+      expect(document.activeElement).toBe(host);
+
+      // `Shift+F10` abre el menú contextual de la vela sin ratón.
+      fireEvent.keyDown(host, { key: 'F10', shiftKey: true });
+      const menu = await screen.findByRole('dialog', { name: 'Datos de la vela' });
+      fireEvent.keyDown(menu, { key: 'Escape' });
+      await waitFor(() =>
+        expect(screen.queryByRole('dialog', { name: 'Datos de la vela' })).toBeNull(),
+      );
+      expect(document.activeElement).toBe(host);
+
+      // El botón «Precios» es alcanzable por teclado; al activarlo entra el popover.
+      const prices = screen.getByRole('button', { name: 'Editar precios de la operación' });
+      prices.focus();
+      expect(document.activeElement).toBe(prices);
+      fireEvent.click(prices);
+      const popover = await screen.findByRole('dialog', { name: 'Precios de la operación' });
+      fireEvent.keyDown(popover, { key: 'Escape' });
+      await waitFor(() =>
+        expect(screen.queryByRole('dialog', { name: 'Precios de la operación' })).toBeNull(),
+      );
+      expect(document.activeElement).toBe(host);
+    });
+
     it('aplica los precios mutando la figura por el command stack', async () => {
       const { onDrawingsChange } = await renderOpenPopover();
 

@@ -9,18 +9,18 @@
 | Métrica | Valor | Δ vs estado anterior |
 |---------|-------|----------------------|
 | Tareas totales | **26** | +24 |
-| 📥 Backlog | **2** | +8 |
+| 📥 Backlog | **1** | +8 |
 | 🔨 Doing | 0 | +3 |
 | 👀 Review | 0 | 0 |
-| ✅ Done | **24** | +14 |
+| ✅ Done | **25** | +14 |
 | 🔴 Blocked | 0 | 0 |
-| % Completado | **92 %** | — |
+| % Completado | **96 %** | — |
 | Esfuerzo planificado | **76 pts** | — |
 | Ruta crítica | **7/7 · 26 pts** | — |
 | Historias aceptadas | **0/9** | — |
 | Días sin movimiento | 0 | — |
 
-**Estado general:** 🟢 **Ciclo 05 en ejecución.** 24/26 tareas cerradas; la ruta crítica sigue
+**Estado general:** 🟢 **Ciclo 05 en ejecución.** 25/26 tareas cerradas; la ruta crítica sigue
 **completa (7/7)**. `EP-UI-405` (cobertura honesta) vuelve a estar **cerrada** tras la reapertura
 por defecto reproducido; `EP-UI-404`, la retirada de `EP-UI-406` y los nodos de la ruta crítica,
 cerrados.
@@ -30,12 +30,11 @@ El ciclo 04 quedó **cerrado y archivado** en `_docs/iterations/04-dibujo-refere
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (2)
+### 📥 Backlog (1)
 
 | ID | Tarea | Épica | Prioridad | Est. | Deps |
 |----|-------|-------|-----------|------|------|
 | TASK-UI-417 | Evaluación de `Exportar` con decisión documentada | EP-UI-406 | Could | 2 | — |
-| TASK-TEC-402 | Accesibilidad (axe + teclado) de los componentes nuevos | EP-TEC-400 | **Must** | 2 | TASK-UI-409, TASK-UI-412 |
 
 ### 🔨 Doing (0)
 
@@ -45,7 +44,7 @@ Ninguna.
 
 Ninguna.
 
-### ✅ Done (24)
+### ✅ Done (25)
 
 | ID | Tarea | Épica | Est. | Cerrada | Prueba |
 |----|-------|-------|------|---------|--------|
@@ -73,6 +72,7 @@ Ninguna.
 | TASK-UI-407 | Tests de aceptación del eje: dos filas, 15m a zoom mínimo y layout de la franja | EP-UI-402 | 2 | 2026-10-07 | `ChartTimeAxis.test.tsx` (4: filas, posiciones, vacío y layout de 40 px) + `axis-format.test.ts` (+1: 15m a zoom mínimo sin solape) |
 | TASK-UI-408 | `CMP-024 CandleContextMenu`: panel de la vela con cabecera `fecha · hora` y OHLC en dos columnas | EP-UI-403 | 5 | 2026-10-07 | `CandleContextMenu.tsx` (`role="dialog"`, `font-num`, reposicionamiento y cierre con retorno de foco) integrado por clic derecho en `ChartPane`; suite 578/578 sin regresiones (los tests de aceptación son de TASK-UI-409) |
 | TASK-UI-409 | Tests y accesibilidad de `CMP-024` | EP-UI-403 | 3 | 2026-10-07 | `CandleContextMenu.test.tsx` (5: valores, `Escape` con foco, clic fuera/dentro, 4 bordes sin desbordar, axe sin violaciones) + `ChartPane.test.tsx` (+1: clic derecho abre con la vela del cursor) |
+| TASK-TEC-402 | Accesibilidad de los tres componentes nuevos (axe + teclado) | EP-TEC-400 | 2 | 2026-10-07 | `ChartPane.test.tsx` (+2: axe sin violaciones con popover y menú abiertos; recorrido solo con teclado con foco devuelto). Se añade el disparador `Shift+F10`/`ContextMenu` de CMP-024 (WCAG 2.1.1) |
 
 ### 🔴 Blocked (0)
 
@@ -94,7 +94,7 @@ graph LR
 `TASK-UI-405` incluidos). El tramo que dominó el ciclo fue `TASK-401 → TASK-402 → TASK-UI-403`
 (tres tareas de 5 puntos encadenadas: contrato v2, migración e integración del cambio de escala).
 
-**Pueden empezar en paralelo**: `TASK-TEC-402` (ya con sus deps ✅) y `TASK-UI-417`.
+**Puede empezar**: `TASK-UI-417` (la última tarea, sin dependencias).
 
 ## 4. Métricas
 
@@ -104,11 +104,11 @@ graph LR
 |-------|-------------|----------|
 | 03 — Mejoras UX | 35 | 121 pts |
 | 04 — Dibujo Referencia de Operación | 20 | 56 pts |
-| **05 — en ejecución** | **24/26 · 72 pts** | **76 pts** |
+| **05 — en ejecución** | **25/26 · 74 pts** | **76 pts** |
 
 ### 4.2 Burn-down
 
-24 de 26 tareas cerradas (**92 %**), 72 de 76 pts; 2 tareas en 📥 (4 pts), 0 bloqueadas. La
+25 de 26 tareas cerradas (**96 %**), 74 de 76 pts; 1 tarea en 📥 (2 pts), 0 bloqueadas. La
 **ruta crítica está completa (7/7)**.
 
 ### 4.3 Lead time / cycle time
@@ -177,12 +177,10 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 
 ## 8. Próximas acciones sugeridas
 
-1. **`/sdd-cycle`** para tomar **`TASK-TEC-402`** (*Accesibilidad de los tres componentes nuevos*,
-   `EP-TEC-400`, **Must**, 2 pts, deps `TASK-UI-409` y `TASK-UI-412` ✅): última `Must` del ciclo;
-   axe-core en SCR-004 con la operación, el menú y el popover abiertos, recorrido solo con teclado y
-   contraste a zoom 200 % (RNF-403).
-2. `TASK-UI-417` (`Exportar`, **Could**, 2) es la última tarea: primer candidato a recorte (`DP-3`).
-3. Sin commits pendientes de publicar: `origin/master` está al día (push manual por política).
+1. **`/sdd-cycle`** para tomar **`TASK-UI-417`** (*Evaluación de `Exportar` con decisión documentada*,
+   `EP-UI-406`, **Could**, 2 pts, sin deps): **última tarea** del ciclo; decide mantener o retirar
+   `SCR-006` con evidencia y lo registra en el AUDIT LOG.
+2. Sin commits pendientes de publicar: `origin/master` está al día (push manual por política).
 
 ## 9. Historial de cambios (append-only)
 
@@ -271,3 +269,6 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 | 2026-10-07 | TASK-UI-409 | 📥 → 🔨 | Inicio de desarrollo (tests y accesibilidad de CMP-024: valores, cierre, foco, reposicionamiento y axe, RF-408) |
 | 2026-10-07 | TASK-UI-409 | 🔨 → 👀 | Tests verdes: 584/584 frontend en 60 archivos (+6) · axe-core sin violaciones en el menú · typecheck, eslint y prettier en verde · `quality_gate --level gate` PASS |
 | 2026-10-07 | TASK-UI-409 | 👀 → ✅ | DoD verificada: el menú abre con los valores de la vela (5 decimales), cierra por `Escape` y clic fuera devolviendo el foco, reposiciona en los 4 bordes sin desbordar el viewport y pasa axe-core sin violaciones; prueba en `traceability.md`. RF-408 🟢 y `EP-UI-403` cerrada |
+| 2026-10-07 | TASK-TEC-402 | 📥 → 🔨 | Inicio de desarrollo (accesibilidad de los 3 componentes nuevos; se añade el disparador de teclado de CMP-024, RNF-403) |
+| 2026-10-07 | TASK-TEC-402 | 🔨 → 👀 | Tests verdes: 586/586 frontend en 60 archivos (+2) · axe-core sin violaciones con popover y menú abiertos · typecheck, eslint y prettier en verde · `quality_gate --level gate` PASS |
+| 2026-10-07 | TASK-TEC-402 | 👀 → ✅ | DoD verificada: axe sin violaciones en SCR-004 con la operación, el menú y el popover abiertos; recorrido **solo con teclado** (`Shift+F10` abre CMP-024, `Escape` cierra menú y popover devolviendo el foco al gráfico); contraste AA verificado por tokens (el zoom no altera colores). Se añade el disparador de teclado de CMP-024 (WCAG 2.1.1); prueba en `traceability.md`. RNF-403 🟢 |

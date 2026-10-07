@@ -1,7 +1,7 @@
 # Handoff de Sesión
 
-> Estado con el **ciclo 05 en ejecución** (24/26 tareas) — 2026-10-07
-> **Ruta crítica completa (7/7).** Punto de continuación exacto: **`/sdd-cycle TASK-TEC-402`**
+> Estado con el **ciclo 05 en ejecución** (25/26 tareas) — 2026-10-07
+> **Ruta crítica completa (7/7).** Punto de continuación exacto: **`/sdd-cycle TASK-UI-417`**
 
 ## Dónde estamos
 
@@ -12,25 +12,24 @@ ADR-027/028/029/030, 9 contratos en `_docs/ux/` y el backlog con 10 épicas, 9 h
 
 | Métrica | Valor |
 |---------|-------|
-| Tareas cerradas | **24/26** (92 %) |
-| Cerradas | `TASK-401`, `TASK-402`, `TASK-403`, `TASK-UI-400`, `TASK-UI-401`, `TASK-UI-402`, `TASK-UI-403`, `TASK-UI-404`\*, `TASK-UI-405`, `TASK-UI-406`, `TASK-UI-407`, `TASK-UI-408`, `TASK-UI-409`, `TASK-404`, `TASK-405`, `TASK-UI-410`, `TASK-UI-411`, `TASK-UI-412`, `TASK-UI-413`, `TASK-UI-414`, `TASK-UI-415`, `TASK-UI-416`, `TASK-TEC-401`, `TASK-TEC-403` |
+| Tareas cerradas | **25/26** (96 %) |
+| Cerradas | `TASK-401`, `TASK-402`, `TASK-403`, `TASK-UI-400`, `TASK-UI-401`, `TASK-UI-402`, `TASK-UI-403`, `TASK-UI-404`\*, `TASK-UI-405`, `TASK-UI-406`, `TASK-UI-407`, `TASK-UI-408`, `TASK-UI-409`, `TASK-404`, `TASK-405`, `TASK-UI-410`, `TASK-UI-411`, `TASK-UI-412`, `TASK-UI-413`, `TASK-UI-414`, `TASK-UI-415`, `TASK-UI-416`, `TASK-TEC-401`, `TASK-TEC-402`, `TASK-TEC-403` |
 | Ruta crítica | **7/7 · 26 pts — completa** |
 | Épicas cerradas | `EP-UI-401`, `EP-UI-404`, `EP-UI-405` y la retirada de `EP-UI-406` |
 | Historias aceptadas | 0/9 (exigen QA `PASS` y `/sdd-track accept`) |
 | Commits locales sin empujar | **0** — `origin/master` al día tras el push manual |
-| Gates | `quality_gate --level gate` = **PASS** · backend **546/546 + 2 skip** · frontend **584/584** en 60 archivos |
+| Gates | `quality_gate --level gate` = **PASS** · backend **546/546 + 2 skip** · frontend **586/586** en 60 archivos |
 
 \* `TASK-UI-404` se cerró **sin código** (RF-405 ya estaba cubierto, DP-7); sus 2 pts pasaron a
 `TASK-UI-405`.
 
 ## Punto exacto de continuación
 
-**`TASK-TEC-402`** — *Accesibilidad de los tres componentes nuevos* (`EP-TEC-400`, **Must**, 2 pts,
-`test`, deps `TASK-UI-409` y `TASK-UI-412` ✅). Última `Must` del ciclo; cierra `RNF-403`.
+**`TASK-UI-417`** — *Evaluación de `Exportar` con decisión documentada* (`EP-UI-406`, **Could**, 2 pts,
+sin deps). **Última tarea del ciclo**: decide mantener o retirar `SCR-006` con evidencia de uso y el
+criterio acordado (`DP-3`), y lo registra en el AUDIT LOG del cierre.
 
-Después:
-- `TASK-UI-417` (evaluación de `Exportar`, **Could**, 2) — última tarea y primer candidato a recorte
-  (`DP-3`).
+Después: cierre de ciclo (todas las tareas ✅) y `/sdd-qa` de las historias con la `Must` cerrada.
 
 ## Decisiones de sesión (D-X)
 
@@ -56,6 +55,9 @@ Después:
 - **D-16 *(esta corrida)*:** `TASK-UI-406` se ejecuta **antes** que `TASK-UI-401`: el DoD de los tests
   de formato exige el formateador de dos filas, que vive en el render. No se cambian los `Deps` del
   backlog (decisión de secuencia de sesión).
+- **D-17 *(esta corrida)*:** `CMP-024` gana un **disparador de teclado** (`Shift+F10` / tecla
+  `ContextMenu`) sobre la vela de la leyenda, porque el DoD de `TASK-TEC-402` exige un recorrido solo
+  con teclado (WCAG 2.1.1). Es el único cambio de producción de una tarea `test` del ciclo.
 
 ## Preguntas abiertas (PA-X)
 
@@ -82,7 +84,7 @@ Después:
 | Precios numéricos | `CMP-025` integrado: botón «Precios» anclado, `Aplicar`/`Enter` por el command stack, anuncio en `LiveRegion` |
 | Eje X | **franja propia de dos filas** (`ChartTimeAxis`, 40 px): eje nativo oculto; `formatAxisDate`/`formatAxisTime`/`selectAxisRows` con umbral (TASK-UI-400/406) |
 | Eje X (tokens) | `AXIS_TOKENS` con `xFormatTop`/`xFormatBottom`/`axisRowGap: 12` y `drawLine` `#7D8590` (TASK-UI-400) |
-| Menú contextual | `CMP-024` integrado por **clic derecho** en `ChartPane`: `role="dialog"`, OHLC a 5 decimales, reposiciona y devuelve el foco (TASK-UI-408) |
+| Menú contextual | `CMP-024`: clic derecho **y** `Shift+F10`/`ContextMenu` (WCAG 2.1.1, D-17); `role="dialog"`, OHLC a 5 decimales, reposiciona y devuelve el foco (TASK-UI-408/409/TEC-402) |
 | Multigráfico | **retirado** (ADR-029): sin ruta, sin `MultiChart`, sin `chart-sync`, sin props `sync` |
 | Fuera de alcance | `TECH-305` (waivers), `TECH-306` (límites de tamaño), `TECH-307` (logging) — auditoría `CR-002` |
 | Backend | intacto (546 tests + 2 skip) — el ciclo es 100 % frontend |
@@ -92,8 +94,8 @@ Después:
 
 ## Qué haría yo ahora
 
-1. **`/sdd-cycle TASK-TEC-402`** (arriba; última `Must`, accesibilidad y teclado).
-2. Después solo queda `TASK-UI-417` (`Exportar`, Could).
+1. **`/sdd-cycle TASK-UI-417`** (arriba; última tarea: evaluación de `Exportar`).
+2. Al cerrarla, el ciclo queda completo (26/26) y toca QA de historias y reporte de cierre.
 3. Sin commits pendientes de publicar (`origin/master` al día).
 
 ## Avisos

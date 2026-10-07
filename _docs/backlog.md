@@ -336,7 +336,7 @@ de RNF-007 asumiendo que el MoSCoW (DP-3) define el orden de recorte si el plazo
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
 | TASK-TEC-401 | Suite completa + medición del cambio de TF + gate de calidad | test | 3 | TASK-UI-405, TASK-UI-412, TASK-UI-414, TASK-UI-416 | Frontend y backend en verde con el recuento real anotado; `quality_gate.py --level gate` **PASS** pegado en el AUDIT LOG; el tiempo de cambio de TF en caliente se mide y se registra (RNF-404) | ✅ |
-| TASK-TEC-402 | Accesibilidad de los tres componentes nuevos | test | 2 | TASK-UI-409, TASK-UI-412 | axe-core sin violaciones en SCR-004 con la operación, el menú y el popover abiertos; recorrido completo **solo con teclado** con foco devuelto; contraste verificado a zoom 200 % (RNF-403) | 📥 |
+| TASK-TEC-402 | Accesibilidad de los tres componentes nuevos | test | 2 | TASK-UI-409, TASK-UI-412 | axe-core sin violaciones en SCR-004 con la operación, el menú y el popover abiertos; recorrido completo **solo con teclado** con foco devuelto; contraste verificado a zoom 200 % (RNF-403) | ✅ |
 | TASK-TEC-403 | Verificación de «sin dependencias nuevas» | test | 1 | TASK-TEC-401 | `git diff` de `frontend/package.json`, `frontend/package-lock.json` y `backend/` respecto a `e67ba78` **vacío** (RX-401) | ✅ |
 
 ## 6. Grafo de dependencias
