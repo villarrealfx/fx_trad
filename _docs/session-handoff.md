@@ -16,7 +16,7 @@ ADR-027/028/029/030, 9 contratos en `_docs/ux/` y el backlog con 10 épicas, 9 h
 | Cerradas | `TASK-401`, `TASK-402`, `TASK-403`, `TASK-UI-400`, `TASK-UI-401`, `TASK-UI-402`, `TASK-UI-403`, `TASK-UI-404`\*, `TASK-UI-405`, `TASK-UI-406`, `TASK-UI-407`, `TASK-UI-408`, `TASK-UI-409`, `TASK-UI-417`, `TASK-404`, `TASK-405`, `TASK-UI-410`, `TASK-UI-411`, `TASK-UI-412`, `TASK-UI-413`, `TASK-UI-414`, `TASK-UI-415`, `TASK-UI-416`, `TASK-TEC-401`, `TASK-TEC-402`, `TASK-TEC-403` |
 | Ruta crítica | **7/7 · 26 pts — completa** |
 | Épicas cerradas | `EP-UI-401`, `EP-UI-404`, `EP-UI-405` y la retirada de `EP-UI-406` |
-| Historias aceptadas | 0/9 (exigen QA `PASS` y `/sdd-track accept`) |
+| Historias aceptadas | **8/8** ✅ (QA `PASS` + `/sdd-track accept`) |
 | Commits locales sin empujar | **0** — `origin/master` al día tras el push manual |
 | Gates | `quality_gate --level gate` = **PASS** · backend **546/546 + 2 skip** · frontend **577/577** en 59 archivos |
 
@@ -25,13 +25,12 @@ ADR-027/028/029/030, 9 contratos en `_docs/ux/` y el backlog con 10 épicas, 9 h
 
 ## Punto exacto de continuación
 
-**Bloqueante antes de cerrar: re-verificación manual de D-19.** Comprobar en navegador: (a) manipular
-el eje (arrastre/zoom), (b) precisión al crear dibujos, (c) edición y borrado de dibujos/líneas/
-operación, (d) estabilidad al hacer zoom.
+**Verificación manual superada (2026-10-07):** los cuatro síntomas de D-19 (eje manipulable, precisión
+al crear, edición/borrado y estabilidad al hacer zoom) quedaron **OK** tras el revert al eje original.
+Re-QA emitido (`QAR-HU-UI-401-002`, `QAR-HU-UI-402-002`) y **8/8 historias aceptadas**.
 
-Después:
-- **Re-QA** de `HU-UI-402` y `HU-UI-401` (sus `PASS` quedaron obsoletos con D-19) y
-  `/sdd-track accept HU-XXX` con los nuevos informes.
+Pendientes (no bloqueantes):
+- **Corregir el recuento de historias** del backlog (declara 9; existen 8).
 - **Revisión de cierre:** `/sdd-next status` y, si se quiere informe completo, `/sdd-audit --sdd`.
 - **Publicar:** `git push origin master` (manual) con los commits locales.
 - Deuda fuera del ciclo (`D-8`): `TECH-305`, `TECH-306`, `TECH-307` siguen abiertas en §8 del backlog.

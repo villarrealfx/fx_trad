@@ -172,19 +172,15 @@ fila; pendiente solo la re-verificación manual del usuario.)*
 
 **Requisitos sin tareas:** ninguno. **Cobertura UX:** 3/3 pantallas afectadas (SCR-004 modificada,
 SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios.
-**Historias sin aceptación:** 8/8 pendientes (exigen QA `PASS` y `/sdd-track accept`); `HU-401`,
-`HU-402`, `HU-UI-403` y `HU-UI-406` tienen sus tareas ✅, pero los informes `PASS` de **`HU-UI-401` y
-`HU-UI-402`** quedan **a re-verificar** por la reapertura del eje. *(El backlog declara 9 historias;
-existen 8: hallazgo de contrato pendiente de corregir.)*
+**Historias aceptadas: 8/8** (QA `PASS` + `/sdd-track accept`); `HU-UI-401` y `HU-UI-402` con
+**re-QA** tras D-19 (`QAR-…-002`). *(El backlog declara 9 historias; existen 8 — corregir el recuento.)*
 
 ## 8. Próximas acciones sugeridas
 
-1. **Re-verificación manual del usuario (bloqueante):** (a) manipular el eje (arrastre/zoom),
-   (b) precisión al crear dibujos, (c) edición y borrado de dibujos/líneas/operación, (d) estabilidad
-   al hacer zoom.
-2. **Re-QA** de las historias afectadas (`HU-UI-402` y `HU-UI-401`): sus informes `PASS` quedaron
-   obsoletos con D-19; hay que emitir QAR nuevos y `/sdd-track accept` cuando den `PASS`.
-3. **Corregir el recuento de historias** (el backlog declara 9; existen 8).
+1. **Ciclo 05 cerrado y aceptado:** 26/26 tareas ✅ y **8/8 historias aceptadas** (QA `PASS` +
+   `/sdd-track accept`). La re-verificación manual superó los cuatro síntomas de D-19.
+2. **Corregir el recuento de historias** del backlog (declara 9; existen 8).
+3. **Revisión de cierre:** `/sdd-next status` y, si se quiere informe completo, `/sdd-audit --sdd`.
 4. **Publicar:** `git push origin master` (manual) con los commits locales.
 
 ## 9. Historial de cambios (append-only)
