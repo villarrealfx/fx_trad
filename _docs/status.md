@@ -1,6 +1,6 @@
 # Estado del Proyecto: fxtrad
 
-> Última actualización: 2026-10-06
+> Última actualización: 2026-10-07
 > Ciclo actual: **05** — `mejoras-ux-grafico`
 > Fuente: `_docs/backlog.md`, `_docs/traceability.md`
 
@@ -16,7 +16,7 @@
 | 🔴 Blocked | 0 | 0 |
 | % Completado | **62 %** | — |
 | Esfuerzo planificado | **76 pts** | — |
-| Ruta crítica | **5/7 · 24 pts** | — |
+| Ruta crítica | **7/7 · 26 pts** | — |
 | Historias aceptadas | **0/9** | — |
 | Días sin movimiento | 0 | — |
 
@@ -115,7 +115,7 @@ graph LR
 ### 4.3 Lead time / cycle time
 
 No medidos; todas las tareas del ciclo se cerraron el mismo día (2026-10-06), así que el lead time
-no es informativo. El ciclo 05 mantiene la ruta crítica en **6/7**.
+no es informativo. El ciclo 05 tiene la ruta crítica completa (**7/7**).
 
 ## 5. Bloqueos activos
 
@@ -143,9 +143,8 @@ Ninguna.
   antes de `TASK-UI-415` (se confirma la retirada: la decisión D-3/ADR-029 no dependía de `RF-401`)
   · `PA-3` (criterio de viabilidad de `Exportar`, `TASK-UI-417`) · `PA-4` (quién verifica los 12
   frentes del insumo y con qué guion).
-- **4 commits locales sin empujar** (cierre de `TASK-TEC-403`, reapertura de `EP-UI-405` y las
-  correcciones de `TASK-UI-413` y `TASK-UI-414`): el push es manual por política
-  (`_docs/git-profile.toml`); los 7 cierres anteriores ya están en `origin/master`.
+- **0 commits locales sin empujar**: `origin/master` está al día tras el push manual
+  (`_docs/git-profile.toml`); árbol limpio.
 
 ### 🟢 Informativas
 
@@ -180,7 +179,7 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
    determinista de FASE 5 (Must y menor estimación: 2 < 3).
 2. `TASK-403` (tests de migración y contrato v2, Must, 3 pts) es la siguiente Must de la cola.
 3. `TASK-UI-400`, `TASK-UI-408` y `TASK-UI-417` pueden empezar sin dependencias.
-4. **`git push origin master`** cuando se quiera publicar los commits locales (manual).
+4. Sin commits pendientes de publicar: `origin/master` está al día (push manual por política).
 
 ## 9. Historial de cambios (append-only)
 
@@ -243,3 +242,4 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 | 2026-10-06 | TASK-UI-413 | 👀 → ✅ | DoD verificada (reapertura): solo viernes, solo domingo y semana `Lun→Vie` **sin** aviso; sigue avisando el hueco real en la mañana del viernes y el hueco interno entre semana. Queda `TASK-UI-414` |
 | 2026-10-06 | TASK-UI-414 | 🔨 → 👀 | Reapertura ampliada: 3 casos nuevos de pantalla (solo viernes, solo domingo y semana `Lun→Vie`); 556/556 frontend · typecheck, eslint y prettier en verde · `quality_gate --level gate` PASS |
 | 2026-10-06 | TASK-UI-414 | 👀 → ✅ | DoD verificada (reapertura): los bordes de viernes/domingo y la semana `Lun→Vie` no disparan el aviso en pantalla; `EP-UI-405` cerrada y `RF-402` 🟢. `PA-1` resuelta |
+| 2026-10-07 | — | 🔧 Corrección de tablero | Alineación backlog→status (`TASK-UI-410` ✅), ruta crítica 7/7 · 26 pts, push al día (0 pendientes) y cabecera de trazabilidad. `/sdd-track verify` |

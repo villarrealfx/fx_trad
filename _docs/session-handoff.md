@@ -1,6 +1,6 @@
 # Handoff de Sesión
 
-> Estado con el **ciclo 05 en ejecución** (16/26 tareas) — 2026-10-06
+> Estado con el **ciclo 05 en ejecución** (16/26 tareas) — 2026-10-07
 > **Ruta crítica completa (7/7).** Punto de continuación exacto: **`/sdd-cycle TASK-405`**
 
 ## Dónde estamos
@@ -17,7 +17,7 @@ ADR-027/028/029/030, 9 contratos en `_docs/ux/` y el backlog con 10 épicas, 9 h
 | Ruta crítica | **7/7 · 26 pts — completa** |
 | Épicas cerradas | `EP-UI-401`, `EP-UI-404`, `EP-UI-405` y la retirada de `EP-UI-406` |
 | Historias aceptadas | 0/9 (exigen QA `PASS` y `/sdd-track accept`) |
-| Commits locales sin empujar | **1** (el cierre de `TASK-TEC-403`); los 7 anteriores ya están en `origin/master` |
+| Commits locales sin empujar | **0** — `origin/master` al día tras el push manual |
 | Gates | `quality_gate --level gate` = **PASS** · backend **546/546 + 2 skip** · frontend **549/549** en 58 archivos |
 
 \* `TASK-UI-404` se cerró **sin código** (RF-405 ya estaba cubierto, DP-7); sus 2 pts pasaron a
@@ -86,13 +86,13 @@ Después:
 | Backend | intacto (546 tests + 2 skip) — el ciclo es 100 % frontend |
 | Frontend | **549 tests** en 58 archivos · typecheck, eslint y prettier en verde |
 | Calidad | `_docs/quality-profile.toml` · gate **PASS** (0 incumplidos, 25 waivers) |
-| Versionado | `_docs/git-profile.toml` · rama `master` · árbol limpio · **1 commit local** sin `push` |
+| Versionado | `_docs/git-profile.toml` · rama `master` · árbol limpio · **0 commits locales** sin `push` |
 
 ## Qué haría yo ahora
 
 1. **`/sdd-cycle TASK-405`** (arriba).
 2. Al cerrar `TASK-403`, quedarán las cadenas de UI (`TASK-UI-400` → eje/menú) y `TASK-TEC-402`.
-3. `git push origin master` cuando quieras publicar el commit de `TASK-TEC-403`.
+3. Sin commits pendientes de publicar (`origin/master` al día).
 
 ## Avisos
 

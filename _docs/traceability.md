@@ -1,7 +1,7 @@
 # Trazabilidad: fxtrad — Ciclo 05 (Mejoras UX del Gráfico y Cierre de Deuda)
 
-> Última actualización: 2026-10-06
-> Ciclo actual: **05** — `mejoras-ux-grafico` (backlog cerrado; pendiente `/sdd-track` y `/sdd-cycle`)
+> Última actualización: 2026-10-07
+> Ciclo actual: **05** — `mejoras-ux-grafico` (en ejecución: 16/26 tareas · ruta crítica 7/7)
 > **Leyenda:** 🟡 pendiente · 🔵 en progreso (diseño y tareas asignadas) · 🟢 completo · 🔴 bloqueado
 
 ## 1. Estado de la trazabilidad
@@ -17,7 +17,7 @@ El histórico vivo de los ciclos 01–04 (35 requisitos, con su prueba y su comm
 
 | Requisito | Diseño (ADR/Componente) | Tarea | Prueba | Estado |
 |-----------|-------------------------|-------|--------|--------|
-| RF-401 Conservar la última selección al volver a `Gráfico` | `App.tsx` + `app/routes.ts` (`parseChartQuery` con fallback) + `state/chart-config` (`selection` y puntero `fxtrad.chart.last`) (ADR-028/ADR-030) | TASK-404, TASK-405, TASK-UI-403 | TASK-404 ✅: `app/__tests__/routes.test.ts` (precedencia URL > fallback > defecto; un query explícito no se pisa) + `__tests__/app.test.tsx` (ida y vuelta a `/chart` sin query, URL enriquecida) — pendiente TASK-405 y la integración de TASK-UI-403 | 🔵 |
+| RF-401 Conservar la última selección al volver a `Gráfico` | `App.tsx` + `app/routes.ts` (`parseChartQuery` con fallback) + `state/chart-config` (`selection` y puntero `fxtrad.chart.last`) (ADR-028/ADR-030) | TASK-404, TASK-405, TASK-UI-403 | TASK-404 ✅: `app/__tests__/routes.test.ts` (precedencia URL > fallback > defecto; un query explícito no se pisa) + `__tests__/app.test.tsx` (ida y vuelta a `/chart` sin query, URL enriquecida) — pendiente TASK-405 | 🔵 |
 | RF-402 Aviso de cobertura solo cuando es real | `charting/coverage` (`hasCoverageGap`) + `components/ChartPane` (condición de `partialCoverage`) | TASK-UI-413, TASK-UI-414 | TASK-UI-413 ✅ (**reapertura** 2026-10-06): `charting/coverage` exime el hueco contenido en la ventana semanal `[viernes 19:00, lunes 00:00)` UTC; `charting/__tests__/coverage.test.ts` (17, +4 de la reapertura: solo viernes, solo domingo, semana `Lun→Vie` y hueco real en la mañana del viernes). Defecto original: con `data/EURUSD.1h.parquet` la condición previa avisaba en **103/103** `Lun→Vie`, **103/103** viernes y **79/79** domingos (188/594). **Límite conocido:** los festivos en día laborable siguen avisando (6/594 residuales). `ChartPane.test.tsx` mantiene el aviso con hueco interno y el silencio con borde desfasado · TASK-UI-414 ✅ (**reapertura** 2026-10-06): `ChartPane.test.tsx` (6 de borde en pantalla, +3 de la reapertura: solo viernes, solo domingo y semana `Lun→Vie`, todos **sin** aviso) | 🟢 |
 | RF-403 Cambio de timeframe desde el gráfico | `components/ChartHeader` (CMP-023) + `App.tsx` (`pendingTimeframe`, estados y reversión) (ADR-028) | TASK-UI-403 | TASK-UI-403 ✅: `app/__tests__/app.test.tsx` (cambio de TF navega y persiste; `tf-error` revierte al anterior sin anunciar) + `components/ChartHeader/__tests__` | 🟢 |
 | RF-404 Dibujos compartidos por activo entre timeframes | `charting/drawings` (anclas `PriceTimePoint`) + `state/chart-config` v2 (ADR-027) | TASK-402, TASK-UI-403 | — | 🔵 |
