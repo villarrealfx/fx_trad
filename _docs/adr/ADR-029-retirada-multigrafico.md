@@ -86,9 +86,30 @@ retirado recuperado de git (`2c244c7^`):
 necesidad de la pantalla. Si vuelve a hacer falta comparación multi-activo, exige requisito y diseño
 nuevos (`RF-W-404`). Confianza en la decisión: alta; en que `RF-401` fuera la causa: baja.
 
+## Evaluación de PA-3 (`Exportar`, SCR-006) — 2026-10-07
+
+`PA-3` pedía el **criterio de viabilidad** de `Exportar` (`TASK-UI-417`, `RF-411`). La app es local y
+**no hay telemetría de uso**, así que el criterio se define por requisito, cobertura y superficie:
+
+> `SCR-006` se **mantiene** si (a) cierra un requisito vigente, (b) está cubierta por pruebas y
+> (c) no duplica la superficie de gráfico. Se retira si falla (a) o (c).
+
+| Alegación | Evidencia | Conclusión |
+|---|---|---|
+| Cierra un requisito vigente | `RF-015` (ciclo 01, **Must**): «exportar una captura en imagen (gráfico + dibujos)» | Retirarla dejaría `RF-015` sin superficie → cumple (a) |
+| Está cubierta por pruebas | `components/ExportModal/__tests__/ExportModal.test.tsx`, `export/__tests__/png.test.ts`, `__tests__/app.test.tsx` (descarga PNG), `__tests__/a11y.test.tsx`, `__tests__/smoke-base-1m.test.tsx` | Cumple (b) |
+| No duplica superficie de gráfico | Es un **modal** (`CMP-014`) sobre `Gráfico`, no otra pantalla de gráfico | Cumple (c) |
+| Es accesible | `_docs/ux/accessibility.md`: SCR-006 ✅ focus trap · ✅ `dialog` · ✅ preview con alt | Sin deuda de accesibilidad |
+| Retirarla tendría coste | Borrar `ExportModal` + `export/png` y ~5 ficheros de test, sin salida de imagen alternativa | Coste alto sin requisito que lo pida |
+
+**Resultado:** se **mantiene** `Exportar` (`SCR-006`) sin cambios de requisito. `PA-3` queda
+resuelta. Si en el futuro se decide retirarla, exige modificar `RF-015`, abrir requisito nuevo y una
+tarea de retirada como la de `EP-UI-406` (`TASK-UI-415`/`416`). Confianza: alta.
+
 ## Referencias
 
 - `_docs/requirements.md` RF-409, RF-W-404 · `_docs/plan.md` §7 R-402
 - `_docs/iterations/04-dibujo-referencia-operacion/requirements.md` RF-310 · `traceability.md` (TASK-UI-321)
 - `frontend/src/app/routes.ts` · `frontend/src/App.tsx` · `frontend/src/components/MultiChart/` · `frontend/src/charting/chart-sync.ts`
 - `_docs/session-handoff.md` D-3 · PA-2
+- **PA-3 / `Exportar`:** `_docs/requirements.md` RF-015, RF-411 · `_docs/ux/accessibility.md` · `frontend/src/components/ExportModal/` · `frontend/src/export/`

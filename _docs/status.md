@@ -9,32 +9,30 @@
 | Métrica | Valor | Δ vs estado anterior |
 |---------|-------|----------------------|
 | Tareas totales | **26** | +24 |
-| 📥 Backlog | **1** | +8 |
+| 📥 Backlog | **0** | +8 |
 | 🔨 Doing | 0 | +3 |
 | 👀 Review | 0 | 0 |
-| ✅ Done | **25** | +14 |
+| ✅ Done | **26** | +14 |
 | 🔴 Blocked | 0 | 0 |
-| % Completado | **96 %** | — |
+| % Completado | **100 %** | — |
 | Esfuerzo planificado | **76 pts** | — |
 | Ruta crítica | **7/7 · 26 pts** | — |
 | Historias aceptadas | **0/9** | — |
 | Días sin movimiento | 0 | — |
 
-**Estado general:** 🟢 **Ciclo 05 en ejecución.** 25/26 tareas cerradas; la ruta crítica sigue
-**completa (7/7)**. `EP-UI-405` (cobertura honesta) vuelve a estar **cerrada** tras la reapertura
-por defecto reproducido; `EP-UI-404`, la retirada de `EP-UI-406` y los nodos de la ruta crítica,
-cerrados.
+**Estado general:** 🟢 **Ciclo 05 completo.** 26/26 tareas cerradas (**76/76 pts**); la ruta crítica
+está **completa (7/7)** y no queda ninguna tarea en 📥 ni bloqueada. `EP-UI-405` (cobertura honesta)
+vuelve a estar **cerrada** tras la reapertura por defecto reproducido; `EP-UI-404`, la retirada de
+`EP-UI-406` y los nodos de la ruta crítica, cerrados. `PA-3` resuelta: `Exportar` se mantiene.
 
 El ciclo 04 quedó **cerrado y archivado** en `_docs/iterations/04-dibujo-referencia-operacion/`
 (20/20 tareas · 56/56 pts · 19/19 requisitos propios 🟢 · CI en verde).
 
 ## 2. Tablero Kanban
 
-### 📥 Backlog (1)
+### 📥 Backlog (0)
 
-| ID | Tarea | Épica | Prioridad | Est. | Deps |
-|----|-------|-------|-----------|------|------|
-| TASK-UI-417 | Evaluación de `Exportar` con decisión documentada | EP-UI-406 | Could | 2 | — |
+Ninguna.
 
 ### 🔨 Doing (0)
 
@@ -44,7 +42,7 @@ Ninguna.
 
 Ninguna.
 
-### ✅ Done (25)
+### ✅ Done (26)
 
 | ID | Tarea | Épica | Est. | Cerrada | Prueba |
 |----|-------|-------|------|---------|--------|
@@ -73,6 +71,7 @@ Ninguna.
 | TASK-UI-408 | `CMP-024 CandleContextMenu`: panel de la vela con cabecera `fecha · hora` y OHLC en dos columnas | EP-UI-403 | 5 | 2026-10-07 | `CandleContextMenu.tsx` (`role="dialog"`, `font-num`, reposicionamiento y cierre con retorno de foco) integrado por clic derecho en `ChartPane`; suite 578/578 sin regresiones (los tests de aceptación son de TASK-UI-409) |
 | TASK-UI-409 | Tests y accesibilidad de `CMP-024` | EP-UI-403 | 3 | 2026-10-07 | `CandleContextMenu.test.tsx` (5: valores, `Escape` con foco, clic fuera/dentro, 4 bordes sin desbordar, axe sin violaciones) + `ChartPane.test.tsx` (+1: clic derecho abre con la vela del cursor) |
 | TASK-TEC-402 | Accesibilidad de los tres componentes nuevos (axe + teclado) | EP-TEC-400 | 2 | 2026-10-07 | `ChartPane.test.tsx` (+2: axe sin violaciones con popover y menú abiertos; recorrido solo con teclado con foco devuelto). Se añade el disparador `Shift+F10`/`ContextMenu` de CMP-024 (WCAG 2.1.1) |
+| TASK-UI-417 | Evaluación de `Exportar` (SCR-006) con decisión documentada: **mantener** | EP-UI-406 | 2 | 2026-10-07 | `ADR-029` → «Evaluación de PA-3» (criterio de viabilidad + evidencia: `RF-015` vigente, 5 ficheros de test, modal sin duplicar superficie); `RF-411` 🟢 y `PA-3` resuelta |
 
 ### 🔴 Blocked (0)
 
@@ -94,7 +93,7 @@ graph LR
 `TASK-UI-405` incluidos). El tramo que dominó el ciclo fue `TASK-401 → TASK-402 → TASK-UI-403`
 (tres tareas de 5 puntos encadenadas: contrato v2, migración e integración del cambio de escala).
 
-**Puede empezar**: `TASK-UI-417` (la última tarea, sin dependencias).
+**Puede empezar**: ninguna — **backlog vacío** (26/26 cerradas).
 
 ## 4. Métricas
 
@@ -104,11 +103,11 @@ graph LR
 |-------|-------------|----------|
 | 03 — Mejoras UX | 35 | 121 pts |
 | 04 — Dibujo Referencia de Operación | 20 | 56 pts |
-| **05 — en ejecución** | **25/26 · 74 pts** | **76 pts** |
+| **05 — cerrado** | **26/26 · 76 pts** | **76 pts** |
 
 ### 4.2 Burn-down
 
-25 de 26 tareas cerradas (**96 %**), 74 de 76 pts; 1 tarea en 📥 (2 pts), 0 bloqueadas. La
+26 de 26 tareas cerradas (**100 %**), 76 de 76 pts; 0 tareas en 📥, 0 bloqueadas. La
 **ruta crítica está completa (7/7)**.
 
 ### 4.3 Lead time / cycle time
@@ -143,8 +142,8 @@ Ninguna.
 - **Preguntas abiertas que condicionan tareas**: `PA-1` **resuelta** (defecto de borde reproducido
   y corregido con la ventana semanal; bordes de viernes/domingo probados) · `PA-2` **resuelta**
   antes de `TASK-UI-415` (se confirma la retirada: la decisión D-3/ADR-029 no dependía de `RF-401`)
-  · `PA-3` (criterio de viabilidad de `Exportar`, `TASK-UI-417`) · `PA-4` (quién verifica los 12
-  frentes del insumo y con qué guion).
+  · `PA-3` **resuelta** (`Exportar` se **mantiene**; criterio y evidencia en ADR-029 → «Evaluación de
+  PA-3») · `PA-4` (quién verifica los 12 frentes del insumo y con qué guion) sigue abierta.
 - **0 commits locales sin empujar**: `origin/master` está al día tras el push manual
   (`_docs/git-profile.toml`); árbol limpio.
 
@@ -173,14 +172,17 @@ Ninguna.
 **Requisitos sin tareas:** ninguno. **Cobertura UX:** 3/3 pantallas afectadas (SCR-004 modificada,
 SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios.
 **Historias sin aceptación:** 9/9 pendientes (exigen QA `PASS` y `/sdd-track accept`); `HU-401`,
-`HU-402` y `HU-UI-403` ya tienen todas sus tareas ✅ y esperan `/sdd-qa`.
+`HU-402`, `HU-UI-403` y `HU-UI-406` ya tienen todas sus tareas ✅ y esperan `/sdd-qa`.
 
 ## 8. Próximas acciones sugeridas
 
-1. **`/sdd-cycle`** para tomar **`TASK-UI-417`** (*Evaluación de `Exportar` con decisión documentada*,
-   `EP-UI-406`, **Could**, 2 pts, sin deps): **última tarea** del ciclo; decide mantener o retirar
-   `SCR-006` con evidencia y lo registra en el AUDIT LOG.
-2. Sin commits pendientes de publicar: `origin/master` está al día (push manual por política).
+1. **Ciclo 05 cerrado (26/26 · 76/76 pts).** No queda ninguna tarea en la cola: `/sdd-cycle` no tiene
+   trabajo pendiente.
+2. **QA de historias:** `/sdd-qa` de las historias con sus tareas cerradas (`HU-401`, `HU-402`,
+   `HU-UI-403`, `HU-UI-406`) y `/sdd-track accept HU-XXX` con el `PASS` correspondiente.
+3. **Cierre de proyecto:** `/sdd-next status` (fase y coherencia) y, si se quiere informe completo,
+   `/sdd-audit --sdd`.
+4. **Publicar:** `git push origin master` (manual) con los commits locales del cierre.
 
 ## 9. Historial de cambios (append-only)
 
@@ -272,3 +274,6 @@ SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios
 | 2026-10-07 | TASK-TEC-402 | 📥 → 🔨 | Inicio de desarrollo (accesibilidad de los 3 componentes nuevos; se añade el disparador de teclado de CMP-024, RNF-403) |
 | 2026-10-07 | TASK-TEC-402 | 🔨 → 👀 | Tests verdes: 586/586 frontend en 60 archivos (+2) · axe-core sin violaciones con popover y menú abiertos · typecheck, eslint y prettier en verde · `quality_gate --level gate` PASS |
 | 2026-10-07 | TASK-TEC-402 | 👀 → ✅ | DoD verificada: axe sin violaciones en SCR-004 con la operación, el menú y el popover abiertos; recorrido **solo con teclado** (`Shift+F10` abre CMP-024, `Escape` cierra menú y popover devolviendo el foco al gráfico); contraste AA verificado por tokens (el zoom no altera colores). Se añade el disparador de teclado de CMP-024 (WCAG 2.1.1); prueba en `traceability.md`. RNF-403 🟢 |
+| 2026-10-07 | TASK-UI-417 | 📥 → 🔨 | Inicio de desarrollo (evaluación de `Exportar` con decisión documentada, RF-411/PA-3) |
+| 2026-10-07 | TASK-UI-417 | 🔨 → 👀 | Decisión documentada en `ADR-029` («Evaluación de PA-3»): **mantener** `SCR-006`; `RF-411` 🟢 · suite 586/586 sin regresiones · `quality_gate --level gate` PASS |
+| 2026-10-07 | TASK-UI-417 | 👀 → ✅ | DoD verificada: decisión mantener con el criterio de viabilidad (requisito vigente `RF-015`, cobertura de tests y no duplicar superficie) y la evidencia citada; sin requisito modificado; `PA-3` resuelta; prueba en `traceability.md`. **Ciclo 05 completo: 26/26 · 76/76 pts** |

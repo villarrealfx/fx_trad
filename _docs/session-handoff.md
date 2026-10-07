@@ -1,7 +1,7 @@
 # Handoff de Sesión
 
-> Estado con el **ciclo 05 en ejecución** (25/26 tareas) — 2026-10-07
-> **Ruta crítica completa (7/7).** Punto de continuación exacto: **`/sdd-cycle TASK-UI-417`**
+> Estado con el **ciclo 05 CERRADO** (26/26 tareas · 76/76 pts) — 2026-10-07
+> **Ruta crítica completa (7/7).** Punto de continuación exacto: **`/sdd-qa`** de las historias cerradas
 
 ## Dónde estamos
 
@@ -12,8 +12,8 @@ ADR-027/028/029/030, 9 contratos en `_docs/ux/` y el backlog con 10 épicas, 9 h
 
 | Métrica | Valor |
 |---------|-------|
-| Tareas cerradas | **25/26** (96 %) |
-| Cerradas | `TASK-401`, `TASK-402`, `TASK-403`, `TASK-UI-400`, `TASK-UI-401`, `TASK-UI-402`, `TASK-UI-403`, `TASK-UI-404`\*, `TASK-UI-405`, `TASK-UI-406`, `TASK-UI-407`, `TASK-UI-408`, `TASK-UI-409`, `TASK-404`, `TASK-405`, `TASK-UI-410`, `TASK-UI-411`, `TASK-UI-412`, `TASK-UI-413`, `TASK-UI-414`, `TASK-UI-415`, `TASK-UI-416`, `TASK-TEC-401`, `TASK-TEC-402`, `TASK-TEC-403` |
+| Tareas cerradas | **26/26** (100 %) |
+| Cerradas | `TASK-401`, `TASK-402`, `TASK-403`, `TASK-UI-400`, `TASK-UI-401`, `TASK-UI-402`, `TASK-UI-403`, `TASK-UI-404`\*, `TASK-UI-405`, `TASK-UI-406`, `TASK-UI-407`, `TASK-UI-408`, `TASK-UI-409`, `TASK-UI-417`, `TASK-404`, `TASK-405`, `TASK-UI-410`, `TASK-UI-411`, `TASK-UI-412`, `TASK-UI-413`, `TASK-UI-414`, `TASK-UI-415`, `TASK-UI-416`, `TASK-TEC-401`, `TASK-TEC-402`, `TASK-TEC-403` |
 | Ruta crítica | **7/7 · 26 pts — completa** |
 | Épicas cerradas | `EP-UI-401`, `EP-UI-404`, `EP-UI-405` y la retirada de `EP-UI-406` |
 | Historias aceptadas | 0/9 (exigen QA `PASS` y `/sdd-track accept`) |
@@ -25,11 +25,14 @@ ADR-027/028/029/030, 9 contratos en `_docs/ux/` y el backlog con 10 épicas, 9 h
 
 ## Punto exacto de continuación
 
-**`TASK-UI-417`** — *Evaluación de `Exportar` con decisión documentada* (`EP-UI-406`, **Could**, 2 pts,
-sin deps). **Última tarea del ciclo**: decide mantener o retirar `SCR-006` con evidencia de uso y el
-criterio acordado (`DP-3`), y lo registra en el AUDIT LOG del cierre.
+**Ciclo cerrado: no queda ninguna tarea en la cola.** Siguiente paso natural: **`/sdd-qa`** de las
+historias con sus tareas cerradas (`HU-401`, `HU-402`, `HU-UI-403`, `HU-UI-406`) y su registro con
+`/sdd-track accept HU-XXX` cuando el veredicto sea `PASS`.
 
-Después: cierre de ciclo (todas las tareas ✅) y `/sdd-qa` de las historias con la `Must` cerrada.
+Después:
+- **Revisión de cierre:** `/sdd-next status` y, si se quiere informe completo, `/sdd-audit --sdd`.
+- **Publicar:** `git push origin master` (manual) con los commits locales del cierre.
+- Deuda fuera del ciclo (`D-8`): `TECH-305`, `TECH-306`, `TECH-307` siguen abiertas en §8 del backlog.
 
 ## Decisiones de sesión (D-X)
 
@@ -58,6 +61,9 @@ Después: cierre de ciclo (todas las tareas ✅) y `/sdd-qa` de las historias co
 - **D-17 *(esta corrida)*:** `CMP-024` gana un **disparador de teclado** (`Shift+F10` / tecla
   `ContextMenu`) sobre la vela de la leyenda, porque el DoD de `TASK-TEC-402` exige un recorrido solo
   con teclado (WCAG 2.1.1). Es el único cambio de producción de una tarea `test` del ciclo.
+- **D-18 *(esta corrida)*:** `Exportar` (`SCR-006`) se **mantiene**: cierra el requisito vigente
+  `RF-015`, está cubierta por tests y no duplica la superficie de gráfico. Criterio y evidencia en
+  `ADR-029` → «Evaluación de PA-3».
 
 ## Preguntas abiertas (PA-X)
 
@@ -69,7 +75,8 @@ Después: cierre de ciclo (todas las tareas ✅) y `/sdd-qa` de las historias co
   laborable (6/594 días del histórico).
 - **PA-2 *(resuelta)***: se confirma la retirada de Multigráfico (D-14); evaluación con el código
   retirado en `ADR-029` → «Evaluación de PA-2» (era multi-TF, no multi-activo).
-- **PA-3:** criterio de viabilidad de `Exportar` (`TASK-UI-417`).
+- **PA-3 *(resuelta, D-18)***: `Exportar` (`SCR-006`) se **mantiene**; el criterio de viabilidad y la
+  evidencia quedan en `ADR-029` → «Evaluación de PA-3».
 - **PA-4**: ¿quién verifica los 12 frentes del insumo (KPI-401) y con qué guion manual?
 
 ## Estado técnico
@@ -94,8 +101,9 @@ Después: cierre de ciclo (todas las tareas ✅) y `/sdd-qa` de las historias co
 
 ## Qué haría yo ahora
 
-1. **`/sdd-cycle TASK-UI-417`** (arriba; última tarea: evaluación de `Exportar`).
-2. Al cerrarla, el ciclo queda completo (26/26) y toca QA de historias y reporte de cierre.
+1. **`/sdd-qa HU-401`**, `HU-402`, `HU-UI-403`, `HU-UI-406` (todas con tareas cerradas).
+2. Registrar la aceptación con `/sdd-track accept HU-XXX` cuando el veredicto sea `PASS`.
+3. Publicar con `git push origin master` (manual) cuando quieras.
 3. Sin commits pendientes de publicar (`origin/master` al día).
 
 ## Avisos
