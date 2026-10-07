@@ -17,7 +17,7 @@
 | % Completado | **100 %** | — |
 | Esfuerzo planificado | **76 pts** | — |
 | Ruta crítica | **7/7 · 26 pts** | — |
-| Historias aceptadas | **3/8** | — |
+| Historias aceptadas | **4/8** | — |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 **Ciclo 05 completo (26/26 · 76/76 pts) tras el arreglo del eje (D-19).**
@@ -291,3 +291,4 @@ existen 8: hallazgo de contrato pendiente de corregir.)*
 | 2026-10-07 | HU-401 | 👀 → ✅ Aceptada | QA `PASS` (`QAR-HU-401-001.md`) |
 | 2026-10-07 | HU-402 | 👀 → ✅ Aceptada | QA `PASS` (`QAR-HU-402-001.md`) |
 | 2026-10-07 | HU-UI-401 | 👀 → ✅ Aceptada | QA `PASS` (`QAR-HU-UI-401-002.md`) |
+| 2026-10-07 | HU-UI-402 | 👀 → ✅ Aceptada | QA `PASS` (`QAR-HU-UI-402-002.md`) |
