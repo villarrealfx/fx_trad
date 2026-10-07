@@ -16,7 +16,7 @@ deja de ser un artefacto del timeframe** y pasa a ser del **activo**, lo que obl
 `fxtrad.chart.v1.{activo}.{TF}` (RI-401, RNF-401). Alrededor de esa decisión se ordenan las demás:
 la **selección del gráfico** pasa a ser estado persistido con la URL como fuente preferente
 (RF-401, RI-402), se **retira Multigráfico** (RF-409) y se concentra la superficie del gráfico en
-un solo panel con selector de timeframe, eje en dos filas y menú contextual de vela (RF-406/407/408).
+un solo panel con selector de timeframe, eje temporal en **una fila** `{día} {HH:mm}` (D-19) y menú contextual de vela (RF-406/407/408).
 
 Un hallazgo del análisis merece registro: los dibujos **ya están anclados en `(tiempo, precio)`**
 (`from`/`to` y `position` son `PriceTimePoint`), así que compartirlos entre timeframes **no exige
@@ -99,8 +99,8 @@ graph TD
 | `state/use-chart-config` | Adapta el hook al documento por activo: firma `load(symbol)` / `save(symbol, input)`, expone y actualiza `selection` | RI-402, RF-401 |
 | `app/routes.ts` | `parseChartQuery` con **fallback** al documento persistido; `ROUTES` y `ScreenId` sin `SCR-005` | RF-401, RF-409 |
 | `App.tsx` | Resuelve la selección (URL > persistido > defecto), la escribe al cambiar de TF y elimina la rama de Multigráfico | RF-401, RF-403, RF-409 |
-| `components/ChartPane` | Selector de TF junto a Indicadores; eje X en dos filas; menú contextual de vela; entrada numérica de Entrada/SL | RF-403, RF-406, RF-407, RF-408, RF-410 |
-| `charting/axis-format` | Formateo del eje temporal en dos filas (fecha / `hh:mm`) con umbral de separación | RF-407 |
+| `components/ChartPane` | Selector de TF junto a Indicadores; eje X **nativo** (`{día} {HH:mm}`, D-19); menú contextual de vela; entrada numérica de Entrada/SL | RF-403, RF-406, RF-407, RF-408, RF-410 |
+| `charting/axis-format` | Formateo del eje temporal (`{día} {HH:mm}`, una fila) y de la cabecera «fecha · hora» del menú contextual | RF-407, RF-408 |
 | `components/MultiChart/` | **Eliminado**: carpeta, ruta, entrada de navegación y tests | RF-409 |
 | `charting/drawings` | Conserva `DRAWING_KINDS`, `isOverlayShape` y `colorForShape`; **cede** el contrato de documento a `state/chart-config` | Q-STR-02, RF-404 |
 | `styles/tokens.ts` + `tokens.css` | `drawLine` con contraste ≥4.5:1 sobre `#0A0C10` | RNF-405 |
@@ -233,7 +233,7 @@ graph LR
 | R-403 | El aviso de cobertura es correcto y se oculta información | Medio | Diagnosticar antes de tocar (PA-1); si es correcto, se conserva con texto más claro |
 | R-404 | El fallback persistido oculta un enlace explícito (`/chart?symbol=X`) | Medio | Precedencia estricta URL > persistido; test de que un query explícito gana |
 | R-405 | El documento v2 se escribe antes de terminar la migración y queda a medias | Bajo | `save` atómico por documento y migración completa antes del primer `save` |
-| R-406 | El eje de dos filas se solapa a zoom de 2 años | Bajo | Umbral de separación en `axis-format` + captura al cierre |
+| R-406 | El eje X se solapa a zoom de 2 años | Bajo | **Retirado (D-19):** el eje de dos filas se descartó; el formato de una fila lo gestiona la propia librería |
 
 ## 11. Índice de ADRs
 

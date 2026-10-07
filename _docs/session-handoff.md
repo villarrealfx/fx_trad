@@ -5,10 +5,10 @@
 
 ## Dónde estamos
 
-**Ciclo 05 (`mejoras-ux-grafico`) con la ruta crítica cerrada.** La planificación está cerrada
+**Ciclo 05 (`mejoras-ux-grafico`) cerrado y aceptado.** La planificación está cerrada
 —`plan.md`, `requirements.md` (19 requisitos `4xx`), `glossary.md`, `architecture.md` con
-ADR-027/028/029/030, 9 contratos en `_docs/ux/` y el backlog con 10 épicas, 9 historias y 26 tareas
-(76 pts)— y el tablero avanza por las tareas fuera de ruta crítica.
+ADR-027/028/029/030, 9 contratos en `_docs/ux/` y el backlog con 10 épicas, 8 historias y 26 tareas
+(76 pts)— y el tablero queda **26/26 tareas ✅ y 8/8 historias aceptadas**.
 
 | Métrica | Valor |
 |---------|-------|
@@ -17,7 +17,7 @@ ADR-027/028/029/030, 9 contratos en `_docs/ux/` y el backlog con 10 épicas, 9 h
 | Ruta crítica | **7/7 · 26 pts — completa** |
 | Épicas cerradas | `EP-UI-401`, `EP-UI-404`, `EP-UI-405` y la retirada de `EP-UI-406` |
 | Historias aceptadas | **8/8** ✅ (QA `PASS` + `/sdd-track accept`) |
-| Commits locales sin empujar | **0** — `origin/master` al día tras el push manual |
+| Commits locales sin empujar | **pendientes de tu `git push origin master`** (manual por política) |
 | Gates | `quality_gate --level gate` = **PASS** · backend **546/546 + 2 skip** · frontend **577/577** en 59 archivos |
 
 \* `TASK-UI-404` se cerró **sin código** (RF-405 ya estaba cubierto, DP-7); sus 2 pts pasaron a
@@ -107,17 +107,21 @@ Pendientes (no bloqueantes):
 
 ## Qué haría yo ahora
 
-1. **`/sdd-qa HU-401`**, `HU-402`, `HU-UI-403`, `HU-UI-406` (todas con tareas cerradas).
-2. Registrar la aceptación con `/sdd-track accept HU-XXX` cuando el veredicto sea `PASS`.
-3. Publicar con `git push origin master` (manual) cuando quieras.
-3. Sin commits pendientes de publicar (`origin/master` al día).
+1. **Publicar** con `git push origin master` (manual) — quedan commits locales del cierre y de las
+   aceptaciones.
+2. **Opcional:** `/sdd-next status` (diagnóstico de cierre) y `/sdd-audit --sdd` (informe completo).
+3. **Siguiente iteración:** `/sdd-next new-cycle <nombre>` cuando se aborde la deuda de `CR-002`
+   (`TECH-305/306/307`) o `PA-4`.
 
 ## Avisos
 
-- **Ninguna tarea está bloqueada**; `TASK-TEC-402` **espera** a `TASK-UI-409` (menú contextual).
-- `RF-411` (`TASK-UI-417`, `Exportar`) es la única `Could` del ciclo: primer candidato a recorte
-  (`DP-3`).
+- **Ninguna tarea bloqueada**; el ciclo quedó **26/26** con todas las historias **aceptadas**.
+- **Limitación de entorno:** `make test`/`make ci` no funcionan aquí (`uv` sin caché escribible,
+  `Read-only file system` en `~/.cache/uv`); usar `backend/.venv/bin/python -m pytest` y `npm test`.
+- **`RF-407` (D-19):** el eje X es de **una fila** sobre el eje nativo; no reintroducir la franja
+  (`ChartTimeAxis`): estiraba el canvas del overlay y rompía precisión/edición. Hay una guardia de
+  regresión en `ChartPane.test.tsx`.
 - Deuda menor declarada, **sin tarea**: verificación de RNF-404 en navegador real y el doble clic
   sobre la etiqueta de nivel de `CMP-025` (canvas, no verificable en jsdom).
-- `_docs/ux/` de `SCR-005` está marcado como **retirado**; los de `SCR-006` siguen vigentes hasta la
-  evaluación de `TASK-UI-417`.
+- `_docs/ux/` de `SCR-005` está marcado como **retirado**; los de `SCR-006` siguen vigentes
+  (`PA-3`/D-18: `Exportar` se mantiene).

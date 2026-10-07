@@ -22,7 +22,7 @@
 | CMP-011 | Tab | — | **pierde su uso en producción** al retirarse SCR-005; se conserva como componente del kit (con tests) |
 | CMP-012 | StatusBanner | success, error, warning | sin cambios; **cambia la condición** que dispara el aviso de cobertura (RF-402), no el componente |
 | CMP-013 | ProgressBar | determinate | sin cambios |
-| CMP-014 | Modal | export, confirm | sin cambios; **bajo evaluación** con SCR-006 (RF-411) |
+| CMP-014 | Modal | export, confirm | sin cambios; `SCR-006` **se mantiene** (RF-411/D-18) |
 | CMP-015 | Toast | success, error | sin cambios |
 | CMP-016 | IndicatorForm | popover | sin cambios |
 | CMP-017 | ChartHeader | — | **ampliado**: aloja CMP-023 a la izquierda del botón de Indicadores |

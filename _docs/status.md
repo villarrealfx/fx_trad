@@ -128,15 +128,15 @@ fila; pendiente solo la re-verificación manual del usuario.)*
 
 ### 🟡 Advertencias
 
-- **`RF-407` resuelto por secuencia (D-16)**: `TASK-UI-406` se ejecutó **antes** que `TASK-UI-401`
-  porque el DoD de este último exige el formateador de dos filas, que vive en el primero. La
-  inversión de dependencia ya no está pendiente; `RF-407` queda 🔵 hasta los tests de `TASK-UI-407`.
+- **`RF-407` cerrado tras D-19**: el intento de dos filas se descartó en la verificación manual
+  (rompía la manipulación del eje y la geometría del overlay) y se volvió al **formato original de
+  una fila** sobre el eje nativo. D-16 (orden `TASK-UI-406` → `TASK-UI-401`) quedó **sin efecto**.
 - **`PA-1` cerrada tras reapertura**: `RF-402` vuelve a 🟢 con la ventana semanal de cierre
   `[viernes 19:00, lunes 00:00)` UTC y los bordes de viernes/domingo probados en pantalla. Límite
   conocido: los festivos en día laborable siguen avisando (6/594 días del histórico).
-- **El ciclo planifica 76 pts frente a los 56 del ciclo 04.** Si el plazo de 2 semanas (RNF-007)
-  aprieta, el orden de recorte lo fija `DP-3`: primero `RF-411` (Could, `TASK-UI-417`) y después los
-  Should de UI pura (eje, menú contextual, precios numéricos, retirada).
+- **`D-8`: la deuda de la auditoría `CR-002` sigue fuera del ciclo 05** (`TECH-305`, `TECH-306`,
+  `TECH-307`). El ciclo no apretó el plazo (RNF-007): no hubo recortes de MoSCoW y `RF-411` se cerró
+  con decisión de **mantener** `Exportar`.
 - **Deuda fuera del ciclo 05** (`D-8`): `TECH-305` (motivos de waiver imprecisos), `TECH-306`
   (límites de tamaño: 8 funciones >50 líneas, `ChartPane.tsx` 874) y `TECH-307` (contrato de
   logging autocontradictorio). Provienen de la auditoría `CR-002`, en CHANGES_REQUESTED.
@@ -145,8 +145,8 @@ fila; pendiente solo la re-verificación manual del usuario.)*
   antes de `TASK-UI-415` (se confirma la retirada: la decisión D-3/ADR-029 no dependía de `RF-401`)
   · `PA-3` **resuelta** (`Exportar` se **mantiene**; criterio y evidencia en ADR-029 → «Evaluación de
   PA-3») · `PA-4` (quién verifica los 12 frentes del insumo y con qué guion) sigue abierta.
-- **0 commits locales sin empujar**: `origin/master` está al día tras el push manual
-  (`_docs/git-profile.toml`); árbol limpio.
+- **Commits locales listos para publicar** (el push es manual, `_docs/git-profile.toml`); árbol
+  limpio. Comando: `git push origin master`.
 
 ### 🟢 Informativas
 
@@ -155,6 +155,10 @@ fila; pendiente solo la re-verificación manual del usuario.)*
   épicas y 26 tareas.
 - **Gate de calidad en verde**: `quality_gate.py --level gate` = **PASS** (0 incumplidos, 25
   marcas waived, 0 `not_measured`) con `_docs/quality-profile.toml`.
+- **Limitación de entorno (no del producto):** `make test`/`make ci` fallan en esta máquina porque
+  `uv` no puede escribir su caché (`Read-only file system` en `~/.cache/uv`). Las suites se ejecutan
+  con los runners equivalentes: `backend/.venv/bin/python -m pytest` y `npm test`. Queda como nota
+  operativa para el CI local (GitHub Actions no depende de esa caché).
 - **Deuda promovida**: `TECH-302` pasa a `RNF-405` (la cubren `TASK-UI-400/401`) y `TECH-303` pasa
   a `RF-410` (la cubren `TASK-UI-410/411/412`): dejan de ser deuda sin requisito.
 - **`TASK-UI-000…003`** (design system, componentes base, layout/routing, accesibilidad base) siguen
@@ -171,9 +175,9 @@ fila; pendiente solo la re-verificación manual del usuario.)*
 | **Total del ciclo 05** | **19** | **19** | **0** ✅ |
 
 **Requisitos sin tareas:** ninguno. **Cobertura UX:** 3/3 pantallas afectadas (SCR-004 modificada,
-SCR-005 retirada, SCR-006 en evaluación); SCR-001/002/003 heredadas sin cambios.
+SCR-005 retirada, SCR-006 **mantenida** por D-18); SCR-001/002/003 heredadas sin cambios.
 **Historias aceptadas: 8/8** (QA `PASS` + `/sdd-track accept`); `HU-UI-401` y `HU-UI-402` con
-**re-QA** tras D-19 (`QAR-…-002`). *(El backlog declara 9 historias; existen 8 — corregir el recuento.)*
+**re-QA** tras D-19 (`QAR-…-002`).
 
 ## 8. Próximas acciones sugeridas
 

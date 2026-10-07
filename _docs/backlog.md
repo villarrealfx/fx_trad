@@ -9,13 +9,14 @@
 | Métrica | Valor |
 |---------|-------|
 | Épicas | **10** — dominio 2 · UI 7 · técnica 1 |
-| Historias | **9** |
+| Historias | **8** |
 | Tareas | **26** — `frontend` 13 · `test` 10 · `docs` 3 |
 | Esfuerzo total | **76 pts** (XS=1 … XL=8) |
-| Ruta crítica | **7 tareas · 24 pts** |
+| Ruta crítica | **7 tareas · 26 pts** |
 | Requisitos cubiertos | **19/19** (`RF-401…411`, `RNF-401…405`, `RI-401/402`, `RX-401`) |
 | Cobertura UX | **3/3 pantallas afectadas** (SCR-004, SCR-005, SCR-006) |
 | Deuda promovida | `TECH-302` → RNF-405 · `TECH-303` → RF-410 |
+| Estado | **✅ Cerrado (2026-10-07)** — 26/26 tareas · 76/76 pts · **8/8 historias aceptadas** |
 
 El ciclo 04 cerró con 20 tareas / 56 pts. Este ciclo planifica **76 pts** en el plazo de 2 semanas
 de RNF-007 asumiendo que el MoSCoW (DP-3) define el orden de recorte si el plazo aprieta.

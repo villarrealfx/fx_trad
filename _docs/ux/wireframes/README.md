@@ -2,7 +2,7 @@
 
 > Bocetos por pantalla. Un archivo por pantalla; fuente de verdad para `/sdd-implement`.
 > Ciclo 05 (`mejoras-ux-grafico`):
-> - **SCR-004** (Gráfico) se **modifica**: selector de timeframe, eje X en dos filas, menú
+> - **SCR-004** (Gráfico) se **modifica**: selector de timeframe, eje X nativo (una fila, D-19), menú
 >   contextual de vela y popover numérico de Entrada/SL.
 > - **SCR-005** (Multigráfico) se **retira** (RF-409, ADR-029): el archivo queda como acta de
 >   retirada.

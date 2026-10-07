@@ -18,7 +18,7 @@ WCAG 2.1 **AA** (app personal local, sin obligación legal; adoptado como buena 
 | SCR-003 | ✅ | ✅ radios + selects | ✅ | ✅ | N/A | Sin cambios (heredado) |
 | SCR-004 | ✅ **incl. `color-draw-line` corregido a 5.25:1** | ✅ **mejora**: el precio exacto ya se fija por teclado (RF-410); crear la figura sigue requiriendo ratón | ✅ selector TF (`radiogroup`), menú (`dialog`), LiveRegion con valores | ✅ | N/A | Popover `aria-expanded`; `×3` paneles flotantes con foco gestionado |
 | ~~SCR-005~~ | — | — | — | — | — | **Retirada** (RF-409, ADR-029) |
-| SCR-006 | ✅ | ✅ modal focus trap | ✅ dialog | ✅ | ✅ preview alt | **Bajo evaluación** (RF-411): se mantiene lo heredado |
+| SCR-006 | ✅ | ✅ modal focus trap | ✅ dialog | ✅ | ✅ preview alt | **Mantenida** (RF-411/D-18): cierra `RF-015` y está cubierta por tests |
 
 ## Contrato nuevo: el timeframe se anuncia y se recorre con el teclado
 
@@ -110,7 +110,7 @@ Se heredan las del ciclo 04 (con las referencias a Multigráfico retiradas) y se
 - [ ] **Contraste automatizado (axe-core)** sobre `#0A0C10` y `#161B22` con la operación visible,
       el menú abierto y el popover abierto.
 - [ ] **`color-draw-line` `#7D8590`:** el test de contraste de tokens pasa con ≥4.5:1.
-- [ ] **Zoom 200 %:** el eje de dos filas no se solapa y el menú contextual sigue dentro del
+- [ ] **Zoom 200 %:** el eje X (una fila, D-19) no se solapa y el menú contextual sigue dentro del
       viewport.
 - [ ] **Errores del popover numérico** con `role="alert"` asociado al campo y `Aplicar`
       deshabilitado.

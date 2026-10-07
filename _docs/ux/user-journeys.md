@@ -97,7 +97,7 @@ graph LR
 
 - **Leer cifras del eje es indirecto**: el menú da el OHLC exacto (5 decimales, `font-num`) en el
   punto señalado, sin depender de la posición del cursor.
-- **El eje pasa a dos filas** (RF-407): la fecha y la hora se leen sin apelotonarse, lo que hace
+- **El eje X usa el formato original de una fila** `{día} {HH:mm}` (RF-407, **D-19**): la etiqueta sigue siendo legible, lo que hace
   el eje útil para situar la vela antes de abrir el menú.
 
 ### Decisión de UX
@@ -112,7 +112,7 @@ graph LR
 
 | Journey heredado | Cambio en el ciclo 05 |
 |------------------|------------------------|
-| **J-002** Cargar el gráfico | El eje X pasa a **dos filas** (fecha / hora, RF-407) y el aviso de cobertura solo aparece cuando la serie no cubre el rango (RF-402). |
+| **J-002** Cargar el gráfico | El eje X muestra `{día} {HH:mm}` en **una fila** (RF-407, D-19) y el aviso de cobertura solo aparece cuando la serie no cubre el rango (RF-402). |
 | **J-009** Ajustar la operación y leer el desenlace | Se cierra la brecha de precisión: con la figura seleccionada, el popover numérico (CMP-025) permite fijar Entrada y SL por teclado con 5 decimales y deshacer (RF-410). |
 | **J-010** Conservar la operación entre sesiones | La persistencia deja de ser por activo+TF: pasa a un **documento v2 por activo** con migración aditiva desde v1 (RI-401, RNF-401). |
 

@@ -1,7 +1,7 @@
 # Trazabilidad: fxtrad — Ciclo 05 (Mejoras UX del Gráfico y Cierre de Deuda)
 
 > Última actualización: 2026-10-07
-> Ciclo actual: **05** — `mejoras-ux-grafico` (en ejecución: 16/26 tareas · ruta crítica 7/7)
+> Ciclo actual: **05** — `mejoras-ux-grafico` (**cerrado**: 26/26 tareas · 8/8 historias aceptadas · 18/19 requisitos 🟢)
 > **Leyenda:** 🟡 pendiente · 🔵 en progreso (diseño y tareas asignadas) · 🟢 completo · 🔴 bloqueado
 
 ## 1. Estado de la trazabilidad

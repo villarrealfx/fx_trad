@@ -80,7 +80,7 @@ Prioridad MoSCoW por frente del insumo:
 | 2.c.2 dibujos compartidos por activo | RF-404 | **Must** | Cambia el modelo de persistencia (v2) |
 | 2.c.3 indicadores adaptados al TF | RF-405 | **Must** | Lista del activo recalculada por TF |
 | 2.c.4 selector de TF arriba | RF-406 | **Must** | `1m, 5m, 15m, 1h, 4h, 1d` |
-| 2.c.5 eje X en dos filas | RF-407 | Should | |
+| 2.c.5 eje X con el formato original de una fila (**D-19**) | RF-407 | Should | |
 | 2.c.6 clic derecho → OHLC | RF-408 | Should | |
 | 2.d retirada de Multigráfico | RF-409 | Should | Modifica RF-310 del ciclo 04 |
 | TECH-303 entrada numérica | RF-410 | Should | Deja de ser deuda sin requisito |
@@ -147,7 +147,7 @@ recupera), RX-401 (sin dependencias nuevas).
 | R-402 | Retirar Multigráfico rompe RF-310 y deja tests huérfanos | M | M | M×M | Modificación explícita de RF-310 en `traceability.md`; borrar ruta + pantalla + tests en la misma tarea |
 | R-403 | El aviso de cobertura es correcto y eliminarlo oculta datos incompletos | M | M | M×M | Diagnosticar primero (PA-1); si es correcto, se conserva con texto más claro |
 | R-404 | El selector de TF desincroniza estado, URL y persistencia | M | M | M×M | La URL sigue siendo la fuente de la selección (RF-401); test de ida y vuelta |
-| R-405 | El eje X en dos filas se solapa a zoom de 2 años | B | B | B×B | Formateo con umbral de separación; captura al cierre |
+| R-405 | El eje X en dos filas se solapa a zoom de 2 años | B | B | B×B | **Retirado (D-19):** se mantiene el formato de una fila de la librería; sin franja propia |
 | R-406 | El cambio de TF degrada el render con la figura activa | B | M | B×M | Recalcular solo las velas del TF visible; frame budget de RNF-403 |
 
 ## 8. Matriz de navegación por rol
