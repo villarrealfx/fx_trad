@@ -17,7 +17,7 @@
 | % Completado | **100 %** | — |
 | Esfuerzo planificado | **76 pts** | — |
 | Ruta crítica | **7/7 · 26 pts** | — |
-| Historias aceptadas | **1/8** | — |
+| Historias aceptadas | **2/8** | — |
 | Días sin movimiento | 0 | — |
 
 **Estado general:** 🟢 **Ciclo 05 completo (26/26 · 76/76 pts) tras el arreglo del eje (D-19).**
@@ -289,3 +289,4 @@ existen 8: hallazgo de contrato pendiente de corregir.)*
 | 2026-10-07 | TASK-UI-401 | 🔨 → 👀 → ✅ | Tests reescritos: contraste de `drawLine` (5.25:1 / 4.64:1) y formato original `1 00:15`; sin aserciones del eje de dos filas |
 | 2026-10-07 | TASK-UI-407 | 🔨 → 👀 → ✅ | Tests del eje original (6) y guardia de geometría del overlay en `ChartPane.test.tsx` (85); `RF-407` 🟢. **Ciclo 05: 26/26 · 76/76 pts** |
 | 2026-10-07 | HU-401 | 👀 → ✅ Aceptada | QA `PASS` (`QAR-HU-401-001.md`) |
+| 2026-10-07 | HU-402 | 👀 → ✅ Aceptada | QA `PASS` (`QAR-HU-402-001.md`) |

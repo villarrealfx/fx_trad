@@ -57,6 +57,7 @@ El histórico vivo de los ciclos 01–04 (35 requisitos, con su prueba y su comm
 | Alcance | Veredicto | Informe |
 |---------|-----------|---------|
 | HU-401 | ✅ PASS | `QAR-HU-401-001.md` |
+| HU-402 | ✅ PASS | `QAR-HU-402-001.md` |
 
 ## 6. Modificaciones a requisitos previos
 
