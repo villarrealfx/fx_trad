@@ -1,7 +1,7 @@
 # Handoff de Sesión
 
-> Estado con el **ciclo 05 en ejecución** (22/26 tareas) — 2026-10-07
-> **Ruta crítica completa (7/7).** Punto de continuación exacto: **`/sdd-cycle TASK-UI-408`**
+> Estado con el **ciclo 05 en ejecución** (23/26 tareas) — 2026-10-07
+> **Ruta crítica completa (7/7).** Punto de continuación exacto: **`/sdd-cycle TASK-UI-409`**
 
 ## Dónde estamos
 
@@ -12,8 +12,8 @@ ADR-027/028/029/030, 9 contratos en `_docs/ux/` y el backlog con 10 épicas, 9 h
 
 | Métrica | Valor |
 |---------|-------|
-| Tareas cerradas | **22/26** (85 %) |
-| Cerradas | `TASK-401`, `TASK-402`, `TASK-403`, `TASK-UI-400`, `TASK-UI-401`, `TASK-UI-402`, `TASK-UI-403`, `TASK-UI-404`\*, `TASK-UI-405`, `TASK-UI-406`, `TASK-UI-407`, `TASK-404`, `TASK-405`, `TASK-UI-410`, `TASK-UI-411`, `TASK-UI-412`, `TASK-UI-413`, `TASK-UI-414`, `TASK-UI-415`, `TASK-UI-416`, `TASK-TEC-401`, `TASK-TEC-403` |
+| Tareas cerradas | **23/26** (88 %) |
+| Cerradas | `TASK-401`, `TASK-402`, `TASK-403`, `TASK-UI-400`, `TASK-UI-401`, `TASK-UI-402`, `TASK-UI-403`, `TASK-UI-404`\*, `TASK-UI-405`, `TASK-UI-406`, `TASK-UI-407`, `TASK-UI-408`, `TASK-404`, `TASK-405`, `TASK-UI-410`, `TASK-UI-411`, `TASK-UI-412`, `TASK-UI-413`, `TASK-UI-414`, `TASK-UI-415`, `TASK-UI-416`, `TASK-TEC-401`, `TASK-TEC-403` |
 | Ruta crítica | **7/7 · 26 pts — completa** |
 | Épicas cerradas | `EP-UI-401`, `EP-UI-404`, `EP-UI-405` y la retirada de `EP-UI-406` |
 | Historias aceptadas | 0/9 (exigen QA `PASS` y `/sdd-track accept`) |
@@ -25,12 +25,12 @@ ADR-027/028/029/030, 9 contratos en `_docs/ux/` y el backlog con 10 épicas, 9 h
 
 ## Punto exacto de continuación
 
-**`TASK-UI-408`** — *`CMP-024 CandleContextMenu`* (`EP-UI-403`, Should, 5 pts, `frontend`, sin deps).
-Única `Should` ready tras cerrar el eje; el menú contextual de vela (RF-408).
+**`TASK-UI-409`** — *Tests y accesibilidad del menú* (`EP-UI-403`, Should, 3 pts, `test`, dep
+`TASK-UI-408` ✅). Única `Should` ready: cierra `RF-408` con los tests de aceptación del menú.
 
 Después:
-- `TASK-UI-409` (tests y accesibilidad del menú, Should, 3) → **`TASK-TEC-402`** (Must, a11y y teclado).
 - `TASK-UI-417` (evaluación de `Exportar`, Could, 2).
+- **`TASK-TEC-402`** (accesibilidad de los tres componentes nuevos, Must) tras `TASK-UI-409`.
 
 ## Decisiones de sesión (D-X)
 
@@ -82,6 +82,7 @@ Después:
 | Precios numéricos | `CMP-025` integrado: botón «Precios» anclado, `Aplicar`/`Enter` por el command stack, anuncio en `LiveRegion` |
 | Eje X | **franja propia de dos filas** (`ChartTimeAxis`, 40 px): eje nativo oculto; `formatAxisDate`/`formatAxisTime`/`selectAxisRows` con umbral (TASK-UI-400/406) |
 | Eje X (tokens) | `AXIS_TOKENS` con `xFormatTop`/`xFormatBottom`/`axisRowGap: 12` y `drawLine` `#7D8590` (TASK-UI-400) |
+| Menú contextual | `CMP-024` integrado por **clic derecho** en `ChartPane`: `role="dialog"`, OHLC a 5 decimales, reposiciona y devuelve el foco (TASK-UI-408) |
 | Multigráfico | **retirado** (ADR-029): sin ruta, sin `MultiChart`, sin `chart-sync`, sin props `sync` |
 | Fuera de alcance | `TECH-305` (waivers), `TECH-306` (límites de tamaño), `TECH-307` (logging) — auditoría `CR-002` |
 | Backend | intacto (546 tests + 2 skip) — el ciclo es 100 % frontend |
@@ -91,8 +92,8 @@ Después:
 
 ## Qué haría yo ahora
 
-1. **`/sdd-cycle TASK-UI-408`** (arriba; menú contextual de vela).
-2. Después quedan `TASK-UI-409` → `TASK-TEC-402` y `TASK-UI-417`.
+1. **`/sdd-cycle TASK-UI-409`** (arriba; tests y accesibilidad del menú contextual).
+2. Después quedan `TASK-UI-417` y `TASK-TEC-402`.
 3. Sin commits pendientes de publicar (`origin/master` al día).
 
 ## Avisos

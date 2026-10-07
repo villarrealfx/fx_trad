@@ -1,0 +1,54 @@
+/*
+ * Menú contextual de vela (CMP-024, RF-408).
+ * Fondo y sombra estáticos (sin `backdrop-filter`) para no comprometer los 60 FPS
+ * (RNF-403). Solo tokens del design system (RNF-204).
+ */
+.candle-context-menu {
+  position: absolute;
+  z-index: 5;
+  min-width: 168px;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-popover);
+  color: var(--color-text);
+  font-family: var(--font-family);
+  font-size: var(--font-small-size);
+}
+
+.candle-context-menu:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 1px;
+}
+
+.candle-context-menu__header {
+  margin: 0 0 var(--space-xs);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.candle-context-menu__ohlc {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2px var(--space-md);
+  margin: 0;
+}
+
+.candle-context-menu__cell {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.candle-context-menu__label {
+  color: var(--color-text-muted);
+}
+
+.candle-context-menu__value {
+  margin: 0;
+  font-size: var(--font-num-size);
+  font-weight: var(--font-num-weight);
+  font-variant-numeric: tabular-nums;
+}

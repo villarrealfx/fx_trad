@@ -228,7 +228,7 @@ de RNF-007 asumiendo que el MoSCoW (DP-3) define el orden de recorte si el plazo
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-UI-408 | `CMP-024 CandleContextMenu`: panel con cabecera `fecha · hora` y OHLC en dos columnas | frontend | 5 | — | `role="dialog"` + `aria-label`; 5 decimales con `font-num`; reposiciona si no cabe (nunca recorta); `Escape`/clic fuera cierran y devuelven el foco; fondo y sombra estáticos | 📥 |
+| TASK-UI-408 | `CMP-024 CandleContextMenu`: panel con cabecera `fecha · hora` y OHLC en dos columnas | frontend | 5 | — | `role="dialog"` + `aria-label`; 5 decimales con `font-num`; reposiciona si no cabe (nunca recorta); `Escape`/clic fuera cierran y devuelven el foco; fondo y sombra estáticos | ✅ |
 | TASK-UI-409 | Tests y accesibilidad del menú | test | 3 | TASK-UI-408 | Abre con los valores de la vela; cierra por `Escape` y clic fuera; foco devuelto; reposicionamiento en los 4 bordes; axe-core sin violaciones; no desborda el viewport | 📥 |
 
 ### EP-UI-404: Precios numéricos de la operación (SCR-004)

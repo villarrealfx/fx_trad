@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
   type KeyboardEvent,
+  type MouseEvent,
 } from 'react';
 import {
   ColorType,
@@ -41,6 +42,7 @@ import { useDrawingEdit } from '../../charting/use-drawing-edit';
 import { useDrawingHistory } from '../../charting/use-drawing-history';
 import { createFrameBatcher, type FrameBatcher } from '../../performance/frame-batch';
 import { composeChartCanvas, type ExportScale } from '../../export';
+import CandleContextMenu from '../CandleContextMenu/CandleContextMenu';
 import ChartHeader from '../ChartHeader/ChartHeader';
 import ChartToolbar, { type ChartToolDescriptor } from '../ChartToolbar/ChartToolbar';
 import ChartTimeAxis from './ChartTimeAxis';
@@ -202,6 +204,9 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
   /** Marcas del eje X propio, en dos filas (RF-407, TASK-UI-406). */
   const [axisRows, setAxisRows] = useState<AxisRows>({ top: [], bottom: [] });
   const axisRef = useRef<HTMLDivElement | null>(null);
+  /** Vela fijada por el clic derecho y su anclaje en pantalla (CMP-024, RF-408). */
+  const [contextCandle, setContextCandle] = useState<Candle | null>(null);
+  const [contextAnchor, setContextAnchor] = useState<PixelPoint | null>(null);
   const candlesRef = useRef<ReadonlyArray<Candle>>([]);
   const [markers, setMarkers] = useState<ReadonlyArray<MarkerShape>>([]);
   const [activeTool, setActiveTool] = useState<ActiveTool>(DEFAULT_MARKER_TOOL);
@@ -438,6 +443,29 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
       chart.priceScale(RSI_PRICE_SCALE_ID).applyOptions({ scaleMargins: RSI_SCALE_MARGINS });
     }
   }, [status, indicators]);
+
+  /** Abre el menú contextual de vela con el clic derecho (CMP-024, RF-408). */
+  function handleContextMenu(event: MouseEvent<HTMLDivElement>): void {
+    const host = hostRef.current;
+    const chart = chartRef.current;
+    if (host === null || chart === null) return;
+    // Nunca aparece el menú nativo del navegador sobre el gráfico.
+    event.preventDefault();
+    const rect = host.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const time = chart.timeScale().coordinateToTime(x);
+    if (time === null) return;
+    const candle = candlesRef.current.find((item) => item.time === Number(time));
+    if (candle === undefined) return;
+    setContextCandle(candle);
+    setContextAnchor({ x, y: event.clientY - rect.top });
+  }
+
+  /** Cierra el menú contextual de vela (estado `context-closing`). */
+  function closeContextMenu(): void {
+    setContextCandle(null);
+    setContextAnchor(null);
+  }
 
   /** Aplica zoom a la vista actual alrededor del centro visible (atajo +/−). */
   function applyZoom(factor: number): void {
@@ -795,6 +823,12 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
     if (status === 'success') recomputeAxis();
   }, [status, recomputeAxis]);
 
+  // Al cambiar de TF el menú contextual se cierra (CMP-024, RF-408).
+  useEffect(() => {
+    setContextCandle(null);
+    setContextAnchor(null);
+  }, [timeframe]);
+
   return (
     <div className="chart-pane" data-shapes={overlayShapes.length}>
       <ChartHeader
@@ -824,7 +858,12 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
           aria-label={`Gráfico de velas ${symbol} ${timeframe}`}
           tabIndex={0}
           onKeyDown={handleKeyDown}
-          onPointerDownCapture={drawingEditHandlers.onPointerDown}
+          onContextMenu={handleContextMenu}
+          onPointerDownCapture={(event) => {
+            // El clic derecho abre el menú contextual: no inicia edición (RF-408).
+            if (event.button !== 0) return;
+            drawingEditHandlers.onPointerDown(event);
+          }}
           onPointerMoveCapture={drawingEditHandlers.onPointerMove}
           onPointerUpCapture={drawingEditHandlers.onPointerUp}
           onPointerCancelCapture={drawingEditHandlers.onPointerCancel}
@@ -836,6 +875,14 @@ const ChartPane = forwardRef<ChartPaneHandle, ChartPaneProps>(function ChartPane
           selectedShapeId={selectedShapeId}
           canvasRef={overlayCanvasRef}
         />
+        {contextCandle !== null && contextAnchor !== null && (
+          <CandleContextMenu
+            candle={contextCandle}
+            anchor={contextAnchor}
+            onClose={closeContextMenu}
+            returnFocusRef={hostRef}
+          />
+        )}
         {selectedOperation !== null && operationAnchor !== null && (
           <button
             type="button"
