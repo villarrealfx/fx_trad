@@ -110,6 +110,22 @@ describe('selectAxisRows (RF-407, umbral de separación)', () => {
   });
 });
 
+describe('formato en dos filas desde los tokens (TASK-UI-401, RF-407)', () => {
+  it('los patrones del eje son los del design system y `xFormat` ya no existe', () => {
+    expect(AXIS_TOKENS.xFormatTop).toBe('{día}');
+    expect(AXIS_TOKENS.xFormatBottom).toBe('{HH:mm}');
+    expect(AXIS_TOKENS.axisRowGap).toBe(12);
+    expect('xFormat' in AXIS_TOKENS).toBe(false);
+  });
+
+  it('rinden la fecha y la hora de ejemplo del contrato UX', () => {
+    const moment = utc(2025, 11, 18, 0, 15);
+
+    expect(formatAxisDate(moment)).toBe('18-nov-25');
+    expect(formatAxisTime(moment)).toBe('00:15');
+  });
+});
+
 describe('PRICE_FORMAT (RF-207)', () => {
   it('usa 5 decimales y paso mínimo de 0.00001', () => {
     expect(PRICE_FORMAT.precision).toBe(AXIS_TOKENS.priceDecimals);

@@ -156,6 +156,37 @@ describe('tokens de la operación (ciclo 04)', () => {
   });
 });
 
+describe('contraste y formato del eje (ciclo 05, TASK-UI-401)', () => {
+  it('la línea de eje `drawLine` cumple AA sobre los dos fondos (RNF-405)', () => {
+    // Medido: 5.25:1 sobre el chart (#0A0C10) y 4.64:1 sobre la superficie (#161B22).
+    const onChart = contrastRatio(COLOR_TOKENS.drawLine, COLOR_TOKENS.bg);
+    const onSurface = contrastRatio(COLOR_TOKENS.drawLine, COLOR_TOKENS.surface);
+
+    expect(onChart).toBeGreaterThanOrEqual(4.5);
+    expect(onSurface).toBeGreaterThanOrEqual(4.5);
+    expect(onChart).toBeCloseTo(5.25, 2);
+    expect(onSurface).toBeCloseTo(4.64, 2);
+  });
+
+  it('el anti-drift exige el valor en TS y en CSS a la vez', () => {
+    // El token del eje y su custom property deben coincidir: editar solo un
+    // fichero deja de cumplir el contrato (la comparación de CSS es insensible
+    // a mayúsculas porque el espejo se lee en minúsculas).
+    expect(COLOR_TOKENS.drawLine).toBe('#7D8590');
+    expect(css).toContain(`--color-draw-line: ${COLOR_TOKENS.drawLine.toLowerCase()};`);
+
+    expect(AXIS_TOKENS.xFormatTop).toBe('{día}');
+    expect(AXIS_TOKENS.xFormatBottom).toBe('{HH:mm}');
+    expect(AXIS_TOKENS.axisRowGap).toBe(12);
+    expect(css).toContain(`--axis-x-format-top: '${AXIS_TOKENS.xFormatTop.toLowerCase()}';`);
+    expect(css).toContain(`--axis-x-format-bottom: '${AXIS_TOKENS.xFormatBottom.toLowerCase()}';`);
+    expect(css).toContain(`--axis-row-gap: ${AXIS_TOKENS.axisRowGap}px;`);
+
+    // El formato combinado del ciclo 04 se retiró (RF-407).
+    expect('xFormat' in AXIS_TOKENS).toBe(false);
+  });
+});
+
 describe('contrastRatio', () => {
   it('devuelve 21 para negro sobre blanco', () => {
     expect(contrastRatio('#FFFFFF', '#000000')).toBeCloseTo(21, 1);
