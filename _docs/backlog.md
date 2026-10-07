@@ -330,6 +330,7 @@ de RNF-007 asumiendo que el MoSCoW (DP-3) define el orden de recorte si el plazo
 | TASK-UI-415 | Retirada: `/multichart` fuera de `ROUTES` y `SCR-005` fuera de `ScreenId`; rama de `App.tsx`; borrar `components/MultiChart/` y `charting/chart-sync.ts`; quitar props `sync`/`syncId` de `ChartPane` | frontend | 3 | — | `tsc` y `eslint` limpios; no queda ninguna referencia a `/multichart`, `SCR-005` ni `chart-sync` en `src/`; la Operación sigue accesible en `Gráfico` | ✅ |
 | TASK-UI-416 | Limpieza de tests y ajuste del recuento | test | 2 | TASK-UI-415 | Se borran los tests de `MultiChart`, de `chart-sync` y los 2 de `ChartPane` con `sync`; el recuento real de tests se anota en el commit; no quedan `skip` huérfanos | ✅ |
 | TASK-UI-417 | Evaluación de `Exportar` (SCR-006) con decisión documentada | docs | 2 | — | Decisión mantener/retirar con la evidencia de uso y el criterio acordado; si es «retirar», se registra el requisito modificado y la tarea que la ejecuta; si es «mantener», se anota el motivo; entra en el AUDIT LOG del cierre | ✅ |
+- **Aceptación:** ✅ PASS · `QAR-HU-UI-406-001.md` · 2026-10-07
 
 ## 5. Épicas técnicas (transversales)
 

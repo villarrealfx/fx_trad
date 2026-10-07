@@ -63,6 +63,7 @@ El histórico vivo de los ciclos 01–04 (35 requisitos, con su prueba y su comm
 | HU-UI-403 | ✅ PASS | `QAR-HU-UI-403-001.md` |
 | HU-UI-404 | ✅ PASS | `QAR-HU-UI-404-001.md` |
 | HU-UI-405 | ✅ PASS | `QAR-HU-UI-405-001.md` |
+| HU-UI-406 | ✅ PASS | `QAR-HU-UI-406-001.md` |
 
 ## 6. Modificaciones a requisitos previos
 
