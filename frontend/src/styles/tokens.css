@@ -16,7 +16,7 @@
   --color-down: #ef5350;
   --color-warning: #c9b458;
   --color-focus: #58a6ff;
-  --color-draw-line: #4a6572;
+  --color-draw-line: #7d8590;
   --color-draw-rect: #d6c7ae;
   --color-draw-fib: #ddb2ac;
   --color-draw-op-sl: #ef5350;
@@ -54,10 +54,12 @@
   --shadow-modal: 0 12px 32px rgba(0, 0, 0, 0.6);
   --shadow-popover: 0 8px 24px rgba(0, 0, 0, 0.5);
 
-  /* Formato de ejes (RF-206, RF-207) */
+  /* Formato de ejes (RF-206, RF-207, RF-407) */
   --axis-price-decimals: 5;
   --axis-price-side: right;
-  --axis-x-format: '{día} {HH:mm}';
+  --axis-x-format-top: '{día}';
+  --axis-x-format-bottom: '{HH:mm}';
+  --axis-row-gap: 12px;
   --axis-x-tick: 15m;
 
   /* Offset de marcas compra/venta (RF-208) */

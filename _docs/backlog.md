@@ -128,7 +128,7 @@ de RNF-007 asumiendo que el MoSCoW (DP-3) define el orden de recorte si el plazo
 
 | ID | Tarea | Capa | Est. | Deps | DoD | Estado |
 |----|-------|------|------|------|-----|--------|
-| TASK-UI-400 | `tokens.ts` + `tokens.css`: `color-draw-line` de `#4A6572` a **`#7D8590`**; `AXIS_TOKENS` con `xFormatTop: '{día}'`, `xFormatBottom: '{HH:mm}'` y `axisRowGap: 12px`, retirando `xFormat` | frontend | 2 | — | Anti-drift verde; ningún componente escribe el color literal; `xFormat` ya no existe | 📥 |
+| TASK-UI-400 | `tokens.ts` + `tokens.css`: `color-draw-line` de `#4A6572` a **`#7D8590`**; `AXIS_TOKENS` con `xFormatTop: '{día}'`, `xFormatBottom: '{HH:mm}'` y `axisRowGap: 12px`, retirando `xFormat` | frontend | 2 | — | Anti-drift verde; ningún componente escribe el color literal; `xFormat` ya no existe | ✅ |
 | TASK-UI-401 | Tests de contraste y de formato del eje | test | 2 | TASK-UI-400 | `color-draw-line` ≥4.5:1 sobre `#0A0C10` (**5.25:1**) y sobre `#161B22` (**4.64:1**); el anti-drift falla si se edita un solo fichero; `xFormatTop`/`xFormatBottom` rinden `18-nov-25` / `00:15` | 📥 |
 
 ### EP-UI-401: Cambio de escala en el gráfico (SCR-004)

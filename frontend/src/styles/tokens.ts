@@ -21,7 +21,7 @@ export const COLOR_TOKENS = {
   down: '#EF5350',
   warning: '#C9B458',
   focus: '#58A6FF',
-  drawLine: '#4A6572',
+  drawLine: '#7D8590',
   drawRect: '#D6C7AE',
   drawFib: '#DDB2AC',
   drawOpSl: '#EF5350',
@@ -76,16 +76,19 @@ export const SHADOW_TOKENS = {
 } as const;
 
 /**
- * Formato de los ejes del gráfico (RF-206, RF-207).
+ * Formato de los ejes del gráfico (RF-206, RF-207, RF-407).
  *
  * `priceDecimals` fija la precisión del eje Y; `priceSide` lo ubica a la
- * derecha (vista de usuario); `xFormat` combina día + hora:minuto de apertura
- * de la vela; `xTick` es la separación de marcas del eje X.
+ * derecha (vista de usuario); el eje X usa **dos filas** (ciclo 05): `xFormatTop`
+ * para la fecha y `xFormatBottom` para `hh:mm`, separadas por `axisRowGap`
+ * (px, consumo en canvas); `xTick` es la separación de marcas del eje X.
  */
 export const AXIS_TOKENS = {
   priceDecimals: 5,
   priceSide: 'right',
-  xFormat: '{día} {HH:mm}',
+  xFormatTop: '{día}',
+  xFormatBottom: '{HH:mm}',
+  axisRowGap: 12,
   xTick: '15m',
 } as const;
 
